@@ -1,4 +1,4 @@
-tree_id_new,tree_id_old,site_id,transect_id,spp,dist_x,dist_y,status,dbh,height_m,hdm_pa,b_lc,dmr_l,dmr_m,dmr_u,broom_pa,broom_pos,broom_stem,crown_class,dam_agent_1,dam_agent_2,path_ind_1,path_ind_2,crown_cond,notes
+﻿tree_id_new,tree_id_old,site_id,transect_id,spp,dist_x,dist_y,status,dbh,height_m,hdm_pa,b_lc,dmr_l,dmr_m,dmr_u,broom_pa,broom_pos,broom_stem,crown_class,dam_agent_1,dam_agent_2,path_ind_1,path_ind_2,crown_cond,notes
 r1,w60,mi_1,136,Hw,-0.6,2.4,LS,20.9,17.2,Y,Y,0,1,0,N,-,-,C,,,-,-,1,
 r2,w118,mi_1,136,Hw,-0.4,3.3,DS,6.1,,N,-,-,-,-,-,-,-,-,,,-,-,-,
 r3,w10,mi_1,136,Hw,1.4,3.0,LS,8.7,,N,-,-,-,-,-,-,-,S,,,-,-,1,

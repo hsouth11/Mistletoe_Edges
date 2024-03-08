@@ -1,0 +1,25 @@
+site_id,tr_az,tr_leng,old_transect_id,transect_id,fl_az_device,fl_az1,fl_sl1,fl_az2,fl_sl2,tr_dist1,tr_sl1,tr_dist2,tr_sl2,infect_dist,notes
+mi_1,146,21.5,1,136,compass,116,-15.3,NA,NA,21.5,-10.2,NA,NA,13.5,NA
+mi_1,146,21.5,2,140,compass,109,-12,NA,NA,21.5,-11.4,NA,NA,16.2,NA
+mi_1,146,21.5,3,141,compass,112,-13.5,NA,NA,21.5,-11.7,NA,NA,10.3,NA
+mi_2,67,15.8,1,122,compass,231,-18,NA,NA,11,16.4,15.8,0,15.2,These transects were layed out as slope distance (were supposed to be horizontal distance) and slopes were taken uphill. Actual horizontal distance of tr=15.8m. fl_az adjusted 180 deg and slopes made negative.
+mi_2,67,16.2,2,124,compass,250,-11.4,NA,NA,16.2,11.3,NA,NA,15.6,These transects were layed out as slope distance (were supposed to be horizontal distance) and slopes were taken uphill. Actual horizontal distance of tr=16.2m. fl_az adjusted 180 deg and slopes made negative.
+mi_2,67,16.2,3,129,compass,229,-9,NA,NA,16.2,10.9,NA,NA,16.5,These transects were layed out as slope distance (were supposed to be horizontal distance) and slopes were taken uphill. Actual horizontal distance of tr=16.2m. fl_az adjusted 180 deg and slopes made negative.
+mk_1,180,21.3,NA,100,compass,90,-22.5,NA,NA,9.4,5.1,21.3,-8.1,19.7,NA
+mk_1,180,21.3,NA,101,compass,93,-9.7,NA,NA,16.8,2.4,21.3,-9,20.3,NA
+mk_1,180,21.3,NA,102,rangefinder,147,-7,NA,NA,21.3,-4.6,NA,NA,0,fl_az for this transect has a decimal on paper datasheet (147.7) - makes me think it was done with rangefinder?
+mk_2,0,30.5,NA,103,compass,33,-26.3,NA,NA,30.5,-23.4,NA,NA,27.3,NA
+mk_2,0,30.5,NA,109,compass,20,-26.4,NA,NA,30.5,-26.2,NA,NA,28.4,NA
+mk_2,0,30.5,NA,110,rangefinder,16,-28.7,NA,NA,30.5,-24.9,NA,NA,33.6,NA
+mk_3,305,21.9,NA,115,rangefinder,139,-14,NA,NA,21.9,10.6,NA,NA,4.3,Extended transect length because transect ends in big blowdown patch. Wanted to record a few trees on other side to see ho wlong it takes for infection to jump patch;
+mk_3,305,15,NA,120,rangefinder,109,-13.5,NA,NA,15,11.3,NA,NA,6.9,Blowdown patch 5-10m;
+mk_3,305,15,NA,121,rangefinder,107,-15.3,NA,NA,15,14.5,NA,NA,0,NA
+cr_1,310,32.8,NA,164,rangefinder,89,-33.1,90,-10.3,12.2,16.5,32.8,6.3,21.5,Chose transect length from one middle transect (165) because mature edge wraps around transects in horshoe shape and transect 164 might have infection originating from mature trees we did not map. Fall line slope 1 is from transect start; fall line slope 2 from transect end.
+cr_1,310,32.8,NA,165,rangefinder,125,-36.5,82,-11.5,10,25.1,32.8,10.3,32.3,Chose transect length from one middle transect (165) because mature edge wraps around transects in horshoe shape and transect 164 might have infection originating from mature trees we did not map. Fall line slope 1 is from transect start; fall line slope 2 from transect end.
+cr_1,310,32.8,NA,166,rangefinder,110,-45.7,91,-16.6,7.2,27.5,32.8,13.8,33.5,Chose transect length from one middle transect (165) because mature edge wraps around transects in horshoe shape and transect 164 might have infection originating from mature trees we did not map. Fall line slope 1 is from transect start; fall line slope 2 from transect end.
+cr_2,10,24.6,NA,219,rangefinder,185,-35.5,75,-4.6,10.7,27.8,24.6,-1.2,15.5,Mature component and edge of regen slope steeply down into creek. Took two slopes for fall line and transect to capture that. Fall line slope 1 is from transect start; fall line slope 2 from transect end.
+cr_2,10,24.6,NA,221,rangefinder,197,-34.9,85,-3.6,6.1,20.4,24.6,-1.1,17.5,Mature component and edge of regen slope steeply down into creek. Took two slopes for fall line and transect to capture that. Fall line slope 1 is from transect start; fall line slope 2 from transect end.
+cr_2,10,24.6,NA,222,rangefinder,185,-37.6,108,-5.1,24.6,-2.6,NA,NA,15.7,Mature component and edge of regen slope steeply down into creek. This transect starts right at slope change. Two fall line slopes to capture change but only one transect slope because it isn't affected by the slope change. Transect goes right through a cedar stump
+ph_1,260,15,NA,258,rangefinder,222,-37.8,NA,NA,15,-37.3,NA,NA,15,Transect end stake hard to place. Actual transect end 0.5m farther down slope than stake. Tree heavily painted with red marks end.
+ph_1,260,15,NA,259,rangefinder,239,-38.5,NA,NA,15,-39.2,NA,NA,0,NA
+ph_1,260,15,NA,266,rangefinder,230,-38.1,NA,NA,15,-34.5,NA,NA,0,NA
