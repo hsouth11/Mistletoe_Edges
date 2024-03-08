@@ -163,6 +163,7 @@ stem_mapped_XY <- trees %>%
                      xcenter = plot_x_utm, ycenter = plot_y_utm, crs = crs,
                      shape_file = TRUE))
 
+#Convert it to a spatial object:
 stem_mapped_XY <- st_as_sf(stem_mapped_XY)
 
 stem_mapped_XY <- mutate(dmr_u=case_when(dmr_u=- ~ 0, .default = dmr_u))
