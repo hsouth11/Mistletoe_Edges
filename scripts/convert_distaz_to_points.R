@@ -2,7 +2,7 @@
 # Original: September 14, 2023 - Liam Irwin (liamakirwin@gmail.com)
 # For Hanno
 # Updated: Feb 2024, by Hanno Southam (hannosoutham@gmail.com)
-test
+
 library(sf)
 library(sp)
 library(dplyr)
@@ -113,7 +113,7 @@ regen <- regen %>% mutate(corr_az_deg = tr_az - az_adj)
 
 # Join mature tree and regen tree data. 
 # Change transect_id=plot_id - just need an id column to match stem mapping points. Before joining, filter data to remove columns from data processing. 
-regen <- regen %>% rename(plot_id = transect_id) %>% select(!c(tr_az:dist_y_h, az_adj))
+regen <- regen %>% rename(plot_id = transect_id) %>% select(!c(tr_dist1:dist_y_h, az_adj))
 # Change
 trees <- full_join(mature, regen)
 
@@ -163,11 +163,13 @@ stem_mapped_XY <- trees %>%
                      xcenter = plot_x_utm, ycenter = plot_y_utm, crs = crs,
                      shape_file = TRUE))
 
+class(stem_mapped_XY)
 #Convert it to a spatial object:
 stem_mapped_XY <- st_as_sf(stem_mapped_XY)
 
-stem_mapped_XY <- mutate(dmr_u=case_when(dmr_u=- ~ 0, .default = dmr_u))
-stem_mapped_XY <- stem_mapped_XY %>% mutate(c(dmr_l, dmr_m, dmr_u), as.numeric)
+# Write your spatial features as a shapefile (or change extension to whatever you prefer)
+st_write(stem_mapped_XY, './exports/trees.geojson', append = FALSE)
+?st_write
 
 mi_1 <- stem_mapped_XY %>% filter(site_id=="mi_1")
 ggplot(mi_1, aes(color=hdm_pa)) + geom_sf() + scale_color_manual(values = c("blue", "green", "red"))

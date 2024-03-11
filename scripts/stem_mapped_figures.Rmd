@@ -1,0 +1,113 @@
+---
+title: "Stem Mapped Figures"
+author: "Hanno Southam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+Read in data and load packages. "trees.geojson" is the output of the convert_distaz_to_points.R script. It contains all of the mature and regen trees as points and their associated data (e.g. DMR). "transect data.csv" is the data associated with egen regen transect. 
+```{r}
+library(tidyverse)
+library(sf)
+library(tmap)
+
+trees <- read_sf("./exports/trees.geojson")
+transects <- read_csv()
+class(trees)
+```
+
+Do some data formatting. 
+```{r}
+summary(trees)
+
+#Sort by site_id
+trees <- trees %>% arrange(site_id)
+
+# Convert to factor: spp, status, hdm_pa, b_lc, broom_pa, broom_stem, crown class, crown_cond, outside_10
+trees <- trees %>% mutate(across(c(spp, status, hdm_pa, b_lc, broom_pa, broom_pos, broom_stem, crown_class, crown_cond, outside_10), ~ as.factor(.)))
+
+#Convert DMR ratings to numerics.  
+trees <- trees %>%
+  mutate(across(c(dmr_l, dmr_m, dmr_u), ~ case_when(. == "-" ~ as.numeric(NA),
+    TRUE ~ as.numeric(.))))
+str(trees) #check
+
+```
+
+Add a tree level dmr = dmr_l + dmr_m + dmr_u
+```{r}
+trees <- trees %>% mutate(dmr = (dmr_l + dmr_m + dmr_u))
+```
+
+Do some plotting. 
+```{r}
+#Rotate the points at each site so they are all oriented with the mature component running vertically and the transects running horizontally. Code adapted with help from Chat GPT from: https://stackoverflow.com/questions/31873151/how-rotate-map-in-r
+
+# Calculate vector with how many degrees each site needs to be rotated. Want each transect to be az = 90deg. 
+degrees <- trees %>% 
+  mutate(rot_deg = case_when(tr_az<90 ~ (-1)*(tr_az-90), #define degree adjustment
+                             tr_az>90 ~ (-1)*(tr_az-90))) %>% 
+  filter(str_detect(tree_id_new, "r")) %>% #filter to just regen trees
+  group_by(site_id) %>% 
+  distinct(rot_deg) %>% # get unique values for each site
+  pull(rot_deg) #make vector
+
+#Split sf object into a vector of objects, one for each site
+sites <- split(trees, f=trees[["site_id"]])
+
+#Define a function to rotate a spatial feature. x = an sf object, degrees=the number of degrees to rotate the object
+rotate_sf <- function(x, degrees) {
+  x = sf::st_combine(x)
+  center_coords <- st_centroid(x) #define the centre coordinates as the centroid
+  radians <- degrees * pi/180 #convert to radians
+  transform_matrix <- matrix(c(cos(radians), sin(radians), #the transformation matrix
+                                 -sin(radians), cos(radians)), 2, 2)
+  rot_site <- ((x - center_coords) %*% transform_matrix) + center_coords #the actual math
+  return(rot_site) #output
+    }
+
+#Map function applies another function to each item in a vector successively. Here, it rotates each site level sf object by the number of degrees in the "degrees" vector. 
+rotated_coords <- Map(rotate_sf, sites, degrees)
+
+#Extract the rotated x and y coordinates into a dataframe
+rotated_coords <- lapply(rotated_coords, st_coordinates) %>% #extracr coordinates from sf object
+  lapply(as.data.frame) #make each site a dataframe
+rotated_coords <- do.call(rbind, rotated_coords) %>% rename(x_utm_rot = X, y_utm_rot = Y) %>% select(x_utm_rot, y_utm_rot) #combine dataframes together
+
+#Then make new dataframe with original data and add the new rotated coordiantes. 
+trees_rot <- trees %>% st_drop_geometry() %>% as.data.frame()
+trees_rot <- mutate(trees_rot, x_utm_rot = rotated_coords$x_utm_rot, y_utm_rot = rotated_coords$y_utm_rot)
+class(trees_rot)
+
+#Make the new dataframe an sf object. crs=3005 is BC NAD 1983 BC Albers. 
+trees_rot <- st_as_sf(trees_rot, coords = c("x_utm_rot", "y_utm_rot"), crs = 3005)
+
+tm_shape(trees_rot) + tm_symbols(size = "dbh", col = "dmr") + tm_facets(by = "site_id")
+
+
+
+  
+  
+st_rotate(test, test$rot_deg)
+
+countries = rnaturalearth::ne_countries(scale = 10,returnclass = 'sf')
+saved_crs = st_crs(countries)
+
+points = st_sf(name=c('point1'), geometry = st_sfc(st_point(c(2,37)), crs = saved_crs))
+
+countries_rotated = countries %>%
+  st_ellide_rotate(-20, center_coords = c(2,37))
+# applying an affine transformation nulls the CRS for some reason, so reset it here
+st_crs(countries_rotated) <- saved_crs
+
+png("./figures/trees_8Mar2024.png", width = 1000, height = 500)
+tm_shape(trees) + tm_symbols(size = "dbh", col = "dmr") + tm_facets(by = "site_id")
+dev.off()
+
+?tm_facets
+
+?tm_symbols
+
+ggplot(trees, aes()) + geom_spatial_point(trees, aes())
+?geom_spatial_point
+```
+
