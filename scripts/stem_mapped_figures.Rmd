@@ -4,26 +4,34 @@ author: "Hanno Southam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-Read in data and load packages. "trees.geojson" is the output of the convert_distaz_to_points.R script. It contains all of the mature and regen trees as points and their associated data (e.g. DMR). "transect data.csv" is the data associated with egen regen transect. 
+Read in data and load packages. 
+"trees.geojson" is the output of the convert_distaz_to_points.R script. It contains all of the mature and regen trees as points and their associated data (e.g. DMR).  
+"hdm_trimbpoints_2023.csv" are the trimble points from 2023 that have been cleaned up in GIS following the workflow in: /Users/hannosoutham/OneDrive - UBC (1)/Msc/GIS/ArcGIS_data_analysis_v1/hdm_arcgis_workflow.docx
+"transect data_c.csv" is the cleaned transect data. Its used here to add the transect distances to the plot. 
 ```{r}
 library(tidyverse)
 library(sf)
 library(tmap)
 
 trees <- read_sf("./exports/trees.geojson")
-transects <- read_csv()
-class(trees)
+trimb <- read_csv("./exports/trimb_processed.csv")
+tran <- read_csv('./data/cleaned/transect data_c.csv')
+?read_sf
 ```
 
-Do some data formatting. 
+Format the trees dataset. 
 ```{r}
+class(trees)
 summary(trees)
+
+#check CRS, should be BC Albers NAD83 
+st_crs(trees) #check CRS, should be BC Albers NAD83 = 3005
 
 #Sort by site_id
 trees <- trees %>% arrange(site_id)
 
 # Convert to factor: spp, status, hdm_pa, b_lc, broom_pa, broom_stem, crown class, crown_cond, outside_10
-trees <- trees %>% mutate(across(c(spp, status, hdm_pa, b_lc, broom_pa, broom_pos, broom_stem, crown_class, crown_cond, outside_10), ~ as.factor(.)))
+trees <- trees %>% mutate(across(c(site_id, spp, status, hdm_pa, b_lc, broom_pa, broom_pos, broom_stem, crown_class, crown_cond, outside_10), ~ as.factor(.)))
 
 #Convert DMR ratings to numerics.  
 trees <- trees %>%
@@ -31,18 +39,37 @@ trees <- trees %>%
     TRUE ~ as.numeric(.))))
 str(trees) #check
 
-```
-
-Add a tree level dmr = dmr_l + dmr_m + dmr_u
-```{r}
+#Add a tree level dmr = dmr_l + dmr_m + dmr_u
 trees <- trees %>% mutate(dmr = (dmr_l + dmr_m + dmr_u))
 ```
 
-Do some plotting. 
+Format the trimb dataset
 ```{r}
-#Rotate the points at each site so they are all oriented with the mature component running vertically and the transects running horizontally. Code adapted with help from Chat GPT from: https://stackoverflow.com/questions/31873151/how-rotate-map-in-r
+class(trimb)
+summary(trimb)
 
-# Calculate vector with how many degrees each site needs to be rotated. Want each transect to be az = 90deg. 
+#Convert to sf object
+trimb <- st_as_sf(trimb, coords = c("plot_x_utm", "plot_y_utm"), crs=3005)
+class(trimb)
+
+#Check CRS is BC Albers NAD83 = 3005
+st_crs(trimb)
+
+#Sort by site_id
+trimb <- trimb %>% arrange(site_id)
+
+#Convert to pt_type and site_id to factor
+trimb <- trimb %>% mutate(across(c(site_id, pt_type), ~ as.factor(.)))
+str(trimb$pt_type)
+str(trimb$site_id)
+
+#Convert pt_id to a numeric
+trimb <- trimb %>% mutate(pt_id = as.numeric(pt_id))
+```
+
+Rotate the points at each site (in both trees and trimb) so they are all oriented with the mature component running vertically and the transects running horizontally. Code adapted with help from Chat GPT from: https://stackoverflow.com/questions/31873151/how-rotate-map-in-r
+```{r}
+#Calculate vector with how many degrees each site needs to be rotated. Want each transect to be az = 90deg. 
 degrees <- trees %>% 
   mutate(rot_deg = case_when(tr_az<90 ~ (-1)*(tr_az-90), #define degree adjustment
                              tr_az>90 ~ (-1)*(tr_az-90))) %>% 
@@ -51,63 +78,137 @@ degrees <- trees %>%
   distinct(rot_deg) %>% # get unique values for each site
   pull(rot_deg) #make vector
 
-#Split sf object into a vector of objects, one for each site
-sites <- split(trees, f=trees[["site_id"]])
+#Define a list of centre coordinate corresponding to each site. Use the centroid of all the stem mapped trees.
+center_coords <- trees %>% group_by(site_id) %>% 
+  summarise(geometry = st_centroid(st_combine(geometry))) %>% st_geometry()
 
-#Define a function to rotate a spatial feature. x = an sf object, degrees=the number of degrees to rotate the object
-rotate_sf <- function(x, degrees) {
-  x = sf::st_combine(x)
-  center_coords <- st_centroid(x) #define the centre coordinates as the centroid
+#Split datasets, one for each site. This results in list of sf objects, one for each site. For the point datasets (trees and trimb) all the points at a site have been combined to a single feature (corresponding to a sf class change of POINT to MULTIPOINT). 
+pts_trees <- trees %>% group_by(site_id) %>% 
+  summarise(geometry=st_combine(geometry)) %>% st_geometry()
+pts_trimb <- trimb %>% group_by(site_id) %>% 
+  summarise(geometry=st_combine(geometry)) %>% st_geometry()
+
+#Define a function to rotate a spatial feature. x = an sf object, center_coords = the centre coordinates to anchor each site, degrees=the number of degrees to rotate the object
+rotate_sf <- function(x, center_coords, degrees) {
   radians <- degrees * pi/180 #convert to radians
   transform_matrix <- matrix(c(cos(radians), sin(radians), #the transformation matrix
                                  -sin(radians), cos(radians)), 2, 2)
-  rot_site <- ((x - center_coords) %*% transform_matrix) + center_coords #the actual math
+  rot_site <- ((x - center_coords) * transform_matrix) + center_coords #the actual math
   return(rot_site) #output
-    }
+}
 
-#Map function applies another function to each item in a vector successively. Here, it rotates each site level sf object by the number of degrees in the "degrees" vector. 
-rotated_coords <- Map(rotate_sf, sites, degrees)
+#Map function applies another function to each item in a vector successively. Here, it rotates each site level MULTIPOINT sf object by the number of degrees in the "degrees" vector. 
+trees_rot <- Map(rotate_sf, pts_trees, center_coords, degrees)
 
-#Extract the rotated x and y coordinates into a dataframe
-rotated_coords <- lapply(rotated_coords, st_coordinates) %>% #extracr coordinates from sf object
-  lapply(as.data.frame) #make each site a dataframe
-rotated_coords <- do.call(rbind, rotated_coords) %>% rename(x_utm_rot = X, y_utm_rot = Y) %>% select(x_utm_rot, y_utm_rot) #combine dataframes together
+trimb_rot <- Map(rotate_sf, pts_trimb, center_coords, degrees)
 
-#Then make new dataframe with original data and add the new rotated coordiantes. 
-trees_rot <- trees %>% st_drop_geometry() %>% as.data.frame()
-trees_rot <- mutate(trees_rot, x_utm_rot = rotated_coords$x_utm_rot, y_utm_rot = rotated_coords$y_utm_rot)
-class(trees_rot)
+#This output is a new list of sf multipoint objects. Combine these back together into a dataframe of x, y coordinates. 
+trees_rot <- do.call(rbind, trees_rot) #do.call applies function to each item in a list
+trees_rot <- as.data.frame(trees_rot) %>% rename(X=V1, Y=V2)
 
-#Make the new dataframe an sf object. crs=3005 is BC NAD 1983 BC Albers. 
-trees_rot <- st_as_sf(trees_rot, coords = c("x_utm_rot", "y_utm_rot"), crs = 3005)
+trimb_rot <- do.call(rbind, trimb_rot) #do.call applies function to each item in a list
+trimb_rot <- as.data.frame(trimb_rot) %>% rename(X=V1, Y=V2)
 
-tm_shape(trees_rot) + tm_symbols(size = "dbh", col = "dmr") + tm_facets(by = "site_id")
+#Then associate back to the attribute data associated with each point
+trees_att <- trees %>% st_drop_geometry()
+trees_rot <- trees_att %>% mutate(X=trees_rot$X, Y=trees_rot$Y) 
+trees_rot <- st_as_sf(trees_rot, coords = c("X", "Y"), crs=3005)
+
+trimb_att <- trimb %>% st_drop_geometry()
+trimb_rot <- trimb_att %>% mutate(X=trimb_rot$X, Y=trimb_rot$Y) 
+trimb_rot <- st_as_sf(trimb_rot, coords = c("X", "Y"), crs=3005)
+```
+
+Make the stem mapped plot. 
+```{r}
+#Create the footprints of the each site:
+tran_pts <- trimb_rot %>% #filter trimb_points to just transect starts and ends
+  filter(pt_type %in% c("r adj tran start", "tran end"))
+rot_points <- rbind(select(trees_rot, site_id), #combine trees_rot and trimb_rot datasets
+                    select(tran_pts, site_id))
+rot_points <- rot_points %>% group_by(site_id) %>% #split rotated points into separate datasets for each site
+  summarise(geometry=st_combine(geometry)) %>% st_geometry()
+fp_rot <- Map(st_bbox, rot_points) #create bounding box around each of these sets of points
+fp_rot <- Map(st_as_sfc, fp_rot) #turn bbox object into sfc object
+fp_rot <- Map(st_as_sf, fp_rot) #trun sfc object into sf object
+fp_rot <- do.call(rbind, fp_rot) #combine sf objects to single object
+sites <- trees %>% st_drop_geometry() %>% distinct(site_id) #get column of site_ids
+fp_rot <- fp_rot %>% mutate(site_id=sites$site_id) #add comlumn of site_ids to sf object
+st_crs(fp_rot) = 3005 #define crs
+
+#Create the transect lines for the site
+tran_pts <- trimb_rot %>% #filter to just transect starts and ends
+  filter(pt_type %in% c("r adj tran start", "tran end"))
+tran_line_att <- tran_pts %>% st_drop_geometry() #save attributes
+tran_lines <- tran_pts %>% group_by(pt_id) %>% # draw lines between start and end. Creates two lines one from start to end and one from end to start.
+  summarize() %>% st_cast("LINESTRING")
+tran_lines <- st_buffer(tran_lines, dist = 2.5, endCapStyle = 'FLAT') # buffer
+tran_lines <- left_join(tran_lines, tran_line_att, by="pt_id")
+tran_lines <- tran_lines %>% filter(pt_type=="tran end")
+tran_lines <- left_join(tran_lines, select(tran, transect_id, tr_leng), by=c("pt_id"="transect_id"))
+
+?st_cast
+#Create seperate layers for start points and end points
+start_pts <- trimb_rot %>% filter(pt_type=="r adj tran start")
+end_pts <- trimb_rot %>% filter(pt_type=="tran end")
+end_pts <- left_join(end_pts, select(tran, transect_id, tr_leng), by=c("pt_id"="transect_id"))
+
+#Create some edge lines: Can't figure out how to plot in right line
+levels(trimb_rot$pt_type)
+edge_lines <- trimb_rot %>% #filter to points that define edge ("edge" and "r adj tran start")
+  filter(pt_type %in% c("edge", "r adj tran start"))
+edge_line_coords <- st_coordinates(edge_lines) %>%  #extract coordinates
+  as.data.frame() %>% mutate(diff=(X-Y))
+edge_lines <- edge_lines %>% mutate(diff=edge_line_coords$diff)
+edge_lines <- edge_lines %>% group_by(site_id) %>% arrange(diff) %>% # draw lines between start and end
+  summarise(do_union = FALSE) %>% st_cast("LINESTRING")
+
+# Plot it all together
+tmap_mode("plot")
+tm_shape(fp_rot, is.master = TRUE) + #define map extent using site footprints
+  tm_facets(by="site_id", free.scales = FALSE, free.coords = TRUE, ncol = 4) +
+  tm_polygons(col="white", border.col = NULL) +
+tm_shape(edge_lines) + tm_lines(col="blue") + #add edge lines
+tm_shape(tran_lines) + tm_polygons(alpha=0.75) + tm_text("tr_leng", ymod = 1.7) + #add transects
+tm_shape(tran_pts) + tm_symbols(col="blue") + #transect start points
+tm_shape(trees_rot) + tm_symbols(size = "dbh", col="dmr") + #add tree points
+tm_legend(legend.outside=TRUE, legend.outside.position="bottom", legend.position = c(0.4, 0.1), legend.stack="horizontal")
 
 
-
-  
-  
-st_rotate(test, test$rot_deg)
-
-countries = rnaturalearth::ne_countries(scale = 10,returnclass = 'sf')
-saved_crs = st_crs(countries)
-
-points = st_sf(name=c('point1'), geometry = st_sfc(st_point(c(2,37)), crs = saved_crs))
-
-countries_rotated = countries %>%
-  st_ellide_rotate(-20, center_coords = c(2,37))
-# applying an affine transformation nulls the CRS for some reason, so reset it here
-st_crs(countries_rotated) <- saved_crs
-
-png("./figures/trees_8Mar2024.png", width = 1000, height = 500)
-tm_shape(trees) + tm_symbols(size = "dbh", col = "dmr") + tm_facets(by = "site_id")
-dev.off()
-
-?tm_facets
-
+?tm_text
 ?tm_symbols
+#Plot the unrotated one:
+tran_pts <- trimb %>% #filter to just transect starts and ends
+  filter(pt_type %in% c("adj tran start", "tran end"))
+tran_line_att <- tran_pts %>% st_drop_geometry() %>% #save attributes
+  filter(pt_type=="adj tran start") %>% select(Comment, pt_id, site_id)
+tran_lines <- tran_pts %>% group_by(pt_id) %>% # draw lines between start and end
+  summarize() %>% st_cast("LINESTRING")
+tran_lines <- st_buffer(tran_lines, dist = 2.5, endCapStyle = 'FLAT') # buffer
+tran_lines <- left_join(tran_lines, tran_line_att, by="pt_id")
 
-ggplot(trees, aes()) + geom_spatial_point(trees, aes())
-?geom_spatial_point
+tmap_mode("plot")
+tm_shape(tran_lines) + tm_polygons(alpha=0.75) +
+tm_shape(tran_pts) + tm_symbols(col="red") +
+tm_shape(trees) + tm_symbols(size = "dbh", col="dmr") +
+tm_facets(by="site_id", free.scales = FALSE)
+?tm_facets()
+st-buffer?
+
+
+#Make a layer for transect edges: 
+?st_buffer()
+levels(mi2_trimb$pt_type) #check values of pt_type field
+tran_lines <- mi2_trimb %>% #filter to just transect starts and ends
+  filter(pt_type %in% c("adj tran start", "tran end"))
+tran_lines <- tran_lines %>% group_by(pt_id) %>% summarize() %>% st_cast("LINESTRING")
+tran_lines <- st_buffer(tran_lines, dist = 2.75, endCapStyle = 'FLAT')
+#Trees layer: 
+tmap_mode("plot")
+tm_shape(mi2_trees) + tm_symbols(size = "dbh", col="dmr") + tm_text(text = "tree_id_new")+ tm_shape(tran_lines) + tm_polygons(alpha=0.75) 
+
+x <- trees %>% filter(tree_id_new %in% c("r399", "r404", "r403")) %>% select(dist_x, dist_y)
+st_length(tran_lines)
+?tm_polygons()
 ```
 
