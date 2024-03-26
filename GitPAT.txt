@@ -1,4 +1,2 @@
-Git Personal Access Token
-23 Jan 2024, expires 23 Mar 2024
-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
+
 
