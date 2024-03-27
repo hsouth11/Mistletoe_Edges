@@ -139,11 +139,11 @@ write_csv(trimb, "./exports/trimb_processed.csv")
 ##############################################################
 #### PART 3: GENERATE TREE LOCATIONS
 # Read in mature component data with Distance/Az Measurements
-mature <- read_csv('./data/mature comp_master.csv')
+mature <- read_csv('./data/mature comp_master_21Feb2024.csv')
 mature <- mature %>% filter(!is.na(plot_id))# Delete empty rows
 
 # Azimuth readings are magnetic and need to be declination corrected. Read in datasheet with declination correction by site. Then join it to stem mapping sheet.
-site_centre_data <- read_csv('./data/site_centrepoints_tab.csv')
+site_centre_data <- read_csv('./data/site_centrepoints_tab_21Feb2024.csv')
 site_centre_data <- site_centre_data %>% select(site_id, Dec)
 mature <- inner_join(mature, site_centre_data, by = c("site_id" = "site_id"))
 
@@ -157,7 +157,7 @@ mature <- mature %>%
   #modulo operator (%%) checks if 360 can go into the sum. If it can, it returns the difference.
 
 # Read in regen component, transect data
-regen <- read_csv('./data/regen comp_master.csv')
+regen <- read_csv('./data/regen comp_master_21Feb2024.csv')
 regen <- regen %>% filter(!is.na(site_id))# Delete empty rows
 
 # Each tree in regen component has an x,y distance on a transect. Need to transform these to dist, az data. 
