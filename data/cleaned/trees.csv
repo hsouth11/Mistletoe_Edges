@@ -1,0 +1,1282 @@
+tree_id,flag_id,site_id,plot_id,spp,dist_x,dist_y,status,dbh,height_m,hdm_pa,b_lc,dmr_l,dmr_m,dmr_u,broom_pa,broom_pos,stem_pa,crown_class,dam_agent_1,dam_agent_2,path_ind_1,path_ind_2,crown_cond,notes,dist_m,az_deg,dec_deg,outside_10,assessed_by,tree_type,dmr,dmr_f
+r1,w60,mi_1,136,Hw,-0.6,2.4,LS,20.9,17.2,Y,Y,0,1,0,N,-,-,C,NA,NA,-,-,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r2,w118,mi_1,136,Hw,-0.4,3.3,DS,6.1,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,-,-,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r3,w10,mi_1,136,Hw,1.4,3,LS,8.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,-,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r4,w67,mi_1,136,Dr,1.5,3.2,LS,7.3,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,-,-,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r5,w116,mi_1,136,Hw,0.1,4.6,LS,9.1,NA,Y,N,1,0,0,N,-,-,S,NA,NA,-,-,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r6,w59,mi_1,136,Hw,-1.5,3.9,LS,18.7,20.4,Y,Y,0,0,0,N,-,-,C,NA,NA,-,-,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r7,w21,mi_1,136,Hw,-2,6.4,LS,4.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,-,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r8,w52,mi_1,136,Ep,0.1,7.1,LS,11.7,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,-,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r9,w50,mi_1,136,Ep,0.5,10.1,LS,10,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,-,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r10,w53,mi_1,136,Dr,0.1,10.4,LS,9.6,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,-,-,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r11,w14,mi_1,136,Fd,-0.3,10.7,LS,21.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,-,2,signs of HDM,NA,NA,NA,NA,NA,regen,NA,-
+r12,w15,mi_1,136,Fd,2.1,12.3,LS,11,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,-,-,2,SNC?,NA,NA,NA,NA,NA,regen,NA,-
+r13,w37,mi_1,136,Hw,-0.5,13.1,LF,13.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,-,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r14,w75,mi_1,136,Fd,0.2,13.7,LS,19,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,1,-,2,signs of HDM below live crown,NA,NA,NA,NA,NA,regen,NA,-
+r15,w119,mi_1,136,Mv,1.1,13.5,LS,4.9,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,-,-,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r16,w47,mi_1,136,Hw,2.3,13.5,LS,26.9,22.1,Y,N,0,1,0,N,-,-,C,NA,NA,-,-,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r17,y36,mi_1,140,Hw,1.7,0.7,LS,17,NA,Y,Y,2,1,0,Y,1,Y,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r18,y12,mi_1,140,Hw,1.5,1.4,SN,8.1,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r19,y63,mi_1,140,Hw,0.3,2.3,SN,8.4,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,resid #1,NA,NA,NA,NA,NA,regen,NA,DI
+r20,y66,mi_1,140,Hw,-1.7,3.1,LS,27.7,NA,Y,Y,2,2,1,Y,1,Y,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,5,5
+r21,y5,mi_1,140,Hw,-2,4.3,SN,5.1,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r22,y65,mi_1,140,Hw,1.1,6.4,LS,23.6,24.3,Y,Y,1,1,0,N,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r23,y61,mi_1,140,Hw,-2.2,8.3,LS,12.8,NA,Y,Y,1,1,1,N,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r24,y4,mi_1,140,Hw,-1.2,9.1,LS,21,NA,Y,Y,1,1,1,Y,1,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r25,y62,mi_1,140,Hw,-1.4,9.5,LS,18.9,NA,Y,Y,1,1,0,N,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r26,y67,mi_1,140,Hw,1.1,9.9,LS,15.9,NA,Y,Y,0,0,0,N,-,-,C,NA,NA,NA,NA,1,forked with r27,NA,NA,NA,NA,NA,regen,0,IBLC
+r27,y8,mi_1,140,Hw,0.9,10.1,LS,22.9,21.5,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,forked with r26,NA,NA,NA,NA,NA,regen,0,0
+r28,y3,mi_1,140,Fd,-1.4,11,LS,17.2,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r29,y7,mi_1,140,Hw,-1.5,14.2,LS,29,NA,Y,Y,0,1,0,N,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r30,y70,mi_1,140,Fd,0.3,14.8,DS,12.9,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,7,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,-
+r31,y64,mi_1,140,Hw,1.6,16.2,LS,33.1,23.3,Y,Y,1,0,0,N,-,-,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r32,y71,mi_1,140,Fd,0.2,17.4,LS,11.3,NA,-,-,NA,NA,NA,-,-,-,I,DF,NA,7,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r33,y58,mi_1,140,Hw,-0.5,18.2,LL,4,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r34,y6,mi_1,140,Hw,-2.4,19.3,LL,4.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r35,y68,mi_1,140,Fd,-2.5,20.4,LS,14,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r36,y60,mi_1,140,Fd,-0.1,22,LS,24.7,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r37,y59,mi_1,141,Hw,-0.4,3.7,DS,5.7,NA,Y,-,NA,NA,NA,-,-,-,-,DR,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r38,y120,mi_1,141,Fd,-1.4,4,DS,10.6,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r39,y14,mi_1,141,Hw,1.5,5,LS,15.7,NA,Y,Y,2,2,1,Y,1,Y,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,5,5
+r40,y9,mi_1,141,Hw,2.1,6.5,LS,33,28.6,Y,Y,2,1,0,Y,4,Y,D,NA,NA,NA,NA,1,Resid #3,NA,NA,NA,NA,NA,regen,3,3
+r41,y20,mi_1,141,Mv,-1.7,6.8,LL,4.7,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,2,clump (r41-r44),NA,NA,NA,NA,NA,regen,NA,-
+r42,y19,mi_1,141,Mv,-1.7,6.8,DS,4,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,clump (r41-r44),NA,NA,NA,NA,NA,regen,NA,-
+r43,y22,mi_1,141,Mv,-1.7,6.8,LS,4.4,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,2,clump (r41-r44),NA,NA,NA,NA,NA,regen,NA,-
+r44,y23,mi_1,141,Mv,-1.7,6.8,DS,4.3,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,clump (r41-r44),NA,NA,NA,NA,NA,regen,NA,-
+r45,y57,mi_1,141,Mv,-1.7,7.9,SN,4.1,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r46,y48,mi_1,141,Mv,2.1,8.1,SN,5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,clump (r46-r47),NA,NA,NA,NA,NA,regen,NA,-
+r47,y32,mi_1,141,Mv,2.1,8.1,LL,4.6,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,clump (r46-r47),NA,NA,NA,NA,NA,regen,NA,-
+r48,y10,mi_1,141,Hw,1.2,9.6,LS,19.4,NA,Y,Y,1,1,0,Y,1,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r49,y16,mi_1,141,Hw,0.2,9.6,LS,25,23.5,Y,Y,1,1,0,N,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r50,y106,mi_1,141,Hw,-2.5,9.6,LS,36,NA,Y,Y,2,1,0,Y,4,Y,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r51,y18,mi_1,141,U,-1.6,9.9,SN,6.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r52,y17,mi_1,141,Hw,-1.4,10,LS,19.6,20.5,Y,Y,0,1,0,N,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r53,y11,mi_1,141,Hw,0.8,10.3,LS,21.4,NA,Y,Y,1,1,0,N,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r54,y15,mi_1,141,Dr,0.6,10.9,LS,6.2,NA,-,-,NA,NA,NA,-,-,-,I,DF,NA,NA,NA,2,SNC,NA,NA,NA,NA,NA,regen,NA,-
+r55,y41,mi_1,141,Fd,0.4,13.7,LS,17.5,NA,-,-,NA,NA,NA,-,-,-,C,DF,NA,NA,NA,2,SNC,NA,NA,NA,NA,NA,regen,NA,-
+r56,y35,mi_1,141,Fd,2.3,15.1,LS,25,NA,-,-,NA,NA,NA,-,-,-,D,DF,NA,NA,NA,2,SNC,NA,NA,NA,NA,NA,regen,NA,-
+r57,y101,mi_1,141,Fd,1.8,17.1,LS,19.2,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r58,y112,mi_1,141,Fd,-0.7,17.1,SN,21.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r59,y33,mi_1,141,Mv,0.8,18,LL,4.9,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r60,y111,mi_1,141,Mv,0.8,18,LL,4.2,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r61,y55,mi_1,141,Fd,0.6,19.8,LS,22.5,NA,-,-,NA,NA,NA,-,-,-,D,DF,NA,NA,NA,2,SNC,NA,NA,NA,NA,NA,regen,NA,-
+r62,NA,cr_1,166,Dr,0.1,8.3,LS,15.7,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r63,w9,cr_1,166,Hw,-1.1,11.4,LS,20.7,22.8,Y,Y,1,0,0,N,-,Y,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r64,NA,cr_1,166,Cw,-0.2,14.3,LS,9.3,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r65,w31,cr_1,166,Hw,2,15.3,LS,27.7,NA,Y,Y,1,1,0,Y,8,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r66,NA,cr_1,166,Cw,-2.4,15.9,DS,5,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r67,NA,cr_1,166,Cw,-2.4,15.9,LS,7.2,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r68,NA,cr_1,166,Dr,-1.5,17.6,LS,15.4,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r69,NA,cr_1,166,Mb,-1.6,17.6,LS,4.4,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r70,w21,cr_1,166,Hw,1.4,20.3,LS,7.6,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r71,w102,cr_1,166,Hw,-0.9,19.9,LS,11.2,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,7,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r72,w112,cr_1,166,Hw,2.3,20.7,LS,21.1,NA,Y,Y,1,0,0,Y,1,N,C,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r73,w68,cr_1,166,Hw,2.4,20.7,DS,8.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r74,NA,cr_1,166,Hw,0.5,20.8,DS,9.3,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r75,NA,cr_1,166,Hw,0.8,20.8,DS,4.9,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r76,NA,cr_1,166,Hw,-1,21,DS,5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r77,w30,cr_1,166,Hw,0.3,21.8,LS,8.1,NA,Y,N,0,0,1,N,-,N,S,NA,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r78,w24,cr_1,166,Hw,-0.2,22.2,LS,22.1,27.7,Y,N,1,1,0,N,-,Y,C,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r79,NA,cr_1,166,Fd,1.5,23.7,LS,21.4,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r80,NA,cr_1,166,Fd,1.3,24.4,DS,8.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,1,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r81,NA,cr_1,166,Dr,0.2,24.7,LS,13.2,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r82,w55,cr_1,166,Hw,-1.7,25.7,LS,7.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r83,w28,cr_1,166,Hw,-2.5,25.4,LS,14.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r84,w58,cr_1,166,Hw,-2.5,24.9,LS,11.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,4,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r85,NA,cr_1,166,Hw,-1.9,27.1,SN,4.6,NA,U,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r86,NA,cr_1,166,Hw,1.5,24.9,DS,5.1,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r87,NA,cr_1,166,Dr,1.3,25.7,LS,17.3,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r88,NA,cr_1,166,Dr,1.9,25.4,SN,6.6,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r89,w67,cr_1,166,Hw,2.4,25.6,LS,7.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r90,NA,cr_1,166,Hw,0.5,26.1,DS,6.8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,1,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r91,NA,cr_1,166,Fd,-0.3,28.4,LS,10.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,-,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r92,w75,cr_1,166,Hw,1,28.6,LS,6.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r93,NA,cr_1,166,Dr,-1.1,29.2,LS,17.6,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r94,w11,cr_1,166,Hw,-2.3,29.7,LS,12.3,NA,Y,N,1,0,0,N,-,N,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r95,NA,cr_1,166,Hw,-2.1,29.9,DS,5.7,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r96,NA,cr_1,166,Hw,-1,30,SN,5.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r97,NA,cr_1,166,Fd,-1.3,30.9,LS,22,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r98,w48,cr_1,166,Hw,-2.1,31,LS,9.7,NA,N,-,0,0,0,-,-,-,I,DS,NA,1,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r99,w49,cr_1,166,Hw,0.6,29.8,LS,22.2,23.3,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r100,w42,cr_1,166,Hw,2.4,29.1,LL,8.7,NA,N,-,0,0,0,-,-,-,S,TM,NA,NA,NA,2,hit by dead fallen tree,NA,NA,NA,NA,NA,regen,0,0
+r101,w3,cr_1,166,Hw,2.3,32.5,LS,11.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r102,w51,cr_1,166,Hw,1.7,34,LL,4.5,NA,N,-,0,0,0,-,-,-,S,TM,NA,NA,NA,2,hit by dead fallen tree,NA,NA,NA,NA,NA,regen,0,0
+r103,w26,cr_1,166,Hw,1.7,34.9,LS,20.5,22.3,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,Infection perimeter tree,NA,NA,NA,NA,NA,regen,0,IBLC
+r104,w29,cr_1,166,Hw,1.4,33.1,LS,20.6,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r105,w22,cr_1,166,Hw,1.9,33.2,LS,11.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,forked with r106,NA,NA,NA,NA,NA,regen,0,0
+r106,w64,cr_1,166,Hw,1.9,33.2,LS,17.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,forked with r105,NA,NA,NA,NA,NA,regen,0,0
+r107,w69,cr_1,166,Hw,1.4,33.5,LS,17.9,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r108,w4,cr_1,165,Hw,0.6,11.5,LS,23,22.2,Y,Y,2,0,0,N,-,N,C,NA,NA,7,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r109,NA,cr_1,165,Hw,0.5,11.9,SN,5.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r110,NA,cr_1,165,Dr,0.4,12.9,LS,16.9,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r111,w52,cr_1,165,Hw,0.2,13.2,LL,5.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r112,w100,cr_1,165,Hw,0,13.5,LS,14.6,NA,Y,Y,2,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r113,NA,cr_1,165,Hw,2.1,13.4,SN,14.9,NA,N,-,NA,NA,NA,-,-,-,-,TM,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r114,w107,cr_1,165,Hw,1,15,LL,10.6,NA,Y,Y,1,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r115,NA,cr_1,165,Hw,-0.3,15.1,DS,4.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r116,NA,cr_1,165,Hw,-0.9,16.7,DS,4.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r117,w63,cr_1,165,Hw,-1.2,16.5,LS,4.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r118,w46,cr_1,165,Hw,-2,16.8,LS,31.6,NA,Y,Y,1,0,0,N,-,Y,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r119,NA,cr_1,165,Dr,0.2,17.2,LS,15.3,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r120,w33,cr_1,165,Hw,0.5,17.5,LS,6.2,NA,Y,N,0,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r121,w54,cr_1,165,Hw,1.2,17.5,LS,13,NA,Y,N,0,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r122,w65,cr_1,165,Hw,1.4,19.1,LL,8.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r123,w2,cr_1,165,Hw,-0.8,18.8,LS,25.4,NA,Y,Y,1,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r124,w60,cr_1,165,Hw,-0.3,19.7,LS,19.5,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r125,NA,cr_1,165,Hw,-0.8,19.8,DS,5.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,forked wtih r126,NA,NA,NA,NA,NA,regen,NA,DU
+r126,NA,cr_1,165,Hw,-0.8,19.8,DS,5.9,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,forked with r125,NA,NA,NA,NA,NA,regen,NA,DU
+r127,NA,cr_1,165,Fd,-2.2,20.6,LS,13.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,1,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r128,NA,cr_1,165,Hw,1.5,21.1,SN,10.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r129,w66,cr_1,165,Hw,0.9,21.5,LS,11.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r130,w38,cr_1,165,Hw,0,22,LL,9.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r131,w5,cr_1,165,Hw,-0.2,23.3,LS,17.1,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,forked with r132,NA,NA,NA,NA,NA,regen,0,0
+r132,w32,cr_1,165,Hw,-0.2,23.3,LS,12.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,5,NA,1,forked with r131,NA,NA,NA,NA,NA,regen,0,0
+r133,NA,cr_1,165,Fd,-1.3,24,LS,16.7,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r134,NA,cr_1,165,Dr,-1.8,26.8,LS,22,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r135,w74,cr_1,165,Hw,1.2,25.3,LS,21,25.1,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r136,w13,cr_1,165,Hw,1.2,26.6,LS,20,22.1,Y,Y,0,0,0,N,-,Y,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r137,NA,cr_1,165,Dr,2.1,31.4,DS,12.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r138,w37,cr_1,165,Hw,-2,32.3,LS,24.8,21.2,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,2,infection perimeter tree,NA,NA,NA,NA,NA,regen,1,1
+r139,NA,cr_1,165,Fd,-0.8,34.6,LS,24,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r140,NA,cr_1,164,Hw,-2.3,0.5,DS,5.3,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r141,NA,cr_1,164,Hw,0.2,1,DS,4.1,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r142,y15,cr_1,164,Hw,1.3,0.3,LS,4.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r143,y31,cr_1,164,Hw,0.6,1.3,LS,12.7,NA,Y,Y,1,0,0,N,-,N,I,DS,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r144,y100,cr_1,164,Hw,2.4,1.4,LS,5.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r145,y119,cr_1,164,Hw,1.4,2.4,LS,7.4,NA,Y,Y,0,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r146,y102,cr_1,164,Hw,2.3,4.1,LS,11.3,NA,Y,Y,2,1,1,N,-,Y,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,4,4
+r147,y45,cr_1,164,Hw,-1.9,3,LS,9.5,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r148,NA,cr_1,164,Hw,-2.5,4.2,DS,4.8,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r149,NA,cr_1,164,Hw,-2.5,4.7,DS,6,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r150,y113,cr_1,164,Hw,-1.4,5.3,LS,8.5,NA,Y,Y,2,1,0,N,-,Y,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r151,NA,cr_1,164,Hw,-0.7,5.3,DS,5.8,NA,N,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,forked with r152,NA,NA,NA,NA,NA,regen,NA,DU
+r152,NA,cr_1,164,Hw,-0.7,5.3,DS,6.3,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,forked with r151,NA,NA,NA,NA,NA,regen,NA,DI
+r153,NA,cr_1,164,Dr,0.2,7.6,LS,14,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r154,y38,cr_1,164,Hw,-1.8,8.6,LL,15.1,NA,Y,Y,2,1,1,N,-,Y,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,4,4
+r155,y22,cr_1,164,Hw,2.3,8.7,LS,9.3,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,NA,NA,1,forked with r156,NA,NA,NA,NA,NA,regen,0,IBLC
+r156,NA,cr_1,164,Hw,2.3,8.7,DS,6.1,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,forked with r155,NA,NA,NA,NA,NA,regen,NA,DI
+r157,NA,cr_1,164,Hw,-1.9,9.3,DS,5.1,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r158,y17,cr_1,164,Hw,-1.5,9.8,LS,6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r159,y6,cr_1,164,Hw,2.4,8.5,LS,21.5,20.7,Y,Y,1,0,0,N,-,Y,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r160,NA,cr_1,164,Fd,1.4,11.5,DS,25,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r161,y37,cr_1,164,Hw,-0.8,14.5,LS,14.3,NA,Y,N,0,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r162,y66,cr_1,164,Hw,-1.1,13.9,LS,18.8,15.6,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r163,NA,cr_1,164,Dr,-1.1,14.7,LS,26,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,5,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r164,NA,cr_1,164,Dr,-1.9,14,LS,9.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r165,NA,cr_1,164,Fd,0.6,17.2,LS,28.1,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,7,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r166,NA,cr_1,164,Hw,2.3,19.8,DS,8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r167,NA,cr_1,164,Dr,1.6,21.1,LL,14.7,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r168,y35,cr_1,164,Hw,-0.5,21.5,LS,28.5,23.3,Y,Y,1,0,0,N,-,N,C,NA,NA,-,NA,1,Infection perimeter tree,NA,NA,NA,NA,NA,regen,1,1
+r169,NA,cr_1,164,Fd,1.3,22.5,LS,16.3,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,7,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r170,NA,cr_1,164,Dr,0.7,23.5,DS,9.9,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r171,NA,cr_1,164,Hw,-1.2,24.3,LS,8.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,4,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r172,NA,cr_1,164,Mb,-0.9,26.6,LS,4.5,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r173,NA,cr_1,164,Dr,0.9,26.7,LS,14.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r174,NA,cr_1,164,Fd,-0.4,29.3,LS,27.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r175,NA,cr_1,164,Dr,-0.6,28,LS,10.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,"WATCH OUT, WASP NEST NEAR TREE; estimated dbh",NA,NA,NA,NA,NA,regen,NA,-
+r176,NA,cr_1,164,Dr,1.1,30.6,SN,15.3,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r177,NA,cr_1,164,Fd,1.5,31.7,DS,9,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r178,NA,cr_1,164,Fd,1.1,33.9,LS,30.7,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r179,w61,ph_1,258,Hw,-0.4,15.1,LS,21.8,20.6,N,-,0,0,0,-,-,-,C,NA,NA,7,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r180,w29,ph_1,258,Hw,-0.5,15.7,LS,11.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r181,w122,ph_1,258,Hw,-1,15.4,LS,10.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r182,w16,ph_1,258,Hw,-1.6,16.1,LS,9.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r183,w15,ph_1,258,Hw,-1.7,15.9,LS,7.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r184,NA,ph_1,258,Hw,-1.9,16.3,LS,5.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r185,w49,ph_1,258,Hw,-2,16,LS,8.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r186,w21,ph_1,258,Hw,-1.2,17.5,LS,7.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,clump r186-r188,NA,NA,NA,NA,NA,regen,0,0
+r187,w9,ph_1,258,Hw,-1.2,17.5,LS,10,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,clump r186-r188,NA,NA,NA,NA,NA,regen,0,0
+r188,NA,ph_1,258,Hw,-1.2,17.5,LS,4.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,clump r186-r188,NA,NA,NA,NA,NA,regen,0,0
+r189,w23,ph_1,258,Hw,-2.1,17.8,LS,7.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r190,w115,ph_1,258,Hw,-1.7,18.4,LS,13.9,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r191,w32,ph_1,258,Hw,-2.2,18.1,LS,10.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r192,w13,ph_1,258,Hw,-2.4,18.1,LS,13.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,forked with r193,NA,NA,NA,NA,NA,regen,0,0
+r193,w119,ph_1,258,Hw,-2.4,18.1,LS,13.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,forked with r192,NA,NA,NA,NA,NA,regen,0,0
+r194,w52,ph_1,258,Hw,-1.3,17.6,LS,12.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r195,w5,ph_1,258,Hw,-1.3,17.8,LS,7,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r196,w121,ph_1,258,Hw,0.8,17.6,LS,12.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r197,w34,ph_1,258,Hw,1,17.3,LS,11.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,forked with r198,NA,NA,NA,NA,NA,regen,0,0
+r198,w109,ph_1,258,Hw,1,17.3,LS,10.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,forked with r197,NA,NA,NA,NA,NA,regen,0,0
+r199,NA,ph_1,258,Hw,1.1,17.5,LS,8.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,7,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r200,w101,ph_1,258,Hw,1.5,17.1,LS,19.9,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r201,w66,ph_1,258,Hw,1.2,15.1,LS,10.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r202,w26,ph_1,258,Hw,1.3,15.2,LS,15,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r203,w4,ph_1,258,Hw,1.4,15,LS,9.1,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r204,NA,ph_1,258,Hw,0.3,13.9,LS,5.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,forked with r205,NA,NA,NA,NA,NA,regen,0,0
+r205,NA,ph_1,258,Hw,0.3,13.9,LS,4.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,forked with r204,NA,NA,NA,NA,NA,regen,0,0
+r206,y103,ph_1,259,Hw,-1.2,0.1,LL,18,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,"fallen, rerooted tree",NA,NA,NA,NA,NA,regen,0,0
+r207,y14,ph_1,259,Hw,-0.1,1.5,LS,11.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,7,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r208,y24,ph_1,259,Hw,-0.8,2,LS,16,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r209,NA,ph_1,259,Hw,-0.9,1.8,DS,4.2,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r210,NA,ph_1,259,Cw,0.8,3.5,DS,5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,-
+r211,w22,ph_1,258,Hw,2,2.4,LS,14.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r212,NA,ph_1,258,Hw,2,2.4,LS,6.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r213,w53,ph_1,258,Hw,-1.1,4.6,LS,13.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r214,NA,ph_1,258,Hw,-1.4,4.2,DS,5.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r215,w102,ph_1,258,Hw,-0.7,5.4,LS,14.4,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r216,NA,ph_1,258,Hw,-1,5.4,LS,4.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r217,NA,ph_1,258,Hw,-1.7,5.5,DS,4.5,NA,N,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r218,NA,ph_1,258,Hw,-2.1,5.1,DS,4.1,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r219,w111,ph_1,258,Hw,-0.8,5.8,LS,6.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r220,NA,ph_1,258,Hw,-1.9,5.7,DS,4.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,3,Forked with r221,NA,NA,NA,NA,NA,regen,NA,DU
+r221,w70,ph_1,258,Hw,-1.9,5.7,LS,6.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,Forked with r220,NA,NA,NA,NA,NA,regen,0,0
+r222,w104,ph_1,258,Hw,-2.3,5.8,LS,20.8,17.9,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,Forked with r223,NA,NA,NA,NA,NA,regen,0,0
+r223,w100,ph_1,258,Hw,-2.3,5.8,LS,9.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,Forked with r222,NA,NA,NA,NA,NA,regen,0,0
+r224,NA,ph_1,258,Hw,-1,7,SN,16.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r225,NA,ph_1,258,Hw,-2,9.3,LS,6.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,7,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r226,w56,ph_1,258,Hw,-2,9.5,LS,20.6,18.6,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r227,NA,ph_1,258,Hw,-2.5,9.4,DS,6.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r228,NA,ph_1,258,Hw,-2,10.1,DS,4.3,NA,N,-,NA,NA,NA,-,-,-,-,DRA,DS,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r229,w103,ph_1,258,Hw,0.9,9.2,LS,35.6,22.5,N,-,0,0,0,-,-,-,D,IB,NA,NA,NA,1,Forked with r230,NA,NA,NA,NA,NA,regen,0,0
+r230,NA,ph_1,258,Hw,0.9,9.2,LS,7.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,Forked with r229,NA,NA,NA,NA,NA,regen,0,0
+r231,w108,ph_1,258,Hw,-1.9,11.5,LS,9.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,2,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r232,w11,ph_1,258,Hw,-1.9,11.5,LS,20.9,NA,N,-,0,0,0,-,-,-,C,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r233,NA,ph_1,258,Hw,-0.6,13.3,LS,5.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r234,w35,ph_1,258,Hw,0,13.6,LS,19.6,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r235,w46,ph_1,258,Hw,-2.2,13.1,LS,14.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r236,w71,ph_1,258,Hw,-2.5,13.2,LS,12.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,Forked with r237,NA,NA,NA,NA,NA,regen,0,0
+r237,w120,ph_1,258,Hw,-2.5,13.2,LS,7.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,Forked wtih r236,NA,NA,NA,NA,NA,regen,0,0
+r238,w76,ph_1,258,Hw,-0.8,13.8,LS,15.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r239,NA,ph_1,258,Hw,-1.2,14.1,DS,6.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r240,w24,ph_1,258,Hw,-1,14.6,LS,8.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r241,w112,ph_1,258,Hw,-1.2,14.5,LS,10.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,Forked with r242,NA,NA,NA,NA,NA,regen,0,0
+r242,w107,ph_1,258,Hw,-1.2,14.5,DS,8,NA,N,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,2,Forked wtih r241,NA,NA,NA,NA,NA,regen,NA,DU
+r243,y69,ph_1,259,Hw,2.3,2.2,LS,13.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r244,y117,ph_1,259,Hw,2.3,2.2,LS,10.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r245,NA,ph_1,259,Cw,0.4,4.9,LS,10,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r246,NA,ph_1,259,Cw,-0.9,3.9,LS,21.3,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r247,NA,ph_1,259,Hw,1.9,5.1,LS,4.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r248,y125,ph_1,259,Hw,1.7,5.5,LS,13,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r249,y115,ph_1,259,Hw,1.2,5.8,LS,12.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r250,y17,ph_1,259,Hw,0.9,5.7,LS,12.4,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r251,NA,ph_1,259,Hw,2.2,5.6,DS,4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r252,NA,ph_1,259,Hw,2.3,5.7,DS,4.1,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r253,NA,ph_1,259,Hw,1.6,6.2,LS,6.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r254,NA,ph_1,259,Hw,1.7,6.3,LS,7.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r255,NA,ph_1,259,Cw,2.5,6.5,LS,17.4,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r256,NA,ph_1,259,Cw,-1.2,6.7,LS,12,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r257,NA,ph_1,259,Cw,1.1,11.2,LS,9.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r258,NA,ph_1,259,Cw,-1.3,12.7,LS,17.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r259,NA,ph_1,259,Cw,-0.2,13.3,LS,25.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r260,y33,ph_1,259,Hw,1.6,13.6,LS,9,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r261,y56,ph_1,259,Hw,2.3,13.3,LS,26.3,18.1,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r262,y64,ph_1,259,Hw,1.5,14.8,LS,22.2,17.2,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r263,NA,ph_1,259,Cw,-0.6,15.7,LS,16.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r264,y1,ph_1,259,Hw,-0.7,15.7,LS,11.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r265,y41,ph_1,259,Hw,-1.5,15.2,LS,9.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r266,NA,ph_1,259,Cw,1.5,16.9,LS,5.3,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r267,NA,ph_1,266,Cw,-0.9,1.3,LS,8.3,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r268,NA,ph_1,266,Hw,2.5,0.8,LS,4.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r269,NA,ph_1,266,Cw,0.3,4.1,LS,4.9,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r270,NA,ph_1,266,Cw,0.7,4.6,LS,11.1,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r271,w60,ph_1,266,Hw,-0.7,5.6,LS,17.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r272,w64,ph_1,266,Hw,-1.1,5.3,LS,10.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r273,w117,ph_1,266,Hw,0.2,6.7,LS,24.1,18.3,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r274,w37,ph_1,266,Hw,-0.1,9,LS,15.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r275,NA,ph_1,266,Cw,-0.6,9.6,LS,13.4,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r276,w18,ph_1,266,Hw,1.1,9.9,LS,11.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r277,w8,ph_1,266,Hw,2.1,11,LS,20.7,18.2,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r278,w59,ph_1,266,Hw,2.1,11.3,LS,17.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r279,w55,ph_1,266,Hw,1.1,13.3,LS,29.9,21.5,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r280,w43,ph_1,266,Hw,-0.5,13.3,LS,10.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r281,w31,ph_1,266,Hw,-0.1,13.5,LS,7.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r282,w74,ph_1,266,Hw,1.2,14.5,LS,12.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r283,w72,ph_1,266,Hw,0.3,15,LS,23.9,18.7,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,Forked with r284,NA,NA,NA,NA,NA,regen,0,0
+r284,NA,ph_1,266,Hw,0.3,15,DS,8.9,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,Forked with r283,NA,NA,NA,NA,NA,regen,NA,DU
+r285,NA,ph_1,266,Hw,-0.4,15,DS,8.3,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r286,w30,ph_1,266,Hw,-1.9,14.6,LS,17.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r287,NA,ph_1,266,Cw,-1.6,15.5,DS,7.4,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r288,w75,ph_1,266,Hw,-0.2,16,LS,10.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r289,NA,ph_1,266,Cw,-1.5,17.6,LS,15.2,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r290,NA,cr_2,219,Hw,-1.7,0.7,LS,4.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r291,NA,cr_2,219,Hw,-0.9,1.4,LS,5,NA,Y,Y,0,0,0,N,-,N,S,DS,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r292,NA,cr_2,219,Hw,2,1.6,SN,7.2,NA,N,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r293,y46,cr_2,219,Hw,-2.5,3.9,LS,17.1,NA,Y,Y,1,0,1,N,-,N,I,IB,AX,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r294,NA,cr_2,219,Hw,-2.5,4,LS,4,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r295,y30,cr_2,219,Hw,-1,7.2,LS,28.7,25,Y,Y,0,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r296,y32,cr_2,219,Hw,-2.4,10.2,LS,26.6,21.9,N,-,0,0,0,-,-,-,C,IB,NA,7,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r297,NA,cr_2,219,Dr,-0.9,10.8,SN,6.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,-,NA,4,NA,NA,NA,NA,NA,NA,regen,NA,-
+r298,NA,cr_2,219,Hw,0.9,12.9,LL,4.4,NA,Y,Y,0,1,1,N,-,N,S,NA,NA,-,NA,2,NA,NA,NA,NA,NA,NA,regen,2,2
+r299,y59,cr_2,219,Hw,-1.2,15.5,LL,16.6,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,7,1,1,Infection perimeter tree,NA,NA,NA,NA,NA,regen,0,IBLC
+r300,NA,cr_2,219,Fd,2.2,15.7,LS,30.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r301,NA,cr_2,219,Fd,2.3,21.6,LS,29.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r302,y42,cr_2,219,Hw,1.3,26.1,LS,23.8,26.9,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r303,NA,cr_2,219,Fd,-1.9,26.8,LS,22.9,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r304,NA,cr_2,221,Hw,0.1,1.8,DS,5.1,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r305,y17,cr_2,221,Hw,-1.4,5.2,LS,22.8,NA,Y,Y,2,1,0,Y,1,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r306,y62,cr_2,221,Hw,-2.3,7,LS,29.5,26.6,Y,Y,2,1,1,Y,1,N,C,IB,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,4,4
+r307,y128,cr_2,221,Hw,0.6,8.7,LL,21.5,NA,Y,Y,2,2,1,Y,3,Y,S,NA,NA,2,6,1,NA,NA,NA,NA,NA,NA,regen,5,5
+r308,NA,cr_2,221,Hw,-1.7,13.8,DS,4.6,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r309,y4000,cr_2,221,Hw,2.2,15.3,LS,35.4,27.1,Y,N,1,0,0,Y,1,N,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r310,NA,cr_2,221,Fd,-0.3,19.2,LS,31.3,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r311,NA,cr_2,221,Hw,0.9,21.7,LL,4.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r312,y4,cr_2,221,Hw,-2.5,17.5,LS,36.7,26.7,Y,Y,1,1,0,N,-,-,D,IB,NA,NA,NA,1,Infection perimeter tree,NA,NA,NA,NA,NA,regen,2,2
+r313,NA,cr_2,222,Hw,-2.4,1.3,LS,5.9,NA,Y,N,1,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r314,y102,cr_2,222,Hw,0.6,2.4,LS,13.9,NA,Y,Y,1,1,0,N,-,N,I,IB,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r315,NA,cr_2,222,Hw,-0.1,4.5,LS,5.3,NA,Y,N,0,0,1,N,-,N,S,NA,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r316,NA,cr_2,222,Hw,1.8,4.5,LS,4.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r317,NA,cr_2,222,Hw,1.8,4.6,LS,5.1,NA,N,-,0,0,0,-,-,-,S,DS,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r318,NA,cr_2,222,Hw,0.6,4.8,LS,4.8,NA,Y,Y,1,0,0,N,-,Y,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r319,NA,cr_2,222,Hw,-2.3,5.1,DS,4.7,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r320,NA,cr_2,222,Hw,-1.7,5.4,DS,4.6,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r321,y122,cr_2,222,Hw,1,5.9,LS,7.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r322,NA,cr_2,222,Hw,1.8,6.9,DS,5.9,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r323,NA,cr_2,222,Hw,2.1,7.4,DS,5.1,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r324,y12,cr_2,222,Hw,-0.8,6.9,LS,17.8,NA,Y,Y,1,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r325,y34,cr_2,222,Hw,1.3,9.8,LS,30.2,23.8,Y,Y,1,1,0,Y,1,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r326,NA,cr_2,222,Hw,0.9,12.7,SN,23.6,NA,U,-,NA,NA,NA,-,-,-,-,IB,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r327,y112,cr_2,222,Hw,1.4,15.7,LS,23.9,24.9,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r328,y18,cr_2,222,Hw,-0.7,23.5,LS,33.8,29.7,N,-,0,0,0,-,-,-,D,IB,DS,NA,NA,1,stem pustules,NA,NA,NA,NA,NA,regen,0,0
+r329,y50,mk_2,103,Hw,2.4,0.4,LS,6.1,NA,Y,Y,1,0,0,N,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r330,y120,mk_2,103,Hw,-0.3,1,LS,16.9,NA,Y,Y,1,1,1,N,-,Y,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r331,y119,mk_2,103,Hw,-1.5,0.7,DS,6.8,NA,Y,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r332,y107,mk_2,103,Hw,-2.3,3.3,LS,17.4,NA,Y,Y,1,1,1,Y,8,Y,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r333,y40,mk_2,103,Hw,1.5,2.9,DS,5,NA,Y,-,NA,NA,NA,-,-,-,-,U,NA,1,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r334,y61,mk_2,103,Hw,1.5,5,LS,16.2,NA,Y,Y,2,2,1,Y,1,Y,C,NA,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,5,5
+r335,y126,mk_2,103,Hw,-0.7,4.3,DS,5.2,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,-,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r336,y22,mk_2,103,Hw,-0.5,5.1,DS,5.8,NA,Y,-,NA,NA,NA,-,-,-,-,U,NA,-,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r337,y18,mk_2,103,Cw,-2.3,5,LS,14.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r338,y65,mk_2,103,Cw,-0.7,8.3,LL,11.1,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r339,y3,mk_2,103,Cw,-1.6,9.7,DS,6,NA,-,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r340,y7,mk_2,103,Hw,-0.3,10.7,SN,12.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,Forked with r341,NA,NA,NA,NA,NA,regen,NA,DU
+r341,y103,mk_2,103,Hw,-0.4,10.7,SN,13.7,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,forked with r340,NA,NA,NA,NA,NA,regen,NA,DI
+r342,y30,mk_2,103,Hw,1.7,7.8,SN,4.8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r343,y12,mk_2,103,Hw,1.6,8.3,SN,13.8,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r344,y67,mk_2,103,Hw,2,9.1,SN,8.1,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r345,y47,mk_2,103,Hw,2.1,10,LS,16.8,NA,Y,Y,2,1,0,Y,1,Y,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r346,y111,mk_2,103,Hw,1.1,10.6,SN,7.7,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r347,y63,mk_2,103,Hw,-2.5,10.5,SN,7.7,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r348,y8,mk_2,103,Hw,-2.3,11.6,DS,9.2,NA,Y,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r349,y13,mk_2,103,Hw,-1.4,12.4,LS,11.4,NA,Y,Y,1,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r350,y10,mk_2,103,Hw,-2.4,13.8,SN,9.6,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r351,y117,mk_2,103,Hw,-2.5,14.4,DS,8.5,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r352,y17,mk_2,103,Hw,-2.5,14.5,DS,6.8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r353,y4000,mk_2,103,Hw,0.1,14,DS,15.3,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,5,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r354,y57,mk_2,103,Hw,0.1,14.7,LS,24.6,NA,Y,Y,2,1,0,Y,2,Y,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r355,y121,mk_2,103,Hw,-0.4,20.6,LS,42.4,NA,Y,Y,1,1,0,N,-,-,D,NA,NA,NA,NA,1,Residual #1 at this site,NA,NA,NA,NA,NA,regen,2,2
+r356,y4001,mk_2,103,Fd,2.2,23.5,DS,21.9,NA,-,-,NA,NA,NA,-,-,-,-,DR,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r357,y4002,mk_2,103,Fd,1.8,23.8,SN,14.6,NA,-,-,NA,NA,NA,-,-,-,-,DR,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r358,y14,mk_2,103,Hw,-1,25.5,LS,17.3,NA,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r359,y11,mk_2,103,Hw,-0.6,25.7,LS,11.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,1,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r360,y123,mk_2,103,Hw,-1.6,27.3,LS,15.5,NA,Y,N,1,0,0,Y,1,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r361,y116,mk_2,103,Hw,-1.4,29.1,LS,22.1,NA,N,-,0,0,0,-,-,-,C,NA,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r362,y2,mk_2,103,Hw,1.2,27.3,LS,37.6,NA,Y,Y,0,0,0,N,-,N,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r363,y4005,mk_2,103,Hw,-2.2,30.7,DS,12.4,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r364,y4006,mk_2,103,Hw,-2.4,30.8,DS,10.5,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r365,y4007,mk_2,103,Hw,-2.3,31.9,SN,6.6,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r366,y4008,mk_2,103,Hw,-2.3,31.9,SN,7.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r367,w200,mk_2,109,Hw,2.1,0.5,SN,6.6,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r368,w6,mk_2,109,Hw,2.1,0.1,LS,6.5,NA,Y,Y,1,0,0,N,-,N,S,NA,NA,4,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r369,w124,mk_2,109,Hw,2.1,1.3,LS,6.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,4,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r370,w201,mk_2,109,Hw,0.4,2.2,SN,4.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r371,w71,mk_2,109,Hw,0.2,4.3,LS,12.1,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r372,w202,mk_2,109,Hw,-0.8,4.6,SN,11.3,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r373,w123,mk_2,109,Hw,-1.4,4.8,LS,13.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r374,w203,mk_2,109,Hw,2.5,5.6,SN,7.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r375,w57,mk_2,109,Hw,1,6.7,LS,15,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r376,w56,mk_2,109,Hw,1.5,9.7,LS,27.3,26,Y,N,0,1,0,N,-,N,C,IB,AX,7,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r377,w204,mk_2,109,Hw,-1.6,11.3,SN,11.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r378,w205,mk_2,109,Hw,2.3,12.5,SN,6.9,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r379,w206,mk_2,109,Hw,2.3,12.5,SN,13,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r380,w12,mk_2,109,Hw,0.5,13.5,SN,15.1,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r381,w207,mk_2,109,Hw,1.9,14.3,SN,7.3,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r382,w54,mk_2,109,Hw,1.7,14.9,LS,16.5,NA,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r383,w120,mk_2,109,Hw,0.2,17.6,LS,24.8,25.4,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,forked with r384,NA,NA,NA,NA,NA,regen,0,0
+r384,w121,mk_2,109,Hw,0.3,17.6,LS,15.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,forked with r383,NA,NA,NA,NA,NA,regen,0,0
+r385,w208,mk_2,109,Hw,-0.7,20.1,SN,9.2,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r386,w111,mk_2,109,Hw,0.3,20.8,LS,28.3,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r387,w209,mk_2,109,Hw,0.7,20.7,DS,8.1,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r388,w210,mk_2,109,Hw,0.3,20.5,SN,4.8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r389,w211,mk_2,109,Hw,0.9,21,SN,6.3,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r390,w116,mk_2,109,Hw,-1.6,22.9,LS,28.3,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r391,w103,mk_2,109,Hw,-0.9,23.9,LS,9.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r392,w212,mk_2,109,Hw,-0.8,24.1,SN,4.1,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r393,w213,mk_2,109,Hw,0.2,25.6,SN,9.8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r394,w214,mk_2,109,Hw,-1.1,27,SN,8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r395,w215,mk_2,109,Hw,-1.2,26.9,DS,6.1,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r396,w216,mk_2,109,Hw,-1.3,26.9,SN,7.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r397,w52,mk_2,109,Hw,0.6,28.4,LS,21.2,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r398,w217,mk_2,109,Hw,0.5,28.5,SN,7.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r399,w74,mk_2,109,Hw,2.2,29,LS,23.2,24.8,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r400,w39,mk_2,109,Hw,0.5,29.6,LS,8.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r401,w15,mk_2,109,Hw,-1,30.4,LS,11.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r402,w218,mk_2,109,Hw,1.2,30.5,SN,9,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r403,w100,mk_2,109,Hw,2.4,31.7,LS,26.4,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r404,w50,mk_2,109,Hw,2.1,32,LS,9,NA,N,-,0,0,0,-,-,-,S,NA,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r405,w219,mk_2,109,Hw,0.5,33.3,SN,15.2,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r406,w105,mk_2,110,Hw,-0.2,1.3,LS,10.8,NA,Y,N,1,0,1,N,-,N,S,NA,NA,5,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r407,w17,mk_2,110,Hw,1.5,1.9,LS,20,NA,Y,Y,2,1,0,Y,1,Y,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r408,w220,mk_2,110,Hw,-0.5,2.7,DS,5.2,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r409,w221,mk_2,110,Hw,-1.3,3.2,DS,4,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r410,w222,mk_2,110,Hw,-1.3,3.2,SN,5.2,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r411,w55,mk_2,110,Hw,2,8.9,LS,22.5,NA,Y,Y,1,0,0,Y,1,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r412,w30,mk_2,110,Hw,2,8.9,LS,7.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r413,w223,mk_2,110,Cw,0.5,9.1,LS,5.6,NA,-,-,NA,NA,NA,-,-,-,S,DS,NA,NA,NA,2,friuting body,NA,NA,NA,NA,NA,regen,NA,-
+r414,w14,mk_2,110,Hw,2.3,9.7,LS,7.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r415,w9,mk_2,110,Hw,2.2,9.9,LS,11,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r416,w65,mk_2,110,Hw,-1.6,12.4,LS,26,20.5,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r417,w122,mk_2,110,Hw,-1.5,11.9,LS,10.5,NA,Y,N,1,0,0,N,-,N,I,NA,NA,4,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r418,w224,mk_2,110,Hw,-1.1,11.8,DS,8.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r419,w225,mk_2,110,Hw,-0.9,12.5,DS,7.5,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r420,w28,mk_2,110,Hw,0.8,15.2,LS,14.4,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r421,w11,mk_2,110,Hw,1.6,15.3,LS,13,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r422,w226,mk_2,110,Hw,0.6,16.9,SN,6.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r423,w108,mk_2,110,Hw,-0.4,17.5,LS,21.7,22.5,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r424,w31,mk_2,110,Hw,2.2,17.9,LS,14,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r425,w227,mk_2,110,Hw,0.5,20.1,DS,6.7,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r426,w7,mk_2,110,Hw,1,20.2,LS,12.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r427,w2,mk_2,110,Hw,-1,19.7,LS,13.2,NA,N,-,0,0,0,-,-,-,I,DS,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r428,w228,mk_2,110,Hw,-1.6,19.6,SN,7.9,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r429,w102,mk_2,110,Hw,-1.8,19.6,LS,13.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,7,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r430,w24,mk_2,110,Hw,-1.9,19.4,LS,13.4,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r431,w22,mk_2,110,Hw,-2.2,19,LS,13.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r432,w229,mk_2,110,Hw,-2,19.6,DS,5.9,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r433,w230,mk_2,110,Hw,-2.4,20,SN,8.3,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r434,w29,mk_2,110,Hw,-1.9,22.4,LL,11.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r435,w231,mk_2,110,Hw,0.5,21.3,SN,6.2,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r436,w232,mk_2,110,Hw,2.3,20.8,SN,8.3,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,forked with r436,NA,NA,NA,NA,NA,regen,NA,DU
+r437,w233,mk_2,110,Hw,2.3,20.8,SN,11.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,forked with r435,NA,NA,NA,NA,NA,regen,NA,DU
+r438,w234,mk_2,110,Hw,-0.9,23,SN,4.1,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r439,w69,mk_2,110,Hw,1.7,24.3,LS,20.5,23.5,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r440,w235,mk_2,110,Hw,1.3,24.3,DS,4.6,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r441,w236,mk_2,110,Hw,1.5,24.9,DS,5.9,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r442,w49,mk_2,110,Hw,-0.6,25.4,LS,22,23.2,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r443,w75,mk_2,110,Hw,2,28.1,LL,11.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r444,w237,mk_2,110,Hw,1.1,28.2,SN,10,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r445,w238,mk_2,110,Hw,1.4,28.5,SN,8.2,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r446,w239,mk_2,110,Hw,2,29.2,SN,14,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r447,w70,mk_2,110,Hw,0,29,LS,7.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r448,w240,mk_2,110,Hw,0.1,29.2,DS,6.9,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r449,w241,mk_2,110,Hw,0.6,29.7,DS,6.8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r450,w58,mk_2,110,Hw,1.2,30.5,LS,20.8,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r451,w242,mk_2,110,Hw,0.7,31.7,SN,7.3,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r452,w42,mk_2,110,Hw,-1.4,31.7,LS,22.4,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,forked with r453,NA,NA,NA,NA,NA,regen,0,0
+r453,w72,mk_2,110,Hw,-1.4,31.7,LS,9.1,NA,Y,N,0,0,1,N,-,N,S,NA,NA,NA,NA,1,forked with r452,NA,NA,NA,NA,NA,regen,1,1
+r454,w46,mk_2,110,Hw,-2,33.8,LS,20.9,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r455,w26,mk_2,110,Hw,-2.1,33.6,LS,4.4,NA,Y,N,0,0,1,N,-,N,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r456,y200,mk_3,115,Hw,2.1,0.2,LS,4.3,NA,Y,Y,0,1,1,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r457,y111,mk_3,115,Hw,1.6,2.9,LS,8.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r458,y201,mk_3,115,Hw,-1,0.3,LL,9,NA,Y,Y,0,0,0,N,-,Y,S,NA,NA,1,NA,1,"Sweeping stem, look low for DBH;",NA,NA,NA,NA,NA,regen,0,IBLC
+r459,y69,mk_3,115,Hw,-1.7,4.3,LS,24,NA,Y,N,1,0,1,N,-,N,D,NA,NA,NA,NA,1,Residual,NA,NA,NA,NA,NA,regen,2,2
+r460,y17,mk_3,115,Hw,-1,4.7,LS,7.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r461,y202,mk_3,115,Dr,1.1,7.3,LS,19.3,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r462,y203,mk_3,115,Mv,-2.4,9.2,LL,6.7,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r463,y204,mk_3,115,Mv,-1.1,10,LS,5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r464,y205,mk_3,115,Mv,-1.6,10.1,LS,5.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r465,y206,mk_3,115,Mv,1.1,13.2,LS,6,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r466,y207,mk_3,115,Mv,1.1,16.1,LL,4.2,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r467,y208,mk_3,115,Mv,-1.9,17.6,LS,4.2,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r468,y209,mk_3,115,Mv,0.4,18.3,LS,4.7,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r469,y124,mk_3,115,Hw,-1,20,LS,13.9,13.6,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r470,y210,mk_3,115,Hw,-2.4,20.1,LS,5.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r471,y1,mk_3,115,Hw,2.2,20.8,LS,6.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r472,y211,mk_3,115,Hw,1.1,21.7,LS,5.6,NA,N,-,0,0,0,-,-,-,S,DS,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r473,y212,mk_3,115,Cw,-0.4,22.3,LS,18.9,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r474,y213,mk_3,120,Hw,0.8,1.6,DS,4.3,NA,Y,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r475,y214,mk_3,120,Hw,0.2,1.9,LS,5.7,NA,Y,N,0,1,0,N,-,Y,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r476,y215,mk_3,120,Hw,-1.5,1.7,LS,6.9,NA,Y,N,1,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r477,y216,mk_3,120,Hw,-1.7,2.5,LS,4.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r478,y217,mk_3,120,Hw,-1.5,3,SN,6.1,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,Wasn't recording crown condition for dead trees at this point,NA,NA,NA,NA,NA,regen,NA,DI
+r479,y218,mk_3,120,Hw,-0.7,2.5,LL,5.8,NA,Y,N,0,0,1,N,-,Y,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r480,y219,mk_3,120,Hw,-0.8,2.4,SN,5.5,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,Wasn't recording crown condition for dead trees at this point,NA,NA,NA,NA,NA,regen,NA,DI
+r481,y220,mk_3,120,Hw,0.6,2.8,LL,6.3,NA,Y,N,0,1,0,N,-,Y,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r482,y221,mk_3,120,Hw,1.4,2.9,LS,4.5,NA,Y,N,0,0,1,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r483,y222,mk_3,120,Hw,1.8,3.2,LL,4.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,5,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r484,y107,mk_3,120,Hw,-0.7,6.9,LS,12.5,10.9,Y,N,1,1,0,N,-,N,C,AX,NA,NA,NA,1,Infection perimeter tree,NA,NA,NA,NA,NA,regen,2,2
+r485,y61,mk_3,120,Hw,1.8,8.6,LS,16.6,12.8,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r486,y223,mk_3,120,Hw,0,10.1,LS,5.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r487,y224,mk_3,120,Ep,0.9,11.3,LS,20.6,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r488,y225,mk_3,121,Hw,-0.6,2,LS,5.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r489,y226,mk_3,121,Hw,1,3.1,LS,4.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r490,y227,mk_3,121,Hw,1,3.2,LS,4.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r491,y228,mk_3,121,Hw,0.4,3.4,LS,5.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r492,y229,mk_3,121,Cw,1.8,4.1,LL,5.4,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r493,y230,mk_3,121,Hw,0.1,3.9,LS,4.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,4,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r494,y231,mk_3,121,Hw,0.3,4.2,LS,5,NA,N,-,0,0,0,-,-,-,S,NA,NA,4,1,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r495,y232,mk_3,121,Hw,0.5,4.5,LS,4.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r496,y233,mk_3,121,Hw,-0.8,3.9,LS,7,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r497,y234,mk_3,121,Hw,-1.9,4.5,LS,8.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r498,y235,mk_3,121,Hw,-1.7,5.1,LS,5.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,5,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r499,y236,mk_3,121,Hw,-2,4.9,LS,4.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r500,y237,mk_3,121,Hw,-2.2,4.9,LS,4.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r501,y238,mk_3,121,Hw,-2.2,5.3,LS,6.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r502,y239,mk_3,121,Hw,2.3,7.4,LS,7.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r503,y240,mk_3,121,Hw,1.4,7.8,SN,5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r504,y113,mk_3,121,Hw,0.8,9.7,LS,8.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r505,y65,mk_3,121,Hw,-0.8,8.7,LS,24,NA,N,-,0,0,0,-,-,-,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r506,y241,mk_3,121,Hw,-0.4,9.6,DS,4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r507,y103,mk_3,121,Hw,-1,9.7,LS,12.4,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r508,y242,mk_3,121,Hw,-1,9.9,LS,4.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r509,y119,mk_3,121,Hw,-0.6,10.1,LS,9.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r510,y243,mk_3,121,Hw,-2.5,9,LS,5.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r511,y244,mk_3,121,Cw,0,12.6,LS,8.4,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r512,y245,mk_3,121,Cw,-1.9,10.3,LS,11.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r513,y63,mk_3,121,Hw,1.1,12.4,LS,13.5,16.1,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r514,y101,mk_3,121,Hw,1.2,12.5,LS,11.7,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r515,y7,mk_3,121,Hw,1.2,13.2,LS,11.7,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r516,y246,mk_3,121,Cw,1.7,14,LS,14.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r517,y247,mk_3,121,Cw,-0.3,14.4,LS,6.9,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r518,y248,mk_3,121,Hw,1.4,14.1,DS,4,NA,N,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r519,y249,mk_3,121,Dr,1.6,15.7,LS,5.6,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r520,y8,mk_3,121,Hw,-0.7,14.4,LS,11.9,13.3,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r521,y250,mk_3,121,Cw,-1.6,15.2,LS,5.4,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r522,w100,mk_1,100,Fd,-0.6,0.6,LL,8.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r523,w123,mk_1,100,Fd,0,0.9,LL,5.1,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r524,w65,mk_1,100,Hw,-0.9,2.8,LS,8.9,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r525,w18,mk_1,100,Hw,0.3,1.9,LS,19.5,NA,Y,Y,2,1,1,N,-,N,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,4,4
+r526,w67,mk_1,100,Hw,1.4,3.7,LL,11.8,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r527,w66,mk_1,100,Hw,0,5.2,LS,7.5,NA,Y,Y,1,0,1,N,-,N,S,NA,NA,4,NA,2,NA,NA,NA,NA,NA,NA,regen,2,2
+r528,w64,mk_1,100,Hw,-2.1,5.3,LS,17.1,NA,Y,Y,1,0,0,N,-,N,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r529,w59,mk_1,100,Hw,1.1,5.7,LS,18,NA,Y,N,1,1,0,N,-,N,D,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r530,w50,mk_1,100,Hw,1.4,6.2,LS,7.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r531,w103,mk_1,100,Hw,0.8,6.3,LS,8.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r532,w71,mk_1,100,Hw,1.2,6.2,LS,6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r533,w121,mk_1,100,Hw,1.3,6.4,LS,11.8,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,HDM blc had a (-) but had DMR 0 so assumed there was some blc.,NA,NA,NA,NA,NA,regen,0,IBLC
+r534,w49,mk_1,100,Hw,1.1,8.4,LS,8.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r535,w36,mk_1,100,Hw,-2.1,12.6,LS,8.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r536,w104,mk_1,100,Hw,-2.3,14,LS,9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r537,w21,mk_1,100,Hw,-0.7,15,SN,8.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r538,w5,mk_1,100,Hw,0.4,15,LS,13.1,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r539,w117,mk_1,100,Hw,-0.2,15.2,LS,7.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r540,w118,mk_1,100,Hw,-2.5,15.1,LS,4.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r541,w119,mk_1,100,Hw,-2.3,15.8,LS,5.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r542,w20,mk_1,100,Hw,-0.5,16.9,LS,10.5,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r543,w116,mk_1,100,Hw,-1.1,17,LS,10.4,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r544,w9,mk_1,100,Hw,1.1,17.1,LS,12.4,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r545,w19,mk_1,100,Hw,-0.1,17.3,DS,4.2,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,Crown condition recorded as 2 but doesn't make sense - tree dead.,NA,NA,NA,NA,NA,regen,NA,DU
+r546,w24,mk_1,100,Hw,-0.8,17.4,LS,5.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r547,w30,mk_1,100,Hw,-1.3,17.4,LS,6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r548,w42,mk_1,100,Hw,0.6,18.3,LS,12.5,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r549,w55,mk_1,100,Hw,2.5,18.3,LS,8,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r550,w76,mk_1,100,Cw,-0.3,19.1,LS,31,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r551,w68,mk_1,100,Hw,-1.5,4.1,LS,4.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r552,w62,mk_1,100,Hw,2.2,19.2,LS,7.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r553,w54,mk_1,100,Hw,2.2,19.2,LS,7.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r554,w29,mk_1,100,Hw,1.8,19.7,LS,7.6,NA,Y,Y,0,0,0,N,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r555,w63,mk_1,100,Hw,-2.2,21.7,LS,9.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r556,y5,mk_1,101,Hw,-2.1,1,LL,8.2,NA,Y,Y,0,0,1,N,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r557,y126,mk_1,101,Hw,1.4,1.3,LS,10.9,NA,Y,Y,1,0,0,N,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r558,y37,mk_1,101,Hw,0,1.9,LS,7.4,NA,Y,N,1,0,0,N,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r559,y57,mk_1,101,Hw,-1.7,2.9,LS,6,NA,N,-,0,0,0,-,-,-,I,NA,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r560,y103,mk_1,101,Hw,2.3,3.4,LS,23.2,NA,Y,Y,2,1,1,Y,1,Y,C,NA,NA,NA,NA,1,Residual?,NA,NA,NA,NA,NA,regen,4,4
+r561,y4,mk_1,101,U,2,4.4,SN,9.8,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r562,y130,mk_1,101,Hw,1.4,4.6,DS,7.7,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r563,y14,mk_1,101,Hw,-1.6,5,LS,15.5,NA,Y,Y,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r564,y119,mk_1,101,Hw,-1.2,5,DS,6.1,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r565,y111,mk_1,101,Hw,-1.3,5.6,DS,7,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r566,y105,mk_1,101,Hw,-1,5.9,LS,11,NA,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r567,y2,mk_1,101,Hw,-0.7,6,DS,5.6,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r568,y38,mk_1,101,Hw,2.2,5.8,LS,19.4,NA,Y,Y,2,1,1,Y,1,N,C,NA,NA,NA,NA,1,Forked with r569,NA,NA,NA,NA,NA,regen,4,4
+r569,y58,mk_1,101,Hw,2.4,5.8,LS,10.3,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,2,NA,1,Forked with r568,NA,NA,NA,NA,NA,regen,0,IBLC
+r570,y200,mk_1,101,Hw,0.8,6.7,LS,5.4,NA,Y,Y,1,0,0,N,-,N,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r571,y201,mk_1,101,Hw,-0.5,6.7,DS,4.4,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,-,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r572,y202,mk_1,101,Hw,-2.3,7.4,DS,6.8,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,1,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r573,y203,mk_1,101,Dr,0,7.7,DS,8.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,1,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r574,y204,mk_1,101,Hw,0.7,9,LS,18.9,NA,Y,Y,2,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r575,y205,mk_1,101,Hw,1.2,10.4,LS,21.8,NA,Y,Y,2,1,0,Y,1,Y,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,3,3
+r576,y206,mk_1,101,Hw,0.9,9.9,LS,6.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r577,y207,mk_1,101,Hw,1.7,10.3,DS,5,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r578,y208,mk_1,101,Dr,1.8,10.3,LL,7.9,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r579,y209,mk_1,101,Hw,-2.3,10.4,LS,19.3,NA,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r580,y210,mk_1,101,Hw,-2.3,10.4,LS,11.3,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r581,y211,mk_1,101,Hw,-2.3,12,LS,11.7,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r582,y212,mk_1,101,Hw,-1.8,12.7,LS,11.9,NA,Y,Y,1,1,0,N,-,N,I,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,2,2
+r583,y213,mk_1,101,Dr,0.1,11.7,LS,9.4,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r584,y214,mk_1,101,Hw,-0.4,12.7,DS,5.7,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r585,y215,mk_1,101,Hw,1.5,11.8,LS,6.8,NA,Y,N,0,1,0,N,-,N,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r586,y216,mk_1,101,Hw,2.2,12.4,LS,15.3,NA,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r587,y217,mk_1,101,Hw,-0.9,12.4,LS,13.6,NA,Y,Y,1,0,0,Y,8,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r588,y218,mk_1,101,Hw,0.2,12.9,DS,5.7,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r589,y219,mk_1,101,Hw,0.6,13.4,LS,15.3,NA,Y,Y,1,0,0,N,-,N,C,NA,NA,4,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r590,y220,mk_1,101,Hw,1.1,13.7,LS,10.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r591,y221,mk_1,101,Hw,1.3,14.5,LS,10.8,NA,Y,Y,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r592,y222,mk_1,101,Hw,-0.1,13.9,LS,16.2,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r593,y223,mk_1,101,Hw,-2.3,13.4,LS,9.2,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r594,y224,mk_1,101,Hw,-0.8,14.4,DS,4.9,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r595,y225,mk_1,101,Hw,-1.7,14.6,LS,16.7,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r596,y226,mk_1,101,Hw,-2.1,14.6,LS,7.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,5,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r597,y227,mk_1,101,Hw,-1.9,14.7,DS,5.7,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r598,y228,mk_1,101,Hw,1.4,16,LS,18.2,NA,Y,Y,1,0,0,Y,8,Y,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r599,y229,mk_1,101,Hw,2.4,15.8,LS,17.7,NA,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r600,y230,mk_1,101,Hw,-2.5,16,LS,13.5,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r601,y231,mk_1,101,Hw,-2.3,16.1,DS,5.4,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r602,y232,mk_1,101,Hw,-2.2,16.4,LS,9.9,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r603,y233,mk_1,101,Hw,0.1,18.2,LS,15,NA,Y,Y,0,0,0,Y,8,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r604,y234,mk_1,101,Hw,0.4,19,LS,18.3,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r605,y235,mk_1,101,Hw,-2.3,19.9,LS,9.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r606,y236,mk_1,101,Hw,-1.9,20.3,LS,20.3,NA,Y,N,0,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r607,y237,mk_1,101,Hw,-2.1,21,LS,15.1,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r608,y238,mk_1,101,Hw,-2.3,21,LS,6.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r609,y239,mk_1,101,Hw,-2.2,21.5,SN,6.3,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r610,y240,mk_1,101,Hw,1.8,20.2,LS,10,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r611,y241,mk_1,101,Hw,2,20.3,LS,9.4,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r612,y242,mk_1,101,Fd,1.5,21,LS,11.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r613,y243,mk_1,102,Cw,0,3.4,LL,5.5,NA,-,-,NA,NA,NA,-,-,-,I,NW,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r614,y244,mk_1,102,Hw,0.9,3.5,LL,8.8,NA,N,-,0,0,0,-,-,-,I,NW,NA,NA,NA,1,forked with r615,NA,NA,NA,NA,NA,regen,0,0
+r615,y245,mk_1,102,Hw,0.9,3.5,LL,5.7,NA,N,-,0,0,0,-,-,-,I,NW,NA,NA,NA,2,forked with r614,NA,NA,NA,NA,NA,regen,0,0
+r616,y246,mk_1,102,Hw,0.6,4.2,DS,8.6,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r617,y247,mk_1,102,Hw,2,3.9,LL,10.7,NA,N,-,0,0,0,-,-,-,S,DD,NA,NA,NA,1,fruiting body,NA,NA,NA,NA,NA,regen,0,0
+r618,y248,mk_1,102,Hw,-2,4,LS,5.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r619,y249,mk_1,102,Hw,-1.7,5.1,LS,17,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r620,y250,mk_1,102,Hw,-2.1,5,LS,11.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r621,y251,mk_1,102,Hw,0.6,5.7,LS,7,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r622,y252,mk_1,102,Hw,2.5,6.4,DS,4.8,NA,N,-,NA,NA,NA,-,-,-,-,NF,NA,NA,NA,-,in creek bed,NA,NA,NA,NA,NA,regen,NA,DU
+r623,y253,mk_1,102,Hw,-2.4,6.3,LS,5.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r624,y254,mk_1,102,Hw,-1.5,7.7,LS,11.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r625,y255,mk_1,102,Hw,-1.4,8.4,LS,9.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r626,y256,mk_1,102,Hw,-0.4,9.5,LS,5.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r627,y257,mk_1,102,Hw,-1.8,10.5,LS,14.6,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r628,y258,mk_1,102,Hw,-2.2,14.4,LS,21,19.5,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r629,y259,mk_1,102,Hw,-1,15.9,LS,7.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r630,y260,mk_1,102,Hw,-1.6,16.1,DS,4.1,NA,N,-,NA,NA,NA,-,-,-,S,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r631,y261,mk_1,102,Hw,-1.2,17.1,LS,13.6,15.6,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r632,y262,mk_1,102,Hw,-2,17.7,LS,10.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r633,y263,mk_1,102,Hw,0.6,16.7,LS,13.5,17,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r634,y264,mk_1,102,Hw,0.9,16,LS,20,18.3,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r635,y265,mk_1,102,Hw,1.5,15.8,LS,10.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r636,y266,mk_1,102,Hw,1.9,17.8,LS,19,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r637,y267,mk_1,102,Cw,1.5,18.6,DS,5.3,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,-,Clump r637-r639,NA,NA,NA,NA,NA,regen,NA,-
+r638,y268,mk_1,102,Cw,1.5,18.6,LS,11.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,Clump r637-r639,NA,NA,NA,NA,NA,regen,NA,-
+r639,y269,mk_1,102,Cw,1.5,18.6,LS,6.3,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,Clump r637-r639,NA,NA,NA,NA,NA,regen,NA,-
+r640,y270,mk_1,102,Hw,0.7,20.7,LS,16.4,17.8,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r641,y271,mk_1,102,Cw,-1.1,20.8,LS,8,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r642,y272,mk_1,102,Cw,-2.4,21.3,LS,6,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,5,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r643,y273,mk_1,102,Hw,1.1,22.1,DS,5.1,NA,N,-,NA,NA,NA,-,-,-,S,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r644,y274,mk_1,102,Hw,2,22,LS,4.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r645,w52,mi_2,122,Hw,-0.3,0.9,LS,7.5,NA,Y,Y,0,1,0,N,-,N,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r646,w62,mi_2,122,Hw,-1,1.3,LS,4.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r647,w101,mi_2,122,Hw,-0.7,2.6,LS,4.9,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,-,NA,2,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r648,w40,mi_2,122,Hw,-0.2,2.9,LS,7.2,NA,Y,Y,1,1,0,N,-,N,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r649,w43,mi_2,122,Hw,-1.9,2.9,LS,5.6,NA,Y,Y,0,1,0,N,-,N,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r650,w112,mi_2,122,Hw,-2.5,3.4,LS,9.4,NA,Y,Y,0,1,0,N,-,N,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r651,w123,mi_2,122,Hw,1.5,3.1,LS,10.7,NA,Y,Y,2,2,1,N,-,N,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,5,5
+r652,w6,mi_2,122,Hw,0.6,5,LS,10.2,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,1,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r653,w51,mi_2,122,Hw,2.5,5.3,LS,14.9,NA,Y,Y,1,1,1,N,-,N,C,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,3,3
+r654,w21,mi_2,122,Hw,2.3,6.2,LS,10.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r655,w60,mi_2,122,Hw,-0.9,5.6,LS,11.4,NA,Y,Y,1,1,0,N,-,N,C,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r656,w75,mi_2,122,Fd,-1.1,6.4,DS,8.8,NA,-,-,NA,NA,NA,-,-,-,-,DRA,NA,-,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r657,w2,mi_2,122,Hw,0.7,10.5,LS,7.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,Forked with r658 and r660,NA,NA,NA,NA,NA,regen,0,0
+r658,w41,mi_2,122,Hw,0.5,10.7,LS,19.9,NA,Y,Y,1,1,0,N,-,N,C,IB,AX,-,NA,1,Forked with r660 and r657,NA,NA,NA,NA,NA,regen,2,2
+r659,w70,mi_2,122,Hw,1.1,11.5,LS,21.3,NA,Y,Y,1,1,0,N,-,N,C,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r660,w73,mi_2,122,Hw,0.9,11.7,LS,11.5,NA,Y,N,0,1,0,N,-,N,I,NA,NA,NA,NA,1,forked with r657 and r658,NA,NA,NA,NA,NA,regen,1,1
+r661,w45,mi_2,122,Cw,2.1,12.3,LS,8.3,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r662,w59,mi_2,122,Ep,-0.1,11,SN,6.4,NA,-,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r663,w4,mi_2,122,Hw,-1.2,15.2,LS,19.1,NA,Y,Y,1,0,0,N,-,N,C,IB,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r664,w10,mi_2,122,Hw,-1.1,15.4,LS,15.7,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r665,w16,mi_2,122,Hw,-1.6,15.5,LS,5.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r666,w100,mi_2,122,Hw,-2.1,16.3,LS,11.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r667,w48,mi_2,122,Hw,2.1,14.4,LS,19.7,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r668,w108,mi_2,122,Ep,1.4,16.9,LL,9.8,NA,-,-,NA,NA,NA,-,-,-,I,NX,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r669,y67,mi_2,124,Hw,-1.1,1.9,LS,4.9,NA,Y,Y,1,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r670,y11,mi_2,124,Hw,-1.2,2.2,LS,7,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r671,y122,mi_2,124,Hw,-1.1,2.6,LS,5.8,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r672,y30,mi_2,124,Hw,1.9,1.2,LS,5.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r673,y66,mi_2,124,Hw,0.5,3.2,LS,8,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r674,y38,mi_2,124,Hw,-2.2,3.7,DS,4.6,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r675,y63,mi_2,124,Hw,-1.8,5.1,LS,9,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r676,y31,mi_2,124,Hw,-1.5,6.6,SN,6.9,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r677,y10,mi_2,124,Hw,-2,7,LS,16,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r678,y106,mi_2,124,Hw,-0.5,8,LS,8.3,NA,Y,N,1,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r679,y110,mi_2,124,Hw,-0.2,8.2,LS,18.9,NA,Y,Y,1,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r680,y27,mi_2,124,Hw,1.6,7.4,LL,4,NA,Y,N,0,0,1,N,-,N,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r681,y123,mi_2,124,Hw,2.3,7.6,LS,5.2,NA,Y,N,1,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r682,y102,mi_2,124,Hw,1.5,8.1,LS,11.5,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r683,y26,mi_2,124,Hw,2.4,8.4,DS,8.7,NA,Y,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r684,y107,mi_2,124,Hw,2,8.8,DS,4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,5,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r685,y101,mi_2,124,Hw,1.9,8.8,LS,6.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r686,y13,mi_2,124,Hw,1.7,9,DS,4.8,NA,Y,-,NA,NA,NA,-,-,-,-,U,NA,-,NA,-,Forked with smaller Hw,NA,NA,NA,NA,NA,regen,NA,DI
+r687,y35,mi_2,124,Hw,1.1,9.5,LS,6.3,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r688,y64,mi_2,124,Hw,2.1,11.3,LS,4.5,NA,Y,Y,1,0,0,N,-,N,S,NA,NA,NA,NA,1,Forked with r689,NA,NA,NA,NA,NA,regen,1,1
+r689,y65,mi_2,124,Hw,2.2,11.3,LS,5.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,Forked with r688,NA,NA,NA,NA,NA,regen,0,0
+r690,y21,mi_2,124,Hw,2.4,11.9,LS,15.9,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r691,y55,mi_2,124,Hw,1.9,13.8,DS,4.6,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,Mistletoe infection in tree adjacent to this one but below transect DBH cutoff,NA,NA,NA,NA,NA,regen,NA,DU
+r692,y118,mi_2,124,Hw,2.3,13.8,LS,7,NA,Y,N,1,0,1,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r693,y125,mi_2,124,Hw,2.2,14.5,LS,11.4,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r694,y68,mi_2,124,Hw,-2.3,12.2,LS,14.5,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r695,y4,mi_2,124,Hw,-2.5,12.5,LS,15.3,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r696,y114,mi_2,124,Hw,-0.4,13.6,LS,6.4,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r697,y115,mi_2,124,Hw,-0.1,14.3,LS,14,NA,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r698,y105,mi_2,124,Hw,-0.4,14.2,LS,6,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r699,y124,mi_2,124,Hw,-0.3,15.4,LS,15.2,NA,N,-,0,0,0,-,-,-,C,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r700,y128,mi_2,124,Hw,-0.9,15.6,DS,4.6,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,-,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DI
+r701,y70,mi_2,124,Hw,-1.3,15.4,DS,4,NA,N,-,NA,NA,NA,-,-,-,-,DRA,NA,-,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r702,y40,mi_2,124,Hw,-1.3,15.6,LS,5.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r703,y58,mi_2,124,Hw,-2,15.2,LS,4.5,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,-,NA,2,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r704,y129,mi_2,124,Hw,-2.2,15.2,LS,5.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,NA,Missing crown condition,NA,NA,NA,NA,NA,regen,0,0
+r705,w104,mi_2,129,Hw,-1.3,1.7,LS,7.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r706,w69,mi_2,129,Hw,1.1,1.3,LS,5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r707,w125,mi_2,129,Hw,1.4,1.3,LS,4.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r708,w39,mi_2,129,Hw,1.4,1.7,LS,5.7,NA,Y,N,1,0,0,N,-,N,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r709,w119,mi_2,129,Hw,1.8,1.7,LS,4.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r710,w5,mi_2,129,Hw,2.4,2.6,LS,6.6,NA,Y,N,1,1,0,N,-,N,I,NA,NA,5,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r711,w34,mi_2,129,Hw,-1.8,5.2,LL,8.6,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r712,w107,mi_2,129,Hw,-1.5,5.2,LL,4.6,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r713,w72,mi_2,129,Hw,1.9,4.7,LS,9,NA,Y,N,1,0,0,N,-,N,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r714,w3,mi_2,129,Hw,2.2,5.2,LS,7.8,NA,Y,N,1,1,0,N,-,N,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r715,w49,mi_2,129,Hw,0.6,6.1,LS,7.9,NA,Y,Y,1,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r716,w42,mi_2,129,Hw,-0.9,5.9,LS,9,NA,Y,Y,0,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r717,w103,mi_2,129,Hw,-1.5,6.6,LS,7,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r718,w111,mi_2,129,Hw,-0.6,6.6,LS,6.3,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r719,w105,mi_2,129,Hw,-2.5,6.9,LS,5.7,NA,Y,Y,2,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r720,w37,mi_2,129,Hw,-2.5,9,LS,22.9,NA,Y,Y,1,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r721,w35,mi_2,129,Hw,-1.2,9.2,LS,4.8,NA,Y,N,1,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r722,w66,mi_2,129,Hw,0.5,8.1,LS,6.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r723,w46,mi_2,129,Hw,2,7.8,LS,8.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r724,w118,mi_2,129,Hw,2.2,7.8,LS,8.3,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r725,w7,mi_2,129,Hw,1.6,9.7,LS,12.7,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r726,w44,mi_2,129,Hw,-0.2,10.4,LL,8.3,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,1,1
+r727,w116,mi_2,129,Hw,0.3,10.5,LL,8.2,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r728,w106,mi_2,129,Hw,1.1,10.7,LS,14,NA,Y,Y,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r729,w14,mi_2,129,Hw,-1.2,10.4,LS,4.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,0,0
+r730,w1,mi_2,129,Hw,1.5,11.4,DS,8,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r731,w8,mi_2,129,Hw,1.3,12,LS,6.6,NA,Y,N,1,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,2,2
+r732,w13,mi_2,129,Fd,-2,14.3,LS,11.2,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,7,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r733,w109,mi_2,129,Hw,-0.8,16.5,LS,15.3,NA,Y,Y,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r734,w102,mi_2,129,Fd,0.6,14.4,DS,9,NA,-,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
+r735,w47,mi_2,129,Hw,2.3,13.3,LS,16.8,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+m1,y58,cr_1,28,Hw,NA,NA,LS,14.5,NA,Y,Y,2,1,1,Y,1,Y,S,NA,NA,-,-,1,NA,4.1,352.6,NA,NA,NA,mature,4,4
+m2,y128,cr_1,28,Hw,NA,NA,LL,14.7,NA,Y,Y,2,2,2,Y,4,Y,S,NA,NA,-,-,2,NA,4.3,343.7,NA,NA,NA,mature,6,6
+m3,y15,cr_1,28,Cw,NA,NA,DS,95,NA,-,-,NA,NA,NA,-,-,-,-,AX,NB,-,-,-,NA,5.4,24.6,NA,NA,NA,mature,NA,-
+m4,y122,cr_1,28,Hw,NA,NA,LS,43.9,25.6,Y,Y,2,2,2,Y,7,Y,C,NA,NA,-,-,1,NA,8,9,NA,NA,NA,mature,6,6
+m5,y67,cr_1,28,Hw,NA,NA,LS,11.2,NA,Y,Y,2,2,2,Y,1,Y,S,NA,NA,-,-,2,NA,8.5,37.7,NA,NA,NA,mature,6,6
+m6,y21,cr_1,28,Hw,NA,NA,LL,14.7,NA,Y,Y,2,2,2,Y,7,Y,S,NA,NA,-,-,2,NA,6.6,34.8,NA,NA,NA,mature,6,6
+m7,y101,cr_1,28,Hw,NA,NA,LS,27.9,29.7,Y,Y,2,2,2,Y,4,Y,C,NA,NA,1,-,1,m7 and m8 forked,5.3,51.9,NA,NA,NA,mature,6,6
+m8,y13,cr_1,28,Hw,NA,NA,LS,23.2,NA,Y,Y,2,2,2,Y,7,N,C,NA,NA,-,-,1,m7 and m8 forked,5.3,51.9,NA,NA,NA,mature,6,6
+m9,y30,cr_1,28,Hw,NA,NA,LS,21.2,NA,Y,Y,2,2,2,Y,7,Y,I,NA,NA,1,-,1,creek bank edge tree,8.3,46.7,NA,NA,NA,mature,6,6
+m10,y14,cr_1,28,Hw,NA,NA,LS,49.6,34.9,Y,Y,2,2,2,Y,7,N,C,NA,NA,-,-,1,m10 and m11 forked,5,92.9,NA,NA,NA,mature,6,6
+m11,y115,cr_1,28,Hw,NA,NA,LS,30,NA,Y,Y,2,2,1,Y,4,Y,I,NA,NA,1,-,2,m10 and m11 forked; dbh estimated; creek bank edge tree,5,92.9,NA,NA,NA,mature,5,5
+m12,y52,cr_1,28,Hw,NA,NA,LS,12.4,NA,Y,Y,2,1,2,Y,8,Y,S,NA,NA,-,-,1,NA,1,263.7,NA,NA,NA,mature,5,5
+m13,w61,cr_1,27,Cw,NA,NA,LS,16.4,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,1,-,1,NA,2.5,333.1,NA,NA,NA,mature,NA,-
+m14,w19,cr_1,27,Hw,NA,NA,LS,38.3,31.2,Y,Y,2,2,1,Y,4,Y,C,NA,NA,1,-,2,NA,3.7,358.3,NA,NA,NA,mature,5,5
+m15,w20,cr_1,27,Hw,NA,NA,LS,40.8,NA,Y,Y,2,2,2,Y,7,Y,C,NA,NA,-,-,2,NA,4.7,69.6,NA,NA,NA,mature,6,6
+m16,w53,cr_1,27,Hw,NA,NA,LS,39.9,NA,Y,Y,2,2,2,Y,7,N,C,NA,NA,-,-,1,"high on log, dbh estimated",7.2,76.4,NA,NA,NA,mature,6,6
+m17,w13,cr_1,27,Hw,NA,NA,LS,26.2,NA,Y,Y,2,2,1,Y,4,N,I,NA,NA,-,-,1,NA,4.1,154.2,NA,NA,NA,mature,5,5
+m18,w32,cr_1,27,Mb,NA,NA,LS,69.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,-,1,creek bank edge tree,6.2,161.4,NA,NA,NA,mature,NA,-
+m19,w3,cr_1,27,Hw,NA,NA,LS,16.4,NA,Y,Y,2,2,1,Y,7,Y,I,NA,NA,-,-,1,NA,4.9,175.7,NA,NA,NA,mature,5,5
+m20,w71,cr_1,27,Hw,NA,NA,LS,23.8,NA,Y,Y,2,2,2,Y,7,Y,I,NA,NA,-,-,1,NA,5.6,206.5,NA,NA,NA,mature,6,6
+m21,w100,cr_1,27,Hw,NA,NA,LS,16.5,NA,Y,Y,2,2,1,Y,1,Y,S,NA,NA,1,-,1,NA,5.2,220.6,NA,NA,NA,mature,5,5
+m22,w17,cr_1,27,Hw,NA,NA,RD,12.4,NA,Y,Y,2,2,2,Y,1,N,-,DRA,NA,1,-,-,NA,6.6,211.3,NA,NA,NA,mature,6,6
+m23,w7,cr_1,27,Hw,NA,NA,LS,30.8,25.7,Y,Y,2,2,2,Y,7,Y,C,NA,NA,-,-,1,NA,6.6,222.6,NA,NA,NA,mature,6,6
+m24,w121,cr_1,27,Hw,NA,NA,LS,52.6,32.7,Y,Y,2,2,2,Y,7,Y,C,NA,NA,-,-,1,NA,2,243.6,NA,NA,NA,mature,6,6
+m25,w52,cr_1,27,Hw,NA,NA,RD,11.1,NA,Y,Y,2,2,2,Y,2,N,-,DRA,NA,NA,-,-,NA,1.4,224.6,NA,NA,NA,mature,6,6
+m26,y20,cr_1,26,Mb,NA,NA,LS,45.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,1,-,1,NA,3.4,304.4,NA,NA,NA,mature,NA,-
+m27,y59,cr_1,26,Hw,NA,NA,LS,38,26.8,Y,Y,2,2,2,Y,7,Y,C,NA,NA,-,-,1,NA,3.8,322.1,NA,NA,NA,mature,6,6
+m28,y1,cr_1,26,Fd,NA,NA,LS,84,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,1,-,1,NA,1.9,337.9,NA,NA,NA,mature,NA,-
+m29,y126,cr_1,26,Hw,NA,NA,LS,33.2,28.4,Y,Y,2,2,1,Y,4,Y,C,NA,NA,1,-,1,NA,6.5,15,NA,NA,NA,mature,5,5
+m30,y53,cr_1,26,Cw,NA,NA,LS,136,NA,-,-,NA,NA,NA,-,-,-,D,AX,NA,-,-,1,NA,6.4,69,NA,NA,NA,mature,NA,-
+m31,y16,cr_1,26,Hw,NA,NA,LS,28.5,NA,Y,Y,2,2,1,Y,4,Y,I,NA,NA,-,-,1,NA,3.3,105.4,NA,NA,NA,mature,5,5
+m32,y130,cr_1,26,Hw,NA,NA,LS,34,32.8,Y,Y,2,2,2,Y,7,Y,C,NA,NA,-,-,2,NA,5.4,144.8,NA,NA,NA,mature,6,6
+m33,y10,cr_1,26,Hw,NA,NA,LS,13.9,NA,Y,Y,2,1,1,Y,8,N,I,NA,NA,-,-,1,pg. 2/2,5.2,183.2,NA,NA,NA,mature,4,4
+m34,w119,cr_1,26,Mb,NA,NA,LS,47.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,5,-,1,NA,10.1,187.1,NA,NA,NA,mature,NA,-
+m35,w25,cr_1,26,Hw,NA,NA,LS,39.3,33,Y,Y,2,2,1,Y,4,Y,C,NA,NA,-,-,1,creek bank edge tree,11.4,181.7,NA,NA,NA,mature,5,5
+m36,y12,cr_1,26,Hw,NA,NA,SN,49.8,NA,Y,-,NA,NA,NA,-,-,-,-,AX,NA,-,-,-,NA,2.5,209.2,NA,NA,NA,mature,NA,DI
+m37,y69,cr_1,26,Cw,NA,NA,DS,9,NA,-,-,NA,NA,NA,-,-,-,-,DRA,NA,-,-,-,NA,5.2,233.6,NA,NA,NA,mature,NA,-
+m38,y55,cr_1,26,Cw,NA,NA,LS,13.2,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,-,-,1,NA,6.7,234.1,NA,NA,NA,mature,NA,-
+m39,y23,cr_1,26,Cw,NA,NA,LS,16,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,-,-,1,NA,7.7,236.9,NA,NA,NA,mature,NA,-
+m40,w111,cr_1,25,Hw,NA,NA,LS,41.2,27.7,Y,Y,2,2,1,Y,4,Y,C,NA,NA,1,-,1,NA,7.3,268.5,NA,NA,NA,mature,5,5
+m41,w5,cr_1,25,Hw,NA,NA,LS,48.3,31.9,Y,N,2,2,1,Y,4,Y,C,NA,NA,-,-,1,NA,5.6,36.7,NA,NA,NA,mature,5,5
+m42,w66,cr_1,25,Hw,NA,NA,LS,31.8,NA,Y,Y,2,2,1,Y,4,Y,C,NA,NA,1,-,1,NA,3.9,129.1,NA,NA,NA,mature,5,5
+m43,w115,cr_1,25,Hw,NA,NA,LS,16.5,NA,Y,Y,2,1,0,Y,1,Y,S,NA,NA,1,-,1,NA,3,170.9,NA,NA,NA,mature,3,3
+m44,y101,mi_1,21,Hw,NA,NA,LS,45.4,NA,Y,N,2,2,1,Y,4,N,C,AX,NA,-,-,1,"DBH @ 1.2m, 1.3m inaccessible",6.7,155.7,NA,NA,NA,mature,5,5
+m45,y100,mi_1,21,Hw,NA,NA,LS,60.1,41.5,Y,N,2,2,1,Y,4,N,C,NA,NA,-,-,2,"DBH @ 1.2m, 1.3m inaccessible",6,161.5,NA,NA,NA,mature,5,5
+m46,y103,mi_1,21,Hw,NA,NA,LS,12.5,NA,Y,Y,0,1,0,N,-,N,S,NX,NA,-,-,1,NA,4.8,133.1,NA,NA,NA,mature,1,1
+m47,y105,mi_1,21,Ep,NA,NA,DS,35.6,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,5,6,-,NA,5.7,197.2,NA,NA,NA,mature,NA,-
+m48,y106,mi_1,21,Hw,NA,NA,LS,14.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,-,1,j shaped,4.8,212.8,NA,NA,NA,mature,0,0
+m49,y107,mi_1,21,Hw,NA,NA,LS,13.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,-,2,NA,5.2,230,NA,NA,NA,mature,0,0
+m50,y108,mi_1,21,Hw,NA,NA,LS,57.5,40.6,Y,Y,1,1,0,N,-,-,C,NA,NA,-,-,1,NA,4.5,238.4,NA,NA,NA,mature,2,2
+m51,y110,mi_1,21,Hw,NA,NA,LS,23.8,NA,Y,Y,0,1,0,N,-,-,I,NA,NA,1,-,2,NA,2.8,291.1,NA,NA,NA,mature,1,1
+m52,y115,mi_1,21,Hw,NA,NA,LS,42.9,NA,Y,Y,2,0,1,Y,1,N,C,NA,NA,5,-,1,Leaning ~ 60 deg,3.7,329.8,NA,NA,NA,mature,3,3
+m53,y116,mi_1,21,Cw,NA,NA,LS,29.9,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,-,-,1,NA,5.3,333.4,NA,NA,NA,mature,NA,-
+m54,y114,mi_1,21,Hw,NA,NA,LS,39.1,NA,Y,Y,2,1,0,Y,1,N,C,NA,NA,-,-,1,NA,4.4,23.4,NA,NA,NA,mature,3,3
+m55,y113,mi_1,21,Hw,NA,NA,LS,60.4,NA,Y,Y,2,2,0,Y,4,N,C,AX,NA,1,-,1,forked with m56,4.7,66.5,NA,NA,NA,mature,4,4
+m56,y112,mi_1,21,Hw,NA,NA,LS,64.8,39.3,Y,Y,2,1,0,Y,4,N,C,NA,NA,1,-,1,forked with m55,3.7,71.1,NA,NA,NA,mature,3,3
+m57,y111,mi_1,21,Hw,NA,NA,LS,20.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,-,2,NA,2.7,95.5,NA,NA,NA,mature,0,0
+m58,w42,mi_1,22,Hw,NA,NA,LS,14.6,NA,Y,Y,0,1,0,Y,8,N,S,NA,NA,-,-,1,NA,6.4,179.4,NA,NA,NA,mature,1,1
+m59,w41,mi_1,22,Hw,NA,NA,LS,20.8,NA,Y,Y,2,1,1,N,-,-,S,NA,NA,1,-,2,NA,8.5,195.3,NA,NA,NA,mature,4,4
+m60,w45,mi_1,22,Hw,NA,NA,DS,18.6,NA,N,-,NA,NA,NA,-,-,-,S,DRA,NA,1,-,-,NA,6.8,215.6,NA,NA,NA,mature,NA,DU
+m61,w44,mi_1,22,Hw,NA,NA,LS,57,35.9,Y,Y,2,1,1,Y,1,N,C,NA,NA,-,-,1,NA,7.7,223,NA,NA,NA,mature,4,4
+m62,w2,mi_1,22,Hw,NA,NA,LS,20.3,NA,Y,Y,2,2,1,Y,1,N,I,NA,NA,-,-,1,NA,4.3,294.4,NA,NA,NA,mature,5,5
+m63,w1,mi_1,22,Hw,NA,NA,DS,17,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,1,-,-,NA,2.3,306.2,NA,NA,NA,mature,NA,DI
+m64,w34,mi_1,22,Hw,NA,NA,LS,42.6,32.2,Y,Y,2,2,1,Y,7,N,I,NA,NA,1,-,1,NA,5.5,26.3,NA,NA,NA,mature,5,5
+m65,w40,mi_1,22,Hw,NA,NA,LS,19.7,NA,Y,Y,2,2,1,N,-,-,S,NA,NA,-,-,2,NA,3.5,38.8,NA,NA,NA,mature,5,5
+m66,w38,mi_1,22,Hw,NA,NA,DS,15.1,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,-,-,-,NA,4,71.5,NA,NA,NA,mature,NA,DI
+m67,w72,mi_1,22,Hw,NA,NA,DS,11.3,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,-,-,-,NA,6.2,58,NA,NA,NA,mature,NA,DI
+m68,w71,mi_1,22,Hw,NA,NA,LS,12.7,NA,Y,Y,0,0,0,N,-,-,S,NX,NA,-,-,1,NA,7,59,NA,NA,NA,mature,0,IBLC
+m69,w68,mi_1,22,Hw,NA,NA,LS,13.5,NA,Y,Y,2,0,0,N,-,-,S,NA,NA,1,-,2,NA,7.9,63.1,NA,NA,NA,mature,2,2
+m70,w3,mi_1,22,Hw,NA,NA,LS,70,36.8,Y,Y,2,2,1,Y,7,N,D,AX,NA,-,-,1,NA,3,105,NA,NA,NA,mature,5,5
+m71,y63,mi_1,23,Hw,NA,NA,LS,90.3,40.9,Y,N,2,2,1,Y,4,N,D,AX,NA,-,-,1,NA,7.5,251.1,NA,NA,NA,mature,5,5
+m72,y64,mi_1,23,Hw,NA,NA,LS,40.2,27.2,Y,Y,2,1,1,Y,4,Y,C,NA,NA,1,-,1,NA,3.1,141.4,NA,NA,NA,mature,4,4
+m73,y71,mi_1,23,Hw,NA,NA,LS,21.9,NA,Y,Y,2,2,2,Y,7,N,I,NX,NA,1,-,2,NA,2.5,187.8,NA,NA,NA,mature,6,6
+m74,y68,mi_1,23,Hw,NA,NA,SN,9.4,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,5,6,-,NA,4,206.2,NA,NA,NA,mature,NA,DI
+m75,y60,mi_1,23,Hw,NA,NA,LS,17.9,NA,Y,N,1,0,1,N,-,-,S,NA,NA,1,4,2,NA,5.3,223.2,NA,NA,NA,mature,2,2
+m76,y61,mi_1,23,Hw,NA,NA,LS,13.3,NA,Y,N,0,1,0,N,-,-,S,NA,NA,-,-,2,NA,4.9,256.9,NA,NA,NA,mature,1,1
+m77,y62,mi_1,23,Hw,NA,NA,SN,10.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,-,-,-,NA,3.2,298.2,NA,NA,NA,mature,NA,DU
+m78,y70,mi_1,23,Hw,NA,NA,LS,86.9,42.8,Y,Y,2,2,1,Y,7,N,D,NA,NA,-,-,2,NA,4.5,314.4,NA,NA,NA,mature,5,5
+m79,y67,mi_1,23,Hw,NA,NA,LS,18,NA,Y,Y,2,2,1,Y,4,Y,S,NA,NA,-,-,2,NA,5.9,336.7,NA,NA,NA,mature,5,5
+m80,y36,mi_1,23,Hw,NA,NA,LS,28.6,NA,Y,Y,2,1,0,Y,2,N,I,NA,NA,-,-,1,NA,1.6,0.8,NA,NA,NA,mature,3,3
+m81,y58,mi_1,23,Hw,NA,NA,DS,12,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,-,-,-,NA,6.6,64.5,NA,NA,NA,mature,NA,DI
+m82,y69,mi_1,23,Hw,NA,NA,LS,15.4,NA,Y,Y,1,1,1,N,-,-,I,NA,NA,-,-,1,NA,4.5,85.7,NA,NA,NA,mature,3,3
+m83,w115,mi_1,24,Hw,NA,NA,LS,34.6,NA,Y,Y,2,1,0,Y,4,N,I,NA,NA,-,-,1,forked with m84; leaning,5.5,258.2,NA,NA,NA,mature,3,3
+m84,w150,mi_1,24,Hw,NA,NA,LS,76.2,41,Y,Y,2,2,1,Y,4,N,D,NX,NA,-,-,1,forked with m83; leaning,4.9,264.6,NA,NA,NA,mature,5,5
+m85,w116,mi_1,24,Hw,NA,NA,LS,9.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,-,1,forked top,5.4,321.5,NA,NA,NA,mature,0,0
+m86,w120,mi_1,24,Hw,NA,NA,DS,10.3,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,-,-,-,NA,5.6,28,NA,NA,NA,mature,NA,DI
+m87,w121,mi_1,24,Hw,NA,NA,DS,9.8,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,-,-,-,NA,5.1,39.2,NA,NA,NA,mature,NA,DI
+m88,w123,mi_1,24,Hw,NA,NA,LS,98.1,45.1,Y,Y,2,2,1,Y,4,N,D,AX,NA,-,-,1,NA,6,63.3,NA,NA,NA,mature,5,5
+m89,w124,mi_1,24,Hw,NA,NA,LS,30.3,NA,Y,Y,1,1,0,N,-,-,S,NA,NA,-,-,1,NA,5.4,70.5,NA,NA,NA,mature,2,2
+m90,w125,mi_1,24,Hw,NA,NA,LS,52.4,32.4,Y,Y,2,1,0,Y,4,N,C,NA,NA,-,-,1,NA,2.9,148,NA,NA,NA,mature,3,3
+m91,w122,mi_1,24,Hw,NA,NA,LS,13.9,NA,Y,Y,1,1,1,N,-,-,S,NA,NA,-,-,1,NA,3.7,41.1,NA,NA,NA,mature,3,3
+m92,y4,ph_1,36,Hw,NA,NA,LS,19.8,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,Forked with m93,3.1,238.9,NA,NA,NA,mature,1,1
+m93,y66,ph_1,36,Hw,NA,NA,LS,21.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,Forked with m92,3.1,238.9,NA,NA,NA,mature,0,0
+m94,y123,ph_1,36,Hw,NA,NA,LS,32.9,22.2,Y,Y,0,0,0,N,-,Y,C,NA,NA,NA,NA,1,NA,4.2,251.8,NA,NA,NA,mature,0,IBLC
+m95,y102,ph_1,36,Hw,NA,NA,LS,39.7,25.7,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,Forked with m96,4.4,315.4,NA,NA,NA,mature,0,0
+m96,y24,ph_1,36,Hw,NA,NA,LS,12.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,Forked with m95,4.4,315.4,NA,NA,NA,mature,0,0
+m97,y64,ph_1,36,Hw,NA,NA,LS,24.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,5,1,NA,2.9,331.5,NA,NA,NA,mature,0,0
+m98,y69,ph_1,36,Hw,NA,NA,LS,27.2,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,2.2,357.3,NA,NA,NA,mature,0,0
+m99,y14,ph_1,36,Hw,NA,NA,LS,26,NA,N,-,0,0,0,-,-,-,I,DS,NA,NA,NA,1,Stem pustules,5.6,353.8,NA,NA,NA,mature,0,0
+m100,y115,ph_1,36,Hw,NA,NA,LS,19.8,NA,N,-,0,0,0,-,-,-,I,DS,NA,NA,NA,1,Stem pustules,6.1,0.1,NA,NA,NA,mature,0,0
+m101,y113,ph_1,36,Hw,NA,NA,LS,22.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,5,13.5,NA,NA,NA,mature,0,0
+m102,y67,ph_1,36,Hw,NA,NA,LS,13.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,5.6,29.3,NA,NA,NA,mature,0,0
+m103,y38,ph_1,36,Hw,NA,NA,LS,9.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,4.7,54.1,NA,NA,NA,mature,0,0
+m104,y111,ph_1,36,Hw,NA,NA,LS,20.1,NA,Y,Y,0,0,0,Y,8,N,I,NA,NA,NA,NA,1,NA,4.6,66.4,NA,NA,NA,mature,0,IBLC
+m105,y103,ph_1,36,Hw,NA,NA,LS,26.3,NA,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,7,88.2,NA,NA,NA,mature,1,1
+m106,y7,ph_1,36,Hw,NA,NA,LS,33,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,Clump m106-m109,2.6,101.7,NA,NA,NA,mature,0,0
+m107,y117,ph_1,36,Hw,NA,NA,LS,15.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,Clump m106-m110,2.6,101.7,NA,NA,NA,mature,0,0
+m108,y119,ph_1,36,Hw,NA,NA,LS,36.3,26.4,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,Clump m106-m111,2.6,101.7,NA,NA,NA,mature,0,0
+m109,y45,ph_1,36,Hw,NA,NA,LS,10.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,Clump m106-m112,2.6,101.7,NA,NA,NA,mature,0,0
+m110,y6,ph_1,36,Hw,NA,NA,LS,20.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,4.4,167.1,NA,NA,NA,mature,0,0
+m111,y114,ph_1,36,Hw,NA,NA,LS,39.1,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,5.8,187,NA,NA,NA,mature,0,0
+m112,y70,ph_1,36,Hw,NA,NA,LS,17.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,5.2,196,NA,NA,NA,mature,0,0
+m113,y3,ph_1,36,Hw,NA,NA,LS,18.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,5.4,196,NA,NA,NA,mature,0,0
+m114,w20,ph_1,37,Hw,NA,NA,LS,24.7,NA,Y,N,0,0,1,N,-,N,I,NA,NA,NA,NA,1,NA,3,235.6,NA,NA,NA,mature,1,1
+m115,w10,ph_1,37,Hw,NA,NA,LS,17.8,NA,Y,N,1,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,1.6,219,NA,NA,NA,mature,2,2
+m116,w7,ph_1,37,Hw,NA,NA,SN,10.8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,3,NA,7.2,275,NA,NA,NA,mature,NA,DU
+m117,w58,ph_1,37,Hw,NA,NA,LS,47.7,NA,Y,Y,1,1,0,Y,8,N,C,NA,NA,NA,NA,1,NA,7.8,279.6,NA,NA,NA,mature,2,2
+m118,w25,ph_1,37,Hw,NA,NA,LS,38.8,27.3,Y,Y,2,0,0,Y,8,Y,C,NA,NA,NA,NA,1,NA,5.3,304.9,NA,NA,NA,mature,2,2
+m119,w67,ph_1,37,Hw,NA,NA,LS,34.8,NA,Y,Y,2,2,1,Y,7,Y,C,NA,NA,1,NA,1,NA,4.2,288.2,NA,NA,NA,mature,5,5
+m120,w68,ph_1,37,Hw,NA,NA,SN,14.5,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,3,NA,2.3,278.2,NA,NA,NA,mature,NA,DI
+m121,w70,ph_1,37,Hw,NA,NA,LS,43.9,NA,Y,Y,1,0,0,Y,8,N,C,NA,NA,NA,NA,1,NA,5.8,329.8,NA,NA,NA,mature,1,1
+m122,w61,ph_1,37,Hw,NA,NA,LS,14.1,NA,Y,N,1,1,0,Y,4,N,S,NA,NA,NA,NA,2,NA,7.4,340.6,NA,NA,NA,mature,2,2
+m123,w108,ph_1,37,Hw,NA,NA,LS,19.9,NA,Y,N,0,0,1,Y,3,N,I,NA,NA,5,NA,1,NA,6.4,346.2,NA,NA,NA,mature,1,1
+m124,w66,ph_1,37,Hw,NA,NA,LS,31,NA,N,-,0,0,0,-,-,-,C,DS,NA,2,NA,1,Stem pustules,5.6,344.5,NA,NA,NA,mature,0,0
+m125,w103,ph_1,37,Hw,NA,NA,LS,44.2,NA,Y,Y,1,0,0,Y,1,N,C,NA,NA,-,NA,1,NA,2.7,26.4,NA,NA,NA,mature,1,1
+m126,w115,ph_1,37,Hw,NA,NA,LS,52.8,34.2,Y,Y,0,0,0,N,-,N,D,NA,NA,-,NA,1,NA,2.3,90.7,NA,NA,NA,mature,0,IBLC
+m127,w105,ph_1,37,Hw,NA,NA,LS,24,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,1,NA,1,NA,0.9,98.5,NA,NA,NA,mature,0,IBLC
+m128,w110,ph_1,37,Hw,NA,NA,SN,9.5,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,4,NA,3.5,141,NA,NA,NA,mature,NA,DU
+m129,w75,ph_1,37,Hw,NA,NA,LS,17.8,NA,Y,N,0,1,0,N,-,-,I,NA,NA,NA,NA,1,NA,5.9,133.7,NA,NA,NA,mature,1,1
+m130,w32,ph_1,37,Hw,NA,NA,LS,10.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,6.3,137.7,NA,NA,NA,mature,0,0
+m131,w13,ph_1,37,Hw,NA,NA,LS,16.4,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,9.7,133,NA,NA,NA,mature,0,0
+m132,w107,ph_1,37,Hw,NA,NA,LS,23.9,NA,Y,N,1,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,9.6,117.1,NA,NA,NA,mature,2,2
+m133,w26,ph_1,37,Hw,NA,NA,LS,43.8,NA,Y,Y,0,0,0,Y,8,N,C,NA,NA,NA,NA,1,NA,7.8,114.2,NA,NA,NA,mature,0,IBLC
+m134,w11,ph_1,37,Hw,NA,NA,LS,23.4,NA,N,-,0,0,0,-,-,-,I,DS,NA,NA,NA,1,stem pustules,8.3,144.3,NA,NA,NA,mature,0,0
+m135,w56,ph_1,37,Hw,NA,NA,RD,13.2,NA,Y,-,1,1,1,N,-,N,-,DS,NA,NA,NA,3,stem pustules,8.8,143.3,NA,NA,NA,mature,3,3
+m136,w125,ph_1,37,Hw,NA,NA,LS,39.6,NA,N,-,0,0,0,-,-,-,C,DS,NA,NA,NA,1,stem pustules,7.7,153,NA,NA,NA,mature,0,0
+m137,w40,ph_1,37,Hw,NA,NA,LS,15.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,6.3,156.8,NA,NA,NA,mature,0,0
+m138,w116,ph_1,37,Hw,NA,NA,SN,16.3,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,2,NA,4.8,178.3,NA,NA,NA,mature,NA,DI
+m139,w28,ph_1,37,Hw,NA,NA,LS,40.5,22.5,Y,Y,0,0,0,Y,8,N,C,NA,NA,NA,NA,1,NA,8.5,180.5,NA,NA,NA,mature,0,IBLC
+m140,y39,ph_1,38,Hw,NA,NA,LS,35,25,Y,Y,0,0,0,N,-,Y,C,NA,NA,NA,NA,1,Big stem infection at base,3.8,242,NA,NA,NA,mature,0,IBLC
+m141,y121,ph_1,38,Hw,NA,NA,LS,19.8,NA,Y,N,0,1,0,N,-,N,I,NA,NA,1,NA,1,NA,4,250.9,NA,NA,NA,mature,1,1
+m142,y62,ph_1,38,Hw,NA,NA,LS,25.7,NA,Y,Y,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,1.4,230.6,NA,NA,NA,mature,1,1
+m143,y54,ph_1,38,Hw,NA,NA,LS,34.8,22.2,Y,Y,1,1,0,Y,1,N,C,NA,NA,NA,NA,1,NA,2.3,329.2,NA,NA,NA,mature,2,2
+m144,y47,ph_1,38,Hw,NA,NA,LS,16.2,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,2,NA,3.4,346.3,NA,NA,NA,mature,0,IBLC
+m145,y61,ph_1,38,Hw,NA,NA,LS,22.3,NA,Y,Y,2,1,1,Y,4,Y,I,NA,NA,NA,NA,1,NA,4.6,327.4,NA,NA,NA,mature,4,4
+m146,y23,ph_1,38,Hw,NA,NA,LS,24.1,NA,Y,Y,0,0,0,N,-,N,I,DS,NA,NA,NA,1,stem pustules,5.5,309.9,NA,NA,NA,mature,0,IBLC
+m147,y120,ph_1,38,Hw,NA,NA,LS,32.9,NA,Y,N,0,1,0,N,-,N,C,NA,NA,NA,NA,1,forked with m148,6,313.8,NA,NA,NA,mature,1,1
+m148,y27,ph_1,38,Hw,NA,NA,LS,34.5,NA,Y,N,1,1,0,Y,4,N,C,NA,NA,NA,NA,1,forked with m147,6,313.8,NA,NA,NA,mature,2,2
+m149,y130,ph_1,38,Hw,NA,NA,LS,31.7,NA,Y,Y,2,1,1,Y,8,N,I,NA,NA,NA,NA,1,NA,2.7,22.9,NA,NA,NA,mature,4,4
+m150,y31,ph_1,38,Hw,NA,NA,LS,22.7,NA,Y,N,2,0,0,Y,1,N,I,NA,NA,NA,NA,1,NA,7.2,2,NA,NA,NA,mature,2,2
+m151,y8,ph_1,38,Hw,NA,NA,LS,55.5,33.2,Y,Y,2,2,2,Y,7,Y,D,NA,NA,NA,NA,1,NA,4.5,27.9,NA,NA,NA,mature,6,6
+m152,y109,ph_1,38,Hw,NA,NA,RD,16.9,NA,Y,N,1,0,0,N,-,N,-,NA,NA,NA,NA,3,NA,3.4,58.4,NA,NA,NA,mature,1,1
+m153,y11,ph_1,38,Hw,NA,NA,LS,20.1,NA,Y,Y,2,2,2,Y,7,Y,I,NA,NA,1,NA,1,NA,3.2,47,NA,NA,NA,mature,6,6
+m154,y57,ph_1,38,Hw,NA,NA,LS,46.7,NA,Y,Y,2,1,0,Y,4,Y,C,NA,NA,-,NA,1,NA,3.2,79,NA,NA,NA,mature,3,3
+m155,y68,ph_1,38,Hw,NA,NA,LS,20.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,1.4,119.2,NA,NA,NA,mature,0,0
+m156,y18,ph_1,38,Hw,NA,NA,LS,35.9,26.2,N,-,0,0,0,-,-,-,C,NA,NA,-,NA,1,NA,4.4,170,NA,NA,NA,mature,0,0
+m157,y49,ph_1,38,Hw,NA,NA,LS,21.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,4.6,203,NA,NA,NA,mature,0,0
+m158,w124,ph_1,39,Hw,NA,NA,LL,21,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,4.1,299.1,NA,NA,NA,mature,0,0
+m159,w69,ph_1,39,Hw,NA,NA,RD,9.7,NA,Y,-,1,0,0,N,-,N,-,NA,NA,-,NA,3,NA,3.3,277.9,NA,NA,NA,mature,1,1
+m160,w47,ph_1,39,Hw,NA,NA,LS,18.3,NA,Y,Y,1,1,1,Y,2,N,S,NA,NA,1,NA,1,NA,4.7,309.2,NA,NA,NA,mature,3,3
+m161,w45,ph_1,39,Hw,NA,NA,SN,65,NA,U,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,6,NA,5,314.4,NA,NA,NA,mature,NA,DU
+m162,w35,ph_1,39,Hw,NA,NA,LS,38.2,NA,Y,Y,2,0,0,Y,1,N,C,NA,NA,-,NA,1,NA,4.8,352.6,NA,NA,NA,mature,2,2
+m163,w109,ph_1,39,Hw,NA,NA,LS,11.5,NA,N,-,0,0,0,-,-,-,S,DS,NA,7,NA,1,Stem pustules,4.8,11.5,NA,NA,NA,mature,0,0
+m164,w43,ph_1,39,Hw,NA,NA,LS,66.3,34,Y,Y,2,2,1,Y,4,Y,D,NA,NA,-,NA,1,NA,5,65.1,NA,NA,NA,mature,5,5
+m165,w30,ph_1,39,Hw,NA,NA,LS,21,NA,Y,N,0,0,1,N,-,N,I,NA,NA,-,NA,1,NA,6.2,99.4,NA,NA,NA,mature,1,1
+m166,w121,ph_1,39,Hw,NA,NA,LS,24.3,NA,Y,Y,1,1,0,Y,4,N,I,NA,NA,-,NA,1,NA,6.2,106.2,NA,NA,NA,mature,2,2
+m167,w76,ph_1,39,Hw,NA,NA,LS,19.2,NA,Y,Y,2,1,0,Y,2,N,I,NA,NA,-,NA,1,NA,6.9,117.6,NA,NA,NA,mature,3,3
+m168,w29,ph_1,39,Hw,NA,NA,LS,84.2,32.5,Y,Y,2,2,2,Y,7,Y,D,NA,NA,2,4,2,NA,7.7,137.9,NA,NA,NA,mature,6,6
+m169,w23,ph_1,39,Hw,NA,NA,DS,14.7,NA,Y,-,NA,NA,NA,-,-,-,S,NA,NA,-,NA,2,forked with m170,8.9,142.5,NA,NA,NA,mature,NA,DI
+m170,w120,ph_1,39,Hw,NA,NA,LS,16.1,NA,Y,Y,1,1,1,Y,8,N,S,NA,NA,-,NA,1,forked with m169,8.9,142.5,NA,NA,NA,mature,3,3
+m171,w102,ph_1,39,Hw,NA,NA,LS,19.1,NA,Y,Y,2,1,0,Y,1,N,S,NA,NA,1,NA,1,DBH taken higher because of stem infection,4.9,161.4,NA,NA,NA,mature,3,3
+m172,w9,ph_1,39,Hw,NA,NA,DS,10.9,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,3,NA,5.4,147.5,NA,NA,NA,mature,NA,DI
+m173,w4,ph_1,39,Hw,NA,NA,LS,11.4,NA,Y,Y,0,0,0,N,-,-,S,NA,NA,NA,NA,1,NA,2.6,131,NA,NA,NA,mature,0,IBLC
+m174,w16,ph_1,39,Hw,NA,NA,LS,20.3,NA,Y,Y,2,1,0,Y,4,N,I,NA,NA,NA,NA,1,NA,4,119.8,NA,NA,NA,mature,3,3
+m175,w53,ph_1,39,Hw,NA,NA,LL,15.9,NA,Y,Y,0,0,0,Y,8,N,S,NA,NA,NA,NA,1,NA,5.8,126.7,NA,NA,NA,mature,0,IBLC
+m176,w2,ph_1,39,Bl,NA,NA,LS,81.5,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,2.8,228.7,NA,NA,NA,mature,NA,-
+m177,w54,ph_1,39,Hw,NA,NA,LS,11.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,4.7,228.7,NA,NA,NA,mature,0,0
+m178,y7,cr_2,29,Fd,NA,NA,LS,35.6,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,5.8,198.9,NA,NA,NA,mature,NA,-
+m179,y122,cr_2,29,Fd,NA,NA,LS,87.4,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,2,118.1,NA,NA,NA,mature,NA,-
+m180,y129,cr_2,29,Hw,NA,NA,LS,15.2,NA,Y,N,0,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,4.3,135.9,NA,NA,NA,mature,1,1
+m181,y36,cr_2,29,Hw,NA,NA,LS,47.7,38,Y,Y,2,1,1,Y,4,N,C,NA,NA,NA,NA,1,NA,3.7,74.2,NA,NA,NA,mature,4,4
+m182,y4000,cr_2,29,Hw,NA,NA,LS,42.9,32.7,Y,Y,2,2,1,Y,4,N,C,NA,NA,NA,NA,1,NA,1.1,46.2,NA,NA,NA,mature,5,5
+m183,y65,cr_2,29,Hw,NA,NA,LS,24.3,NA,Y,N,2,2,1,Y,4,Y,I,NA,NA,NA,NA,1,NA,1.2,350,NA,NA,NA,mature,5,5
+m184,y58,cr_2,29,Hw,NA,NA,LS,21.2,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,1,NA,1,NA,2.9,350,NA,NA,NA,mature,1,1
+m185,y127,cr_2,29,Hw,NA,NA,LS,49.5,36.3,Y,Y,2,0,0,Y,1,N,C,NA,NA,NA,NA,1,NA,2.9,350,NA,NA,NA,mature,2,2
+m186,y105,cr_2,29,Hw,NA,NA,SN,13.8,NA,U,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,5,NA,7.9,118.1,NA,NA,NA,mature,NA,DU
+m187,w111,cr_2,30,Hw,NA,NA,SN,15.5,NA,U,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,6,NA,2.9,56.9,NA,NA,NA,mature,NA,DU
+m188,w8,cr_2,30,Hw,NA,NA,LS,46.8,32.2,Y,Y,2,2,2,Y,7,N,C,NA,NA,NA,NA,1,NA,2.3,90,NA,NA,NA,mature,6,6
+m189,w66,cr_2,30,Hw,NA,NA,LS,44.8,40.2,Y,Y,2,1,1,Y,4,N,C,NA,NA,NA,NA,1,NA,3.7,83.6,NA,NA,NA,mature,4,4
+m190,w22,cr_2,30,Mb,NA,NA,LS,38.3,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,4,NA,1,NA,2.6,187.1,NA,NA,NA,mature,NA,-
+m191,w50,cr_2,30,Hw,NA,NA,LS,66.5,NA,Y,Y,2,2,1,Y,8,N,D,NA,NA,NA,NA,1,NA,5.3,106.1,NA,NA,NA,mature,5,5
+m192,w112,cr_2,30,Fd,NA,NA,LS,23.6,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,possible hdm,5.7,162.8,NA,NA,NA,mature,NA,-
+m193,w65,cr_2,30,Hw,NA,NA,LS,49,NA,Y,Y,1,1,1,N,-,N,D,NA,NA,NA,NA,1,NA,6.5,155.3,NA,NA,NA,mature,3,3
+m194,w124,cr_2,30,Hw,NA,NA,LS,21.4,NA,Y,N,2,2,1,Y,1,N,I,NA,NA,NA,NA,1,NA,6.3,164.5,NA,NA,NA,mature,5,5
+m195,w120,cr_2,30,Hw,NA,NA,LS,47.2,NA,Y,Y,2,2,2,Y,4,N,C,NA,NA,NA,NA,1,Forked with m196,5.9,205.3,NA,NA,NA,mature,6,6
+m196,w3,cr_2,30,Hw,NA,NA,SN,19.4,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,4,Forked with m195,5.9,105.3,NA,NA,NA,mature,NA,DI
+m197,w1,cr_2,30,Fd,NA,NA,LS,67.4,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,6.2,256.5,NA,NA,NA,mature,NA,-
+m198,w52,cr_2,30,Fd,NA,NA,LS,50.3,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,4.5,248.9,NA,NA,NA,mature,NA,-
+m199,w56,cr_2,30,Hw,NA,NA,LS,20.9,NA,Y,Y,2,1,1,Y,8,N,S,NA,NA,NA,NA,1,NA,1.9,253.9,NA,NA,NA,mature,4,4
+m200,w71,cr_2,30,Fd,NA,NA,LS,32.4,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,2.5,278.4,NA,NA,NA,mature,NA,-
+m201,w101,cr_2,30,Hw,NA,NA,LS,25.6,NA,Y,Y,1,0,1,N,-,Y,I,IB,NA,1,NA,1,forked with m202,5.1,298.5,NA,NA,NA,mature,2,2
+m202,w13,cr_2,30,Hw,NA,NA,RD,20.7,NA,Y,Y,2,1,1,N,-,-,-,IB,Ax,1,NA,2,formed with m201,5.1,298.5,NA,NA,NA,mature,4,4
+m203,w5,cr_2,30,Fd,NA,NA,LS,71.2,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,-,NA,1,NA,6.2,278.4,NA,NA,NA,mature,NA,-
+m204,y64,cr_2,31,Cw,NA,NA,LS,92.5,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,1,NA,1,NA,2.3,342.8,NA,NA,NA,mature,NA,-
+m205,y32,cr_2,31,Hw,NA,NA,SN,9.7,NA,U,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,6,NA,4.2,43.1,NA,NA,NA,mature,NA,DU
+m206,y9,cr_2,31,Hw,NA,NA,LS,59.5,34,Y,Y,2,2,1,Y,4,Y,D,NA,NA,-,NA,1,NA,4.3,66.8,NA,NA,NA,mature,5,5
+m207,y130,cr_2,31,Cw,NA,NA,LS,45,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,1,2,1,NA,3.1,68,NA,NA,NA,mature,NA,-
+m208,y115,cr_2,31,Fd,NA,NA,LS,40.3,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,5.9,131.3,NA,NA,NA,mature,NA,-
+m209,y1,cr_2,31,Hw,NA,NA,SN,44.9,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,4,forked with m210,3.5,185.7,NA,NA,NA,mature,NA,DI
+m210,y125,cr_2,31,Hw,NA,NA,SN,25.2,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,4,forked with m209,3.5,185.7,NA,NA,NA,mature,NA,DI
+m211,y57,cr_2,31,Hw,NA,NA,RD,17.1,NA,Y,N,2,2,2,Y,4,N,S,NA,NA,NA,NA,2,NA,4,247.8,NA,NA,NA,mature,6,6
+m212,y103,cr_2,31,Cw,NA,NA,LS,13.4,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,5.9,247.4,NA,NA,NA,mature,NA,-
+m213,w10,cr_2,35,Cw,NA,NA,LS,94.8,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,3.9,344.3,NA,NA,NA,mature,NA,-
+m214,w42,cr_2,35,Cw,NA,NA,LS,78.2,NA,-,-,NA,NA,NA,-,-,-,D,IB,NA,NA,NA,1,NA,3.3,3.4,NA,NA,NA,mature,NA,-
+m215,w25,cr_2,35,Cw,NA,NA,LS,49.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,2.5,17.1,NA,NA,NA,mature,NA,-
+m216,w119,cr_2,35,Fd,NA,NA,LS,31.7,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,1,NA,1,NA,8.4,50.4,NA,NA,NA,mature,NA,-
+m217,w108,cr_2,35,Hw,NA,NA,LS,34.7,25.2,Y,Y,2,2,2,Y,7,Y,C,IB,NA,1,NA,2,NA,7.7,62.7,NA,NA,NA,mature,6,6
+m218,w107,cr_2,35,Hw,NA,NA,LS,36,29.6,Y,Y,2,2,2,Y,4,Y,C,NA,NA,-,NA,2,NA,3.7,69.3,NA,NA,NA,mature,6,6
+m219,w11,cr_2,35,Hw,NA,NA,LL,36.6,26,Y,Y,2,2,1,Y,1,Y,C,NA,NA,2,NA,1,NA,4.2,84.2,NA,NA,NA,mature,5,5
+m220,w35,cr_2,35,Hw,NA,NA,LL,38.3,NA,Y,Y,2,2,2,Y,7,Y,C,NA,NA,-,NA,1,NA,7.1,95.7,NA,NA,NA,mature,6,6
+m221,w76,cr_2,35,Hw,NA,NA,LS,35.8,27.6,Y,Y,2,2,1,Y,8,Y,C,NA,NA,-,NA,2,NA,4.6,123.8,NA,NA,NA,mature,5,5
+m222,w30,cr_2,35,Hw,NA,NA,LS,10.8,NA,Y,N,1,1,0,N,-,-,S,NA,NA,-,NA,2,forked with m223,2.6,220.6,NA,NA,NA,mature,2,2
+m223,w117,cr_2,35,Hw,NA,NA,LS,11.5,NA,Y,N,1,1,0,Y,1,N,S,NA,NA,3,NA,1,forked with m222,2.6,220.6,NA,NA,NA,mature,2,2
+m224,y55,cr_2,30,Hw,NA,NA,LS,48.5,36.2,Y,Y,2,2,1,Y,4,Y,C,IB,AX,1,NA,1,forked with m225,6.7,69.6,NA,NA,NA,mature,5,5
+m225,w7000,cr_2,30,Hw,NA,NA,LS,23,NA,Y,Y,2,2,2,Y,1,Y,I,NA,NA,NA,NA,1,forled with m224,6.7,69.6,NA,NA,NA,mature,6,6
+m226,y48,cr_2,31,Cw,NA,NA,LS,18,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,8.6,66.8,NA,NA,NA,mature,NA,-
+m227,y7001,cr_2,35,Hw,NA,NA,LS,34.7,24.5,Y,Y,2,1,1,Y,1,Y,C,NA,NA,NA,NA,1,NA,8.7,35.4,NA,NA,NA,mature,4,4
+m228,y17,cr_2,31,Hw,NA,NA,LS,39.4,NA,Y,Y,2,2,2,Y,7,Y,I,NA,NA,NA,NA,1,NA,6,328.2,NA,NA,NA,mature,6,6
+m229,w108,mk_2,6,Cw,NA,NA,LS,77,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,2,5,1,NA,7.8,276,NA,N,NA,mature,NA,-
+m230,w51,mk_2,6,Hw,NA,NA,LS,62.3,39.1,Y,Y,2,1,1,Y,4,N,C,IB,AX,1,NA,1,NA,7.1,290.5,NA,N,NA,mature,4,4
+m231,w63,mk_2,6,Hw,NA,NA,LS,51.3,NA,Y,Y,2,1,0,Y,4,N,C,NA,NA,NA,NA,1,NA,7,327.6,NA,N,NA,mature,3,3
+m232,w123,mk_2,6,Hw,NA,NA,LS,9.6,NA,Y,Y,1,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,4.7,330,NA,N,NA,mature,2,2
+m233,w75,mk_2,6,Hw,NA,NA,LS,11.2,NA,Y,Y,0,0,0,N,-,Y,S,NA,NA,NA,NA,1,NA,9.6,276,NA,N,NA,mature,0,IBLC
+m234,w46,mk_2,6,Hw,NA,NA,LS,9.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,10.6,270.3,NA,N,NA,mature,0,0
+m235,w32,mk_2,6,Hw,NA,NA,LS,44.7,NA,Y,N,1,1,0,Y,2,N,C,NA,NA,1,NA,1,NA,7.1,230.5,NA,N,NA,mature,2,2
+m236,w61,mk_2,6,Hw,NA,NA,LS,10.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,6.4,214.6,NA,N,NA,mature,0,0
+m237,w71,mk_2,6,Cw,NA,NA,LS,31.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,5,NA,1,NA,8.3,203.6,NA,Y,NA,mature,NA,-
+m238,w36,mk_2,6,Hw,NA,NA,LS,50.4,NA,Y,Y,1,1,0,N,-,N,C,NA,NA,-,NA,1,NA,6.6,195.2,NA,Y,NA,mature,2,2
+m239,w5,mk_2,6,Hw,NA,NA,LS,39.7,38.1,Y,N,0,1,0,N,-,N,C,NA,NA,-,NA,1,NA,6.7,149,NA,Y,NA,mature,1,1
+m240,w65,mk_2,6,Hw,NA,NA,LS,38.2,NA,Y,N,0,1,0,N,-,N,C,NA,NA,1,NA,1,NA,1.4,257.3,NA,N,NA,mature,1,1
+m241,w26,mk_2,6,Hw,NA,NA,LS,38.2,NA,Y,Y,1,0,0,Y,1,N,I,NA,NA,1,NA,1,NA,1.2,320.5,NA,N,NA,mature,1,1
+m242,w67,mk_2,6,Fd,NA,NA,LS,67.3,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,NA,2,NA,2.3,345,NA,N,NA,mature,NA,-
+m243,w102,mk_2,6,Cw,NA,NA,LS,17.3,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,1,2,1,NA,1.3,90.2,NA,N,NA,mature,NA,-
+m244,y46,mk_2,7,Cw,NA,NA,LS,23.5,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,1,NA,1,NA,5.3,285.4,NA,N,NA,mature,NA,-
+m245,y48,mk_2,7,Hw,NA,NA,LS,15.2,NA,Y,N,1,1,0,N,-,N,S,NX,NA,-,NA,1,NA,4.6,312.8,NA,N,NA,mature,2,2
+m246,y70,mk_2,7,Hw,NA,NA,LS,9.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,4.8,23,NA,N,NA,mature,0,0
+m247,y34,mk_2,7,Hw,NA,NA,LS,53.2,NA,Y,N,1,1,0,N,-,N,C,IB,AX,-,NA,1,NA,6.6,353,NA,N,NA,mature,2,2
+m248,y16,mk_2,7,Hw,NA,NA,LS,30.2,NA,Y,N,2,2,2,Y,7,N,S,NA,NA,1,NA,1,NA,8.2,52.2,NA,N,NA,mature,6,6
+m249,y129,mk_2,7,Fd,NA,NA,SN,106.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,-,NA,4.1,66.2,NA,N,NA,mature,NA,-
+m250,y128,mk_2,7,Hw,NA,NA,LS,44.7,NA,Y,N,1,1,0,N,-,N,C,NA,NA,1,NA,1,NA,2.2,68.5,NA,N,NA,mature,2,2
+m251,y69,mk_2,7,Hw,NA,NA,LS,20.9,NA,Y,N,1,2,1,N,-,N,S,NA,NA,-,NA,2,NA,0.5,36,NA,N,NA,mature,4,4
+m252,y56,mk_2,7,Hw,NA,NA,LS,56.8,43.8,Y,N,1,1,0,N,-,N,C,IB,AX,1,NA,1,NA,1.4,138.9,NA,N,NA,mature,2,2
+m253,y51,mk_2,7,Hw,NA,NA,LS,36.4,NA,Y,N,0,1,0,N,-,N,I,NA,NA,-,NA,1,NA,3.9,156.3,NA,Y,NA,mature,1,1
+m254,y102,mk_2,7,Hw,NA,NA,LS,46.8,NA,Y,Y,1,1,1,Y,1,N,C,NA,NA,-,NA,1,NA,4.7,100.7,NA,N,NA,mature,3,3
+m255,y100,mk_2,7,Hw,NA,NA,LS,46.3,NA,Y,Y,0,0,0,Y,8,N,C,NA,NA,-,NA,1,NA,7.1,129.9,NA,Y,NA,mature,0,IBLC
+m256,y28,mk_2,7,Hw,NA,NA,LS,41.2,38.4,Y,N,0,1,0,N,-,N,C,NA,NA,-,NA,1,NA,8.4,200.3,NA,Y,NA,mature,1,1
+m257,w14,mk_2,8,Hw,NA,NA,LS,9.8,NA,Y,Y,2,2,1,N,-,N,S,NA,NA,1,NA,1,NA,2.2,280.3,NA,N,NA,mature,5,5
+m258,w15,mk_2,8,Hw,NA,NA,LS,9.8,NA,Y,Y,1,0,0,N,-,N,S,NA,NA,-,NA,1,NA,2.9,328.1,NA,N,NA,mature,1,1
+m259,w120,mk_2,8,Hw,NA,NA,LS,12.5,NA,Y,N,1,0,0,N,-,N,S,NA,NA,7,NA,1,NA,4.8,37.5,NA,N,NA,mature,1,1
+m260,w39,mk_2,8,Cw,NA,NA,LS,62.9,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,4.5,47.2,NA,N,NA,mature,NA,-
+m261,w52,mk_2,8,Hw,NA,NA,LS,40.4,28.6,Y,Y,1,1,1,Y,8,N,C,IB,AX,2,NA,1,NA,3.9,53.3,NA,N,NA,mature,3,3
+m262,w111,mk_2,8,Cw,NA,NA,LL,23.7,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,8.1,47.2,NA,N,NA,mature,NA,-
+m263,w49,mk_2,8,Hw,NA,NA,LS,13.9,NA,Y,Y,2,1,0,Y,8,Y,S,NA,NA,NA,NA,1,NA,10.1,100.8,NA,N,NA,mature,3,3
+m264,w22,mk_2,8,Fd,NA,NA,SN,110,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,10.6,100.8,NA,N,NA,mature,NA,-
+m265,w103,mk_2,8,Hw,NA,NA,LS,10.8,NA,Y,Y,2,1,0,N,-,Y,S,NA,NA,NA,NA,1,NA,7.9,104.9,NA,N,NA,mature,3,3
+m266,w122,mk_2,8,Cw,NA,NA,SN,18.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,11.3,111.3,NA,Y,NA,mature,NA,-
+m267,w74,mk_2,8,Hw,NA,NA,LS,68.9,45.2,Y,N,2,1,1,Y,4,N,C,NA,NA,NA,NA,1,NA,11.6,114,NA,Y,NA,mature,4,4
+m268,w42,mk_2,8,Hw,NA,NA,LS,11.6,NA,Y,Y,2,2,1,N,-,Y,S,NA,NA,1,NA,1,NA,5.5,148.9,NA,N,NA,mature,5,5
+m269,w9,mk_2,8,Hw,NA,NA,LS,54.3,NA,Y,N,2,2,1,Y,4,N,C,NA,NA,1,NA,1,NA,6.7,162.7,NA,Y,NA,mature,5,5
+m270,w58,mk_2,8,Hw,NA,NA,LS,47.5,NA,Y,Y,2,1,1,Y,1,N,C,NA,NA,1,2,1,NA,10.8,158.7,NA,Y,NA,mature,4,4
+m271,w24,mk_2,8,Hw,NA,NA,LS,31.6,NA,Y,N,0,1,1,N,-,Y,C,NA,NA,1,NA,2,NA,8.3,194.7,NA,Y,NA,mature,2,2
+m272,w54,mk_2,8,Hw,NA,NA,LS,24.8,NA,Y,Y,2,2,2,Y,7,N,S,NA,NA,5,NA,1,NA,7.3,186.1,NA,Y,NA,mature,6,6
+m273,y41,mk_2,9,Hw,NA,NA,LS,28.7,NA,Y,Y,2,2,2,Y,4,N,I,IB,AX,NA,NA,1,NA,5.8,219.2,NA,Y,NA,mature,6,6
+m274,y127,mk_2,9,Hw,NA,NA,LS,9.1,NA,Y,Y,2,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,4.5,202.9,NA,Y,NA,mature,3,3
+m275,y15,mk_2,9,Fd,NA,NA,LS,60.4,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,7,203.5,NA,Y,NA,mature,NA,-
+m276,y20,mk_2,9,Cw,NA,NA,LS,48.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,1,3,1,NA,7.2,198.3,NA,Y,NA,mature,NA,-
+m277,y37,mk_2,9,Hw,NA,NA,LS,9.7,NA,Y,Y,0,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,6.5,170,NA,Y,NA,mature,1,1
+m278,y35,mk_2,9,Hw,NA,NA,LS,14.5,NA,Y,Y,2,2,1,Y,4,Y,S,NA,NA,3,NA,1,NA,2.1,129.5,NA,N,NA,mature,5,5
+m279,y64,mk_2,9,Hw,NA,NA,LS,13.8,NA,Y,Y,2,2,1,N,-,N,S,NA,NA,NA,NA,1,NA,5.8,95.9,NA,N,NA,mature,5,5
+m280,y71,mk_2,9,Hw,NA,NA,SN,37.8,NA,Y,-,NA,NA,NA,-,-,-,-,IB,AX,NA,NA,-,"DANGER, new snag, top 2/3 tree present",7.8,127.1,NA,Y,NA,mature,NA,DI
+m281,y68,mk_2,9,Hw,NA,NA,LS,10.2,NA,Y,Y,1,1,0,N,-,Y,S,NA,NA,NA,NA,1,NA,7.3,127.1,NA,Y,NA,mature,2,2
+m282,y122,mk_2,9,Hw,NA,NA,SN,9.5,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,"Recent dead, broke @ approx 2m",2.1,8.9,NA,N,NA,mature,NA,DI
+m283,y62,mk_2,9,Cw,NA,NA,LS,28.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,4,2.1,NA,N,NA,mature,NA,-
+m284,y59,mk_2,9,Hw,NA,NA,LS,18.4,NA,Y,Y,0,1,0,N,-,Y,I,NA,NA,2,NA,1,NA,4.7,311.8,NA,N,NA,mature,1,1
+m285,y31,mk_2,9,Hw,NA,NA,LS,64.4,39,Y,Y,2,2,2,Y,7,Y,C,NA,NA,NA,NA,2,NA,8.6,316.1,NA,N,NA,mature,6,6
+m286,y58,mk_2,9,Hw,NA,NA,RD,11.7,NA,Y,Y,2,2,1,Y,1,Y,-,IB,AX,NA,NA,-,Recently dead,7.1,321.2,NA,N,NA,mature,5,5
+m287,y24,mk_2,9,Hw,NA,NA,LS,14.3,NA,Y,Y,0,0,1,N,-,N,S,NA,NA,5,NA,1,NA,5.6,26.3,NA,N,NA,mature,1,1
+m288,y29,mk_2,9,Hw,NA,NA,SN,70.2,NA,N,-,NA,NA,NA,-,-,-,-,NW,NA,NA,NA,-,"Not any tree to look for HDM, probably had lots",6.4,39,NA,N,NA,mature,NA,DU
+m289,w401,mk_2,8,Cw,NA,NA,LS,65.9,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,In regen component,14,40.9,NA,N,NA,mature,NA,-
+m290,w2,mk_3,13,Cw,NA,NA,LS,43.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,1,NA,1,NA,7.1,298.4,NA,N,NA,mature,NA,-
+m291,w30,mk_3,13,Hw,NA,NA,LS,14.2,NA,Y,Y,0,0,0,N,-,N,S,DS,NA,2,7,1,NA,1.4,256.7,NA,N,NA,mature,0,IBLC
+m292,w31,mk_3,13,Hw,NA,NA,LS,15,NA,N,-,0,0,0,-,-,-,S,DS,NA,2,NA,1,NA,1.1,278.5,NA,N,NA,mature,0,0
+m293,w49,mk_3,13,Hw,NA,NA,LS,67.3,41.6,Y,Y,2,1,0,Y,1,N,C,NA,NA,-,NA,1,NA,4.8,28.1,NA,N,NA,mature,3,3
+m294,w29,mk_3,13,Hw,NA,NA,LS,15.6,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,1,NA,1,NA,1.2,50.4,NA,N,NA,mature,0,IBLC
+m295,w102,mk_3,13,Hw,NA,NA,LS,17,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,5.6,56.8,NA,Y,NA,mature,0,0
+m296,w11,mk_3,13,Hw,NA,NA,LS,9.2,NA,Y,Y,0,0,0,N,-,N,S,NA,NA,NA,NA,2,NA,7.9,49.3,NA,Y,NA,mature,0,IBLC
+m297,w108,mk_3,13,Fd,NA,NA,LS,12.7,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,2,NA,8.5,28.1,NA,Y,NA,mature,NA,-
+m298,w24,mk_3,13,Hw,NA,NA,LS,51.2,NA,Y,Y,2,2,1,Y,4,Y,C,NA,NA,NA,NA,1,NA,7.3,75.9,NA,Y,NA,mature,5,5
+m299,w28,mk_3,13,Hw,NA,NA,SN,25.7,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,6.9,87.7,NA,Y,NA,mature,NA,DU
+m300,w58,mk_3,13,Hw,NA,NA,LS,62.9,NA,Y,Y,2,2,1,Y,1,N,C,DD,NA,6,NA,1,NA,6.3,94.8,NA,Y,NA,mature,5,5
+m301,w22,mk_3,13,Hw,NA,NA,LS,43.6,NA,Y,Y,2,2,1,Y,1,Y,C,NA,NA,NA,NA,1,NA,7.3,94.8,NA,Y,NA,mature,5,5
+m302,w69,mk_3,13,Hw,NA,NA,DS,9.7,NA,N,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,2.6,124.5,NA,N,NA,mature,NA,DU
+m303,w70,mk_3,13,Hw,NA,NA,DS,9.5,NA,N,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,2.6,127.4,NA,N,NA,mature,NA,DU
+m304,w42,mk_3,13,Hw,NA,NA,SN,9.1,NA,N,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,2.9,152.2,NA,N,NA,mature,NA,DU
+m305,w7,mk_3,13,Hw,NA,NA,LS,42.2,38.8,Y,Y,2,2,1,Y,1,N,C,IB,NA,NA,NA,1,NA,8.9,133.9,NA,Y,NA,mature,5,5
+m306,w46,mk_3,13,Hw,NA,NA,SN,13,NA,Y,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,5.4,153.6,NA,N,NA,mature,NA,DI
+m307,w122,mk_3,13,Cw,NA,NA,LS,38.2,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,5.4,165.7,NA,N,NA,mature,NA,-
+m308,w14,mk_3,13,Hw,NA,NA,DS,11,NA,N,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,6.5,160.8,NA,N,NA,mature,NA,DU
+m309,w75,mk_3,13,Hw,NA,NA,LS,40.5,NA,Y,Y,1,0,0,Y,1,N,C,NA,NA,NA,NA,1,NA,2.1,186.6,NA,N,NA,mature,1,1
+m310,w9,mk_3,13,Hw,NA,NA,LS,14.7,NA,N,-,0,0,0,-,-,-,S,DS,NA,NA,NA,1,NA,3.5,197.5,NA,N,NA,mature,0,0
+m311,w65,mk_3,13,Hw,NA,NA,LS,47.9,NA,Y,N,2,0,0,Y,1,N,C,NA,NA,NA,NA,1,NA,6.5,240.3,NA,N,NA,mature,2,2
+m312,y38,mk_3,12,Hw,NA,NA,LS,19,NA,Y,N,0,1,0,N,-,-,S,NA,NA,NA,NA,1,NA,1.5,270,NA,N,HS,mature,1,1
+m313,y6,mk_3,12,Hw,NA,NA,LS,53.3,NA,Y,Y,1,1,0,Y,1,N,C,NA,NA,NA,NA,1,NA,3.7,290.6,NA,N,HS,mature,2,2
+m314,y127,mk_3,12,Cw,NA,NA,LS,30.2,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,2,1,1,NA,5,304.7,NA,N,NA,mature,NA,-
+m315,y9,mk_3,12,Fd,NA,NA,LS,43.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,2.3,316.4,NA,N,HS,mature,NA,-
+m316,y31,mk_3,12,Hw,NA,NA,LS,16.3,NA,Y,N,0,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,2.3,340.4,NA,N,NH,mature,1,1
+m317,y37,mk_3,12,Hw,NA,NA,LS,18.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,4.6,18.4,NA,N,NH,mature,0,0
+m318,y108,mk_3,12,Hw,NA,NA,LS,15,NA,Y,N,1,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,3.6,42.2,NA,N,NH,mature,1,1
+m319,y62,mk_3,12,Hw,NA,NA,LS,10.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,2,NA,1.3,79.8,NA,N,NH,mature,0,0
+m320,y109,mk_3,12,Hw,NA,NA,LS,10.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,5.7,53.5,NA,Y,NH,mature,0,0
+m321,y45,mk_3,12,Hw,NA,NA,LS,11.5,NA,Y,N,1,0,0,N,-,N,S,NA,NA,NA,NA,2,NA,5.4,58.9,NA,Y,NH,mature,1,1
+m322,y55,mk_3,12,Hw,NA,NA,LS,60,39.3,Y,N,2,1,0,Y,4,N,C,NA,NA,NA,NA,2,NA,5.8,61,NA,Y,NA,mature,3,3
+m323,y66,mk_3,12,Cw,NA,NA,LS,12.7,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,8.3,76.7,NA,Y,NA,mature,NA,-
+m324,y27,mk_3,12,Hw,NA,NA,LS,16.2,NA,Y,Y,1,1,0,Y,1,N,S,NA,NA,NA,NA,2,NA,7.9,78.6,NA,Y,HS,mature,2,2
+m325,y52,mk_3,12,Hw,NA,NA,SN,17.5,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,5.7,102.8,NA,Y,NA,mature,NA,DI
+m326,y59,mk_3,12,Hw,NA,NA,SN,14,NA,N,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,4.8,110.5,NA,Y,NA,mature,NA,DU
+m327,y70,mk_3,12,Hw,NA,NA,RD,26.9,NA,Y,N,2,1,0,Y,4,N,-,DRA,NA,NA,NA,-,NA,4.4,113.7,NA,Y,NA,mature,3,3
+m328,y122,mk_3,12,Hw,NA,NA,DS,9.9,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,3.9,113.7,NA,Y,NA,mature,NA,DI
+m329,y60,mk_3,12,Fd,NA,NA,LS,81.6,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,3.2,133.9,NA,N,HS,mature,NA,-
+m330,y100,mk_3,12,Hw,NA,NA,RD,13.7,NA,Y,N,1,1,0,N,-,N,-,U,NA,NA,NA,-,NA,5.7,138.4,NA,Y,NA,mature,2,2
+m331,y102,mk_3,12,Hw,NA,NA,LS,18.8,NA,Y,N,1,1,0,N,-,N,S,NA,NA,NA,NA,2,NA,9.5,133.9,NA,Y,NH,mature,2,2
+m332,y28,mk_3,12,Hw,NA,NA,LS,16.6,NA,Y,Y,2,0,0,N,-,N,S,NA,NA,1,NA,1,NA,5,165.8,NA,N,B,mature,2,2
+m333,y58,mk_3,12,Hw,NA,NA,SN,10.8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,2.1,158.3,NA,N,NA,mature,NA,DU
+m334,y23,mk_3,12,Hw,NA,NA,LS,51.6,39.2,Y,N,2,2,1,Y,1,N,C,IB,AX,4,NA,1,NA,2.8,200.8,NA,N,NA,mature,5,5
+m335,y46,mk_3,12,Hw,NA,NA,RD,9.5,NA,Y,N,1,0,1,N,-,N,-,DRA,NA,NA,NA,-,NA,4.2,212.6,NA,N,HS,mature,2,2
+m336,y129,mk_3,12,Hw,NA,NA,RD,10,NA,Y,N,1,1,1,N,-,N,-,DRA,NA,NA,NA,-,NA,4.9,232.6,NA,N,HS,mature,3,3
+m337,y51,mk_3,12,Hw,NA,NA,LS,19.1,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,7,236.1,NA,N,NA,mature,0,IBLC
+m338,y53,mk_3,12,Hw,NA,NA,LS,26,NA,Y,Y,0,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,5.4,249.7,NA,N,HS,mature,1,1
+m339,w25,mk_3,11,Hw,NA,NA,LS,14.4,NA,Y,Y,2,1,0,Y,8,N,S,NA,NA,NA,NA,1,NA,1.9,239.8,NA,N,NH,mature,3,3
+m340,w118,mk_3,11,Ep,NA,NA,SN,9.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,7.8,237.2,NA,N,NA,mature,NA,-
+m341,w107,mk_3,11,Hw,NA,NA,LS,26.5,NA,Y,Y,2,2,1,Y,1,Y,I,NA,NA,7,NA,1,NA,4.9,292.4,NA,N,HS,mature,5,5
+m342,w101,mk_3,11,Hw,NA,NA,LS,18.6,NA,Y,Y,2,1,0,Y,1,N,S,DS,NA,2,NA,1,NA,6.1,305.7,NA,N,NA,mature,3,3
+m343,w36,mk_3,11,Hw,NA,NA,LS,24.7,NA,Y,Y,2,1,1,N,-,N,I,NA,NA,NA,NA,1,NA,7.3,314.5,NA,N,NH,mature,4,4
+m344,w119,mk_3,11,Hw,NA,NA,LS,31.1,NA,Y,Y,1,1,1,N,-,N,I,NA,NA,NA,NA,1,NA,8.6,331.3,NA,N,B,mature,3,3
+m345,w66,mk_3,11,Hw,NA,NA,LS,12.8,NA,Y,Y,2,1,1,N,-,N,S,NA,NA,NA,NA,1,NA,5.8,339.7,NA,N,HS,mature,4,4
+m346,w13,mk_3,11,Hw,NA,NA,LS,10.7,NA,Y,Y,2,1,1,Y,1,N,S,NA,NA,1,NA,1,NA,5.1,342.6,NA,N,HS,mature,4,4
+m347,w48,mk_3,11,Hw,NA,NA,LS,21.2,NA,Y,N,2,2,1,N,-,N,I,NA,NA,NA,NA,1,NA,8,347.5,NA,N,HS,mature,5,5
+m348,w38,mk_3,11,Hw,NA,NA,LS,14.9,NA,Y,Y,2,2,1,N,-,N,S,NA,NA,NA,NA,2,NA,8.2,349.2,NA,N,HS,mature,5,5
+m349,w62,mk_3,11,Hw,NA,NA,LS,11.6,NA,Y,N,2,2,1,Y,1,N,S,NA,NA,NA,NA,1,NA,7,13.2,NA,N,NH,mature,5,5
+m350,w68,mk_3,11,Hw,NA,NA,LL,43.4,NA,Y,N,2,2,1,Y,7,N,C,NA,NA,NA,NA,1,NA,7,18.9,NA,N,B,mature,5,5
+m351,w60,mk_3,11,Hw,NA,NA,LS,35.1,NA,Y,Y,2,2,2,Y,7,N,I,NA,NA,1,NA,1,NA,8,38.3,NA,N,HS,mature,6,6
+m352,w128,mk_3,11,Hw,NA,NA,LS,9.7,NA,Y,N,0,1,2,N,-,N,S,NA,NA,5,NA,2,NA,7.6,42.8,NA,Y,HS,mature,3,3
+m353,w16,mk_3,11,Hw,NA,NA,SN,13,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,8.4,51,NA,Y,NA,mature,NA,DU
+m354,w17,mk_3,11,Hw,NA,NA,SN,9.3,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,5.7,34.1,NA,N,NA,mature,NA,DI
+m355,w41,mk_3,11,Hw,NA,NA,LS,11.4,NA,Y,Y,2,0,0,N,-,N,S,NA,NA,1,NA,1,NA,5.6,39.9,NA,N,HS,mature,2,2
+m356,w37,mk_3,11,Hw,NA,NA,LS,10.1,NA,Y,Y,2,2,1,N,-,N,S,NA,NA,-,NA,1,NA,5,52.2,NA,N,NA,mature,5,5
+m357,w3,mk_3,11,Hw,NA,NA,LS,10.6,NA,Y,N,2,1,0,N,-,N,S,NA,NA,1,NA,1,NA,4.9,62.2,NA,Y,HS,mature,3,3
+m358,w112,mk_3,11,Fd,NA,NA,LS,68.8,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,7.1,61.1,NA,Y,NA,mature,NA,-
+m359,w4,mk_3,11,Hw,NA,NA,LS,16.9,NA,Y,Y,2,1,0,Y,1,Y,S,NA,NA,NA,NA,1,NA,4.6,77.5,NA,Y,HS,mature,3,3
+m360,w20,mk_3,11,Hw,NA,NA,LS,18.5,NA,Y,Y,1,1,1,Y,3,N,S,NA,NA,NA,NA,1,NA,3.3,72.4,NA,N,NH,mature,3,3
+m361,w1,mk_3,11,Hw,NA,NA,DS,9.4,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,2.7,92.3,NA,N,NA,mature,NA,DI
+m362,w109,mk_3,11,Hw,NA,NA,LS,52.5,36.8,Y,N,2,2,2,Y,7,N,C,NA,NA,NA,NA,1,NA,3.8,107.1,NA,Y,NH,mature,6,6
+m363,w125,mk_3,11,Hw,NA,NA,LS,16.9,NA,Y,Y,1,1,1,Y,8,Y,S,NA,NA,NA,NA,1,NA,6.7,112,NA,Y,NH,mature,3,3
+m364,w51,mk_3,11,Hw,NA,NA,LS,15.9,NA,Y,Y,2,1,0,Y,1,Y,S,NA,NA,NA,NA,1,NA,9,115.6,NA,Y,NH,mature,3,3
+m365,w67,mk_3,11,Hw,NA,NA,LS,14.7,NA,Y,Y,1,1,0,Y,8,N,S,NA,NA,NA,NA,2,NA,6.1,147.1,NA,Y,NH,mature,2,2
+m366,w104,mk_3,11,Hw,NA,NA,SN,29.2,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,7.1,160,NA,Y,NA,mature,NA,DI
+m367,w10,mk_3,11,Hw,NA,NA,SN,24.9,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,8.1,154,NA,Y,NA,mature,NA,DU
+m368,w792,mk_3,11,Hw,NA,NA,DS,10.7,NA,Y,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,8.5,160,NA,Y,NA,mature,NA,DI
+m369,w32,mk_3,11,Hw,NA,NA,LS,51.4,NA,Y,N,2,2,2,Y,7,N,C,NA,NA,NA,NA,1,Broom positon was incorrectly recorded. Guessd it was 7 based off DMR an memory of site.,8.8,176.8,NA,N,NH,mature,6,6
+m370,w21,mk_3,11,Hw,NA,NA,LS,48.6,NA,Y,Y,2,2,1,Y,4,N,C,NA,NA,NA,NA,1,NA,10.4,160,NA,Y,NA,mature,5,5
+m371,w44,mk_3,11,Cw,NA,NA,LS,29.7,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,2,4,1,NA,11.8,172.2,NA,Y,B,mature,NA,-
+m372,w16,mk_3,11,Hw,NA,NA,LS,55.7,40,Y,Y,2,2,2,Y,7,N,C,NA,NA,NA,NA,1,NA,2,160.4,NA,N,NA,mature,6,6
+m373,w64,mk_3,11,Hw,NA,NA,LS,11.6,NA,Y,Y,1,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,2.8,187.3,NA,N,NA,mature,1,1
+m374,w115,mk_3,11,Hw,NA,NA,LS,15.8,NA,Y,Y,2,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,6.1,193.6,NA,N,HS,mature,3,3
+m375,w53,mk_3,11,Hw,NA,NA,LS,12.4,NA,Y,N,2,1,0,Y,1,N,S,NA,NA,NA,NA,1,NA,5.6,209,NA,N,HS,mature,3,3
+m376,y5,mk_3,10,Hw,NA,NA,LS,42.8,NA,Y,Y,2,1,1,N,-,N,C,NA,NA,NA,NA,1,NA,4.2,294,NA,N,NH,mature,4,4
+m377,y105,mk_3,10,Hw,NA,NA,LS,55,36.1,Y,Y,1,2,1,Y,4,N,C,NA,NA,NA,NA,1,NA,10,286.9,NA,N,NA,mature,4,4
+m378,y64,mk_3,10,Hw,NA,NA,DS,9.4,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,7.9,346.3,NA,N,HS,mature,NA,DU
+m379,y29,mk_3,10,Hw,NA,NA,LS,33.3,NA,Y,Y,1,1,0,Y,1,N,I,NA,NA,7,NA,1,NA,10,246.2,NA,N,NA,mature,2,2
+m380,y35,mk_3,10,Cw,NA,NA,LS,59,NA,-,-,NA,NA,NA,-,-,-,I,IB,AX,NA,NA,1,NA,12.5,1.6,NA,N,HS,mature,NA,-
+m381,y24,mk_3,10,Hw,NA,NA,LS,10.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,2,NA,11.4,1.6,NA,N,NA,mature,0,0
+m382,y68,mk_3,10,Cw,NA,NA,LS,55,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,7.3,4.9,NA,N,NA,mature,NA,-
+m383,y32,mk_3,10,Cw,NA,NA,SN,80.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,4.1,355.1,NA,N,NA,mature,NA,-
+m384,y54,mk_3,10,Hw,NA,NA,LS,12,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,9.3,308.2,NA,N,HS,mature,0,0
+m385,y41,mk_3,10,Hw,NA,NA,LS,14,NA,Y,Y,1,1,0,N,-,N,S,NA,NA,-,NA,1,NA,9.6,14.3,NA,N,HS,mature,2,2
+m386,y33,mk_3,10,Cw,NA,NA,LS,89.7,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,NA,1,NA,4.7,52.4,NA,Y,NA,mature,NA,-
+m387,y48,mk_3,10,Hw,NA,NA,LS,49.5,38.6,Y,Y,2,2,1,Y,4,N,C,IB,AX,7,NA,1,NA,12.8,49.3,NA,Y,NH,mature,5,5
+m388,y15,mk_3,10,Cw,NA,NA,LS,69.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,1,NA,1,NA,13,58.1,NA,Y,NA,mature,NA,-
+m389,y20,mk_3,10,Fd,NA,NA,DS,21.5,NA,-,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,9.8,67.9,NA,Y,NA,mature,NA,-
+m390,y106,mk_3,10,Hw,NA,NA,LS,39.6,NA,Y,Y,1,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,5,101.6,NA,Y,B,mature,2,2
+m391,y50,mk_3,10,Hw,NA,NA,LS,31.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,2.4,202.1,NA,Y,NH,mature,0,0
+m392,w106,mk_1,1,Cw,NA,NA,LS,40.2,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,2,1,2,Also has dead top,7.7,169.1,NA,NA,NA,mature,NA,-
+m393,w109,mk_1,1,Hw,NA,NA,SN,46.7,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,6.2,139.7,NA,NA,NA,mature,NA,DU
+m394,w8,mk_1,1,Hw,NA,NA,LS,12.9,NA,Y,N,0,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,5.5,133.7,NA,NA,NA,mature,1,1
+m395,w12,mk_1,1,Hw,NA,NA,LS,56,NA,N,-,0,0,0,-,-,-,C,IB,AX,4,NA,2,NA,4.5,124.5,NA,NA,NA,mature,0,0
+m396,w14,mk_1,1,Hw,NA,NA,LS,12.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,3.6,111.1,NA,NA,NA,mature,0,0
+m397,w13,mk_1,1,Hw,NA,NA,LS,9.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,1.4,108.2,NA,NA,NA,mature,0,0
+m398,w33,mk_1,1,Hw,NA,NA,LS,9.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,2,85.7,NA,NA,NA,mature,0,0
+m399,w15,mk_1,1,Hw,NA,NA,LS,13.3,NA,Y,N,0,1,0,N,-,N,I,NA,NA,-,NA,1,NA,5.7,97.4,NA,NA,NA,mature,1,1
+m400,w1,mk_1,1,Hw,NA,NA,LS,11.1,NA,Y,N,0,1,0,N,-,N,I,NA,NA,1,NA,1,NA,6.9,84,NA,NA,NA,mature,1,1
+m401,w110,mk_1,1,Hw,NA,NA,LS,9.3,NA,Y,N,0,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,4.3,91.7,NA,NA,NA,mature,1,1
+m402,w105,mk_1,1,Hw,NA,NA,LS,11.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,2,NA,2.9,65.6,NA,NA,NA,mature,0,0
+m403,w33,mk_1,1,Hw,NA,NA,LS,13.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,4.1,63.8,NA,NA,NA,mature,0,0
+m404,w107,mk_1,1,Hw,NA,NA,LS,18.2,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,7.1,49.4,NA,NA,NA,mature,1,1
+m405,w72,mk_1,1,Hw,NA,NA,LS,16.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,6,21.7,NA,NA,NA,mature,0,0
+m406,w108,mk_1,1,Cw,NA,NA,SN,9.8,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,5.4,18.2,NA,NA,NA,mature,NA,-
+m407,w40,mk_1,1,Hw,NA,NA,DS,33.8,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,2.8,11.8,NA,NA,NA,mature,NA,DU
+m408,w46,mk_1,1,Hw,NA,NA,LS,16.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,1.1,338.8,NA,NA,NA,mature,0,0
+m409,w125,mk_1,1,Hw,NA,NA,SN,36.7,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,1.9,293.6,NA,NA,NA,mature,NA,DU
+m410,w34,mk_1,1,Cw,NA,NA,LL,27.1,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,5,NA,1,NA,3.5,264.7,NA,NA,NA,mature,NA,-
+m411,w47,mk_1,1,Hw,NA,NA,LS,20.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,3.8,250,NA,NA,NA,mature,0,0
+m412,w3,mk_1,1,Hw,NA,NA,SN,30,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,1.2,236.6,NA,NA,NA,mature,NA,DU
+m413,w102,mk_1,1,Hw,NA,NA,LS,13,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,4.1,183.3,NA,NA,NA,mature,0,0
+m414,y1,mk_1,2,Hw,NA,NA,LS,12.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,4.8,229.9,NA,NA,NA,mature,0,0
+m415,y3,mk_1,2,Hw,NA,NA,LS,12.9,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,2.7,260,NA,NA,NA,mature,1,1
+m416,y22,mk_1,2,Hw,NA,NA,LS,10.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,4.7,273.9,NA,NA,NA,mature,0,0
+m417,y114,mk_1,2,Hw,NA,NA,SN,43.4,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,3.3,295.3,NA,NA,NA,mature,NA,DU
+m418,y109,mk_1,2,Hw,NA,NA,LS,9.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,6.9,295.6,NA,NA,NA,mature,0,0
+m419,y23,mk_1,2,U,NA,NA,SN,11.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,8.1,284.8,NA,NA,NA,mature,NA,-
+m420,y50,mk_1,2,Hw,NA,NA,LS,10.5,NA,Y,Y,1,0,0,Y,1,Y,I,NA,NA,NA,NA,1,NA,4.7,310.6,NA,NA,NA,mature,1,1
+m421,y6,mk_1,2,Hw,NA,NA,LS,12.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,4.9,323.3,NA,NA,NA,mature,0,0
+m422,y116,mk_1,2,Cw,NA,NA,LS,47.7,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,6.9,321.3,NA,NA,NA,mature,NA,-
+m423,y36,mk_1,2,Hw,NA,NA,LS,9,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,7,327.1,NA,NA,NA,mature,0,0
+m424,y24,mk_1,2,Hw,NA,NA,LS,9.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,8.1,329.5,NA,NA,NA,mature,0,0
+m425,y127,mk_1,2,Hw,NA,NA,LS,12.7,NA,Y,N,0,1,1,N,-,N,I,NA,NA,NA,NA,1,NA,8.2,332.3,NA,NA,NA,mature,2,2
+m426,y15,mk_1,2,Hw,NA,NA,LS,14.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,7.8,349,NA,NA,NA,mature,0,0
+m427,y52,mk_1,2,Hw,NA,NA,LS,12.1,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,9.1,11.2,NA,NA,NA,mature,0,IBLC
+m428,y12,mk_1,2,Hw,NA,NA,LS,9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,8.7,13.7,NA,NA,NA,mature,0,0
+m429,y61,mk_1,2,Hw,NA,NA,LS,13,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,7.7,15.6,NA,NA,NA,mature,1,1
+m430,y112,mk_1,2,Hw,NA,NA,LS,10.9,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,8.5,21.6,NA,NA,NA,mature,1,1
+m431,y117,mk_1,2,Hw,NA,NA,LS,9.3,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,8.3,27.7,NA,NA,NA,mature,0,IBLC
+m432,y41,mk_1,2,Hw,NA,NA,LS,9.3,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,3.7,338.9,NA,NA,NA,mature,1,1
+m433,y9,mk_1,2,Hw,NA,NA,LS,68.7,44.7,Y,Y,2,2,1,Y,7,N,C,IB,AX,NA,NA,2,NA,3.5,45.7,NA,NA,NA,mature,5,5
+m434,y120,mk_1,2,Hw,NA,NA,LS,42.9,NA,Y,N,2,1,1,Y,7,N,C,NA,NA,NA,NA,1,NA,0.5,91.3,NA,NA,NA,mature,4,4
+m435,y100,mk_1,2,Hw,NA,NA,LS,14.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,0.6,122.9,NA,NA,NA,mature,0,0
+m436,w26,mk_1,3,Hw,NA,NA,LS,16.2,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,2,200.7,NA,NA,NA,mature,1,1
+m437,w112,mk_1,3,Hw,NA,NA,LS,11.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,1.8,226.8,NA,NA,NA,mature,0,0
+m438,w25,mk_1,3,Hw,NA,NA,LS,13.8,NA,Y,Y,1,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,2.1,230.6,NA,NA,NA,mature,2,2
+m439,w27,mk_1,3,Hw,NA,NA,LS,11.4,NA,Y,N,1,1,1,N,-,N,I,NA,NA,1,NA,1,NA,3.1,250.5,NA,NA,NA,mature,3,3
+m440,w120,mk_1,3,Hw,NA,NA,LS,9.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,5.9,239.5,NA,NA,NA,mature,0,0
+m441,w48,mk_1,3,Hw,NA,NA,LS,39.3,38.7,Y,Y,2,2,2,Y,7,Y,C,NA,NA,4,NA,-,small crown,6.8,245.3,NA,NA,NA,mature,6,6
+m442,w17,mk_1,3,Hw,NA,NA,LS,10.5,NA,Y,Y,2,0,0,Y,8,N,S,NA,NA,-,NA,1,NA,8.2,247.7,NA,NA,NA,mature,2,2
+m443,w2,mk_1,3,Hw,NA,NA,LS,13.8,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,-,NA,1,NA,6.6,285.4,NA,NA,NA,mature,1,1
+m444,w4,mk_1,3,Hw,NA,NA,SN,30,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,-,NA,6.9,294.2,NA,NA,NA,mature,NA,DU
+m445,w16,mk_1,3,Hw,NA,NA,LS,49,42.6,Y,Y,2,2,2,Y,7,N,C,NA,NA,2,NA,2,NA,7.4,287.6,NA,NA,NA,mature,6,6
+m446,w41,mk_1,3,Hw,NA,NA,LS,11,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,On upended root ball 1.5m off the ground,6,330.6,NA,NA,NA,mature,0,0
+m447,w45,mk_1,3,Dr,NA,NA,LS,15.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,1,NA,1,On upended root ball 1.5m off the ground,3.4,345.9,NA,NA,NA,mature,NA,-
+m448,w37,mk_1,3,Hw,NA,NA,LS,10.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,On upended root ball 1.5m off the ground,4.2,345.9,NA,NA,NA,mature,0,0
+m449,w10,mk_1,3,Hw,NA,NA,LS,11.1,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,1,NA,1,NA,3,56.9,NA,NA,NA,mature,1,1
+m450,w60,mk_1,3,Hw,NA,NA,LS,16.5,NA,Y,N,1,0,0,N,-,N,I,NA,NA,-,NA,1,NA,3.9,43.5,NA,NA,NA,mature,1,1
+m451,w111,mk_1,3,Hw,NA,NA,LS,13.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,6.4,35.6,NA,NA,NA,mature,0,0
+m452,w122,mk_1,3,Hw,NA,NA,LS,13,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,9.2,38.6,NA,NA,NA,mature,0,0
+m453,w58,mk_1,3,Cw,NA,NA,LS,87.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,2,NA,1,NA,9.7,49,NA,NA,NA,mature,NA,-
+m454,w69,mk_1,3,Hw,NA,NA,LS,22.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,Inbetween big fir and cedar,10.9,53.2,NA,NA,NA,mature,0,0
+m455,w124,mk_1,3,Hw,NA,NA,LS,9.2,NA,Y,Y,0,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,4.7,75.9,NA,NA,NA,mature,0,IBLC
+m456,w56,mk_1,3,Hw,NA,NA,LS,21.8,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,5.2,88,NA,NA,NA,mature,1,1
+m457,w7,mk_1,3,Hw,NA,NA,LS,9.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,5.1,103.1,NA,NA,NA,mature,0,0
+m458,w39,mk_1,3,Hw,NA,NA,LS,20.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,2.3,120.7,NA,NA,NA,mature,0,0
+m459,y60,mk_1,4,Hw,NA,NA,DS,10.5,NA,N,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,2.6,214.8,NA,NA,NA,mature,NA,DU
+m460,y28,mk_1,4,Hw,NA,NA,LS,17,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,3.7,223.3,NA,NA,NA,mature,0,0
+m461,y53,mk_1,4,Hw,NA,NA,LS,14.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,5.2,239.6,NA,NA,NA,mature,0,0
+m462,y59,mk_1,4,Hw,NA,NA,LS,26,NA,N,-,0,0,0,-,-,-,I,IB,NA,NA,NA,1,NA,5.1,242.8,NA,NA,NA,mature,0,0
+m463,y29,mk_1,4,Hw,NA,NA,LS,20.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,2.4,272.5,NA,NA,NA,mature,0,0
+m464,y69,mk_1,4,Hw,NA,NA,LS,10.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,3.8,278.2,NA,NA,NA,mature,0,0
+m465,y39,mk_1,4,Hw,NA,NA,LS,19.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,2.5,331.7,NA,NA,NA,mature,0,0
+m466,y51,mk_1,4,Hw,NA,NA,DS,9.7,NA,N,-,NA,NA,NA,-,-,-,-,DRA,NA,NA,NA,-,NA,2.4,354,NA,NA,NA,mature,NA,DU
+m467,y49,mk_1,4,Hw,NA,NA,LS,10.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,3,3.1,NA,NA,NA,mature,0,0
+m468,y107,mk_1,4,Hw,NA,NA,LS,19.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,4.6,15.4,NA,NA,NA,mature,0,0
+m469,y106,mk_1,4,Hw,NA,NA,LS,11.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,5.5,320.4,NA,NA,NA,mature,0,0
+m470,y125,mk_1,4,Hw,NA,NA,LS,11.3,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,6.3,329.5,NA,NA,NA,mature,0,0
+m471,y63,mk_1,4,Hw,NA,NA,LS,11.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,-,NA,7.1,335.7,NA,NA,NA,mature,0,0
+m472,y110,mk_1,4,Fd,NA,NA,LS,167,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,7.2,324.6,NA,NA,NA,mature,NA,-
+m473,y10,mk_1,4,Hw,NA,NA,LS,14.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,6,345.6,NA,NA,NA,mature,0,0
+m474,y108,mk_1,4,Hw,NA,NA,DS,11.1,NA,N,-,NA,NA,NA,-,-,-,-,IB,AX,NA,NA,-,NA,5.9,358.9,NA,NA,NA,mature,NA,DU
+m475,y65,mk_1,4,Hw,NA,NA,LS,17.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,6.3,28.8,NA,NA,NA,mature,0,0
+m476,y19,mk_1,4,Hw,NA,NA,LS,17.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,2,29.7,NA,NA,NA,mature,0,0
+m477,y123,mk_1,4,Hw,NA,NA,LS,13.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,3.5,63.5,NA,NA,NA,mature,0,0
+m478,y68,mk_1,4,Fd,NA,NA,LS,118.9,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,2,NA,3.7,48.7,NA,NA,NA,mature,NA,-
+m479,y64,mk_1,4,Hw,NA,NA,LS,21.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,7.7,55.3,NA,NA,NA,mature,0,0
+m480,y25,mk_1,4,Hw,NA,NA,LS,13.7,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,6.3,104.5,NA,NA,NA,mature,0,0
+m481,y7,mk_1,4,Cw,NA,NA,LS,45,NA,-,-,NA,NA,NA,-,-,-,C,AX,NA,2,NA,2,NA,6.3,129.9,NA,NA,NA,mature,NA,-
+m482,y54,mk_1,4,Hw,NA,NA,LS,16,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,2,1,NA,3.2,167.1,NA,NA,NA,mature,0,0
+m483,y8,mk_1,4,Cw,NA,NA,LS,73,NA,-,-,NA,NA,NA,-,-,-,C,AX,NA,5,NA,2,NA,2.5,186.9,NA,NA,NA,mature,NA,-
+m484,w115,mk_1,3,Hw,NA,NA,LS,10.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,6.2,89.5,NA,NA,NA,mature,0,0
+m485,w70,mk_1,3,Hw,NA,NA,SN,51,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,-,NA,3.4,273.6,NA,NA,NA,mature,NA,DU
+m486,y55,mi_2,14,Hw,NA,NA,SN,12,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,1,240.7,NA,NA,NA,mature,NA,DU
+m487,y101,mi_2,14,Cw,NA,NA,LS,13.7,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,1.2,245.2,NA,NA,NA,mature,NA,-
+m488,y100,mi_2,14,Hw,NA,NA,LS,14.3,NA,Y,N,2,1,1,N,-,N,I,NA,NA,NA,NA,2,NA,4.7,243.3,NA,NA,NA,mature,4,4
+m489,y123,mi_2,14,Hw,NA,NA,LS,20.4,NA,Y,N,2,2,1,Y,4,N,I,NA,NA,NA,NA,1,NA,4.6,260,NA,NA,NA,mature,5,5
+m490,y112,mi_2,14,Cw,NA,NA,LS,26.6,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,1,NA,1,NA,5.4,249,NA,NA,NA,mature,NA,-
+m491,w6,mi_2,15,Hw,NA,NA,LS,63.2,NA,Y,Y,2,2,1,Y,4,N,D,NA,NA,1,NA,1,Forked with m492,3.3,228,NA,NA,NA,mature,5,5
+m492,w62,mi_2,15,Hw,NA,NA,SN,16.7,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,1,Forked with m491,3.5,235,NA,NA,NA,mature,NA,DU
+m493,w42,mi_2,15,Hw,NA,NA,LS,35.8,NA,Y,Y,2,1,1,Y,1,N,C,NA,NA,NA,NA,1,NA,6.8,239.1,NA,NA,NA,mature,4,4
+m494,w105,mi_2,15,Hw,NA,NA,LS,27.1,NA,Y,N,1,1,0,N,-,N,I,NA,NA,NA,NA,2,NA,7.1,244.6,NA,NA,NA,mature,2,2
+m495,w4,mi_2,15,Cw,NA,NA,LS,32,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,1.2,251.7,NA,NA,NA,mature,NA,-
+m496,w16,mi_2,15,Hw,NA,NA,LS,38.5,NA,Y,N,1,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,1.3,350.6,NA,NA,NA,mature,2,2
+m497,w125,mi_2,15,Hw,NA,NA,LS,19.9,NA,Y,N,2,1,0,Y,1,Y,I,NA,NA,1,NA,1,NA,3.7,304.2,NA,NA,NA,mature,3,3
+m498,y15,mi_2,16,Hw,NA,NA,LS,49.5,NA,Y,N,2,1,0,N,-,N,C,NA,NA,1,NA,1,NA,2.2,142.2,NA,NA,NA,mature,3,3
+m499,y109,mi_2,16,Fd,NA,NA,SN,10.2,NA,-,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,3.6,179.1,NA,NA,NA,mature,NA,-
+m500,y119,mi_2,16,Hw,NA,NA,SN,17.8,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,3.9,215.3,NA,NA,NA,mature,NA,DU
+m501,y10,mi_2,16,Hw,NA,NA,LS,31,NA,Y,N,1,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,5.5,202.9,NA,NA,NA,mature,2,2
+m502,y63,mi_2,16,Hw,NA,NA,LS,13.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,4,NA,2,NA,7.6,191.9,NA,NA,NA,mature,0,0
+m503,y111,mi_2,16,Hw,NA,NA,LS,26.3,NA,Y,N,2,1,0,N,-,N,C,NA,NA,-,NA,1,NA,5.8,255.8,NA,NA,NA,mature,3,3
+m504,y2,mi_2,16,Hw,NA,NA,LS,33.5,NA,Y,Y,2,1,0,N,-,N,C,NA,NA,-,NA,1,NA,2,39.6,NA,NA,NA,mature,3,3
+m505,y38,mi_2,16,Hw,NA,NA,LS,33.9,NA,Y,Y,2,2,0,Y,4,Y,C,IB,AX,1,NA,1,NA,2.8,52.3,NA,NA,NA,mature,4,4
+m506,y26,mi_2,16,Hw,NA,NA,LS,30.4,NA,Y,N,1,1,0,N,-,N,C,NA,NA,NA,NA,2,NA,3.7,25.6,NA,NA,NA,mature,2,2
+m507,y102,mi_2,16,Hw,NA,NA,LS,41.6,NA,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,4.9,22.4,NA,NA,NA,mature,1,1
+m508,w10,mi_2,17,Hw,NA,NA,LS,24.9,NA,Y,Y,1,0,0,Y,8,Y,C,NA,NA,NA,NA,1,NA,2.8,105.3,NA,NA,NA,mature,1,1
+m509,w70,mi_2,17,Hw,NA,NA,LS,31.7,NA,Y,Y,2,2,0,Y,8,N,C,NA,NA,NA,NA,1,NA,4.6,210.6,NA,NA,NA,mature,4,4
+m510,w48,mi_2,17,Hw,NA,NA,LS,35,NA,Y,Y,1,1,0,N,-,N,C,NA,NA,1,NA,1,NA,4,228.1,NA,NA,NA,mature,2,2
+m511,w104,mi_2,17,Hw,NA,NA,LS,29.5,NA,Y,Y,1,1,0,N,-,N,C,NA,NA,-,NA,1,NA,2.1,5.8,NA,NA,NA,mature,2,2
+m512,w46,mi_2,17,Hw,NA,NA,LS,26.9,NA,N,-,0,0,0,-,-,-,-,U,NA,4,NA,3,NA,2.5,27.1,NA,NA,NA,mature,0,0
+m513,y117,mi_2,18,Hw,NA,NA,LS,42.3,NA,Y,Y,1,1,0,N,-,N,C,NA,NA,2,NA,1,NA,1.8,332.7,NA,NA,NA,mature,2,2
+m514,y130,mi_2,18,Hw,NA,NA,LS,24.7,NA,Y,Y,2,1,0,Y,8,Y,I,NA,NA,1,NA,1,NA,2.9,13.6,NA,NA,NA,mature,3,3
+m515,y120,mi_2,18,Cw,NA,NA,LS,57.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,NA,1,Forked with m516; DBH taken high because 1.3 not accessible,5.9,359.5,NA,NA,NA,mature,NA,-
+m516,y9,mi_2,18,Cw,NA,NA,LS,29,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,2,NA,2,Forkedwith m515,6,355.2,NA,NA,NA,mature,NA,-
+m517,y126,mi_2,18,Hw,NA,NA,LS,28.7,NA,Y,N,1,1,0,N,-,N,C,NA,NA,NA,NA,2,NA,2.3,99.8,NA,NA,NA,mature,2,2
+m518,y113,mi_2,18,Hw,NA,NA,LS,30.8,NA,Y,Y,1,0,0,Y,8,Y,C,NA,NA,NA,NA,1,NA,2,114.2,NA,NA,NA,mature,1,1
+m519,y24,mi_2,18,Hw,NA,NA,LS,43.5,NA,Y,Y,1,0,0,N,-,N,D,IB,AX,2,NA,2,NA,0.9,169.8,NA,NA,NA,mature,1,1
+m520,y16,mi_2,18,Hw,NA,NA,LS,75.8,NA,Y,Y,2,1,0,Y,1,Y,D,IB,AX,NA,NA,1,Measured from the top of a stump,7.1,61.9,NA,NA,NA,mature,3,3
+m521,w21,mi_2,19,Hw,NA,NA,LS,23.4,NA,Y,N,1,1,1,N,-,N,C,NA,NA,NA,NA,1,NA,0.9,111,NA,NA,NA,mature,3,3
+m522,w49,mi_2,19,Hw,NA,NA,LS,26.6,NA,Y,N,1,2,1,Y,2,N,C,NA,NA,NA,NA,1,NA,1,136.9,NA,NA,NA,mature,4,4
+m523,w107,mi_2,19,Hw,NA,NA,LS,34.2,NA,Y,N,2,2,1,Y,4,Y,C,NA,NA,1,NA,1,NA,2.8,142.6,NA,NA,NA,mature,5,5
+m524,w43,mi_2,19,Hw,NA,NA,LS,29.5,NA,Y,N,1,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,4.3,198.5,NA,NA,NA,mature,2,2
+m525,w75,mi_2,19,Hw,NA,NA,LS,31.4,NA,Y,N,1,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,6,196.4,NA,NA,NA,mature,2,2
+m526,w73,mi_2,19,Hw,NA,NA,LS,23.5,NA,Y,N,0,1,0,N,-,N,C,NA,NA,NA,NA,2,Rated from below the crown,5.6,226.7,NA,NA,NA,mature,1,1
+m527,w110,mi_2,19,Cw,NA,NA,LS,24.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,5.9,238.5,NA,NA,NA,mature,NA,-
+m528,w39,mi_2,19,Hw,NA,NA,LS,38.3,NA,Y,N,1,0,0,N,-,N,C,NA,NA,1,NA,1,NA,6.9,240,NA,NA,NA,mature,1,1
+m529,w51,mi_2,19,Hw,NA,NA,LS,34.6,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,6.2,248.4,NA,NA,NA,mature,0,0
+m530,w60,mi_2,19,Hw,NA,NA,LS,34.9,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,8.6,257,NA,NA,NA,mature,0,0
+m531,w8,mi_2,19,Cw,NA,NA,SN,12.9,NA,-,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,2.2,308.9,NA,NA,NA,mature,NA,-
+m532,w38,mi_2,19,Cw,NA,NA,LS,64.2,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,1,NA,1,NA,3.2,318.6,NA,NA,NA,mature,NA,-
+m533,w119,mi_2,19,Hw,NA,NA,LS,36.3,NA,Y,N,1,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,0.9,355.3,NA,NA,NA,mature,2,2
+m534,w66,mi_2,19,Hw,NA,NA,LS,32.3,NA,Y,N,1,1,1,Y,1,N,C,NA,NA,NA,NA,1,NA,0.8,15.6,NA,NA,NA,mature,3,3
+m535,y68,mi_2,20,Hw,NA,NA,LS,36.7,NA,Y,Y,1,1,0,Y,1,N,C,NA,NA,NA,NA,1,NA,0.9,139.2,NA,NA,NA,mature,2,2
+m536,y6,mi_2,20,Hw,NA,NA,LS,30.8,NA,Y,N,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,1.8,136.9,NA,NA,NA,mature,1,1
+m537,y118,mi_2,20,Hw,NA,NA,LS,36.1,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,5.7,111.5,NA,NA,NA,mature,0,0
+m538,y35,mi_2,20,Hw,NA,NA,LS,24,NA,Y,Y,1,0,0,N,-,N,C,NA,NA,2,NA,1,NA,6.7,130.8,NA,NA,NA,mature,1,1
+m539,y110,mi_2,20,Hw,NA,NA,LS,56,NA,Y,Y,1,0,0,N,-,N,D,NA,NA,2,NA,1,NA,3.6,168.6,NA,NA,NA,mature,1,1
+m540,y129,mi_2,20,Hw,NA,NA,LS,29.8,NA,Y,N,1,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,6.8,186.3,NA,NA,NA,mature,2,2
+m541,y125,mi_2,20,Hw,NA,NA,LS,18,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,5.7,202.7,NA,NA,NA,mature,0,0
+m542,y121,mi_2,20,Hw,NA,NA,SN,14.5,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,8.2,195.9,NA,NA,NA,mature,NA,DU
+m543,y106,mi_2,20,Hw,NA,NA,SN,19.7,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,9.5,190.5,NA,NA,NA,mature,NA,DU
+m544,y122,mi_2,20,Hw,NA,NA,LS,13.7,NA,Y,N,0,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,9.7,181.5,NA,NA,NA,mature,1,1
+m545,y27,mi_2,20,Hw,NA,NA,LS,14.8,NA,Y,N,0,1,1,N,-,N,I,NA,NA,1,NA,1,NA,9.5,199.3,NA,NA,NA,mature,2,2
+m546,y61,mi_2,14,Hw,NA,NA,LS,72.7,NA,Y,N,2,2,2,Y,7,N,D,NA,NA,1,NA,2,NA,1.9,74.4,NA,NA,NA,mature,6,6
