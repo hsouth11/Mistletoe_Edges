@@ -22,7 +22,7 @@ Read in the data
 #Read in data and inspect it
 #Dataset 1: site data. 
 ##This contains variables at the site level. The key pieces for analysis are: year harvested and CWH subzone
-site <- read_csv("./data/cleaned/site data_10May2024.csv")
+site <- read_csv("data/cleaned/site data_10May2024.csv")
 str(site)
 summary(site)
 
@@ -33,7 +33,7 @@ str(site)
 #Dataset 2: tree data
 ##This contains data for each measured tree (mature and regen trees). The key variables for analysis are: dist_y_h
 ##Treats assessed_by var as a logical for some reason and throws up an error. Not a problem and not going to use this var
-trees <- read_csv("./data/workflow/trees_mapped.csv")
+trees <- read_csv("data/workflow/trees_mapped.csv")
 str(trees)
 
 #Convert factor vars to factors: 
