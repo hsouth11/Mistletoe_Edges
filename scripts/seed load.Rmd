@@ -1,0 +1,217 @@
+---
+title: "Seed Load"
+author: "Hanno Southam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+#Load packages
+library(tidyverse)
+library(sf)
+library(stars)
+library(tmap)
+
+#Read in data
+trees <- read_sf("./data/workflow/trees_mapped.geojson")
+```
+
+Format the trees dataset. 
+```{r}
+class(trees)
+summary(trees)
+
+#check CRS, should be BC Albers NAD83 
+st_crs(trees) #check CRS, should be BC Albers NAD83 = 3005
+
+#Sort by site_id
+trees <- trees %>% arrange(site_id)
+
+# Convert to factor: spp, status, hdm_pa, b_lc, broom_pa, broom_stem, crown class, crown_cond, outside_10
+trees <- trees %>% mutate(across(c(site_id, spp, status, hdm_pa, b_lc, broom_pa, 
+                                   broom_pos, stem_pa, crown_class, crown_cond, outside_10, 
+                                   assessed_by, tree_type, dmr_f), ~ as.factor(.)))
+
+#Convert to integer: plot_id, dmrs
+trees <- trees %>% mutate(across(
+  c(plot_id, dmr_l, dmr_m, dmr_u, dmr), ~as.integer(.)))
+str(trees) #check
+```
+
+
+```{r}
+#######################
+#PART 1: Create a proxy metric of seed production from dbh and dmr
+#Select the columns from the dataset that are useful
+t <- trees %>% select(tree_id, dbh, dmr_l, dmr_m, dmr_u)
+
+#Create test dataframe for checking calculations
+test <- t[51:53,]
+
+#Gather the three dmr_x columns (one for each crown third) into one. 
+# Call the factor specifying the third dmr_ct_f and the actual rating dmr_ct_n. 
+test <- test %>% pivot_longer(cols=dmr_l:dmr_u, names_to = "dmr_ct_f", names_prefix = "dmr_", values_to = "dmr_ct_n")
+t <- t %>% pivot_longer(cols=dmr_l:dmr_u, names_to = "dmr_ct_f", names_prefix = "dmr_", values_to = "dmr_ct_n")
+
+#Define column to partition dbh by crown third. If l = 0.6, if m = 0.3, if u = 0.1. 
+test <- test %>% mutate(dbh_ct = case_when(dmr_ct_f == "l" ~ dbh*0.6, dmr_ct_f =="m" ~ dbh*0.3, dmr_ct_f =="u" ~ dbh*0.1))
+t <- t %>% mutate(dbh_ct = case_when(dmr_ct_f == "l" ~ dbh*0.6, dmr_ct_f =="m" ~ dbh*0.3, dmr_ct_f =="u" ~ dbh*0.1))
+
+#Multiply dmr by crown third weighted dbh to get a proxy metric for seed production by crown third. Call this sp_ct. 
+test <- test %>% mutate(sp_ct = dbh_ct*dmr_ct_n)
+t <- t %>% mutate(sp_ct = dbh_ct*dmr_ct_n) 
+
+#Then, sum these for each tree. Call this sp (seed production)
+test %>% group_by(tree_id) %>% summarise(sp = sum(sp_ct))
+t <- t %>% group_by(tree_id) %>% summarise(sp = sum(sp_ct))
+
+#Join this back to the original dataframe
+t <- st_drop_geometry(t)
+trees <- left_join(trees, t, by="tree_id")
+
+#######################
+#PART 2: uses paired distances between trees to get an estimate of seed load on each tree. 
+
+#Filter the mature trees from the dataset that were beyond the 10m boundary used across all sites. 
+trees <- trees %>% filter(outside_10 == "N" | is.na(outside_10))
+
+#Create subdataset of just hemlock trees
+hw <- trees %>% filter(spp=="Hw")
+
+#Seperate the dataframes by site. Creates an object that is a list of dataframes, one for each site. 
+site.df <- hw %>% group_by(site_id) %>% group_split()
+
+#Define a function to calculate seed load that will operate on each site level dataframe. A few notes: 
+#The distance matrix is in the general form shown below. The diagonals are the distance between the same tree (0). The off diaganols are mirrored, but we are going to keep both because when we calculate seed load, direction matters (i.e. the seed pressure of tree (r1) on tree (r2) are not necessarily the same as of tree (r2) on tree (r1))
+matrix(c("r1, r1", "r2, r1", "m1, r1", "r1, r2", "r2, r2", "m1, r2", 
+         "r1, m1", "r2, m1", "m1, m1"), 3, 3)
+
+#The seed dispersal curve is modeled with the gamma function. It relates the proportion of seed dispersed to the distance from the tree. 
+gamma_function <- function(d, alpha = 4, beta = 1.7) {
+  (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))}
+
+# Plot the function = to show that it works well. 
+##Define a vector of distances to sample from
+x1 <- seq(0.1, 20, by=0.1)
+##Randomly sample 200 distance values from that vector
+d <- sample(x1, size = 200, replace = TRUE, prob = NULL)
+##Calculate gamma value
+gamma <- gamma_function(d)
+##Plot
+plot(d, gamma)
+
+
+seedload.f <- function(x){
+  
+dist_matrix <- st_distance(x, by_element = FALSE)
+ 
+#Use which() function to test which are <20m and get indices (row/column numbers) for those. Then turn this into a dataframe - column 1 specifies row # (corresponds to row # in the site level dataframe), column 2 specifies the column # (also corresponds to row # in the site level dataframe) and column 3 specifies the distance value.
+indices <- which(dist_matrix < units::set_units(20, "m"), arr.ind = TRUE)
+pair_distances <- as.data.frame(indices)
+pair_distances$dist_m <- as.numeric(dist_matrix[indices])
+
+#Add columns specifying tree ids by relating back to the site level dataframe.
+x$row <- as.integer(row.names(x))
+pair_distances <- left_join(pair_distances, 
+                            select(st_drop_geometry(x), tree_id, row), 
+                            by = join_by(row==row)) 
+pair_distances <- pair_distances %>% rename(tree1 = tree_id)
+pair_distances <- left_join(pair_distances, 
+                            select(st_drop_geometry(x), tree_id, row), 
+                            by = join_by(col==row)) 
+pair_distances <- pair_distances %>% rename(tree2 = tree_id)
+
+#Filter out rows where tree1 and tree2 are the same
+pair_distances <- pair_distances %>% filter(tree1 != tree2)
+
+#Lets define tree1 as the target tree (i.e. we are interested in seed load on tree 1). Then tree2 is the source tree. Add seed production values of the source trees.
+pair_distances <- left_join(pair_distances, 
+                            select(st_drop_geometry(x), tree_id, sp), by = 
+                              join_by(tree2 == tree_id))
+
+#Check for NAs in the seed production values. They would occur when a tree has no dmr (e.g. its dead)
+print(sum(is.na(pair_distances$sp)))
+
+#Filter these out
+pair_distances <- pair_distances %>% filter(!is.na(sp))
+
+#Define gamma function to model the proportion of seed dispersed as a function of distance from the tree.
+gamma_function <- function(d, alpha = 4, beta = 1.7) {
+  (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))}
+
+#Now find the maximum of the function. 
+gamma_max <- optimize(gamma_function, interval = c(2, 10), maximum = TRUE)
+
+#Now calculate gamma for each regen-mature pair as the proportion of the max gamma value
+pair_distances <- pair_distances %>% 
+  mutate(gamma = gamma_function(dist_m)/gamma_max$objective)
+
+#Multiply the seed production (sp) by the gamma proportion (== the proportion of seed production from the source tree (tree2) reaching the target tree (tree1), given their separation distance). Call this seed load (sl). 
+pair_distances <- pair_distances %>% mutate(sl = sp*gamma)
+
+#Now sum the seed load values for each regen tree. 
+sl <- pair_distances %>% group_by(tree1) %>% summarise(sl = sum(sl))
+
+#Add this back to the larger dataset
+x <- left_join(x, sl, by = join_by(tree_id==tree1))
+
+return(x)
+}
+
+#Apply the function to each site level dataframe automatically with map function. Then put them back into a single dataframe. 
+sl.all <- map(site.df, seedload.f)
+sl.all <- do.call(rbind, sl.all)
+
+#Extract just the sl column and add that back to larger dataset
+trees <- left_join(trees, select(st_drop_geometry(sl.all), tree_id, sl), by = "tree_id")
+
+#Save final product
+st_write(trees, './data/workflow/trees_sl.geojson', append = FALSE)
+
+```
+
+
+Extra code playing with gamma function
+```{r}
+# Define the gamma function
+gamma_function <- function(d, alpha = 4, beta = 1.7) {
+  (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))}
+
+#Define a vector of distances to sample from
+x1 <- seq(0.1, 20, by=0.1)
+#Randomly sample 200 distance values from that vector
+d <- sample(x1, size = 200, replace = TRUE, prob = NULL)
+
+#Relate distance to a variable with the gamma distribution
+alpha <- 2
+beta <- 1
+gamma <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
+plot(d, gamma) 
+
+alpha <- 3
+beta <- 1
+gamma2 <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
+points(d, gamma2, col="firebrick")
+
+alpha <- 1
+beta <- 1
+gamma3 <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
+points(d, gamma3, col="orange")
+
+alpha <- 2
+beta <- 1.5
+gamma4 <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
+points(d, gamma4, col="blue")
+
+alpha <- 2
+beta <- 0.5
+gamma5 <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
+points(d, gamma5, col="lightblue")
+
+alpha <- 4
+beta <- 1.7
+gamma6 <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
+points(d, gamma6, col="green") #winner! a
+
+```
+
