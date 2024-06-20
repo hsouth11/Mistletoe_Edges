@@ -1,8 +1,0 @@
-Data Cleaning things to watch out for:
-
--Sometimes, Noel indicated 0s with (-). E.g. tree has HDM but only below live crown. This is coded as DMR 0 0 0. 
-- at mi_1 we recorded below live crown data for some dead standing trees. Will proably just have to set this to nothing. 
-- Started recording crown condition for dead trees late in feield season. For lots of sites, crown condition will be (-) for dead trees. 
--I will have to go back and code Fd as (-) for HDM PA. We didn't really assess them in any meaningful way. 
--When broom presence absence recorded as N, sometimes assumed not stem infections. Its possible for stems to have infections that aren't brooms. Not sure how to deal with this? Maybe identify rows where HDM pa is Y and stem infect is recorded as (-). Then fix these (e.g. set to N).
--

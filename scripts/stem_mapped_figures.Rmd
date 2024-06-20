@@ -17,7 +17,7 @@ library(sf)
 library(tmap)
 library(RColorBrewer)
 
-trees <- read_sf("./data/workflow/trees_mapped.geojson")
+trees <- read_sf("./data/workflow/trees_sl.geojson")
 trimb <- read_csv("./data/workflow/trimb_radjusted.csv")
 tran <- read_csv('./data/cleaned/transect data_c.csv')
 site <- read_csv('./data/cleaned/site data_8Apr2024.csv')
@@ -34,9 +34,9 @@ st_crs(trees) #check CRS, should be BC Albers NAD83 = 3005
 #Sort by site_id
 trees <- trees %>% arrange(site_id)
 
-# Convert to factor: spp, status, hdm_pa, b_lc, broom_pa, broom_stem, crown class, crown_cond, outside_10
+# Convert to factor: spp, status, hdm_pa, b_lc, broom_pa, stem_pa, crown class, crown_cond, outside_10
 trees <- trees %>% mutate(across(c(site_id, spp, status, hdm_pa, b_lc, broom_pa, 
-                                   broom_pos, broom_stem, crown_class, crown_cond, outside_10, 
+                                   broom_pos, stem_pa, crown_class, crown_cond, outside_10, 
                                    assessed_by, tree_type, dmr_f), ~ as.factor(.)))
 
 #Convert to integer: plot_id, dmrs
@@ -91,7 +91,7 @@ Rotate the points at each site (in both trees and trimb) so they are all oriente
 degrees <- trees %>% 
   mutate(rot_deg = case_when(tr_az<90 ~ (-1)*(tr_az-90), #define degree adjustment
                              tr_az>90 ~ (-1)*(tr_az-90))) %>% 
-  filter(str_detect(tree_id_new, "r")) %>% #filter to just regen trees
+  filter(str_detect(tree_id, "r")) %>% #filter to just regen trees
   group_by(site_id) %>% 
   distinct(rot_deg) %>% # get unique values for each site
   pull(rot_deg) #make vector
@@ -289,6 +289,9 @@ edge_lines <- edge_lines %>% mutate(diff=edge_line_coords$diff)
 edge_lines <- edge_lines %>% group_by(site_id) %>% arrange(diff) %>% # draw lines between start and end
   summarise(do_union = FALSE) %>% st_cast("LINESTRING")
 
+#Add a layer to visualize seed load
+sl <- trees_rot %>% filter(tree_type=="regen" & sl>0)
+
 #Add site data to each of the objects being plotted
 adjusted_fp_rot <- left_join(adjusted_fp_rot, select(site, site_id, id_bec_ag_f), by ="site_id")
 edge_lines <- left_join(edge_lines, select(site, site_id, id_bec_ag_f), by ="site_id")
@@ -296,6 +299,7 @@ tran_lines <- left_join(tran_lines, select(site, site_id, id_bec_ag_f), by ="sit
 tran_pts <- left_join(tran_pts, select(site, site_id, id_bec_ag_f), by ="site_id")
 dist_mark <- left_join(dist_mark, select(site, site_id, id_bec_ag_f), by ="site_id")
 trees_rot <- left_join(trees_rot, select(site, site_id, id_bec_ag_f), by ="site_id")
+sl <- left_join(sl, select(site, site_id, id_bec_ag_f), by ="site_id")
 
 #Make new version of dmr_f for graphing that simplifies some of the ratings
 trees_rot <- trees_rot %>% mutate(dmr_f_graph = case_when(dmr_f == "-" ~ "non Hw", dmr_f %in% c("1", "2") ~ "1-2", dmr_f %in% c("3", "4") ~ "3-4", dmr_f %in% c("5", "6") ~ "5-6", .default = dmr_f)) %>% mutate(dmr_f_graph = factor(dmr_f_graph, levels = c("non Hw", "DU", "0", "DI", "IBLC", "1-2", "3-4", "5-6")))
@@ -304,9 +308,11 @@ trees_rot <- trees_rot %>% mutate(dmr_f_graph = case_when(dmr_f == "-" ~ "non Hw
 # https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
 levels(trees_rot$dmr_f_graph)
 dmr_colour <- c('#cccccc','#4575b4', '#74add1', '#c994c7','#fdbb84','#ef6548','#d7301f','#990000')
+sl_colour <- brewer.pal(n=9, name="Greys")
+brewer.pal.info
 
 # Plot it all together
-png("./figures/trees_2May2024.png", width=3300, height=2550, units="px", res = 300)
+pdf("./figures/trees_sl_18Jun2024.pdf", width=11, height=8.5)
 tmap_mode("plot")
 tm_shape(adjusted_fp_rot, is.master = TRUE) + #define map extent using site footprints
   tm_facets(by = "id_bec_ag_f", free.scales = FALSE, free.coords = TRUE, ncol = 4) +
@@ -316,10 +322,10 @@ tm_shape(tran_lines) + tm_polygons(alpha=0.25) +
   tm_text("tr_leng", ymod = 1.7) + #add transects
 tm_shape(tran_pts) + tm_symbols(col="blue", shape=3, size=0.1) + #transect start and end points
 tm_shape(dist_mark) + tm_lines(lty = 3, alpha = 0.7) +
+tm_shape(sl) + tm_symbols(size = 2, col="sl", border.lwd = NA, title.col = "seed load", legend.size.is.portrait = TRUE, legend.col.is.portrait = FALSE) +
 tm_shape(trees_rot) + tm_symbols(size = "dbh", scale = 2, col="dmr_f_graph", palette = dmr_colour, border.lwd = NA, title.col = "HDM status", legend.size.is.portrait = TRUE, legend.col.is.portrait = FALSE) + #add tree points
 tm_legend(legend.outside=TRUE, legend.outside.position = "bottom", legend.position=c(0.4, 0.2), 
                                  legend.stack="horizontal")
 dev.off()
-
 ```
 

@@ -35,7 +35,7 @@ str(site)
 ##Treats assessed_by var as a logical for some reason and throws up an error. Not a problem and not going to use this var
 trees <- read_csv("data/workflow/trees_mapped.csv")
 str(trees)
-
+summary(trees)
 #Convert factor vars to factors: 
 trees <- trees %>% mutate(across(
   c(site_id, spp, status, hdm_pa, b_lc, 
