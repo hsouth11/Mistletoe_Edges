@@ -17,10 +17,10 @@ library(sf)
 library(tmap)
 library(RColorBrewer)
 
-trees <- read_sf("./data/workflow/trees_sl.geojson")
+trees <- read_sf("./data/workflow/trees_mapped.geojson")
 trimb <- read_csv("./data/workflow/trimb_radjusted.csv")
 tran <- read_csv('./data/cleaned/transect data_c.csv')
-site <- read_csv('./data/cleaned/site data_8Apr2024.csv')
+site <- read_csv('./data/cleaned/site data.csv')
 ```
 
 Format the trees dataset. 
@@ -195,14 +195,14 @@ tran_lines <- tran_lines %>% filter(pt_type=="tran end")
 tran_lines <- left_join(tran_lines, select(tran, transect_id, tr_leng), by=c("pt_id"="transect_id"))
 
 #Create horizontal lines marking transect distances at 5m intervals
-#Up to 6 lines/transect, 2pts/line, 8 sites, 3 transects/site
+#Up to 6 lines/transect, 2pts/line, 10 sites, 3 transects/site
 # #pts = 3*8*6*2 = 288 pts
 max(tran$tr_leng) #find longest transect length. 32.8m (cr_1)
 # Create new fake points
-dist_x <- rep(c(-2.5, 2.5), 3*8*6) #define vector of x coords
-dist_y <- rep(c(5, 5, 10, 10, 15, 15, 20, 20, 25, 25, 30, 30), 3*8) #define vector of y coordinates
+dist_x <- rep(c(-2.5, 2.5), 3*length(site$site_id)*6) #define vector of x coords
+dist_y <- rep(c(5, 5, 10, 10, 15, 15, 20, 20, 25, 25, 30, 30), 3*length(site$site_id)) #define vector of y coordinates
 dist_y <- sort(dist_y)
-ids <- sample(1:500, 144, replace = FALSE) #generate 144 random unique ids
+ids <- sample(1:500, length(site$site_id)*3*6, replace = FALSE) #generate 80 random unique ids
 ids <- sort(rep(ids, 2))
 transect_id <- pull(tran, transect_id)
 transect_id <- rep(transect_id, 2)
@@ -290,7 +290,7 @@ edge_lines <- edge_lines %>% group_by(site_id) %>% arrange(diff) %>% # draw line
   summarise(do_union = FALSE) %>% st_cast("LINESTRING")
 
 #Add a layer to visualize seed load
-sl <- trees_rot %>% filter(tree_type=="regen" & sl>0)
+#sl <- trees_rot %>% filter(tree_type=="regen" & sl>0)
 
 #Add site data to each of the objects being plotted
 adjusted_fp_rot <- left_join(adjusted_fp_rot, select(site, site_id, id_bec_ag_f), by ="site_id")
@@ -299,7 +299,7 @@ tran_lines <- left_join(tran_lines, select(site, site_id, id_bec_ag_f), by ="sit
 tran_pts <- left_join(tran_pts, select(site, site_id, id_bec_ag_f), by ="site_id")
 dist_mark <- left_join(dist_mark, select(site, site_id, id_bec_ag_f), by ="site_id")
 trees_rot <- left_join(trees_rot, select(site, site_id, id_bec_ag_f), by ="site_id")
-sl <- left_join(sl, select(site, site_id, id_bec_ag_f), by ="site_id")
+#sl <- left_join(sl, select(site, site_id, id_bec_ag_f), by ="site_id")
 
 #Make new version of dmr_f for graphing that simplifies some of the ratings
 trees_rot <- trees_rot %>% mutate(dmr_f_graph = case_when(dmr_f == "-" ~ "non Hw", dmr_f %in% c("1", "2") ~ "1-2", dmr_f %in% c("3", "4") ~ "3-4", dmr_f %in% c("5", "6") ~ "5-6", .default = dmr_f)) %>% mutate(dmr_f_graph = factor(dmr_f_graph, levels = c("non Hw", "DU", "0", "DI", "IBLC", "1-2", "3-4", "5-6")))
@@ -312,7 +312,7 @@ sl_colour <- brewer.pal(n=9, name="Greys")
 brewer.pal.info
 
 # Plot it all together
-pdf("./figures/trees_sl_18Jun2024.pdf", width=11, height=8.5)
+pdf("./figures/trees_24Jun2024.pdf", width=11, height=8.5)
 tmap_mode("plot")
 tm_shape(adjusted_fp_rot, is.master = TRUE) + #define map extent using site footprints
   tm_facets(by = "id_bec_ag_f", free.scales = FALSE, free.coords = TRUE, ncol = 4) +
@@ -322,10 +322,12 @@ tm_shape(tran_lines) + tm_polygons(alpha=0.25) +
   tm_text("tr_leng", ymod = 1.7) + #add transects
 tm_shape(tran_pts) + tm_symbols(col="blue", shape=3, size=0.1) + #transect start and end points
 tm_shape(dist_mark) + tm_lines(lty = 3, alpha = 0.7) +
-tm_shape(sl) + tm_symbols(size = 2, col="sl", border.lwd = NA, title.col = "seed load", legend.size.is.portrait = TRUE, legend.col.is.portrait = FALSE) +
 tm_shape(trees_rot) + tm_symbols(size = "dbh", scale = 2, col="dmr_f_graph", palette = dmr_colour, border.lwd = NA, title.col = "HDM status", legend.size.is.portrait = TRUE, legend.col.is.portrait = FALSE) + #add tree points
 tm_legend(legend.outside=TRUE, legend.outside.position = "bottom", legend.position=c(0.4, 0.2), 
                                  legend.stack="horizontal")
 dev.off()
+
+#Seed load addition
+#tm_shape(sl) + tm_symbols(size = 2, col="sl", border.lwd = NA, title.col = "seed load", legend.size.is.portrait = TRUE, legend.col.is.portrait = FALSE)
 ```
 
