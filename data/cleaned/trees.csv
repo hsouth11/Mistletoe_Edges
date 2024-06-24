@@ -734,6 +734,140 @@ r732,w13,mi_2,129,Fd,-2,14.3,LS,11.2,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,7,NA,2,NA,NA,
 r733,w109,mi_2,129,Hw,-0.8,16.5,LS,15.3,NA,Y,Y,1,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
 r734,w102,mi_2,129,Fd,0.6,14.4,DS,9,NA,-,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,NA,NA,NA,NA,NA,regen,NA,-
 r735,w47,mi_2,129,Hw,2.3,13.3,LS,16.8,NA,Y,Y,0,0,0,N,-,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,IBLC
+r736,y55,ph_2,168,Hw,-0.9,0.3,LS,7.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r737,y124,ph_2,168,Ba,-0.1,2,LS,9.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r738,NA,ph_2,168,Cw,2.5,3.4,LS,9,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r739,NA,ph_2,168,Cw,-0.7,5,LS,18.1,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r740,NA,ph_2,168,Cw,1.3,6.4,LS,7.5,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r741,NA,ph_2,168,Cw,1,7.3,LS,10.2,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r742,y42,ph_2,168,Ba,-1.3,8.7,LS,16.3,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r743,NA,ph_2,168,Cw,1.5,9.8,LS,7.3,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r744,NA,ph_2,168,Cw,1.8,8.6,LS,8.6,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r745,y50,ph_2,168,Ba,2.3,8.6,LS,13.4,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r746,NA,ph_2,168,Cw,2.2,9.6,LS,17.7,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r747,NA,ph_2,168,Cw,-1.3,10.3,LS,10.9,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r748,NA,ph_2,168,Cw,-1.3,10.1,LS,8.9,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r749,NA,ph_2,168,Hw,-1.4,10,LS,4.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r750,NA,ph_2,168,Cw,0.4,12.1,LS,16.2,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r751,NA,ph_2,168,Cw,2,11,LS,11.9,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r752,y112,ph_2,168,Hw,0.2,13.4,LS,8.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,forked with r753,NA,NA,NA,NA,NA,regen,0,0
+r753,NA,ph_2,168,Hw,0.2,13.4,LS,4.4,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,2,forked with r752; not marked as forked on datasheet but has to be if forked with another tree,NA,NA,NA,NA,NA,regen,0,0
+r754,NA,ph_2,168,Cw,-0.2,13.6,LS,8.4,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r755,y22,ph_2,168,Hw,-0.6,13.5,LS,6.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r756,y128,ph_2,168,Hw,-1.6,12.9,LS,9.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r757,y59,ph_2,168,Ba,-1.8,13.1,LS,17.2,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r758,y9,ph_2,168,Hw,-2.2,13.5,LS,10.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r759,y10,ph_2,168,Hw,-1,15,LS,7.3,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r760,NA,ph_2,168,Cw,1.1,14.3,LS,12.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r761,NA,ph_2,168,Cw,0.7,15,LS,13.1,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r762,NA,ph_2,235,Ba,0.3,0.4,LS,10.5,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r763,y128,ph_2,235,Ba,1.9,0.9,LS,24.5,NA,Y,N,1,0,0,Y,1,N,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,1,1
+r764,NA,ph_2,235,Cw,1.6,3.4,LS,5.1,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r765,NA,ph_2,235,Ba,2.1,4.5,LS,5.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r766,NA,ph_2,235,Cw,2.2,4.7,LS,5.4,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r767,NA,ph_2,235,Cw,1,6.3,LS,18.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r768,NA,ph_2,235,Cw,0.8,7.9,LS,7.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r769,NA,ph_2,235,Cw,-0.5,8,LS,7.7,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r770,NA,ph_2,235,Cw,-1.5,7.9,LS,14.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r771,y55,ph_2,235,Ba,-1.6,7.1,LS,13.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r772,NA,ph_2,235,Cw,-0.8,8.8,DS,5.2,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,-
+r773,NA,ph_2,235,Cw,0.1,9.7,LS,12.6,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r774,NA,ph_2,235,Cw,0.6,10,LS,4.2,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,1,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r775,y59,ph_2,235,Ba,-0.7,10.1,LS,7.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r776,NA,ph_2,235,Cw,-1.5,10.5,LS,10,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r777,NA,ph_2,235,Cw,-2.1,10.6,LS,6.4,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r778,NA,ph_2,235,Cw,0.6,11.4,LS,17,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r779,y9,ph_2,235,Ba,0.8,12.6,LS,16.1,NA,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r780,NA,ph_2,235,Cw,-1.7,12.3,DS,6,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,-
+r781,NA,ph_2,235,Cw,-2.3,12.2,DS,4.4,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,-
+r782,y34,ph_2,235,Hw,-0.3,13.8,LS,24.6,19.6,N,-,0,0,0,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r783,NA,ph_2,235,Cw,0.4,14.3,LS,4,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r784,NA,ph_2,250,Cw,0.3,2.1,LS,8.2,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r785,y53,ph_2,250,Hw,0.8,2.7,LS,9.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r786,NA,ph_2,250,Cw,1,4.4,LS,11,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r787,NA,ph_2,250,Hw,1.2,4.1,LS,4.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r788,NA,ph_2,250,Hw,2.4,3.9,LS,5,NA,Y,N,1,0,0,N,-,N,I,NA,NA,-,NA,1,"stem_pa recorded incorrectly, sure it was assessed as N (HS, 14 Jun 2024)",NA,NA,NA,NA,NA,regen,1,1
+r789,NA,ph_2,250,Cw,-1.5,8.5,LS,7.4,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r790,y107,ph_2,250,Hw,-1.3,10,LS,7.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,forked with r791,NA,NA,NA,NA,NA,regen,0,0
+r791,y127,ph_2,250,Hw,-1.3,10,LS,7.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,forked with r790,NA,NA,NA,NA,NA,regen,0,0
+r792,y58,ph_2,250,Hw,-2.3,10.5,LS,6.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r793,y13,ph_2,250,Hw,-2.1,10.9,LS,13.5,NA,Y,N,0,1,0,N,-,N,I,NA,NA,1,NA,1,"stem_pa recorded incorrectly, sure it was assessed as N (HS, 14 Jun 2024); forked with small Hw (not in data)",NA,NA,NA,NA,NA,regen,1,1
+r794,NA,ph_2,250,Ba,0.2,11.2,LS,4.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r795,y40,ph_2,250,Hw,0.9,11.1,LS,18.1,NA,Y,N,1,0,0,N,-,N,C,NA,NA,-,NA,1,"stem_pa recorded incorrectly, sure it was assessed as N (HS, 14 Jun 2024)",NA,NA,NA,NA,NA,regen,1,1
+r796,NA,ph_2,250,Ba,2,10.5,LS,6.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r797,y20,ph_2,250,Hw,1.5,11.9,LS,21.2,20.9,Y,Y,0,0,0,N,-,N,C,NA,NA,-,NA,1,"stem_pa recorded incorrectly, sure it was assessed as N (HS, 14 Jun 2024)",NA,NA,NA,NA,NA,regen,0,IBLC
+r798,y4000,ph_2,250,Hw,2.1,11.6,LS,13.7,NA,Y,N,1,1,0,N,-,N,I,NA,NA,-,NA,1,"stem_pa recorded incorrectly, sure it was assessed as N (HS, 14 Jun 2024)",NA,NA,NA,NA,NA,regen,2,2
+r799,y129,ph_2,250,Hw,1.1,12.5,LS,17.9,NA,Y,N,1,0,0,N,-,N,C,NA,NA,-,NA,1,"stem_pa recorded incorrectly, sure it was assessed as N (HS, 14 Jun 2024)",NA,NA,NA,NA,NA,regen,1,1
+r800,NA,ph_2,250,Ba,0.8,13,LS,5.2,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r801,NA,ph_2,250,Ba,0.7,13.3,LS,5.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r802,NA,ph_2,250,Cw,0.5,14.3,DS,7.1,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,-,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,-
+r803,y108,ph_2,250,Ba,-0.3,13.6,LS,12.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r804,y105,ph_2,250,Hw,-1.9,13.5,LS,10.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r805,y30,ph_2,250,Hw,2.3,14.3,LL,12.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r806,NA,ph_2,250,Ba,-1.8,14.3,LS,4.1,NA,N,-,0,0,0,-,-,-,S,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r807,y128,ph_2,250,Hw,-1.8,15.3,LS,21.3,NA,N,-,0,0,0,-,-,-,C,NA,NA,-,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r808,y34,ph_2,250,Hw,1.2,15.5,LS,13.5,20.7,Y,N,1,1,0,N,-,N,I,NA,NA,-,NA,1,"stem_pa recorded incorrectly, sure it was assessed as N (HS, 14 Jun 2024); shouldn't have recorded height for this tree, ""I"" crown class",NA,NA,NA,NA,NA,regen,2,2
+r809,y33,ph_2,250,Hw,1.7,15.7,LS,22.3,23.3,Y,N,0,1,0,N,-,N,C,NA,NA,-,NA,1,"stem_pa recorded incorrectly, sure it was assessed as N (HS, 14 Jun 2024)",NA,NA,NA,NA,NA,regen,1,1
+r810,NA,ph_3,320,Cw,-1.5,2.6,LS,18.4,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,1,2,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r811,NA,ph_3,320,Cw,-0.8,8.5,LS,9.6,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r812,NA,ph_3,320,Hw,-2.4,8.3,LS,4.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r813,NA,ph_3,320,Dr,0.5,9.5,DS,5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,regen,NA,-
+r814,NA,ph_3,320,Hw,-1.5,10,LS,6.8,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r815,NA,ph_3,320,Cw,0.4,11.1,LS,6.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r816,NA,ph_3,320,Cw,-0.7,10.9,LS,8.9,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,Honey fungus at base,NA,NA,NA,NA,NA,regen,NA,-
+r817,NA,ph_3,320,Cw,-1.6,11.4,LS,4.3,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r818,NA,ph_3,320,Cw,-1.9,11.5,LS,6.3,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r819,NA,ph_3,320,Cw,-0.3,12.3,LS,4.6,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r820,NA,ph_3,320,Cw,-1.3,13.2,LS,21,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r821,NA,ph_3,320,Hw,-1.8,13.1,LS,5.5,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r822,NA,ph_3,320,Cw,-2.3,13,LS,8.4,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r823,NA,ph_3,320,Hw,2.2,12.6,RD,7.7,NA,N,-,0,0,0,-,-,-,I,DRA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,0,0
+r824,NA,ph_3,320,Cw,1.4,13.6,LS,4.3,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r825,NA,ph_3,320,Hw,1.8,13.9,LS,8.1,NA,Y,N,0,1,0,N,-,N,S,NA,NA,NA,NA,1,"stem_pa misrecorded, sure it should have been N",NA,NA,NA,NA,NA,regen,1,1
+r826,NA,ph_3,320,Cw,1.1,14.9,LS,17.9,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r827,NA,ph_3,320,Hw,2.4,15.5,LS,5.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r828,NA,ph_3,320,Dr,-0.4,16.7,SN,6.3,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,6,NA,NA,NA,NA,NA,NA,regen,NA,-
+r829,NA,ph_3,320,Cw,-1.8,14.6,LS,12.9,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r830,NA,ph_3,320,Cw,-1.4,16.5,LS,31.6,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r831,NA,ph_3,320,Hw,-1.1,17.3,LS,6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,1,1,forked with r832,NA,NA,NA,NA,NA,regen,0,0
+r832,NA,ph_3,320,Hw,-1.1,17.3,LS,5,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,1,1,forked with r831,NA,NA,NA,NA,NA,regen,0,0
+r833,NA,ph_3,320,Dr,-1.7,17.1,LS,4.6,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r834,NA,ph_3,321,Dr,0.6,2.5,LS,24,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r835,NA,ph_3,321,Cw,-1.4,3.7,LS,9.8,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r836,NA,ph_3,321,Hw,-1.1,5.5,DS,7.1,NA,N,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,5,NA,NA,NA,NA,NA,NA,regen,NA,DU
+r837,NA,ph_3,321,Hw,-1.2,5.4,DS,4.9,NA,U,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,6,"hdm_pa recorded as U in paper data, should be - to indicate not assessable",NA,NA,NA,NA,NA,regen,NA,DU
+r838,NA,ph_3,321,Cw,0.1,8.4,LS,27.9,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r839,NA,ph_3,321,Cw,2.1,12.4,LS,23.8,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r840,NA,ph_3,321,Cw,-1.2,12.3,LS,12.9,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r841,NA,ph_3,321,Cw,-0.3,15.3,LS,12.4,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r842,NA,ph_3,321,Dr,-2.5,15.1,DS,6.5,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,-
+r843,NA,ph_3,321,Cw,2.1,15.8,LS,13.3,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r844,NA,ph_3,321,Cw,1.1,21.5,LS,39.7,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r845,NA,ph_3,321,Cw,0,32.3,LS,4.1,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r846,NA,ph_3,321,Hw,-0.1,34.5,LS,9,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,"Skeptical about this swelling but called it Y, long distance dispersal?; b_lc and stem_pa recorded as ""-"" and should be N",NA,NA,NA,NA,NA,regen,1,1
+r847,NA,ph_3,321,Cw,-1.4,35,LS,9.6,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r848,NA,ph_3,321,Cw,-1.2,35.4,LS,9.6,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r849,NA,ph_3,321,Hw,0,35.6,LS,5.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r850,NA,ph_3,321,Cw,0.9,34.4,LS,7.6,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r851,NA,ph_3,321,Cw,1,34.8,LS,10.3,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r852,NA,ph_3,321,Hw,2.5,35.1,LS,8.7,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r853,NA,ph_3,321,Cw,1.8,33.5,LS,7.5,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r854,NA,ph_3,322,Cw,-2.1,3.7,LS,11.9,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r855,NA,ph_3,322,Cw,-1.1,4.8,LS,4.4,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,NA,NA,2,NA,NA,NA,NA,NA,NA,regen,NA,-
+r856,NA,ph_3,322,Hw,-1.1,4.9,LS,13.7,NA,N,-,0,0,0,-,-,-,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r857,NA,ph_3,322,Hw,1.2,3.3,LS,15.8,13,Y,N,1,0,0,N,-,N,NA,NA,NA,NA,NA,1,"broom_pa and stem_pa mis-recorded, sure they should be N",NA,NA,NA,NA,NA,regen,1,1
+r858,NA,ph_3,322,Dr,2.3,6.2,LS,25.2,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r859,NA,ph_3,322,Dr,0,5.7,LS,22.7,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,1,NA,1,forked with r860; stem comes up on L side of transect line,NA,NA,NA,NA,NA,regen,NA,-
+r860,NA,ph_3,322,Dr,0,5.7,LS,25,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,1,NA,1,forked with r859; stem comes up on R side of transect line,NA,NA,NA,NA,NA,regen,NA,-
+r861,NA,ph_3,322,Dr,1.2,7.6,LS,25.7,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r862,NA,ph_3,322,Cw,-1.9,8.1,LS,29,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r863,NA,ph_3,322,Cw,0.1,6.4,LS,13.6,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r864,NA,ph_3,322,Cw,1.3,9.7,LS,10.4,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,2,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r865,NA,ph_3,322,Dr,2.4,9.5,DS,4.2,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,NA,NA,3,NA,NA,NA,NA,NA,NA,regen,NA,-
+r866,NA,ph_3,322,Hw,1,11.9,LS,19.6,12.5,N,-,0,0,0,-,-,-,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
+r867,NA,ph_3,322,Dr,0.8,9.6,LS,4.7,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r868,NA,ph_3,322,Cw,1.2,13.9,LS,20.5,NA,-,-,NA,NA,NA,-,-,-,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,NA,-
+r869,NA,ph_3,322,Hw,-0.3,14.3,LS,4.1,NA,N,-,0,0,0,-,-,-,NA,NA,NA,NA,NA,1,NA,NA,NA,NA,NA,NA,regen,0,0
 m1,y58,cr_1,28,Hw,NA,NA,LS,14.5,NA,Y,Y,2,1,1,Y,1,Y,S,NA,NA,-,-,1,NA,4.1,352.6,NA,NA,NA,mature,4,4
 m2,y128,cr_1,28,Hw,NA,NA,LL,14.7,NA,Y,Y,2,2,2,Y,4,Y,S,NA,NA,-,-,2,NA,4.3,343.7,NA,NA,NA,mature,6,6
 m3,y15,cr_1,28,Cw,NA,NA,DS,95,NA,-,-,NA,NA,NA,-,-,-,-,AX,NB,-,-,-,NA,5.4,24.6,NA,NA,NA,mature,NA,-
@@ -1280,3 +1414,84 @@ m543,y106,mi_2,20,Hw,NA,NA,SN,19.7,NA,N,-,NA,NA,NA,-,-,-,-,U,NA,NA,NA,-,NA,9.5,1
 m544,y122,mi_2,20,Hw,NA,NA,LS,13.7,NA,Y,N,0,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,9.7,181.5,NA,NA,NA,mature,1,1
 m545,y27,mi_2,20,Hw,NA,NA,LS,14.8,NA,Y,N,0,1,1,N,-,N,I,NA,NA,1,NA,1,NA,9.5,199.3,NA,NA,NA,mature,2,2
 m546,y61,mi_2,14,Hw,NA,NA,LS,72.7,NA,Y,N,2,2,2,Y,7,N,D,NA,NA,1,NA,2,NA,1.9,74.4,NA,NA,NA,mature,6,6
+m547,w52,ph_2,44,Hw,NA,NA,LS,41.9,NA,Y,N,2,2,1,Y,4,Y,C,IB,AX,NA,NA,1,NA,8,218.8,NA,NA,NA,mature,5,5
+m548,w21,ph_2,44,Ba,NA,NA,LS,10.4,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,7.7,186.3,NA,NA,NA,mature,0,0
+m549,w14,ph_2,44,Ba,NA,NA,LS,28.3,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,NA,2.2,279.3,NA,NA,NA,mature,1,1
+m550,NA,ph_2,44,U,NA,NA,SN,70,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,6,NA,3.2,135.2,NA,NA,NA,mature,NA,-
+m551,w117,ph_2,44,Ba,NA,NA,LS,12,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,4.3,143.6,NA,NA,NA,mature,0,0
+m552,w6,ph_2,44,Cw,NA,NA,LS,92.2,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,5.4,135.2,NA,NA,NA,mature,NA,-
+m553,w18,ph_2,44,Ba,NA,NA,LS,13.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,4.8,125.4,NA,NA,NA,mature,0,0
+m554,w20,ph_2,44,Hw,NA,NA,LS,20,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,"dbh estimated, incaccessible",5.4,108.8,NA,NA,NA,mature,0,0
+m555,w65,ph_2,44,Hw,NA,NA,LS,11.2,NA,Y,N,1,0,0,N,-,N,S,NA,NA,NA,NA,1,NA,4.3,60.5,NA,NA,NA,mature,1,1
+m556,w5,ph_2,44,Cw,NA,NA,LS,140,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,NA,4.1,46.7,NA,NA,NA,mature,NA,-
+m557,y59,ph_2,43,Hw,NA,NA,LS,13.1,NA,Y,N,1,1,0,N,-,Y,S,NA,NA,NA,NA,1,NA,2.9,192.3,NA,NA,NA,mature,2,2
+m558,y63,ph_2,43,Ba,NA,NA,LS,12.9,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,1,182.9,NA,NA,NA,mature,0,0
+m559,y120,ph_2,43,Ba,NA,NA,LS,9.8,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,4.2,132,NA,NA,NA,mature,0,0
+m560,y52,ph_2,43,Ba,NA,NA,SN,45.5,NA,U,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,6,NA,7.1,139.2,NA,NA,NA,mature,NA,DU
+m561,y47,ph_2,43,Ba,NA,NA,LS,10.6,NA,N,-,0,0,0,-,-,-,S,NA,NA,NA,NA,1,NA,3.6,14.2,NA,NA,NA,mature,0,0
+m562,w17,ph_2,43,Hw,NA,NA,RD,54.4,NA,Y,N,2,2,2,Y,7,Y,D,NA,NA,NA,NA,2,"b_lc mis-recorded, sure it should be N",4.2,15.7,NA,NA,NA,mature,6,6
+m563,w125,ph_2,43,Ba,NA,NA,LS,51.9,NA,Y,N,1,1,0,Y,1,N,D,NA,NA,NA,NA,1,NA,5.7,15.7,NA,NA,NA,mature,2,2
+m564,y114,ph_2,43,Hw,NA,NA,LS,20.5,NA,Y,Y,2,0,0,Y,1,Y,I,NA,NA,NA,NA,1,hard to read crown class but makes sense given dbh,5.7,296.9,NA,NA,NA,mature,2,2
+m565,y17,ph_2,43,Ba,NA,NA,LS,23.4,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,hard to read dbh on data sheet,4.6,237.2,NA,NA,NA,mature,1,1
+m566,y53,ph_2,43,Hw,NA,NA,LS,42.5,NA,Y,N,2,1,0,Y,1,N,I,NA,NA,NA,NA,1,NA,3.3,222.2,NA,NA,NA,mature,3,3
+m567,w19,ph_2,42,Ba,NA,NA,LS,33.4,NA,Y,N,1,1,0,N,-,N,I,NA,NA,NA,NA,1,NA,1.2,206.7,NA,NA,NA,mature,2,2
+m568,y39,ph_2,42,Ba,NA,NA,LL,27.8,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,"stem_pa misrecorded, sure it should be N",4.8,348.9,NA,NA,NA,mature,1,1
+m569,w33,ph_2,42,Hw,NA,NA,SN,60,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,6,"giant fallen broom adjacent - likely from this tree, updated hem_pa to be ""Y"" given this comment (HS, 20 Jun 2024)",2.4,299.4,NA,NA,NA,mature,NA,DI
+m570,w1,ph_2,42,Hw,NA,NA,LS,11.9,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,5.5,302.7,NA,NA,NA,mature,0,0
+m571,w26,ph_2,42,Ba,NA,NA,LS,18.1,NA,N,-,0,0,0,-,-,-,I,NA,NA,1,NA,1,NA,7.5,292.2,NA,NA,NA,mature,0,0
+m572,y40,ph_2,41,Hw,NA,NA,LS,20,NA,Y,Y,1,1,0,Y,1,N,S,NA,NA,NA,NA,1,"hard to read azimuth, guessed it was 256.4",1.6,256.4,NA,NA,NA,mature,2,2
+m573,y34,ph_2,41,Ba,NA,NA,LS,69,NA,Y,N,1,1,1,Y,1,N,D,NA,NA,4,NA,1,NA,3.3,160.1,NA,NA,NA,mature,3,3
+m574,y64,ph_2,41,Hw,NA,NA,LS,14.1,NA,Y,N,1,0,0,N,-,Y,S,NA,NA,NA,NA,1,NA,3.7,26,NA,NA,NA,mature,1,1
+m575,y117,ph_2,41,Hw,NA,NA,LS,56.2,NA,Y,Y,2,2,2,Y,7,N,D,NA,NA,NA,NA,1,right next to edge start,6.5,24.2,NA,NA,NA,mature,6,6
+m576,y5,ph_2,41,Hw,NA,NA,DS,55.1,NA,Y,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,5,NA,5.1,334.3,NA,NA,NA,mature,NA,DI
+m577,y68,ph_2,41,Ba,NA,NA,LS,20.6,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,growing out of big cedar,6.7,334.3,NA,NA,NA,mature,0,0
+m578,y49,ph_2,41,Hw,NA,NA,LS,15.5,NA,Y,N,1,0,0,N,-,N,I,NA,NA,1,NA,1,NA,8.3,326.8,NA,NA,NA,mature,1,1
+m579,y103,ph_2,41,Ba,NA,NA,LS,22.1,NA,Y,N,1,0,0,N,-,N,I,NA,NA,NA,NA,1,"hard to read azimuth, guessed it was 310.1",5.1,310.1,NA,NA,NA,mature,1,1
+m580,y86,ph_2,41,Ba,NA,NA,LS,21.2,NA,N,-,0,0,0,-,-,-,I,NA,NA,NA,NA,1,NA,6.3,262.1,NA,NA,NA,mature,0,0
+m581,y19,ph_2,41,Hw,NA,NA,LS,21.2,NA,Y,N,1,0,0,Y,1,N,I,NA,NA,NA,NA,1,"hard to read dbh, culd be 19.0 or 190, guessed it was 190 because next entry also lacks a decimal and there was some big cedar snags at this site",8.5,259.6,NA,NA,NA,mature,1,1
+m582,NA,ph_2,41,Cw,NA,NA,SN,190,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,6,"hard to read dbh, guessed it was 40",8.1,245.1,NA,NA,NA,mature,NA,-
+m583,y31,ph_2,41,U,NA,NA,SN,40,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,6,"hard to read azimuth, guessed it was 288.7",7.5,288.7,NA,NA,NA,mature,NA,-
+m584,y62,ph_2,41,Ba,NA,NA,LS,32.8,NA,Y,N,0,1,0,N,-,N,C,NA,NA,NA,NA,1,NA,0.8,248.6,NA,NA,NA,mature,1,1
+m585,NA,ph_2,41,Cw,NA,NA,LS,280,NA,-,-,NA,NA,NA,-,-,-,D,NA,NA,NA,NA,1,"hard to read azimuth, guessed it was 319.6",6,319.6,NA,NA,NA,mature,NA,-
+m586,y8,ph_2,41,Hw,NA,NA,LS,15,NA,Y,Y,2,0,0,Y,1,Y,S,NA,NA,NA,NA,1,"dbh estimated, inaccessible",9.4,319.6,NA,NA,NA,mature,2,2
+m587,w77,ph_3,45,Hw,NA,NA,LS,9.4,NA,Y,N,2,2,2,Y,2,Y,S,NA,NA,1,NA,1,NA,7.6,358.7,NA,NA,NA,mature,6,6
+m588,w26,ph_3,45,Hw,NA,NA,LS,9,NA,Y,Y,2,2,2,Y,7,Y,S,NA,NA,1,NA,1,NA,10,353.4,NA,NA,NA,mature,6,6
+m589,w14,ph_3,45,Hw,NA,NA,LS,23.5,14.9,Y,N,2,2,1,Y,4,N,C,NA,NA,-,NA,1,NA,10.2,359.6,NA,NA,NA,mature,5,5
+m590,w60,ph_3,45,Cw,NA,NA,LS,25.4,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,2,NA,2,NA,11.4,326.9,NA,NA,NA,mature,NA,-
+m591,NA,ph_3,45,Cw,NA,NA,LF,62,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,2,NA,7.4,339.6,NA,NA,NA,mature,NA,-
+m592,NA,ph_3,45,Cw,NA,NA,LF,15,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,1,NA,3.7,301.9,NA,NA,NA,mature,NA,-
+m593,w110,ph_3,45,Hw,NA,NA,LS,16.9,NA,Y,Y,1,0,0,N,-,N,I,NA,NA,-,NA,1,NA,6,278.1,NA,NA,NA,mature,1,1
+m594,w8,ph_3,45,Hw,NA,NA,LS,21,NA,Y,N,2,2,1,Y,4,Y,I,NA,NA,5,NA,1,NA,8,253,NA,NA,NA,mature,5,5
+m595,w64,ph_3,45,Cw,NA,NA,LS,40.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,NA,1,NA,5.1,118,NA,NA,NA,mature,NA,-
+m596,w27,ph_3,45,Cw,NA,NA,LS,50.2,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,-,NA,1,NA,8.2,211,NA,NA,NA,mature,NA,-
+m597,NA,ph_3,45,Cw,NA,NA,SN,10.6,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,4,NA,8.7,211,NA,NA,NA,mature,NA,-
+m598,w31,ph_3,45,Cw,NA,NA,LS,25.7,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,-,NA,2,NA,9.8,177.2,NA,NA,NA,mature,NA,-
+m599,y117,ph_3,45,Dr,NA,NA,SN,30,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,1,NA,6,"forked with m600; species misrecorded as RD, but comment says they are Dr",7.5,125.7,NA,NA,NA,mature,NA,-
+m600,NA,ph_3,45,Dr,NA,NA,SN,20,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,1,NA,6,"forked with m599; species misrecorded as RD, but comment says they are Dr",7.5,125.7,NA,NA,NA,mature,NA,-
+m601,y2,ph_3,46,Hw,NA,NA,LS,11.7,NA,Y,Y,2,1,0,N,-,N,S,NA,NA,1,NA,1,crook,3.1,343.5,NA,NA,NA,mature,3,3
+m602,y53,ph_3,46,Cw,NA,NA,LS,10.5,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,NA,1.5,339.9,NA,NA,NA,mature,NA,-
+m603,y8,ph_3,46,Hw,NA,NA,LS,37.2,21.7,Y,Y,2,2,1,Y,4,Y,C,NA,NA,2,7,1,"seems like path_ind recorded in crown_cond, assumed crown cond was 1",2.2,11.9,NA,NA,NA,mature,5,5
+m604,y16,ph_3,46,Hw,NA,NA,LS,21.5,NA,Y,N,2,2,2,Y,6,Y,I,NA,NA,NA,NA,1,NA,4,39.7,NA,NA,NA,mature,6,6
+m605,NA,ph_3,46,Cw,NA,NA,LL,40,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,dbh approximated,5.9,74.6,NA,NA,NA,mature,NA,-
+m606,NA,ph_3,46,Cw,NA,NA,SN,38,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,6,NA,4.3,68.2,NA,NA,NA,mature,NA,-
+m607,y100,ph_3,46,Cw,NA,NA,LS,17,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,1.2,66.1,NA,NA,NA,mature,NA,-
+m608,NA,ph_3,46,Hw,NA,NA,LF,23.5,NA,Y,N,2,1,1,N,-,N,-,NA,NA,NA,NA,2,NA,4.4,81.8,NA,NA,NA,mature,4,4
+m609,y23,ph_3,46,Hw,NA,NA,LS,57.1,35.7,Y,Y,2,1,0,Y,1,N,C,NA,NA,NA,NA,1,NA,4.5,216.1,NA,NA,NA,mature,3,3
+m610,y40,ph_3,46,Hw,NA,NA,LS,11.9,NA,Y,N,1,1,0,N,-,N,S,NA,NA,NA,NA,1,NA,6,118,NA,NA,NA,mature,2,2
+m611,NA,ph_3,46,Cw,NA,NA,LF,20.7,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,1,NA,8.1,83.6,NA,NA,NA,mature,NA,-
+m612,w19,ph_3,46,Cw,NA,NA,LS,41.3,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,2,NA,2,NA,7.3,128.3,NA,NA,NA,mature,NA,-
+m613,NA,ph_3,46,Hw,NA,NA,SN,43,NA,U,-,NA,NA,NA,-,-,-,-,NA,NA,-,NA,6,"hdm_pa recorded as ""U"", entered as ""-""",8,125.3,NA,NA,NA,mature,NA,DU
+m614,w101,ph_3,46,Hw,NA,NA,LS,23.4,NA,Y,Y,2,2,1,Y,4,Y,I,NA,NA,1,NA,1,NA,8.3,141.8,NA,NA,NA,mature,5,5
+m615,w108,ph_3,46,Cw,NA,NA,LS,51.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,NA,8.5,147.5,NA,NA,NA,mature,NA,-
+m616,w70,ph_3,46,Hw,NA,NA,LS,31.7,26.9,Y,Y,2,2,1,Y,1,N,C,NA,NA,NA,NA,1,NA,7.7,149.9,NA,NA,NA,mature,5,5
+m617,w33,ph_3,47,Hw,NA,NA,LS,21.8,NA,Y,N,2,2,2,Y,4,N,I,NA,NA,NA,NA,1,NA,5,351.2,NA,NA,NA,mature,6,6
+m618,w20,ph_3,47,Hw,NA,NA,LF,15,NA,Y,N,2,2,1,N,-,N,-,NA,NA,NA,NA,1,NA,6.3,49.6,NA,NA,NA,mature,5,5
+m619,y37,ph_3,47,Hw,NA,NA,LL,35,NA,Y,Y,2,1,0,Y,1,N,I,NA,NA,NA,NA,1,dbh approximate,9.7,34,NA,NA,NA,mature,3,3
+m620,w26,ph_3,47,Cw,NA,NA,LS,33.5,NA,-,-,NA,NA,NA,-,-,-,C,NA,NA,NA,NA,1,"leaning over regen, multiple new stems have sprouted vertically; dbh approximate",2.2,89.5,NA,NA,NA,mature,NA,-
+m621,w117,ph_3,47,U,NA,NA,SN,50.2,NA,-,-,NA,NA,NA,-,-,-,-,NA,NA,NA,NA,6,"hard to read dbh, guessed it was 50.2",3.8,113.9,NA,NA,NA,mature,NA,-
+m622,w3,ph_3,47,Hw,NA,NA,LS,30.6,19.5,Y,N,2,2,1,Y,2,N,C,NA,NA,NA,NA,1,NA,4.1,85.7,NA,NA,NA,mature,5,5
+m623,w48,ph_3,47,Cw,NA,NA,LS,19.6,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,5.1,92.9,NA,NA,NA,mature,NA,-
+m624,w25,ph_3,47,Cw,NA,NA,LS,21.9,NA,-,-,NA,NA,NA,-,-,-,I,NA,NA,NA,NA,1,NA,7.3,98.3,NA,NA,NA,mature,NA,-
+m625,NA,ph_3,47,Hw,NA,NA,LS,10,NA,Y,N,2,1,0,Y,1,Y,S,NA,NA,NA,NA,1,dbh approximated,7,130,NA,NA,NA,mature,3,3
+m626,NA,ph_3,48,Cw,NA,NA,LL,18.5,NA,-,-,NA,NA,NA,-,-,-,S,NA,NA,NA,NA,1,"m626-m627, hemlock on top of cedar on clifside; dbh approximate",4,330.2,NA,NA,NA,mature,NA,-
+m627,NA,ph_3,48,Hw,NA,NA,LL,27,NA,Y,N,2,2,2,Y,4,N,C,NA,NA,NA,NA,1,"m626-m627, hemlock on top of cedar on clifside; dbh approximate",3.7,323.2,NA,NA,NA,mature,6,6
