@@ -54,15 +54,16 @@ crs <- 3005
 ##############################################################
 #### PART 2: Prepare Trimble Points
 # Read in trimble gps points (Trimble Locations)
-trimb <- read_csv('./data/cleaned/hdm_trimbpoints_2023.csv')
+trimb <- read_csv('./data/cleaned/hdm_trimbpoints.csv')
 summary(trimb)
 
 # Make site_id and pt_type factors
 trimb <- trimb %>% mutate(across(c(site_id, pt_type), ~ as.factor(.)))
 trimb$pt_id <- as.numeric(trimb$pt_id) #make point id a numeric
+levels(trimb$site_id)
 
 # Make the points a spatial object (simple features sf object from sf package). CRS = WGS84
-trimb <- st_as_sf(trimb, coords = c("long_num", "lat_num"), crs=4326)
+trimb <- st_as_sf(trimb, coords = c("Longitude", "Latitude"), crs=4326)
 st_crs(trimb)$proj4string #check CRS
 
 # Reproject to NAD1983/BC Albers because this CRS is a projected system with units in m
@@ -77,7 +78,7 @@ tm_shape(trimb, is.master = TRUE) + tm_symbols(col="pt_type") + tm_text("pt_id")
   tm_facets(by="site_id")
 #Plan: 
 # -use transect end points to define transect start points because they are more consistent
-# -exception is middle transect at mk_1 (transect_id = 101)
+# -exception: (1) middle transect at mk_1 (transect_id = 101) and (2) transect 250 at ph_2
 
 # Convert working object back to a basic dataframe. Extract the new UTM coordinates to their own columns. 
 utm_coords <- data.frame((st_coordinates(trimb))) #extract the coordinates from the geometry component of the trimb object
@@ -113,26 +114,27 @@ ts <- ts %>% select(!plot_x_utm.x:geometry) %>%
 # Okay, these are final adjusted transect starts. 
 
 # Combine this with stem mapping points to get final set of reference points to generate tree locations from. 
-ts <- ts %>% filter(pt_id!=101) %>% #filter out point that seems misplaced by using transect ends
+ts <- ts %>% filter(!pt_id %in% c(101, 250)) %>% #filter out two transects that seems misplaced by using transect ends
   mutate(pt_type = "r adj tran start")
-ts_101 <- trimb %>% filter(pt_type=="tran start" & pt_id==101) %>% 
+ts_101_250 <- trimb %>% filter(pt_type=="tran start" & (pt_id %in% c(101, 250))) %>% 
   mutate(pt_type="r adj tran start") #add ts for 101 from field data
-trimb <- rbind(trimb, ts, ts_101)
+trimb <- rbind(trimb, ts, ts_101_250)
 #FINAL DATASET OF TRANSECT POINTS TO STEM MAP FROM
 
-#Because of the pesky little transect (101) that wasn't created based of a transect end point, need to create another transect end point for it to make graphing later look good. 
+#Because of the pesky little transects (101, 250) that weren't created based of a transect end point, need to create another transect end point for it to make graphing later look good. 
 #Create new transect end point from field collected 101
-ts_101 <- left_join(ts_101, select(transect, transect_id, tr_az, tr_leng), 
+ts_101_250 <- left_join(ts_101_250, select(transect, transect_id, tr_az, tr_leng), 
                     by=c("pt_id" = "transect_id"))
-te_101 <- ts_101 %>%
+te_101_250 <- ts_101_250 %>%
   mutate(polar_to_XY(azimuth = tr_az, distance = tr_leng,
                      xcenter = plot_x_utm, ycenter = plot_y_utm, crs = crs,
                      shape_file = TRUE))
-adj_te_101_XY <- data.frame(st_coordinates(te_101$geometry))
-te_101 <- trimb %>% filter(pt_type=="tran end" & pt_id==101) %>% mutate(plot_x_utm=adj_te_101_XY$X, plot_y_utm=adj_te_101_XY$Y)
+adj_te_101_250_XY <- data.frame(st_coordinates(te_101_250$geometry))
+te_101_250 <- trimb %>% filter(pt_type=="tran end" & (pt_id %in% c(101, 250))) %>% mutate(plot_x_utm=adj_te_101_250_XY$X, plot_y_utm=adj_te_101_250_XY$Y)
 
-trimb <- trimb %>% filter(!(pt_type=="tran end" & pt_id==101))
-trimb <- rbind(trimb, te_101)
+trimb <- trimb %>% filter(!(pt_type=="tran end" & (pt_id %in% c(101, 250)))) #using tran end level(and not creating another factor level) because this is how all other transects ends are identified
+trimb <- rbind(trimb, te_101_250)
+
 #FINAL TRIMB POINTS
 #Export this:
 write_csv(trimb, "./data/workflow/trimb_radjusted.csv")
