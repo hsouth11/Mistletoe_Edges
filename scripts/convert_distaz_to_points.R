@@ -147,11 +147,11 @@ trees <- readRDS("./data/cleaned/trees.RDS")
 
 #### MATURE COMPONENT
 # Azimuth readings are magnetic and need to be declination corrected. Read in datasheet with declination correction by site. Then join it to stem mapping sheet.
-site_centre_data <- read_csv('./data/site_centrepoints_tab_21Feb2024.csv')
-site_centre_data <- site_centre_data %>% select(site_id, Dec)
+site_data <- read_csv('./data/cleaned/site data.csv')
+site_data <- site_data %>% select(site_id, Dec)
 
 # Join declination corrections dataset by site
-trees <- left_join(trees, site_centre_data, by = c("site_id" = "site_id"))
+trees <- left_join(trees, site_data, by = c("site_id" = "site_id"))
 
 # Delete dec_deg column (empty column and we just added Dec)
 trees <- trees %>% select(!c(dec_deg))
