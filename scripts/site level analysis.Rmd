@@ -7,7 +7,7 @@ output: html_document
 WHAT?
 Script for running site level analyses in the general form (spread measure ~ site variable).
 
-UPDATED: 13 May 2024
+UPDATED: 28 Jun 2024
 
 ```{r}
 rm(list=ls(all=TRUE))
@@ -15,27 +15,45 @@ rm(list=ls(all=TRUE))
 #Load packages
 library(tidyverse)
 library(RColorBrewer)
+library(ggrepel)
 ```
 
-Read in the data
+#DATA PREP
+
+Read in and format the site and tree datasets
 ```{r}
-#Read in data and inspect it
-#Dataset 1: site data. 
-##This contains variables at the site level. The key pieces for analysis are: year harvested and CWH subzone
-site <- read_csv("data/cleaned/site data_10May2024.csv")
+####Read in data and inspect it
+##Dataset 1: site data. 
+#This contains variables at the site level. The key pieces for analysis are: year harvested and CWH subzone
+site <- read_csv("data/cleaned/site data.csv")
 str(site)
 summary(site)
 
-#Make cluster and bec_sz factors
-site <- site %>% mutate(across(c(cluster, bec_sz), ~as.factor(.)))
+##Create some variables to use in summary tables and figures
+#Calculate approximate age of regen. Sites assessed in 2023 so age = 2023 - year harvested
+site <- site %>% mutate(age = 2023-yr_har)
+site$age #luckily, got pretty good spread
+
+#Create a single variable from all the pieces of a BEC zone
+site <- site %>% unite(col = bec, sep = "", c("bec_z", "bec_sz", "bec_var"), remove = FALSE)
+
+#Create a variable that combines site_id, bec, and regen age 
+site <- site %>% unite(col = id_bec_age_f, sep = ", ", 
+                       c("site_id", "bec", "age"), 
+                       remove = FALSE) %>% 
+  mutate(id_bec_age_f = factor(id_bec_age_f))
+
+#Make cluster, bec and id_bec_age_f factors
+site <- site %>% mutate(across(c(cluster, bec, id_bec_age_f), ~as.factor(.)))
 str(site)
 
-#Dataset 2: tree data
-##This contains data for each measured tree (mature and regen trees). The key variables for analysis are: dist_y_h
-##Treats assessed_by var as a logical for some reason and throws up an error. Not a problem and not going to use this var
+##Dataset 2: tree data
+#This contains data for each measured tree (mature and regen trees). 
+#Treats assessed_by var as a logical for some reason and throws up an error. Not a problem and not going to use this var
 trees <- read_csv("data/workflow/trees_mapped.csv")
 str(trees)
 summary(trees)
+
 #Convert factor vars to factors: 
 trees <- trees %>% mutate(across(
   c(site_id, spp, status, hdm_pa, b_lc, 
@@ -47,30 +65,17 @@ trees <- trees %>% mutate(across(
   c(plot_id, dmr_l, dmr_m, dmr_u, dmr), ~as.integer(.)))
 
 str(trees)
-```
 
-Create some useful variables and join site and tree data
-```{r}
-#Calculate approximate age of regen. Sites assessed in 2023 so age = 2023 - year harvested
-site <- site %>% mutate(age = 2023-yr_har)
-site$age #luckily, got pretty good spread
-
-#Combine/edit some variables that are informative for plotting
-##1: a combined factor variable for plotting: site id + bec zone + age. Levels set so it is ordered by age.
-##2: redefine the factor dmr variable so it has fewer levels and ascends logically from healthy to most infected
-site <- site %>% unite(col = bec_z_sz, sep = "", c("bec_z", "bec_sz"), remove = FALSE) %>% 
-  unite(col = id_bec_ag_f, sep = ", ", c("site_id", "bec_z_sz", "mature_Hw_age", "age"), remove = FALSE) %>% 
-  mutate(id_bec_ag_f = factor(id_bec_ag_f, levels = c("mk_3, CWHdm, 55, 23",  "mi_2, CWHdm, 147, 29", "mi_1, CWHdm, 163, 32", 
-                                                      "cr_1, CWHxm, 104, 33", "mk_1, CWHdm, 243, 33", "cr_2, CWHxm, 144, 38", 
-                                                      "ph_1, CWHvm, 397, 40", "mk_2, CWHvm, 145, 45")))
+#Create new factor dmr variable that has fewer levels and ascends logically from healthy to most infected
 levels(trees$dmr_f)
 trees <- trees %>% mutate(dmr_f2 = case_when((dmr_f =="1" | dmr_f=="2") ~ "1-2", (dmr_f =="3" | dmr_f=="4") ~ "3-4", (dmr_f =="5" | 
                                     dmr_f=="6") ~ "5-6", .default = dmr_f))
 trees <- trees %>% mutate(dmr_f2 = factor(dmr_f2, levels = c("-", "DU", "0","IBLC", "1-2", "3-4", "5-6", "DI")))
 summary(trees$dmr_f2)
 
-#Join to tree data: 
-trees <- left_join(trees, select(site, id_bec_ag_f, age, site_id), by="site_id")
+#Join some site level variables to tree data: 
+trees <- left_join(trees, select(site, cluster, 
+                                 bec, id_bec_age_f, age, site_id), by="site_id")
 ```
 
 Define some consistent colours to plot with
@@ -87,6 +92,96 @@ levels(trees$dmr_f2)
 colors_dmr_f2 = c("dodgerblue4", "dodgerblue", "khaki1", "khaki3", "goldenrod1", "goldenrod3", "hotpink")
 ```
 
+
+#SECTION 1: Site climate comparisons
+Goal of this section is to descriptively describe differences in climate variables between sites that might influence HDM biology.
+```{r}
+####Read in climate data
+#Data downloaded from ClimateBC (https://climatebc.ca/mapVersion, 24 Jun 2024). ClimateBCv7.50. Period: Normal_1991_2020
+climate <- read_csv('./data/raw/hdm_climdata.csv') #raw data from climateBC
+
+####Check coordinates were inputted correctly, then join site_ids 
+#Sites are identified by coordinates in the climate dataset. Check they are right before joining site_ids
+site <- site %>% mutate(dd_X_r = round(dd_X, digits = 4), #round number of decimals to match climateBC rounding
+                        dd_Y_r = round(dd_Y, digits = 5))
+x <- site$dd_X_r - climate$long
+y <- site$dd_Y_r - climate$Lat
+print(x); print(y)
+#Good, almost al 0s, just one that is different by 1 x 10e-4 (a rounding error)
+
+#Join site_id, bec and cluster by latitude values
+climate <- left_join(climate, select(site, site_id, cluster, bec, dd_Y_r), by = c("Lat" = "dd_Y_r"))
+
+#move site_id to the front
+climate <- climate %>% select(site_id, cluster, bec, everything())
+
+#### Define climate variables that were in Bianca's paper
+#Descriptions of these variables and whether they are exact matches or approximiations of variables used in paper are in: /Users/hannosoutham/Library/CloudStorage/OneDrive-UBC(1)/Msc/Thesis/ch1.docx
+
+#1 Growing degree days
+climate <- climate %>% rowwise() %>% mutate(DD5_gs = sum(c_across(DD5_sp:DD5_at)))
+select(climate, DD5, DD5_gs)
+
+#2 Growing season radians
+climate <- climate %>% rowwise() %>% mutate(Rad_gs = mean(c_across(Rad_sp:Rad_at)))
+select(climate, MAR, Rad_gs)
+
+#3 Lowest average minimum monthly temperature (Tmin_wt)
+# find lowest Tmin value across all months
+climate <- climate %>% rowwise() %>% mutate(Tmin_all = min(c_across(Tmin_01:Tmin_12)))
+select(climate, Tmin_wt, Tmin_all)
+
+#4 Standard deviation of lowest average minimum monthly temperature  
+# calculate the standard deviation in Tmin across all of the months
+climate <- climate %>% rowwise() %>% mutate(Tmin_sd = sd(c_across(Tmin_01:Tmin_12)))
+select(climate, Tmin_sd)
+
+#5 Snow (PAS) 
+select(climate, MAP, PAS)
+
+#6 Rain
+climate <- climate %>% mutate(PAR = MAP-PAS)
+select(climate, MAP, PAR, PAS)
+
+#7 Lowest average spring monthly temperature
+# Find lowest Tmin value between May and June
+climate <- climate %>% rowwise() %>% mutate(Tmin_mj = min(c_across(Tmin_05:Tmin_06)))
+select(climate, Tmin_mj)
+
+#8 Lowest average fall monthly temperature (Tmin_at)
+# Find the lowest Tmin value between August and September
+climate <- climate %>% rowwise() %>% mutate(Tmin_as = min(c_across(Tmin_08:Tmin_09)))
+select(climate, Tmin_as)
+
+####Create clean dataset
+#Pull out the variables described above
+#Also include MAT (mean annual temperature), TD (temperature difference between mean coldest month temperature and mean warmest month temperature) and MAP (mean annual precipitation) because they are good descriptors
+climate <- climate %>% 
+  select(site_id, cluster, bec, MAT, TD, MAP, PAR, PAS, DD5_gs, Rad_gs, 
+         Tmin_all, Tmin_sd, Tmin_mj, Tmin_as) #select the varaibles of interest
+print(climate)
+
+#Export this as a table for thesis
+write_csv(climate, "./tables/site_climate.csv")
+
+####Graph this
+#Create a long dataframe so a variables can be plotted in one go
+clim_g <- climate %>% 
+  pivot_longer(MAT:Tmin_as, names_to = "climvar", values_to = "climval")
+
+#Create a plot
+ggplot(clim_g, aes(x=cluster, y=climval, label=site_id, color = bec)) + 
+  geom_text_repel() +
+  geom_point() + 
+  facet_wrap(~climvar, scales = "free_y") +
+  theme_classic() + 
+  theme(axis.text.x = element_text(angle = 90, 
+                                   hjust = 1, vjust = 0.5)) +  # Rotate x-axis labels
+  scale_x_discrete(labels = function(x) str_replace_all(x, " ", "\n")) #add a line break wherever there is a space
+```
+
+#SECTION 2: Size class distribution and species composition
+Goal of this section is to compare the size class distribution and species composition in the mature and regen components between the sites. 
 
 Calculate basal area and create a dataset that is comparable between sites. 
 ```{r}
@@ -126,70 +221,70 @@ Mature
 #Calculate some basic site level metrics: basal area, number of stems
 ##Regen
 ##Regen transect footprint = 15x5m=75m2=0.0075ha (but three transects/site) so 0.0075*3 = 0.0225ha 
-reg_ba_nstem <- regen_15 %>% group_by(id_bec_ag_f) %>% 
+reg_ba_nstem <- regen_15 %>% group_by(id_bec_age_f) %>% 
   summarise(reg_tot_ba_m2 = sum(ba_m2),  reg_nstem = n()) #calculate total BA and number of stems
 reg_ba_nstem <- reg_ba_nstem %>% mutate(reg_tot_ba_m2ha = reg_tot_ba_m2/0.0225, #Add a columns with per hectare numbers for easy reading
                                      reg_nstem_ha = reg_nstem/0.0225) 
 ##Mature
 ##Mature component footprint = 55x10m =550m2=0.055ha. 
-mat_ba_nstem <- mature_comp %>% group_by(id_bec_ag_f) %>% 
+mat_ba_nstem <- mature_comp %>% group_by(id_bec_age_f) %>% 
   summarise(mat_tot_ba_m2 = sum(ba_m2),  mat_nstem = n()) #calculate total BA and number of stems
 mat_ba_nstem <- mat_ba_nstem %>% mutate(mat_tot_ba_m2ha = mat_tot_ba_m2/0.055, #Add a columns with per hectare numbers for easy reading
                                      mat_nstem_ha = mat_nstem/0.055) 
 
 #Join these to site table
-site <- left_join(site, reg_ba_nstem, by="id_bec_ag_f")
-site <- left_join(site, mat_ba_nstem, by="id_bec_ag_f")
+site <- left_join(site, reg_ba_nstem, by="id_bec_age_f")
+site <- left_join(site, mat_ba_nstem, by="id_bec_age_f")
 
 #Create a summary table, see how they compare:
-site %>% select(id_bec_ag_f, reg_tot_ba_m2ha, reg_nstem_ha) %>% 
+site %>% select(id_bec_age_f, reg_tot_ba_m2ha, reg_nstem_ha) %>% 
   arrange(reg_tot_ba_m2ha)
-site %>% select(id_bec_ag_f, mat_tot_ba_m2ha, mat_nstem_ha) %>% 
+site %>% select(id_bec_age_f, mat_tot_ba_m2ha, mat_nstem_ha) %>% 
   arrange(mat_tot_ba_m2ha)
 ####################
 
 #Now break down basal area and nstems, by species and diameter class.
 ##Bit of a messy table, but graphed below
-reg_struc <- regen_15 %>% group_by(id_bec_ag_f, spp, dbh_bin) %>% 
+reg_struc <- regen_15 %>% group_by(id_bec_age_f, spp, dbh_bin) %>% 
   summarise(ba_m2 = sum(ba_m2), n_stems = n()) %>% 
   complete(dbh_bin, fill=list(ba_m2=0, n_stems=0)) #add 0s in places there was no trees
-mat_struc <- mature_comp %>% group_by(id_bec_ag_f, spp, dbh_bin) %>% 
+mat_struc <- mature_comp %>% group_by(id_bec_age_f, spp, dbh_bin) %>% 
   summarise(ba_m2 = sum(ba_m2), n_stems = n()) %>% 
   complete(dbh_bin, fill=list(ba_m2=0, n_stems=0))#add 0s in places there was no trees
 
 #Filter to the three dominant conifer species to make comparisons easier.
 ##First check how much BA Hw, Cw and Fd make up together (also add Hw alone because its focal species)
 ###Regen
-reg_hwcwfd_ba_m2 <- reg_struc %>% filter(spp %in% c("Hw", "Cw", "Fd")) %>% group_by(id_bec_ag_f) %>% 
+reg_hwcwfd_ba_m2 <- reg_struc %>% filter(spp %in% c("Hw", "Cw", "Fd")) %>% group_by(id_bec_age_f) %>% 
   summarise(reg_hwcwfd_ba_m2 = sum(ba_m2)) #calculate total BA of just Hw, Cw, Fd at each site
-reg_hw_ba_m2 <- reg_struc %>% filter(spp == "Hw") %>% group_by(id_bec_ag_f) %>% 
+reg_hw_ba_m2 <- reg_struc %>% filter(spp == "Hw") %>% group_by(id_bec_age_f) %>% 
   summarise(reg_hw_ba_m2 = sum(ba_m2)) #calculate BA of Hw at each site
 
 ###Join variables back to site data
-site <- left_join(site, reg_hwcwfd_ba_m2, by="id_bec_ag_f")
-site <- left_join(site, reg_hw_ba_m2, by="id_bec_ag_f")
+site <- left_join(site, reg_hwcwfd_ba_m2, by="id_bec_age_f")
+site <- left_join(site, reg_hw_ba_m2, by="id_bec_age_f")
 site <- site %>% mutate(p_reg_ba_hwcwfd = reg_hwcwfd_ba_m2/reg_tot_ba_m2, 
                         p_reg_ba_hw = reg_hw_ba_m2/reg_tot_ba_m2) #calculate proportion of ba made up by Hw, Cw, Fd and then Hw alone
 
 ###Mature
-mat_tot_ba_m2 <- mat_struc %>% group_by(id_bec_ag_f) %>% 
+mat_tot_ba_m2 <- mat_struc %>% group_by(id_bec_age_f) %>% 
   summarise(mat_tot_ba_m2 = sum(ba_m2)) #calculate total BA of maten
-mat_hwcwfd_ba_m2 <- mat_struc %>% filter(spp %in% c("Hw", "Cw", "Fd")) %>% group_by(id_bec_ag_f) %>% 
+mat_hwcwfd_ba_m2 <- mat_struc %>% filter(spp %in% c("Hw", "Cw", "Fd")) %>% group_by(id_bec_age_f) %>% 
   summarise(mat_hwcwfd_ba_m2 = sum(ba_m2)) #calculate total BA of just Hw, Cw, Fd
-mat_hw_ba_m2 <- mat_struc %>% filter(spp == "Hw") %>% group_by(id_bec_ag_f) %>% 
+mat_hw_ba_m2 <- mat_struc %>% filter(spp == "Hw") %>% group_by(id_bec_age_f) %>% 
   summarise(mat_hw_ba_m2 = sum(ba_m2)) #calculate BA of Hw
 
 ###Join variables back to site data
-site <- left_join(site, mat_hwcwfd_ba_m2, by="id_bec_ag_f")
-site <- left_join(site, mat_hw_ba_m2, by="id_bec_ag_f")
+site <- left_join(site, mat_hwcwfd_ba_m2, by="id_bec_age_f")
+site <- left_join(site, mat_hw_ba_m2, by="id_bec_age_f")
 site <- site %>% mutate(p_mat_ba_hwcwfd = mat_hwcwfd_ba_m2/mat_tot_ba_m2,
                          p_mat_ba_hw = mat_hw_ba_m2/mat_tot_ba_m2) #calculate proportion of ba made up by Hw, Cw, Fd and then Hw alone
 
 ##Create summary table. Hw, Cw, Fd make up between 78-100% of regen basal area, and 88-100% of mature basal area. So filtering seems reasonable.
 ## Hw makes up between 66 and 95% in regen and 38% and 97% in mature component. Mature component interesting - not the same inoculum pressure.
-site %>% select(id_bec_ag_f, reg_tot_ba_m2, reg_hwcwfd_ba_m2, reg_hw_ba_m2, p_reg_ba_hwcwfd, p_reg_ba_hw) %>% 
+site %>% select(id_bec_age_f, reg_tot_ba_m2, reg_hwcwfd_ba_m2, reg_hw_ba_m2, p_reg_ba_hwcwfd, p_reg_ba_hw) %>% 
   arrange(reg_tot_ba_m2)
-site %>% select(id_bec_ag_f, mat_tot_ba_m2, mat_hwcwfd_ba_m2, mat_hw_ba_m2, p_mat_ba_hwcwfd, p_mat_ba_hw) %>% 
+site %>% select(id_bec_age_f, mat_tot_ba_m2, mat_hwcwfd_ba_m2, mat_hw_ba_m2, p_mat_ba_hwcwfd, p_mat_ba_hw) %>% 
   arrange(mat_tot_ba_m2)
 
 ##Filter
@@ -201,16 +296,16 @@ levels(reg_struc$spp)
 ##Regen
 reg_struc <- reg_struc %>% filter(ba_m2>0) #Remove rows with 0 because R will plot all dbh intervals (up to 180cm)
 ggplot(reg_struc, aes(x=dbh_bin, y=n_stems, fill=spp)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_spp)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_spp)
 ggplot(reg_struc, aes(x=dbh_bin, y=ba_m2, fill=spp)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_spp)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_spp)
 
 ##Mature
 mat_struc <- mat_struc %>% filter(ba_m2>0) #Remove rows with 0 because R will plot all dbh intervals (up to 180cm)
 ggplot(mat_struc, aes(x=dbh_bin, y=n_stems, fill=spp)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_spp)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_spp)
 ggplot(mat_struc, aes(x=dbh_bin, y=ba_m2, fill=spp)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_spp)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_spp)
 ```
 
 Compare the HDM infection in the mature component across the sites by looking at: basal area and stem count distributions parsed out by presence/absence of hdm infection and dmr. Generally trying to assess whether the mature components are similar infection sources. 
@@ -222,35 +317,35 @@ Compare the HDM infection in the mature component across the sites by looking at
 mat_hw <- mature_comp %>% filter(spp=="Hw") #mature trees
 
 #Start simple. Calculate: basal area of infected trees at each site
-mat_inf_ba_m2 <- mat_hw %>% filter(hdm_pa =="Y") %>% group_by(id_bec_ag_f) %>% summarise(mat_inf_ba_m2 = sum(ba_m2))
-site <- left_join(site, mat_inf_ba_m2, by="id_bec_ag_f") #join variables back to site data
+mat_inf_ba_m2 <- mat_hw %>% filter(hdm_pa =="Y") %>% group_by(id_bec_age_f) %>% summarise(mat_inf_ba_m2 = sum(ba_m2))
+site <- left_join(site, mat_inf_ba_m2, by="id_bec_age_f") #join variables back to site data
 site <- site %>% mutate(p_mat_hw_ba_inf = mat_inf_ba_m2/mat_hw_ba_m2) #calculate the proportion of Hw basal area that's infected at each site
 
 #Create a summary table. 
-site %>% select(id_bec_ag_f, mat_hw_ba_m2, mat_inf_ba_m2, p_mat_hw_ba_inf) %>% #summary table sorted by proportion of BA infected
+site %>% select(id_bec_age_f, mat_hw_ba_m2, mat_inf_ba_m2, p_mat_hw_ba_inf) %>% #summary table sorted by proportion of BA infected
   arrange(p_mat_hw_ba_inf) 
 
 #Now break down basal area and # stems by site, presence/absece of hdm and diameter class
-mat_hdmpa <- mat_hw %>% group_by(id_bec_ag_f, hdm_pa, dbh_bin) %>% 
+mat_hdmpa <- mat_hw %>% group_by(id_bec_age_f, hdm_pa, dbh_bin) %>% 
   summarise(ba_m2 = sum(ba_m2), n_stems = n()) %>% complete(dbh_bin, fill=list(ba_m2=0, n_stems=0))
 
 ##Graph this across diameter classes
 mat_hdmpa <- mat_hdmpa %>% filter(ba_m2>0) #Remove rows with 0 because R will plot all dbh intervals (up to 180cm)
 ggplot(mat_hdmpa, aes(x=dbh_bin, y=n_stems, fill=hdm_pa)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_dmr_f2)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2)
 ggplot(mat_hdmpa, aes(x=dbh_bin, y=ba_m2, fill=hdm_pa)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_dmr_f2)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2)
 
 #Do the same but by DMR
-mat_dmr <- mat_hw %>% group_by(id_bec_ag_f, dmr_f2, dbh_bin) %>% 
+mat_dmr <- mat_hw %>% group_by(id_bec_age_f, dmr_f2, dbh_bin) %>% 
   summarise(ba_m2 = sum(ba_m2), n_stems = n()) %>% complete(dbh_bin, fill=list(ba_m2=0, n_stems=0))
 
 #Graph this across diameter classes
 mat_dmr <- mat_dmr %>% filter(ba_m2>0) #Remove rows with 0 because R will plot all dbh intervals (up to 180cm)
 ggplot(mat_dmr, aes(x=dbh_bin, y=n_stems, fill=dmr_f2)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_dmr_f2)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2)
 ggplot(mat_dmr, aes(x=dbh_bin, y=ba_m2, fill=dmr_f2)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_dmr_f2)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2)
 ```
 
 Compare infection levels and distribution of infection in the regen compoenent. 
@@ -263,18 +358,18 @@ Compare infection levels and distribution of infection in the regen compoenent.
 reg_hw <- trees %>% filter(tree_type == "regen" & spp=="Hw") #Hemlock regen trees 
 
 #Start simple again, just calculate basal area infected at each site
-reg_inf_ba_m2 <- reg_hw %>% filter(hdm_pa =="Y") %>% group_by(id_bec_ag_f) %>% summarise(reg_inf_ba_m2 = sum(ba_m2))
-reg_15_inf_ba_m2 <- regen_15 %>% filter(hdm_pa =="Y") %>% group_by(id_bec_ag_f) %>% summarise(reg_15_inf_ba_m2 = sum(ba_m2))
-site <- left_join(site, reg_inf_ba_m2, by="id_bec_ag_f") #join variables back to site data
-site <- left_join(site, reg_15_inf_ba_m2, by="id_bec_ag_f")
+reg_inf_ba_m2 <- reg_hw %>% filter(hdm_pa =="Y") %>% group_by(id_bec_age_f) %>% summarise(reg_inf_ba_m2 = sum(ba_m2))
+reg_15_inf_ba_m2 <- regen_15 %>% filter(hdm_pa =="Y") %>% group_by(id_bec_age_f) %>% summarise(reg_15_inf_ba_m2 = sum(ba_m2))
+site <- left_join(site, reg_inf_ba_m2, by="id_bec_age_f") #join variables back to site data
+site <- left_join(site, reg_15_inf_ba_m2, by="id_bec_age_f")
 site <- site %>% mutate(p_reg_15_ba_inf = reg_15_inf_ba_m2/reg_tot_ba_m2)
 
 #Create a summary table. 
-site %>% select(id_bec_ag_f, reg_hw_ba_m2, reg_inf_ba_m2, reg_15_inf_ba_m2, p_reg_15_ba_inf) %>% 
+site %>% select(id_bec_age_f, reg_hw_ba_m2, reg_inf_ba_m2, reg_15_inf_ba_m2, p_reg_15_ba_inf) %>% 
   arrange(reg_15_inf_ba_m2) #summary table sorted by portion of BA infected within 15m of edge
 
 #Create a plot relating basal area infected in mature component to basal area infected in the regen
-ggplot(site, aes(x=mat_inf_ba_m2, y=reg_inf_ba_m2, color=id_bec_ag_f)) + 
+ggplot(site, aes(x=mat_inf_ba_m2, y=reg_inf_ba_m2, color=id_bec_age_f)) + 
   geom_point()
 ## Can't really see anything, too few datapoints, but my sense is that inocukum pressure is going to be the key variable
 
@@ -285,40 +380,40 @@ reg_hw <- reg_hw %>% mutate(dist_y_h_bin = cut(dist_y_h, breaks = c(0, 5, 10, 15
 levels(reg_hw$dist_y_h_bin)
 
 ##Summarize basal area and the # stems by site, presence/absence of hdm and distance from the edge (in the 5m intervals created above)
-reg_hdmpa <- reg_hw %>% group_by(id_bec_ag_f, hdm_pa, crown_class, dist_y_h_bin) %>% 
+reg_hdmpa <- reg_hw %>% group_by(id_bec_age_f, hdm_pa, crown_class, dist_y_h_bin) %>% 
   summarise(ba_m2 = sum(ba_m2), n_stems = n()) %>% 
   complete(dist_y_h_bin, fill=list(ba_m2=0, n_stems=0))
 
 ##Plot nstems and basal area vs. distance from the edge, coloured by presence/absence of hdm infection
 ggplot(reg_hdmpa, aes(x=dist_y_h_bin, y=n_stems, fill=hdm_pa)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_hdm_pa)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_hdm_pa)
 ggplot(reg_hdmpa, aes(x=dist_y_h_bin, y=ba_m2, fill=hdm_pa)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_hdm_pa)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_hdm_pa)
 
 ##Do the same but with DMR. 
-reg_dmr <- reg_hw %>% group_by(id_bec_ag_f, dmr_f2, crown_class, dist_y_h_bin) %>% 
+reg_dmr <- reg_hw %>% group_by(id_bec_age_f, dmr_f2, crown_class, dist_y_h_bin) %>% 
   summarise(ba_m2 = sum(ba_m2), n_stems = n()) %>% 
   complete(dist_y_h_bin, fill=list(ba_m2=0, n_stems=0))
 
 ##Plot nstems and basal area across distance from the edge, coloured by presence/absence of hdm infection
 ggplot(reg_dmr, aes(x=dist_y_h_bin, y=n_stems, fill=dmr_f2)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_dmr_f2)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2)
 ggplot(reg_dmr, aes(x=dist_y_h_bin, y=ba_m2, fill=dmr_f2)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_ag_f)) + scale_fill_manual(values = colors_dmr_f2)
+  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2)
 
 #Do some plotting to see if you can pick up patterns that relate the basal area of infected regen to site level variables
 ##Relating basal area infected by distance from the edge to site age
 reg_inf_ag <- reg_hw %>% filter(hdm_pa=="Y") %>% 
-  group_by(id_bec_ag_f, age, dist_y_h_bin) %>% summarise(reg_inf_ba_m2 = sum(ba_m2)) %>% 
+  group_by(id_bec_age_f, age, dist_y_h_bin) %>% summarise(reg_inf_ba_m2 = sum(ba_m2)) %>% 
   complete(dist_y_h_bin, fill=list(reg_inf_ba_m2=0))
-ggplot(reg_inf_ag, aes(x=dist_y_h_bin, y=reg_inf_ba_m2, color = age, group = id_bec_ag_f)) + 
+ggplot(reg_inf_ag, aes(x=dist_y_h_bin, y=reg_inf_ba_m2, color = age, group = id_bec_age_f)) + 
   geom_point() + geom_line()
 ##Relating basal area infected by distance from the edge to basal area infected in mature component
 reg_inf_matinf <- reg_hw %>% filter(hdm_pa=="Y") %>% 
-  group_by(id_bec_ag_f, dist_y_h_bin) %>% summarise(reg_inf_ba_m2 = sum(ba_m2)) %>% 
+  group_by(id_bec_age_f, dist_y_h_bin) %>% summarise(reg_inf_ba_m2 = sum(ba_m2)) %>% 
   complete(dist_y_h_bin, fill=list(reg_inf_ba_m2=0))
-reg_inf_matinf <- left_join(reg_inf_matinf, select(site, id_bec_ag_f, mat_inf_ba_m2))
-ggplot(reg_inf_matinf, aes(x=dist_y_h_bin, y=reg_inf_ba_m2, color = mat_inf_ba_m2, group = id_bec_ag_f)) + 
+reg_inf_matinf <- left_join(reg_inf_matinf, select(site, id_bec_age_f, mat_inf_ba_m2))
+ggplot(reg_inf_matinf, aes(x=dist_y_h_bin, y=reg_inf_ba_m2, color = mat_inf_ba_m2, group = id_bec_age_f)) + 
   geom_point() + geom_line()
 ```
 
