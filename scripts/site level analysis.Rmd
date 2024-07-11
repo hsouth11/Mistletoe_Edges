@@ -560,60 +560,66 @@ reg_infection <- left_join(reg_infection, reg.dmr, by="site_id")
 #Create some exploratory graphs of the regen level infection metrics
 ##Plot set 1: dual axis plot looking at infection perimeter and basal area infected
 ##Need to set a scale factor for second axis. basal area about 24 times smaller than infper values, so times by 24
-scale <- 24
-p.infper_ba <- ggplot(site, aes(x=site_id, y=reg.infper_m)) + 
-  geom_point(aes(color = "infection perimeter (m2)")) +
-  geom_point(aes(y=reg.inf_ba_m2*scale, color = "basal area infected (m2)")) +
-  scale_y_continuous(sec.axis = sec_axis(~./scale, name="basal area infected (m2)"))
-
-#Plot set 2: basic distribution of dmr by site
-g.reg_dmr <- reg.hw %>% group_by(site_id, dmr_f2) %>% summarise(ba_m2 = sum(ba_m2), nstem =n()) %>% 
-  complete(dmr_f2, fill=list(ba_m2=0, nstem=0))
-g.reg_dmr <- g.reg_dmr %>% filter(dmr_f2 != "-")
-p.reg_dmr_ba <- ggplot(g.reg_dmr, aes(x=dmr_f2, y=ba_m2, fill = dmr_f2)) + geom_bar(position="stack", stat="identity") +
-  facet_wrap(vars(site_id)) + scale_fill_manual(values = colors_dmr_f2)
-p.reg_dmr_nstem <- ggplot(g.reg_dmr, aes(x=dmr_f2, y=nstem, fill = dmr_f2)) + geom_bar(position="stack", stat="identity") +
-  facet_wrap(vars(site_id)) + scale_fill_manual(values = colors_dmr_f2)
-
-#Plot set 3: basal area and number of stems infected as function of distance from the edge
-##Break up dist_y_h into intervals. Need these to make barcharts
-summary(reg.hw$dist_y_h)
-reg.hw <- reg.hw %>% mutate(dist_y_h_bin = cut(dist_y_h, breaks = c(0, 5, 10, 15, 20, 25, 30, 35), include.lowest = TRUE))
-levels(reg.hw$dist_y_h_bin)
-
-##Summarize basal area and the # stems by site, presence/absence of hdm and distance from the edge (in the 5m intervals created above)
-reg.hdmpa_disty <- reg.hw %>% group_by(id_bec_age_f, hdm_pa, crown_class, dist_y_h_bin) %>% 
-  summarise(ba_m2 = sum(ba_m2), nstem = n()) %>% 
-  complete(dist_y_h_bin, fill=list(ba_m2=0, nstem=0))
-
-##Plot nstem and basal area vs. distance from the edge, coloured by presence/absence of hdm infection
-ggplot(reg.hdmpa_disty, aes(x=dist_y_h_bin, y=nstem, fill=hdm_pa)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_hdm_pa)
-ggplot(reg.hdmpa_disty, aes(x=dist_y_h_bin, y=ba_m2, fill=hdm_pa)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_hdm_pa)
-
-##Do the same but with DMR. 
-reg.dmr_disty <- reg.hw %>% group_by(id_bec_age_f, dmr_f2, crown_class, dist_y_h_bin) %>% 
-  summarise(ba_m2 = sum(ba_m2), nstem = n()) %>% 
-  complete(dist_y_h_bin, fill=list(ba_m2=0, nstem=0))
-
-##Plot nstem and basal area across distance from the edge, coloured by dmr
-ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem, fill=dmr_f2)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2)
-ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=ba_m2, fill=dmr_f2)) + geom_bar(position="stack", stat="identity") + 
-  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2)
-
-#Plot set 4: basal area infected in mature component to basal area infected in the regen
-p.minfba_rinfba <- ggplot(site, aes(x=mat.inf_ba_m2, y=reg.inf_ba_m2, color=id_bec_age_f)) + 
-  geom_point()
-p.minfba_rpinfba <- ggplot(site, aes(x=mat.inf_ba_m2, y=reg.p_hw15_ba_inf, color=id_bec_age_f)) + 
-  geom_point()
-print(p.minfba_rinfba/p.minfba_rpinfba)
-
-#Plot set 5: infection perimeter as a function of site age
-ggplot(site, aes(x=age, y=reg.infper_m, color=id_bec_age_f)) + 
-  geom_point()
+# scale <- 24
+# p.infper_ba <- ggplot(site, aes(x=site_id, y=reg.infper_m)) + 
+#   geom_point(aes(color = "infection perimeter (m2)")) +
+#   geom_point(aes(y=reg.inf_ba_m2*scale, color = "basal area infected (m2)")) +
+#   scale_y_continuous(sec.axis = sec_axis(~./scale, name="basal area infected (m2)"))
+# 
+# #Plot set 2: basic distribution of dmr by site
+# g.reg_dmr <- reg.hw %>% group_by(site_id, dmr_f2) %>% summarise(ba_m2 = sum(ba_m2), nstem =n()) %>% 
+#   complete(dmr_f2, fill=list(ba_m2=0, nstem=0))
+# g.reg_dmr <- g.reg_dmr %>% filter(dmr_f2 != "-")
+# p.reg_dmr_ba <- ggplot(g.reg_dmr, aes(x=dmr_f2, y=ba_m2, fill = dmr_f2)) + geom_bar(position="stack", stat="identity") +
+#   facet_wrap(vars(site_id)) + scale_fill_manual(values = colors_dmr_f2)
+# p.reg_dmr_nstem <- ggplot(g.reg_dmr, aes(x=dmr_f2, y=nstem, fill = dmr_f2)) + geom_bar(position="stack", stat="identity") +
+#   facet_wrap(vars(site_id)) + scale_fill_manual(values = colors_dmr_f2)
+# 
+# #Plot set 3: basal area and number of stems infected as function of distance from the edge
+# ##Break up dist_y_h into intervals. Need these to make barcharts
+# summary(reg.hw$dist_y_h)
+# reg.hw <- reg.hw %>% mutate(dist_y_h_bin = cut(dist_y_h, breaks = c(0, 5, 10, 15, 20, 25, 30, 35), include.lowest = TRUE))
+# levels(reg.hw$dist_y_h_bin)
+# 
+# ##Summarize basal area and the # stems by site, presence/absence of hdm and distance from the edge (in the 5m intervals created above)
+# reg.hdmpa_disty <- reg.hw %>% group_by(id_bec_age_f, hdm_pa, crown_class, dist_y_h_bin) %>% 
+#   summarise(ba_m2 = sum(ba_m2), nstem = n()) %>% 
+#   complete(dist_y_h_bin, fill=list(ba_m2=0, nstem=0))
+# 
+# ##Plot nstem and basal area vs. distance from the edge, coloured by presence/absence of hdm infection
+# ggplot(reg.hdmpa_disty, aes(x=dist_y_h_bin, y=nstem, fill=hdm_pa)) + geom_bar(position="stack", stat="identity") + 
+#   facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_hdm_pa)
+# ggplot(reg.hdmpa_disty, aes(x=dist_y_h_bin, y=ba_m2, fill=hdm_pa)) + geom_bar(position="stack", stat="identity") + 
+#   facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_hdm_pa)
+# 
+# ##Do the same but with DMR. 
+# reg.dmr_disty <- reg.hw %>% group_by(id_bec_age_f, dmr_f2, crown_class, dist_y_h_bin) %>% 
+#   summarise(ba_m2 = sum(ba_m2), nstem = n()) %>% 
+#   complete(dist_y_h_bin, fill=list(ba_m2=0, nstem=0))
+# 
+# ##Plot nstem and basal area across distance from the edge, coloured by dmr
+# ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem, fill=dmr_f2)) + geom_bar(position="stack", stat="identity") + 
+#   facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2)
+# ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=ba_m2, fill=dmr_f2)) + geom_bar(position="stack", stat="identity") + 
+#   facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2)
+# 
+# #Plot set 4: basal area infected in mature component to basal area infected in the regen
+# p.minfba_rinfba <- ggplot(site, aes(x=mat.inf_ba_m2, y=reg.inf_ba_m2, color=id_bec_age_f)) + 
+#   geom_point()
+# p.minfba_rpinfba <- ggplot(site, aes(x=mat.inf_ba_m2, y=reg.p_hw15_ba_inf, color=id_bec_age_f)) + 
+#   geom_point()
+# print(p.minfba_rinfba/p.minfba_rpinfba)
+# 
+# #Plot set 5: infection perimeter as a function of site age
+# ggplot(site, aes(x=age, y=reg.infper_m, color=id_bec_age_f)) + 
+#   geom_point()
 ```
+
+```{r}
+#Export the site dataframe that now contains all sorts of site level metrics
+# write_csv(site, "./data/workflow/site_metrics.csv")
+```
+
 
 Extra code
 ```{r}
