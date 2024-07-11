@@ -4,10 +4,12 @@ author: "Hanno Southam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-WHAT?
-Script for running site level analyses in the general form (spread measure ~ site variable).
+UPDATED: 11 Jun 2024
+READ ME
+Script comparing site level variables.Section 1 compares the different site climates, using data from Climate BC (https://climatebc.ca/mapVersion) and Barrett et al. (2012) as a framework for selecting and interpreting variables. Section 2 compares the size and composition of trees in the regen and mature components between sites. Section 3 compares HDM infection in the mature component between sites to get a high-level understanding if the infection sources are similar between sites. Section 4 compares HDM infection in the regen component between sites to get a first impression of the spread that has occurred and what variables might be important in predicting it.
 
-UPDATED: 28 Jun 2024
+Barrett, T. M., Latta, G., Hennon, P. E., Eskelson, B. N. I., & Temesgen, H. (2012). Host–parasite distributions under changing climate: Tsuga heterophylla and Arceuthobium tsugense in Alaska. Canadian Journal of Forest Research, 42(4), 642–656. https://doi.org/10.1139/x2012-016
+
 
 #LOAD PACKAGES
 ```{r}
@@ -401,6 +403,7 @@ comp_size <- comp_size %>% mutate(tree_type = case_when(tree_type == "reg" ~ "re
 #Export this as a table for thesis
 # write_csv(comp_size, "./tables/comp_size.csv")
 ```
+
 #SECTION 3: Compare infection levels in mature trees
 Compare the HDM infection in the mature component across the sites by looking at: basal area and stem count distributions parsed out by presence/absence of hdm infection and dmr. Generally trying to assess whether the mature components are similar infection sources. 
 - Some spread in the proportion of the Hw basal area infected (37% at mk_1 to 100% at cr_1) but 9/10 sites>70 and 8/10 > 80%.
