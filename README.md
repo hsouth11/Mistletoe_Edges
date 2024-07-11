@@ -29,3 +29,5 @@ R project with all analyses for Hanno Souhtam's MSc: Hemlock dwarf mistletoe in 
     -   Section 2 compares the size and composition of trees in the regen and mature components between sites.
     -   Section 3 compares HDM infection in the mature component between sites to get a high-level understanding if the infection sources are similar between sites.
     -   Section 4 compares HDM infection in the regen component between sites to get a first impression of the spread that has occurred and what variables might be important in predicting it.
+
+Barrett, T. M., Latta, G., Hennon, P. E., Eskelson, B. N. I., & Temesgen, H. (2012). Host--parasite distributions under changing climate: Tsuga heterophylla and Arceuthobium tsugense in Alaska. *Canadian Journal of Forest Research*, *42*(4), 642--656. <https://doi.org/10.1139/x2012-016>
