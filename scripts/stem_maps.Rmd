@@ -312,7 +312,7 @@ sl_colour <- brewer.pal(n=9, name="Greys")
 brewer.pal.info
 
 # Plot it all together
-pdf("./figures/trees_24Jun2024.pdf", width=11, height=8.5)
+# pdf("./figures/trees_25Jul2024.pdf", width=11, height=8.5)
 tmap_mode("plot")
 tm_shape(adjusted_fp_rot, is.master = TRUE) + #define map extent using site footprints
   tm_facets(by = "id_bec_ag_f", free.scales = FALSE, free.coords = TRUE, ncol = 4) +
