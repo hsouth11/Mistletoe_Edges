@@ -1,6 +1,9 @@
 # Cleaning mistletoe transect data
 # Hanno Southam, 4 Mar 2024
 
+#Load packages
+library(tidyverse)
+
 # First step, adjust for transects slopes. Read in transect data: 
 transect <- read_csv('./data/raw/transect data.csv')
 transect <- transect %>% filter(!is.na(site_id))# Delete empty rows
