@@ -12,7 +12,7 @@ R project with all analyses for Hanno Souhtam's MSc: Hemlock dwarf mistletoe in 
 
 #### ./cleaning
 
--   Contains scripts for cleaning tree data (1 and 2 above) and transect data (4 above). The output of (tree data cleaning.R) are (trees.csv) and (trees.RDS) same data, different formats; regen and mature tree data are separate in raw data but combined in this file with a variable added to distinguish them.
+-   Contains scripts for cleaning tree data (1 and 2 above) and transect data (4 above). The output of (tree data cleaning.R) are (trees.csv) and (trees.RDS) same data, different formats; regen and mature tree data are separate in raw data but combined in this file with a variable added to distinguish them. The output of transect data cleaning is transect data_c.csv.
 
 #### ./convert_distaz_to_points.R
 
