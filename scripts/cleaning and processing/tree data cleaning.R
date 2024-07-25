@@ -20,7 +20,7 @@ summary(mature)
 # Delete empty rows
 regen <- regen%>% filter(!is.na(site_id))# Delete empty rows
 mature <- mature %>% filter(!is.na(site_id))# Delete empty rows
-dim(regen); dim(mature) #627 mature trees, 869 regen trees
+dim(regen); dim(mature) #682 mature trees, 1051 regen trees
 
 # What are the variables? 
 ########### REGEN ##########
@@ -39,7 +39,7 @@ dim(regen); dim(mature) #627 mature trees, 869 regen trees
 # dmr_l, dmr_m, dmr_u: dwarm mistletoe rating for lower, middle and upper LIVE crown respectively, 0 = none, 1 = <50% primary branches infected, 2 = >50% branches infected
 # broom_pa: presence or absence of brooms, Y = present, N = absent, - = not applicable; factor
 # broom_pos: position of brooms, 1 = lower live crown (lc), 2 = middle lc, 3 = upper lc, 4 = lower and middle lc, 5 = lower and upper lc, 6 = middle and upper lc, 7 = all lc, 8 = below lc, (-) not applicable
-# broom_pa: presence or absence of stem infection, Y = present, N = absent, - = not applicable; factor
+# broom_pa: presence or absence of stem infection, Y = present, N = absent, - = not applicable; only recorded for live trees; factor
 # crown_class: codominant (C), dominant (D), intermediate(I), suppressed (S), not applicable (-); factor
 # dam_agent_1 and dam_agent_2: damage agents; characters (for now, not planning on doing anything with this data)
 # path_ind_1 and path_ind_2: pathological indicators; characters (for now, not planning on doing anything with this data)
@@ -101,7 +101,9 @@ trees %>% filter(is.na(crown_cond)) #crown_cond NA is tree_id is r704, site mi_2
 #Regen trees should also have: dist_x, dist_y and dbh>4
 trees %>% filter(tree_type =="regen") %>% select(dist_x, dist_y, dbh) %>% summary()
 trees %>% filter(tree_type =="regen" & dbh<4) 
-trees %>% filter(tree_type =="regen" & dbh>30) 
+trees %>% filter(tree_type =="regen" & dbh>35)
+#dist_x range is correct ((-2.5)-(2.5))
+#dist_y range is correct (0-52.90, longest transect was 51.0m (cr_3) but this is slope dist so makes sense)
 #Some trees with dbh<4, tree_id = r213 and r538. Both data entry errors, should have been r213 dbh = 13.8, r538 dbh = 13.1. Fixed in raw data. dbh range looks reasonable otherwise (4-42.40). Checked a few large dbhs (r355, r362 and r229), not data entry errors. 
 trees %>% filter(tree_type =="regen" & dist_y<0)
 trees <- trees %>% mutate(dist_y = case_when(tree_id == "r525" ~ 1.9, .default = dist_y))
@@ -117,8 +119,32 @@ trees %>% filter(grepl('m', tree_id) & dbh>100)
 #outside_10 looks good. Some NAs but that okay. 
 #One tree with dbh<9, tree_id = m385. Data entry error should be dbh = 14.0. Fixed in raw data. Checked a few large dbhs (m476, m472, m478, m30). m476 was a data entry error (should be r=17.9 (not 179)) others good. Fixed in raw data. m556, m582 and m585 from ph_2 make sense - big cedars on that site.   
 
-#How many transects are there? Should be 30 (3 tranects/site * 10 sites)
+#How many transects are there? Should be 33 (3 tranects/site * 11 sites)
 trees %>% filter(tree_type=="regen") %>% pull(plot_id) %>% unique() %>% length()
+
+#Crown class. NFI/BC Gov Ground Sampling protocols only require it for live, upright trees. We started recording it for RD trees later in fieldwork. Also, we recorded it for most LL and LF trees. The rational for both these decisions is that crown position probably contributes to seed load and seed exposure. 
+#Check if live trees have crown class recorded. Some with "-" and some NA so check those
+trees %>% filter(status %in% c("LS", "LL", "LF")) %>% select(crown_class) %>% summary()
+#Some with "-" and some NA so check those
+cc_check <- trees %>% filter(status %in% c("LS", "LL", "LF") & (crown_class == "-" | is.na(crown_class))) %>% select(tree_id, status, spp, dbh, crown_class)
+#r47, m591, m592, m608, m611, m618 are either live leaning or live fallen, going to guess at those those based on species and dbh
+#r854-r869 are LS and were just not inputted, fixed that in raw data
+#m512 was misrecorded on datasheet but you can see inital crown class that was scratched out, fixed in raw data
+#r880 was misrecorded on datasheet, going to guess at it based on spp and dbh
+trees <- trees %>% mutate(crown_class = case_when(tree_id %in% c("r47", "m592", "m618") ~ "S", 
+                                                  tree_id %in% c("m591", "m608", "m611", "r880") ~ "I", 
+                                                  .default = crown_class)) %>% 
+  mutate(crown_class = as.factor(crown_class))
+trees %>% filter(status %in% c("LS", "LL", "LF")) %>% select(crown_class) %>% summary()
+#Looks good now
+
+#Now check crown class of RD trees
+trees %>% filter(status == "RD") %>% select(crown_class) %>% summary()
+#Only 20 unassigned but there is a bigger problem that we didn't start using the RD rating until later in the summer. Check what the distribution of RD trees is by site
+trees %>% filter(status =="RD") %>% group_by(site_id) %>% summarise(n_RD = n())
+#Not as bad as I thought. Some RD at most sites except for the first three sites we measured. 
+rd <- trees %>% filter(status=="RD", hdm_pa=="Y") #all RD trees have dmr info
+#Leave this for now and see how RD trees are used in statistics. Ideally we could find a way to assign DMRs and crown classes to trees based on the trees around them and their dbhs (at least for mature trees). In future remeasurements, it would be good to measure all RD trees, though we'd need to define RD more clearly (e.g. by crown condition?). 
 
 ########## Cleaning HDM variables ########## 
 ##### RULES
