@@ -1,0 +1,607 @@
+---
+title: "height predictions"
+author: "Hanno Southam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+Start by loading packages
+```{r}
+rm(list=ls(all=TRUE))
+
+#library
+library(here)
+library(tidyverse)
+library(ggbiplot)
+```
+
+#Load and process the HDM data
+```{r}
+#Dataset 1: hdm site data 
+#This contains variables at the site level
+site <- read_csv(here("./data/cleaned/site data.csv"))
+str(site)
+summary(site)
+
+#Create a variable that combines site_id, bec, and regen age 
+site <- site %>% unite(col = bec, sep = "", 
+                       c("bec_z", "bec_sz", "bec_var"), 
+                       remove = FALSE) %>% 
+  mutate(bec = factor(bec))
+
+#Convert date_surveyed to date format
+site <- site %>% rename(date_sur_char = date_surveyed) %>% 
+  mutate(date_sur = dmy(date_sur_char))
+#Extract year
+site <- site %>% mutate(yr_sur = year(date_sur))
+#Recalculate age column
+site <- site %>% mutate(age = yr_sur - yr_har)
+
+#Dataset 2: vri data
+#Attributes from vri polygons that are representative of the mature and regen
+#components of each site
+#1 or 2 polygons represent a regen OR mature component at each site
+#When there is 2, the component captures a change in forest type
+vri <- read_csv(here("data/raw/vri_hdm_sites.csv"))
+
+#Here we the variables we may use are:
+#site_id (corresponds to site_id in HDM sites)
+#tree_type: mature or regen
+#SITE_INDEX: site index
+#SPECIES_CD_1 and SPECIES_CD_2: codes of leading and second species
+#PROJ_AGE_1 and PROJ_AGE_2: projected ages of first and second species
+variable.names(vri)
+
+#Filter dataset to just these
+vri <- vri %>% select(site_id, tree_type, SITE_INDEX, SPECIES_CD_1,
+                      SPECIES_CD_2, PROJ_AGE_1, PROJ_AGE_2)
+
+#Take a look at the variables
+summary(vri)
+
+#Take a look at observation with SITE_INDEX = NA
+#This polygon is NA for all the values of the variables we are interested in
+vri %>% filter(is.na(SITE_INDEX))
+
+#See if there is another mk_1 regen polygon
+vri %>% filter(site_id == "mk_1" & tree_type =="regen")
+#No, will have to find values for these
+#Values are in the MKRF vri. Update them here. 
+#Note: MKRF vri is projected to 2016, so adjusted age estimate to be for 2023
+#when site was measured
+mk_1 <- c("mk_1", "regen", 35, "HW", "FDC", 34, 34)
+vri <- vri %>% filter(!(site_id == "mk_1" & tree_type =="regen")) %>% 
+  rbind(mk_1)
+
+#Okay, all sites components have at least one row that contains SITE_INDEX and one value for age
+
+#Calculate a single value for SITE_INDEX and the AGE for each 
+#component at each site
+#Do this separately for mature and regen components because we can get age
+#from data harvested in site_data (above)
+#Going to take the average when there are two vri polygons that represent
+#a component
+
+#MATURE
+#For age, only going to use PROJ_AGE_1 (the leading species)
+#SITE_INDEX and PROJ_AGE stored as a characters, fix that: 
+vri <- vri %>% mutate(SITE_INDEX = as.numeric(SITE_INDEX),
+                      PROJ_AGE_1 = as.numeric(PROJ_AGE_1))
+si_age_mat_hdm <- vri %>% filter(tree_type == "mature") %>% 
+  group_by(site_id) %>% 
+  summarise(si = mean(SITE_INDEX), age = mean(PROJ_AGE_1))
+
+#REGEN
+#Only need SITE_INDEX from vri data
+si_age_reg_hdm <- vri %>% filter(tree_type == "regen") %>% 
+  group_by(site_id) %>% 
+  summarise(si = mean(SITE_INDEX))
+#Add age from site_data
+si_age_reg_hdm <- left_join(si_age_reg_hdm, select(site, site_id, age), 
+                            by = "site_id")
+
+#Dataset 3: tree data
+#This contains data for each measured tree (mature and regen trees). 
+#Treats assessed_by var as a logical for some reason and throws up 
+#an error. Not a problem and not going to use this var
+trees <- read_csv(here("data/workflow/trees_mapped.csv"))
+arrange(trees, tree_id)
+str(trees)
+summary(trees)
+
+#Convert factor vars to factors: 
+trees <- trees %>% mutate(across(
+  c(site_id, spp, status, hdm_pa, b_lc, 
+    broom_pa, broom_pos, stem_pa, crown_class, crown_cond, outside_10, 
+    assessed_by, tree_type, dmr_f),
+  ~as.factor(.)))
+
+#Convert plot_id and dmrs to integers
+trees <- trees %>% mutate(across(
+  c(plot_id, dmr_l, dmr_m, dmr_u, dmr), ~as.integer(.)))
+
+str(trees)
+
+#Create bins of diameter classes from dbh
+##Default is for intervals to be half-open. They include the upper bound but 
+##not the lower bound. e.g. (10,20] includes 20 but (20, 30] does not
+##https://stackoverflow.com/questions/41304960/how-to-create-breaks-using-the-cut-function-without-numbers-overlapping
+##Created just one bin for dbh>200cm
+max(trees$dbh)
+trees <- trees %>% 
+  mutate(dbh_bin = cut(dbh, breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80,
+                                       90, 100, 110, 120, 130, 140, 150,
+                                       160, 170, 180, 190, 200, 500), 
+                                        include.lowest = TRUE))
+levels(trees$dbh_bin)
+
+#Create dataset thats comparable between sites. Need to do two things: 
+##At a few sites we mapped mature trees up to 15m from the edge, when the standard was 10m. Need to remove extra trees mapped outside 10m. 
+##Regen transects are variable length. Filter to just trees within 15m (the shortest transect) so that we are comparing the same transect footprint at each site
+trees_comp <- trees %>% filter(outside_10 =="N" | is.na(outside_10)) %>%
+  filter(dist_y_h<=15 | is.na(dist_y_h))
+
+#Subdivide data into mature and regen components
+##Mature
+mature_comp <- trees_comp %>% filter(tree_type=="mature") #mature trees
+##Regen
+regen_15 <- trees_comp %>% filter(tree_type == "regen") #regen trees 
+
+#Create factors to represent these trees on a per-hectare basis
+#factor = 1/plot area (ha)
+#regen = 0.0225ha (3 15x5m transects)
+#mature = 0.055 (10x55m area)
+regen_15 <- regen_15 %>% mutate(PHF_TREE = 1/0.0225)
+mature_comp <- mature_comp %>% mutate(PHF_TREE = 1/0.055)
+```
+
+#Load, process and and filter the permanent sample plot data
+Data from downloaded from here on 24 Jul 2024: https://catalogue.data.gov.bc.ca/dataset/forest-inventory-ground-plot-data-and-interactive-map 
+data dictionary: ./data/raw/psp/PSP_data_dictionary_20240125.xlsx
+```{r}
+#Read in four datasets
+#t_psp: tree level data
+#v_psp:attributes of visit to a site
+#p_psp: attributes of each plot
+#s_psp: attributes of each site
+t_psp <- read_csv(here("./data/raw/psp/psp_tree.csv")) #tree level data
+v_psp <- read_csv(here("./data/raw/psp/faib_sample_byvisit.csv"))
+p_psp <- read_csv(here("./data/raw/psp/faib_plot_header.csv")) #plot level attributes
+s_psp <- read_csv(here("./data/raw/psp/faib_header.csv"))#site level attributes
+
+#Inspect the site, visit and plot level data (will look at the tree level data when its a bit smaller)
+##Note: 
+###CLSTR_ID (unique id assigned to each ground sample site visit)
+summary(v_psp)
+summary(s_psp)
+summary(p_psp)
+
+#Filter the sites that are: 
+##BEC = CWH subzones that are represented in the hdm sites
+##TSAs close to or containing one of our research sites
+
+#Create a single variable for BEC zone
+s_psp <- s_psp %>% unite(col = bec, sep = "", 
+                       c("BEC_ZONE", "BEC_SBZ", "BEC_VAR"), 
+                       remove = FALSE) %>% 
+  mutate(bec = str_replace_all(bec, "NA", "-")) %>% 
+  mutate(bec = as.factor(bec))
+
+#Filter to sites in BEC zones that the HDM sites are in
+s_psp <- s_psp %>% filter(bec %in% site$bec) %>% #calling variable in HDM site dataframe directly
+  mutate(bec = as.character(bec)) %>% 
+  mutate(bec = as.factor(bec))
+levels(s_psp$bec)
+
+#Filter to sites in TSAs that contain or are close to our sites
+s_psp <- s_psp %>% mutate(TSA_DESC = as.factor(TSA_DESC))
+levels(s_psp$TSA_DESC)
+s_psp <- s_psp %>% 
+  filter(TSA_DESC %in% c("Arrowsmith TSA", "Fraser TSA", "North Island TSA", 
+                         "Pacific TSA", "Strathcona TSA", "Sunshine Coast TSA"))
+
+#This leaves us with 924 sites (but sites can be visited multiple times so
+#so our potential sample is bigger than this). 
+
+#Filter the tree level dataset based to just these sites
+t_psp <- t_psp %>% semi_join(s_psp, by="SITE_IDENTIFIER")
+
+#This is a more manageable database to work with. Inspect the tree level data
+summary(t_psp)
+
+#Understanding the ID variables
+#Sites are identified by SITE_IDENTIFIER but there can be multiple plots 
+#per site. Not sure what multiple plots would look like because all plots 
+#are anchored on the site centre.
+idcheck <- t_psp %>% group_by(SITE_IDENTIFIER) %>% summarise(nplots = n_distinct(PLOT)) %>% filter(nplots>1)
+#Only one site with more than one plot. Can just remove this site. 
+t_psp <- t_psp %>% anti_join(idcheck, by="SITE_IDENTIFIER")
+
+#This means that the variable CLSTR_ID should be a unique identifier for each 
+#visit to each site (which is equivalent to plot now that all sites only 
+#contain one plot). Summarise results to this grouping variable to get 
+#something comparable to site_id in HDM dataset.
+
+#Check which CLSTR_ID have:
+# >30% Hw
+# complete height data (ht_cmplt)
+# all height data from field measurements (all_fm)
+# complete height to live crown measurements (ht_brch_cmplt)
+# complete crown class data
+
+#First make HEIGHT_SOURCE and SPECIES factors
+t_psp <- t_psp %>% mutate(across(c(HEIGHT_SOURCE, SPECIES), ~as.factor(.)))
+levels(t_psp$HEIGHT_SOURCE); levels(t_psp$SPECIES)
+
+#Create summary table with binary variables checking for completeness
+psp.meas.check <- t_psp %>% group_by(CLSTR_ID) %>% 
+  summarise(hw_lead = if_else((sum(PHF_TREE[SPECIES == "HW"]))/
+                                (sum(PHF_TREE)) > 0.3, "Y", "N"), 
+            ht_cmplt = if_else(any(is.na(HEIGHT)), "N", "Y"), 
+            all_fm = if_else(any(HEIGHT_SOURCE != "Field measured"), "N", "Y"),
+            ht_brch_cmplt = if_else(any(is.na(HT_BRCH)), "N", "Y"),
+            cr_cl_cmplt = if_else(any(is.na(CR_CL)), "N", "Y"))
+
+#Count how many psp site visits have all of these things
+#How many meet all of these conditions?
+psp.meas.check %>% filter(hw_lead == "Y" &
+                            ht_cmplt == "Y" &
+                            all_fm == "Y" & 
+                            ht_brch_cmplt == "Y"& 
+                            cr_cl_cmplt == "Y") %>% dim() # 1 site visits
+#How many have all have all ht?
+psp.meas.check %>% filter(ht_cmplt == "Y") %>%  dim() # 2411 site vists
+#How many have all field measured hts?
+psp.meas.check %>% filter(ht_cmplt == "Y" & all_fm == "Y") %>%  dim() # 6 visits
+#How many have all height to live crown data
+psp.meas.check %>% filter(ht_brch_cmplt == "Y") %>% dim() # 7 visits
+#How many have complete class data
+psp.meas.check %>% filter(cr_cl_cmplt == "Y") %>% dim() #731 visits
+
+#Limitation is in field measured heights and height to live crown data. 
+#Try a different approach. For each site calculate:
+#proportion of trees that are Hw
+#proportion of Hw that have field measured height
+#proportion of Hw that have height to live crown
+#proportion of Hw that have crown class
+#All metrics computed on a per hectare basis because plots have variable 
+#radii. 
+#Use PHF_TREE (variable that represents trees on per hectare basis)
+
+#Check if there are any NA in PHF_TREE variable. None
+any(is.na(t_psp$PHF_TREE)) 
+
+#Calculate the number of trees (on a per hectare basis) meeting each condition
+psp.meas.check <- t_psp %>% group_by(CLSTR_ID) %>% 
+  summarise(n_stem = sum(PHF_TREE),
+            n_hw = sum(PHF_TREE[SPECIES == "HW"]),
+            n_fm_ht = sum(PHF_TREE[HEIGHT_SOURCE == "Field measured" &
+                                  SPECIES == "HW"]),
+            n_ht_br = sum(PHF_TREE[!is.na(HT_BRCH) & 
+                                         SPECIES == "HW"]), 
+            n_cr_cl = sum(PHF_TREE[!is.na(CR_CL) & 
+                                    SPECIES == "HW"]))
+
+#Calculate proportions of trees at each site visit meeting each criteria
+psp.meas.check <- psp.meas.check %>% 
+  mutate(prop_hw = n_hw/n_stem,
+         prop_fm_ht = n_fm_ht/n_stem,
+         prop_ht_br = n_ht_br/n_stem,
+         prop_cr_cl = n_cr_cl/n_stem)
+summary(select(psp.meas.check, n_stem, prop_hw, 
+               prop_fm_ht, prop_ht_br, prop_cr_cl))
+#Most sites (>50%) have:
+#>50% hemlock (by stem count)
+#less than 15% of Hw trees with field measured sites 
+# no height to live crown data for Hw trees
+#~50% of Hw trees with crown class data
+
+#Check how many sites have >30% Hw, >15% field measured heights for Hw,
+#50% of Hw trees with crown class data and height to crown base data for
+#for at least some Hw
+psp.meas.check %>% filter(prop_hw > 30, prop_fm_ht > 0.15, 
+                          prop_ht_br > 0, prop_cr_cl > 0.5) %>% 
+  dim() #10 sites
+
+#Check how many just meet the >30% Hw, >15% of Hw trees with field measured 
+#heights and >50% of Hw with crown class data 
+psp.meas.check %>% filter(prop_hw > 0.3, prop_fm_ht > 0.15,
+                          prop_cr_cl > 0.5) %>% dim() #937 sites
+#Okay, for now, let restrict the sites based on these last criteria
+#Will have to find a way to estimate crown base some other way
+meas.check.sites <- psp.meas.check %>% 
+  filter(prop_hw > 0.3, prop_fm_ht > 0.15,
+                          prop_cr_cl > 0.5)
+t_psp <- t_psp %>% semi_join(meas.check.sites, by = "CLSTR_ID")
+
+#Keep s_psp up to date by removing filtered sites from it too
+s_psp <- s_psp %>% semi_join(t_psp, by = "SITE_IDENTIFIER")
+
+#Break DBH up into bins
+t_psp <- t_psp %>% 
+  mutate(dbh_bin = cut(DBH, breaks = 
+                         c(0, 10, 20, 30, 40, 50, 60, 70, 80,
+                           90, 100, 110, 120, 130, 140, 150,
+                           160, 170, 180, 190, 200, 500),
+                       include.lowest = TRUE))
+
+#Calculate age and site index estimates for each site visit
+#Age and site index data are made on a subset of trees called sample trees
+#at each psp site
+#They are supposed to only be codominant and dominant trees
+#The variable TH_TREE, identifies the type pf samples tree
+
+#Start by inspecting the samples trees
+#How many trees have an age estimate per site visit?
+t_psp %>% group_by(CLSTR_ID) %>% 
+  summarise(n_age_tr = sum(!is.na(AGE_TOT))) %>% summary(n_age_tr)
+#Between 1 and 37 trees per site_visit. No sites with no age trees
+
+#Look at a number of age trees by crown class
+t_psp %>% group_by(CR_CL) %>% 
+  summarise(n_age_tr = sum(!is.na(AGE_TOT)))
+#Most but not all are codominant and dominant trees
+
+#Make TH_TREE a factor
+t_psp <- t_psp %>% mutate(TH_TREE = as.factor(TH_TREE))
+
+#Get a count of the number of trees in each TH_TREE class
+t_psp %>% group_by(TH_TREE) %>% summarise(n_sam_tree = n())
+#T = Top height tree. The largest (by dbh) tree in the plot
+#Use this tree as an leading age and site index estimate
+#Not sure what N means, not applicable maybe
+
+#How many top trees does every site visit have (should be one)
+t_psp %>% group_by(CLSTR_ID) %>% 
+  summarise(n_T_tree = sum(TH_TREE == "T", na.rm = T)) %>% 
+  summary(n_T_tree)
+#Some sites have as many as 10 top trees, weird
+#Check how that all top trees are codominant/dominant
+t_psp %>% group_by(CR_CL) %>% 
+  summarise(n_T_tree = sum(TH_TREE == "T", na.rm = T))
+#Some intermediate and suppressed
+
+#Filter to just the top trees
+toptr_psp <- t_psp %>% filter(TH_TREE == "T") %>%
+  filter(CR_CL %in% c("C", "D"))
+
+#Check that all top trees have age and site index values
+toptr_psp <- toptr_psp %>% filter(!(is.na(SI_TREE)) & 
+                                !(is.na(AGE_TOT)))
+#That gives us 955 top trees
+
+#Look at how many site visits are represented in those:
+length(unique(toptr_psp$CLSTR_ID)) #284 site visits
+#Look at how much site index and age estimates vary per site visit
+si_age_sum <- toptr_psp %>% group_by(CLSTR_ID) %>% 
+  summarise(si_sd = sd(SI_TREE), si_min = min(SI_TREE), 
+            si_max = max(SI_TREE), age_sd = sd(AGE_TOT), 
+            age_min = min(AGE_TOT), age_max = max(AGE_TOT)) %>%
+  mutate(si_diff = si_max - si_min, age_diff = age_max-age_min)
+si_age_sum %>% select(si_sd, si_diff, age_sd, age_diff) %>% summary()
+#Odd results here. Some sites where top tree age difference is huge (>100 yrs)
+#and si_index difference is large
+
+#Proceed and assume we just won't pick these sites
+#Take avergage of site_index and average of age for each site visit
+si_age_psp <- toptr_psp %>% group_by(CLSTR_ID) %>% 
+  summarise(age = mean(AGE_TOT), si = mean(SI_TREE))
+
+#Remove site visits that don't have age and site index from the 
+#t_psp and s_psp datasets
+t_psp <- t_psp %>% semi_join(si_age_psp, by = "CLSTR_ID")
+s_psp <- s_psp %>% semi_join(t_psp, by = "SITE_IDENTIFIER")
+```
+
+#PCA
+Idea here is to calculate some metrics capturing the size class distribution and amount of Hw on each site and combine those with the properties of each site visit (site index, age of leading canopy layer), then use those metrics in a PCA to identify similar pairs of psp - hdm sites.
+```{r}
+#Stats we are going to use:
+#DBH non Hw: mean, median, 25th quantile, 75th quantile, max
+#DBH Hw: mean, median, 25th quantile, 75th quantile, max
+#Basal area of Hw
+#stem density (stems/ha)
+#site index
+#age of the leading trees in the codominant/dominant canopy layers
+#Not using min(dbh) because the minimum is set by the dbh cutoff used in the
+#protocols for measuring both our sites and the psp sites
+
+#Add basal area variable in the three datasets
+regen_15 <- regen_15 %>% mutate(ba_m2 = pi*((dbh/100)/2)^2)
+mature_comp <- mature_comp %>% mutate(ba_m2 = pi*((dbh/100)/2)^2)
+t_psp <- t_psp %>% mutate(ba_m2 = pi*((DBH/100)/2)^2)
+
+#Calculate the PCA metrics for the hdm data sets
+reg.dbhstat <- regen_15 %>% group_by(site_id) %>% summarise(
+  n_stem_ha = sum(PHF_TREE), 
+  mean_hw_dbh = mean(dbh),
+  median_hw_dbh = median(dbh),
+  q25_hw_dbh = quantile(dbh, probs = .25),
+  q75_hw_dbh = quantile(dbh, probs = .75),
+  max_hw_dbh = max(dbh),
+  mean_hw_dbh = mean(dbh[spp == "Hw"]),
+  median_hw_dbh = median(dbh[spp == "Hw"]),
+  q25_hw_dbh = quantile(dbh[spp == "Hw"], probs = .25),
+  q75_hw_dbh = quantile(dbh[spp == "Hw"], probs = .75),
+  max_hw_dbh = max(dbh[spp == "Hw"]), 
+  ba_m2_hw = sum(ba_m2[spp == "Hw"]*PHF_TREE[spp == "Hw"])
+)
+
+mat.dbhstat <- mature_comp %>% group_by(site_id) %>% summarise(
+  n_stem_ha = sum(PHF_TREE), 
+  mean_hw_dbh = mean(dbh),
+  median_hw_dbh = median(dbh),
+  q25_hw_dbh = quantile(dbh, probs = .25),
+  q75_hw_dbh = quantile(dbh, probs = .75),
+  max_hw_dbh = max(dbh),
+  mean_hw_dbh = mean(dbh[spp == "Hw"]),
+  median_hw_dbh = median(dbh[spp == "Hw"]),
+  q25_hw_dbh = quantile(dbh[spp == "Hw"], probs = .25),
+  q75_hw_dbh = quantile(dbh[spp == "Hw"], probs = .75),
+  max_hw_dbh = max(dbh[spp == "Hw"]), 
+  ba_m2_hw = sum(ba_m2[spp == "Hw"]*PHF_TREE[spp == "Hw"])
+)
+
+#Now do this for each psp site visit
+psp.dbhstat <- t_psp %>% group_by(CLSTR_ID) %>% summarise(
+  n_stem_ha = sum(PHF_TREE), 
+  mean_hw_dbh = mean(DBH),
+  median_hw_dbh = median(DBH),
+  q25_hw_dbh = quantile(DBH, probs = .25),
+  q75_hw_dbh = quantile(DBH, probs = .75),
+  max_hw_dbh = max(DBH),
+  mean_hw_dbh = mean(DBH[SPECIES == "HW"]),
+  median_hw_dbh = median(DBH[SPECIES == "HW"]),
+  q25_hw_dbh = quantile(DBH[SPECIES == "HW"], probs = .25),
+  q75_hw_dbh = quantile(DBH[SPECIES == "HW"], probs = .75),
+  max_hw_dbh = max(DBH[SPECIES == "HW"]), 
+  ba_m2_hw = sum(ba_m2[SPECIES == "HW"]*PHF_TREE[SPECIES == "HW"])
+)
+
+#Rename columns in each dataframe so they can be combined
+#Also add a column that identifies the dataset
+reg.dbhstat <- reg.dbhstat %>% 
+  mutate(site_type = "regen") %>% 
+  unite(col = ID, sep = ", ", c("site_id", "site_type"), remove = FALSE)
+mat.dbhstat <- mat.dbhstat  %>% mutate(site_type = "mature") %>% 
+  mutate(site_type = "mature") %>% 
+  unite(col = ID, sep = ", ", c("site_id", "site_type"), remove = FALSE)
+psp.dbhstat <- psp.dbhstat %>% mutate(site_type = "psp") %>% 
+  unite(col = ID, sep = ", ", c("CLSTR_ID", "site_type"), remove = FALSE) %>% 
+  rename(site_id = CLSTR_ID)
+
+#Create a single dataframe
+pca.stat <- rbind(reg.dbhstat, mat.dbhstat, psp.dbhstat)
+
+#Add age and site_index data
+si_age_reg_hdm <- si_age_reg_hdm %>% mutate(site_type = "regen") %>% 
+  unite(col = ID, sep = ", ", c("site_id", "site_type"))
+si_age_mat_hdm <- si_age_mat_hdm %>% mutate(site_type = "mature") %>% 
+  unite(col = ID, sep = ", ", c("site_id", "site_type"))
+si_age_psp <- si_age_psp%>% mutate(site_type = "psp") %>% 
+  unite(col = ID, sep = ", ", c("CLSTR_ID", "site_type"))
+si_age <- rbind(si_age_reg_hdm, si_age_mat_hdm, si_age_psp)
+pca.stat <- left_join(pca.stat, si_age, by = "ID")
+
+#Run a pca to explain variation in dbh stats and find similar sites
+#Check for infinite values
+sum(is.infinite(as.matrix(pca.stat)))
+#Check for missing values
+sum(is.na(as.matrix(pca.stat)))
+#Remove NA values if there are any
+pca.stat <- pca.stat %>% drop_na()
+#Select only nuermic columns
+pca.stat.numeric <- pca.stat %>% select_if(is.numeric)
+
+#Run the pca
+#prcomp() function uses singular value decomposition
+#because scale. = TRUE, this is will produce a correlation biplot
+pca.1 <- prcomp(pca.stat.numeric, scale. = TRUE)
+
+?prcomp()
+#Inspect the pca object
+pca.1$sdev #the Eigenvalues (=proportional to the percent of variation explained)
+head(pca.1$x) #the actual scores for each site on the each axis
+summary(pca.1) #summary of the percent of variation explained by each axis
+
+#Create a scree plot = shows how much variation is explained by each axis
+scree.data <- tibble(axis = as.integer(1:length(pca.1$sdev)), 
+                     ev = pca.1$sdev) %>% 
+  mutate(var = ev^2) %>% mutate(tot_var = sum(var)) %>% 
+  mutate(prop_ex = var/tot_var)
+ggplot(scree.data, aes(x= axis, y=prop_ex)) + geom_col() + 
+  geom_point(col="lightblue") +
+  geom_line(col="lightblue")
+#axis one and two explain 74% of the variation cumulatively
+
+#Add the scores back to the initial dataframe
+pca.stat <- pca.stat %>% bind_cols(pca.1$x)
+
+#Plot the first two PCA axes. We will use these axes to select potential pairs of sites
+colors <- c("mature" = "#FF0000",
+            "psp" = "#00FF0050",  # Green with 80% transparency
+            "regen" = "#0000FF") 
+
+ggplot(pca.stat, aes(x=PC1, y=PC2, color = site_type)) + 
+  geom_point() + scale_color_manual(values = colors)
+
+#Plot a covariance biplot to see which variables are driving each axes
+#See Section 12.5 of Zuur et al (2007) for comparison of correlation
+#vs distance biplot
+ggbiplot(pca.1, scale = 1)
+#Axis 1: driven by DBH stats, # of stems/ha and basal area of Hw
+#Axis 2 driven by age and site index
+```
+
+
+#Trial site
+```{r}
+#Calculate the difference in PC1 and PC2 scores of each site with
+#cr_1 regen component
+pca.stat <- pca.stat %>% 
+  mutate(cr_1_sim = abs(PC1 - PC1[ID == "cr_1, regen"]) + 
+           abs(PC2 - PC2[ID == "cr_1, regen"]))
+
+cr1r_cand <- pca.stat %>% arrange(cr_1_sim) %>% 
+  filter(ID == "cr_1, regen" | site_type =="psp") %>% slice_head(n=4)
+
+#Create a single dataset of tree level dbh data from regen, mature and psp 
+#datasets
+regen_15 <- regen_15 %>% mutate(site_type = "regen") %>% 
+  unite(col = ID, sep = ", ", c("site_id", "site_type"), remove = FALSE)
+mature_comp <- mature_comp %>% mutate(site_type = "mature") %>% 
+  unite(col = ID, sep = ", ", c("site_id", "site_type"), remove = FALSE)
+t_psp <- t_psp %>% mutate(site_type = "psp") %>% 
+  unite(col = ID, sep = ", ", c("CLSTR_ID", "site_type"), remove = FALSE) %>% 
+  rename(dbh = DBH)
+
+dbh_all <- rbind(select(regen_15, ID, dbh, dbh_bin),
+                 select(mature_comp, ID, dbh, dbh_bin),
+                 select(t_psp, ID, dbh, dbh_bin))
+
+#visualize cr1 candidate sites
+dbh_all_sum <- dbh_all %>% group_by(ID, dbh_bin) %>% 
+  summarise(n_trees_ha = n())
+
+ggplot(filter(dbh_all_sum, ID %in% cr1r_cand$ID),
+       aes(x=dbh_bin, y=n_trees_ha)) + 
+  geom_bar(position = "stack", stat = "identity") +
+  facet_wrap(~ID)
+
+#Add SITE_IDENTIFER to the dbh.stat dataframe
+dbh.stat <- left_join(dbh.stat, 
+                      select(v_psp, CLSTR_ID, SITE_IDENTIFIER), 
+                      by = join_by(ID==CLSTR_ID))
+
+#First, filter PCA results to sites in the right BEC subzone
+#Gives: 237 sites and 781 observations (sites visited multiple times) to work with
+s_psp_CWHxm2 <- s_psp <- s_psp %>% 
+  filter(bec == site$bec[site$site_id=="cr_1"])
+dbh.stat_CWHxm2 <- dbh.stat %>% semi_join(s_psp_CWHxm2, 
+                                          by="SITE_IDENTIFIER")
+print(dim(s_psp_CWHxm2));print(dim(dbh.stat_CWHxm2))
+
+#Extract PC1 and PC2 values for cr_1 regen
+cr_1.r <- dbh.stat %>% filter(ID =="cr_1" & site_type == "regen")
+
+#Calculate the difference of candidate sites with these values
+#Represents how similar they are to cr_1 regen
+dbh.stat_CWHxm2 <- dbh.stat_CWHxm2 %>% 
+  mutate(cr_1.r_sim = abs(PC1 - cr_1.r$PC1) + abs(PC2 - cr_1.r$PC2))
+
+#Sort by this similarity metric
+dbh.stat_CWHxm2 <- arrange(dbh.stat_CWHxm2, cr_1.r_sim)
+
+#Pull the top five to get candidate sites
+can_cr1r <- dbh.stat_CWHxm2[1:5,]
+
+#Compare the dbh metrics against cr_1 regen, looks good
+print(cr_1.r[,2:7]); print(can_cr1r[,2:7])
+
+#Graph their dbh distributions
+regen_15 <- regen_15 %>% rename(SITE_IDENTIFIER = site_id)
+t_psp_cr1r <- t_psp %>% semi_join(can_cr1r, by = "SITE_IDENTIFIER")
+compare_cr1 <- rbind(select(filter(regen_15, SITE_IDENTIFER =="cr_1"), 
+                            SITE_IDENTIFIER, PHF_TREE, dbh_bin), select(t_psp, SITE_IDENTIFIER, PHF_TREE, dbh_bin))
+```
+
