@@ -129,9 +129,12 @@ str(trees)
 ##Created just one bin for dbh>200cm
 max(trees$dbh)
 trees <- trees %>% 
-  mutate(dbh_bin = cut(dbh, breaks = c(0, 10, 20, 30, 40, 50, 60, 70, 80,
-                                       90, 100, 110, 120, 130, 140, 150,
-                                       160, 170, 180, 190, 200, 500), 
+  mutate(dbh_bin = cut(dbh, breaks = c(4, 10, 15, 20, 25, 30, 35, 40, 45,
+                                       50, 55, 60, 65, 70, 75, 80,
+                                       85, 90, 95, 100, 105, 110, 115, 120,
+                                       125, 130, 135, 140, 145, 150, 155, 
+                                       160, 165, 170, 175, 180, 185, 190, 
+                                       195, 200, 500), 
                                         include.lowest = TRUE))
 levels(trees$dbh_bin)
 
@@ -320,9 +323,12 @@ s_psp <- s_psp %>% semi_join(t_psp, by = "SITE_IDENTIFIER")
 #Break DBH up into bins
 t_psp <- t_psp %>% 
   mutate(dbh_bin = cut(DBH, breaks = 
-                         c(0, 10, 20, 30, 40, 50, 60, 70, 80,
-                           90, 100, 110, 120, 130, 140, 150,
-                           160, 170, 180, 190, 200, 500),
+                         c(4, 10, 15, 20, 25, 30, 35, 40, 45,
+                                       50, 55, 60, 65, 70, 75, 80,
+                                       85, 90, 95, 100, 105, 110, 115, 120,
+                                       125, 130, 135, 140, 145, 150, 155, 
+                                       160, 165, 170, 175, 180, 185, 190, 
+                                       195, 200, 500),
                        include.lowest = TRUE))
 
 #Calculate age and site index estimates for each site visit
@@ -397,7 +403,7 @@ s_psp <- s_psp %>% semi_join(t_psp, by = "SITE_IDENTIFIER")
 Idea here is to calculate some metrics capturing the size class distribution and amount of Hw on each site and combine those with the properties of each site visit (site index, age of leading canopy layer), then use those metrics in a PCA to identify similar pairs of psp - hdm sites.
 ```{r}
 #Stats we are going to use:
-#DBH non Hw: mean, median, 25th quantile, 75th quantile, max
+#DBH all species: mean, median, 25th quantile, 75th quantile, max
 #DBH Hw: mean, median, 25th quantile, 75th quantile, max
 #Basal area of Hw
 #stem density (stems/ha)
@@ -498,7 +504,6 @@ pca.stat.numeric <- pca.stat %>% select_if(is.numeric)
 #because scale. = TRUE, this is will produce a correlation biplot
 pca.1 <- prcomp(pca.stat.numeric, scale. = TRUE)
 
-?prcomp()
 #Inspect the pca object
 pca.1$sdev #the Eigenvalues (=proportional to the percent of variation explained)
 head(pca.1$x) #the actual scores for each site on the each axis
@@ -519,7 +524,7 @@ pca.stat <- pca.stat %>% bind_cols(pca.1$x)
 
 #Plot the first two PCA axes. We will use these axes to select potential pairs of sites
 colors <- c("mature" = "#FF0000",
-            "psp" = "#00FF0050",  # Green with 80% transparency
+            "psp" = "#00FF0070",  # Green with 80% transparency
             "regen" = "#0000FF") 
 
 ggplot(pca.stat, aes(x=PC1, y=PC2, color = site_type)) + 
@@ -536,14 +541,90 @@ ggbiplot(pca.1, scale = 1)
 
 #Trial site
 ```{r}
-#Calculate the difference in PC1 and PC2 scores of each site with
-#cr_1 regen component
-pca.stat <- pca.stat %>% 
-  mutate(cr_1_sim = abs(PC1 - PC1[ID == "cr_1, regen"]) + 
-           abs(PC2 - PC2[ID == "cr_1, regen"]))
+#Add bec zone to the pca.stat dataframe
+#filter visit dataframe to remaining sites
+v_psp <- v_psp %>% semi_join(t_psp, by="CLSTR_ID") 
+#Add bec variable from site level dataset
+v_psp <- v_psp %>% 
+  left_join(select(s_psp, SITE_IDENTIFIER, bec), by="SITE_IDENTIFIER")
+#Create a dataframe that has bec info for both psp and hdm sites
+v_psp <- v_psp %>% mutate(site_id = CLSTR_ID)
+bec <- rbind(select(site, site_id, bec), select(v_psp, site_id, bec))
+#Join this to the pca.stat dataframe
+pca.stat <- left_join(pca.stat, bec, by = "site_id")
 
-cr1r_cand <- pca.stat %>% arrange(cr_1_sim) %>% 
-  filter(ID == "cr_1, regen" | site_type =="psp") %>% slice_head(n=4)
+#Plot the PCA plot again, this time coloured by bec
+ggplot(pca.stat, aes(x=PC1, y=PC2, shape = site_type, color = bec)) + 
+  geom_point()
+#Sites without any close reference psp plots:
+#CWHvm1 mature sites (Fraser Valley), cluster at top of graph, but primarily
+#diverges on axes 2, which explains less variation and is also dominated by
+#age and site index, which we aren't confident in
+#CWHdm- regen sites (also Fraser Valley), cluster in bottom left
+
+#First, filter the pca.stat dataframe to just candidate psp sites
+pca.stat.psp <- pca.stat %>% filter(site_type=="psp")
+#Split this dataframe by bec zone
+#Gives list of dataframes in order of the bec factor
+levels(pca.stat$bec) #Order of dataframes
+pca.stat.psp <- pca.stat.psp %>% group_split(bec)
+#Rename the dataframes by bec zone
+names(pca.stat.psp) <- c(levels(pca.stat$bec))
+
+#Calculate difference in PCA axis scores, weighted by the amount of variation
+#they explain, for each site component
+#Add weighting variaable for first two axes = percent of variation explained
+pca.stat <- pca.stat %>% mutate(PC1_wt = scree.data$prop_ex[1],
+                                PC2_wt = scree.data$prop_ex[2])
+pca.stat <- pca.stat %>% 
+  mutate(cr_1_sim = abs(PC1 - PC1[ID == "cr_1, regen"])*PC1_wt + 
+           abs(PC2 - PC2[ID == "cr_1, regen"])*PC2_wt)
+cr1r_cand <- pca.stat %>% filter(bec == bec[ID == "cr_1, regen"]) %>%
+  arrange(cr_1_sim) %>% 
+  filter(ID == "cr_1, regen" | site_type =="psp") %>% 
+  slice_head(n=4)
+
+#Try to automate this in a loop
+#With help from ChatGPT
+#Save the column of ids of hdm site components as a vector
+hdm_comp_ids <- pca.stat %>% 
+  filter(site_type %in% c("regen", "mature")) %>% 
+  pull(ID)
+#Create an empty list
+results <- list()
+
+for (i in hdm_comp_ids) {
+#Create a new variable for each hdm site component that calculates the
+#difference in PCA axis scores between it and the psp sites. Weight each PCA axis by the amount of variation it explains. 
+pca.stat <- pca.stat %>% 
+  mutate(!!i := abs(PC1 - PC1[ID == i])*PC1_wt + 
+           abs(PC2 - PC2[ID == i])*PC2_wt)
+
+#Create a sub dataframe that contains the target hdm site and the three psp
+#sites that are in the same bec subzone and have the closest PCA scores
+cand <- pca.stat %>% filter(bec == bec[ID == i]) %>%
+  arrange(!!sym(i)) %>% 
+  filter(ID == i | site_type =="psp") %>% 
+  slice_head(n=4)
+
+#Store each sub dataframe in list. Name each dataframe with the target hdm site
+#ID
+results[[i]] <- cand
+}
+
+#Combine the output into a single dataframe
+candidate_sites <- bind_rows(results, .id = "hdm_site")
+
+#Get a sense of the range of PCA score differences - a first indicator of 
+#whether hdm sites are equally or unequally well matched with psp sites
+candidate_sites <- candidate_sites %>% 
+  pivot_longer(cols = `cr_1, regen`:`ph_3, mature`, names_to = "sim_site", 
+               values_to = "pca_diff") %>% 
+  filter(hdm_site == sim_site)
+summary(candidate_sites$pca_diff)
+ggplot(candidate_sites, aes(x=bec, y=pca_diff, colour = bec)) + 
+  geom_point()
+#Sites in the CWHdm- and vm2 have disproportionately higher values
 
 #Create a single dataset of tree level dbh data from regen, mature and psp 
 #datasets
@@ -563,45 +644,11 @@ dbh_all <- rbind(select(regen_15, ID, dbh, dbh_bin),
 dbh_all_sum <- dbh_all %>% group_by(ID, dbh_bin) %>% 
   summarise(n_trees_ha = n())
 
-ggplot(filter(dbh_all_sum, ID %in% cr1r_cand$ID),
+un_id <- unique(candidate_sites$ID)
+
+ggplot(filter(dbh_all_sum, ID %in% candidate_sites$ID[29:32]),
        aes(x=dbh_bin, y=n_trees_ha)) + 
   geom_bar(position = "stack", stat = "identity") +
   facet_wrap(~ID)
-
-#Add SITE_IDENTIFER to the dbh.stat dataframe
-dbh.stat <- left_join(dbh.stat, 
-                      select(v_psp, CLSTR_ID, SITE_IDENTIFIER), 
-                      by = join_by(ID==CLSTR_ID))
-
-#First, filter PCA results to sites in the right BEC subzone
-#Gives: 237 sites and 781 observations (sites visited multiple times) to work with
-s_psp_CWHxm2 <- s_psp <- s_psp %>% 
-  filter(bec == site$bec[site$site_id=="cr_1"])
-dbh.stat_CWHxm2 <- dbh.stat %>% semi_join(s_psp_CWHxm2, 
-                                          by="SITE_IDENTIFIER")
-print(dim(s_psp_CWHxm2));print(dim(dbh.stat_CWHxm2))
-
-#Extract PC1 and PC2 values for cr_1 regen
-cr_1.r <- dbh.stat %>% filter(ID =="cr_1" & site_type == "regen")
-
-#Calculate the difference of candidate sites with these values
-#Represents how similar they are to cr_1 regen
-dbh.stat_CWHxm2 <- dbh.stat_CWHxm2 %>% 
-  mutate(cr_1.r_sim = abs(PC1 - cr_1.r$PC1) + abs(PC2 - cr_1.r$PC2))
-
-#Sort by this similarity metric
-dbh.stat_CWHxm2 <- arrange(dbh.stat_CWHxm2, cr_1.r_sim)
-
-#Pull the top five to get candidate sites
-can_cr1r <- dbh.stat_CWHxm2[1:5,]
-
-#Compare the dbh metrics against cr_1 regen, looks good
-print(cr_1.r[,2:7]); print(can_cr1r[,2:7])
-
-#Graph their dbh distributions
-regen_15 <- regen_15 %>% rename(SITE_IDENTIFIER = site_id)
-t_psp_cr1r <- t_psp %>% semi_join(can_cr1r, by = "SITE_IDENTIFIER")
-compare_cr1 <- rbind(select(filter(regen_15, SITE_IDENTIFER =="cr_1"), 
-                            SITE_IDENTIFIER, PHF_TREE, dbh_bin), select(t_psp, SITE_IDENTIFIER, PHF_TREE, dbh_bin))
 ```
 
