@@ -1,0 +1,19 @@
+tree_id,site_id,transect_id,spp,dbh,height_m,crown_class,notes
+h1,ph_1,259,Hw,25.2,22.3,C,NA
+h2,ph_1,259,Hw,29.4,21.6,C,NA
+h3,cr_1,164,Hw,23.9,21.6,C,why this canopy class?
+h4,cr_2,219,Hw,40.5,31.6,D,NA
+h5,cr_2,221,Hw,34.3,26.5,D,NA
+h6,cr_2,222,Hw,35.1,30,D,NA
+h7,mk_3,115,Hw,NA,17.6,C,These could be on 115 or 120. No DBH or canopy class taken.
+h8,mk_3,115,Hw,NA,17.9,C,These could be on 115 or 120. No DBH or canopy class taken.
+h9,mk_3,120,Hw,NA,17.7,C,These could be on 115 or 120. No DBH or canopy class taken.
+h10,mk_3,121,Hw,NA,15.9,C,No DBH or canopy class taken
+h11,ph_2,168,Hw,16.1,15.8,C,NA
+h12,ph_2,168,Hw,14.7,17.2,C,NA
+h13,ph_2,168,Hw,18.5,20.2,C,NA
+h14,ph_2,235,Hw,25.8,22.6,C,NA
+h15,ph_2,235,Hw,27.6,22.3,C,NA
+h16,ph_3,320,Hw,13.9,14,C,NA
+h17,ph_3,320,Hw,15,17.8,C,NA
+h18,ph_3,322,Hw,16.6,14.5,C,NA
