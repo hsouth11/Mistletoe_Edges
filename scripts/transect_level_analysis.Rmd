@@ -1,0 +1,177 @@
+---
+title: "transect level analysis"
+author: "Hanno Southam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+UPDATED: 11 Jul 2024
+READ ME
+Script for predicting HDM spread using transects (or sections of them).
+
+```{r}
+rm(list=ls(all=TRUE))
+
+#Load packages
+library(tidyverse)
+```
+
+#DATA PREP
+```{r}
+#SITE DATA
+#This contains a whole bunch of basic site level info (e.g. year the block was harvested) and also a whole bunch of metrics created in the site level analysis script (e.g. the basal area of infected trees in the mature component)
+site <- read_csv("data/workflow/site_metrics.csv")
+
+str(site)
+summary(site)
+
+##Create some variables to use in summary tables and figures
+#Calculate approximate age of regen. Sites assessed in 2023 so age = 2023 - year harvested
+site <- site %>% mutate(age = 2023-yr_har)
+site$age #luckily, got pretty good spread
+
+#Create a single variable from all the pieces of a BEC zone
+site <- site %>% unite(col = bec, sep = "", c("bec_z", "bec_sz", "bec_var"), remove = FALSE)
+
+#Create a variable that combines site_id, bec, and regen age 
+site <- site %>% unite(col = id_bec_age_f, sep = ", ", 
+                       c("site_id", "bec", "age"), 
+                       remove = FALSE) %>% 
+  mutate(id_bec_age_f = factor(id_bec_age_f))
+
+#Make cluster, bec and id_bec_age_f factors
+site <- site %>% mutate(across(c(cluster, bec, id_bec_age_f), ~as.factor(.)))
+str(site)
+
+#TREE DATA
+#This contains data for each measured tree (mature and regen trees). 
+#Treats assessed_by var as a logical for some reason and throws up an error. Not a problem and not going to use this var
+#Read in data
+trees <- read_csv("data/workflow/trees_mapped.csv")
+str(trees)
+summary(trees)
+
+#Convert factor vars to factors: 
+trees <- trees %>% mutate(across(
+  c(site_id, spp, status, hdm_pa, b_lc, 
+    broom_pa, broom_pos, stem_pa, crown_class, crown_cond, outside_10, assessed_by, tree_type, dmr_f),
+  ~as.factor(.)))
+
+#Convert plot_id and dmrs to integers
+trees <- trees %>% mutate(across(
+  c(plot_id, dmr_l, dmr_m, dmr_u, dmr), ~as.integer(.)))
+
+str(trees)
+
+#Create new factor dmr variable that has fewer levels and ascends logically from healthy to most infected
+levels(trees$dmr_f)
+trees <- trees %>% mutate(dmr_f2 = case_when((dmr_f =="1" | dmr_f=="2") ~ "1-2", (dmr_f =="3" | dmr_f=="4") ~ "3-4", (dmr_f =="5" | 
+                                    dmr_f=="6") ~ "5-6", .default = dmr_f))
+trees <- trees %>% mutate(dmr_f2 = factor(dmr_f2, levels = c("-", "DU", "0","IBLC", "1-2", "3-4", "5-6", "DI")))
+summary(trees$dmr_f2)
+
+#Calculate basal area for each tree in m^2 (m^2 is how its usually expressed at the tree level)
+##https://en.wikipedia.org/wiki/Basal_area
+trees <- trees %>% mutate(ba_m2 = pi*((dbh/100)/2)^2)
+
+#TRANSECT DATA
+#These are varaibles that describe each transect (e.g. its length and slope)
+transect <- read_csv("data/cleaned/transect data_c.csv")
+str(transect)
+```
+
+#ASSESSING SAMPLE SIZE
+Goal: break the transect up into units (5m x 5m) and assess whether this is a viable unit to do analysis on. Need to check how many of these units we have at each distance from the edge, how many contain Hw and how many Hw stems are typically in one. 
+```{r}
+#Filter trees to just regen trees
+regen <- trees %>% filter(tree_type == "regen")
+
+#dist_y_h is the horizontal distance of each tree from the edge. This is the variable we need to work with to create units.
+summary(regen$dist_y_h) #max33.77m, so we'll create units up to 35m
+
+#Break dist_y_h up into 5 m intervals. Each interval is a unit
+##Default is for intervals to be half-open. They include the upper bound but not the lower bound. e.g. (10,20] includes 20 but (20, 30] does not
+## https://stackoverflow.com/questions/41304960/how-to-create-breaks-using-the-cut-function-without-numbers-overlapping
+regen <- regen %>% mutate(dist_y_h_bin = cut(dist_y_h, breaks = c(0, 5, 10, 15, 20, 25, 30, 35), include.lowest = TRUE))
+levels(regen$dist_y_h_bin)
+
+#Summarise the table by unit
+##Complete adds a row with the value set to 0 for each unit that doesn't have data. This is good for units that were measured but didn't have any trees (0 is a true value here) but not accurate for units that were beyond the transect end and weren't measured. SO we need to filter those out using the transect length. 
+##There are also partial units in the data (e.g. transect length at cr_2 was 24.6m so it has data for 20-24.6m). To start we will just remove the partial units, but could try to avoid data loss somehow. 
+tu <- regen %>% group_by(site_id, plot_id, dist_y_h_bin) %>% 
+  summarise(n_trees = n(), n_hw = sum(spp=="Hw")) %>% 
+  complete(dist_y_h_bin, fill=list(n_trees=0, n_hw=0)) # gives 210 rows (10 sites*3 transects/site*7 units/transect)
+tu <- left_join(tu, select(transect, transect_id, tr_leng), 
+                by = join_by(plot_id == transect_id)) #add transect length
+tu <- tu %>% #extracts upper bound of the dist_y_h_bin interval
+  mutate(upper_bound = as.numeric(gsub(".*,(\\s*)(\\d+)\\]", "\\2", dist_y_h_bin)))
+tu <- tu %>% mutate(diff = tr_leng - upper_bound) #compute difference between upper bound and transect length
+tu <- tu %>% filter(!diff<0) #remove units where diff < 0 (these are units that weren't measured)
+
+#Get a count of how many 5x5m units were measured in total
+dim(tu) #121 units
+
+#How many units with trees? How many with Hw?
+sum(tu$n_trees>0) #114 units
+sum(tu$n_hw>0) #100 units
+sum(tu$n_hw>3) #64 with more than 3 Hw
+
+#Average # of trees per unit? #Average # of Hw?
+#Mean n_trees = about 6, mean n_hw = about 4
+tu %>% group_by(dist_y_h_bin) %>% summarise(m_trees = mean(n_trees), sd_trees = sd(n_trees),
+                                            m_hw = mean(n_hw), sd_hw = sd(n_hw))
+#How much does this vary between sites?
+g.tu <- tu %>% group_by(site_id, dist_y_h_bin) %>% summarise(m_trees = mean(n_trees))
+ggplot(g.tu, aes(x=dist_y_h_bin, y=m_trees, color=site_id)) + geom_point()
+
+#Now summarize this at the unit level. This summary tells you how many of each units there are at each interval (e.g. 0-5, 5-10) and of those how many have trees, how many have hw and how many have more than 2 Hw
+##The last two columns are important - these are the ones where we could calculate metrics (e.g. % infection)
+tu %>% group_by(dist_y_h_bin) %>% 
+  summarise(n_unit = n(), n_wtrees = sum(n_trees>0), n_whw = sum(n_hw>0), n_w3hw = sum(n_hw>=3))
+```
+
+#EXPLORATORY GRAPHS
+This approach seems reasonable. Sample size is reasonable within 15m of edge and decreases beyond that.
+One idea: set units beyond transect end to have no HDM (because they are beyond the end of the transect)
+```{r}
+#Set up unit level dataset again, but this time calculating more variables
+tu <- regen %>% group_by(site_id, plot_id, dist_y_h_bin) %>% 
+  summarise(n_trees = n(), # number of trees
+            n_hw = sum(spp=="Hw"), # number of hemlocks
+            n_hw_l = sum(spp=="Hw" & status %in% c("LS", "LL", "LF")), #number of live hemlocks
+            n_hw_inf = sum(spp=="Hw" & hdm_pa=="Y"), #number infected hemlocks
+            n_hw_l_inf = sum(spp=="Hw" & status %in% c("LS", "LL", "LF") & hdm_pa=="Y"), #number live infected hemlocks
+            ba_hw = sum(ifelse(spp=="Hw", ba_m2, 0)), #basal area of Hw
+            m_dmr = mean(dmr, na.rm=TRUE)) %>% #mean dmr of unit
+  complete(dist_y_h_bin, fill=list(n_trees=0, n_hw=0, n_hw_l=0, n_hw_inf=0, n_hw_l_inf=0,
+                                   ba_hw=0))
+tu <- left_join(tu, select(transect, transect_id, tr_leng), 
+                by = join_by(plot_id == transect_id)) #add transect length
+tu <- tu %>% #extracts upper bound of the dist_y_h_bin interval
+  mutate(upper_bound = as.numeric(gsub(".*,(\\s*)(\\d+)\\]", "\\2", dist_y_h_bin)))
+tu <- tu %>% mutate(diff = tr_leng - upper_bound) #compute difference between upper bound and transect length
+tu <- tu %>% filter(!diff<0) #remove units where diff < 0 (these are units that weren't measured)
+
+#Calculate % infection
+tu <- tu %>% mutate(p_inf = n_hw_inf/n_hw)
+
+#Plot 1: % infection as a function of distance from the edge
+##Filter dataset to units with >=3 Hw trees
+g.tu <- tu %>% filter(n_hw>=3)
+ggplot(g.tu, aes(x=dist_y_h_bin, y=p_inf, color=site_id, group=plot_id)) + geom_point() + geom_line()
+
+#Plot 2: % infection as a function of site age
+##Add site age to the tu dataframe
+##No obvious patterns here
+g.tu <- left_join(g.tu, select(site, site_id, age), by="site_id")
+ggplot(g.tu, aes(x=age, y=p_inf)) + geom_point() + facet_wrap(~dist_y_h_bin)
+
+#Plot 3: % infection as a function of HDM infection in mature component
+##Add basal area of infected mature trees to the tu dataframe
+##No obvious pattern here either
+g.tu <- left_join(g.tu, select(site, site_id, mat.inf_ba_m2), by="site_id")
+ggplot(g.tu, aes(x=mat.inf_ba_m2, y=p_inf)) + geom_point() + facet_wrap(~dist_y_h_bin)
+
+#Plot 4: mean DMR as a function of distance from the edge
+ggplot(g.tu, aes(x=dist_y_h_bin, y=m_dmr)) + geom_point()
+```
+
