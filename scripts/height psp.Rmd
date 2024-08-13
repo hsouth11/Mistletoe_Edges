@@ -4,6 +4,11 @@ author: "Hanno Southam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
+##############
+READ ME
+Idea here is to calculate some metrics capturing the size class distribution and amount of Hw on each site and combine those with the properties of each site visit (site index, age of leading canopy layer, height of dominant/codominant Hw trees), then use those metrics in a PCA to identify similar pairs of psp - hdm sites.
+################
+
 
 Start by loading packages
 ```{r}
@@ -37,6 +42,7 @@ site <- site %>% mutate(yr_sur = year(date_sur))
 #Recalculate age column
 site <- site %>% mutate(age = yr_sur - yr_har)
 
+########################################
 ###########CODE TO ADD SITE INDEX AND AGE DATA FOR HDM SITES
 # #Dataset 2: vri data
 # #Attributes from vri polygons that are representative of the mature and regen
@@ -101,6 +107,7 @@ site <- site %>% mutate(age = yr_sur - yr_har)
 # si_age_reg_hdm <- left_join(si_age_reg_hdm, select(site, site_id, age), 
 #                             by = "site_id")
 
+########################################
 #Dataset 3: tree data
 #This contains data for each measured tree (mature and regen trees). 
 #Treats assessed_by var as a logical for some reason and throws up 
@@ -169,6 +176,7 @@ mature_comp <- mature_comp %>%
 levels(regen_15$dbh_bin)
 levels(mature_comp$dbh_bin)
 
+########################################
 #Dataset 4: Co-dominant hemlock height data
 #Mostly height data from hdm sites is in the trees dataset.
 #When there weren't enough codominant hemlock trees on a regen transect, 
@@ -199,7 +207,8 @@ ht_hdm <- ht_hdm %>%
 ht_hdm %>% group_by(ID) %>% summarise(n_ht_meas = n())
 #Missing height data from: mi_2 and the mature component of ph_2
 
-#Handle missing that by pulling in data from vri
+########################################
+#########Get missing height data from vri
 #Issue is that vri data is projected to 2021 and sites were measured in 2023
 #Not ideal but will have to do, probably a bigger problem for one regen 
 #component that is missing data (mi_2)
@@ -227,24 +236,83 @@ vri <- vri %>%
 vri <- vri %>% mutate(ID = as.factor(ID))
 levels(vri$ID)
 vri <- vri %>% 
-  filter(ID %in% c("mi_1_hdm_m", "mi_1_hdm_r", "ph_2_hdm_m"))
-view(vri)
-#Two vri polygons representing mi_1 mature but one is missing ht data for Hw
-#Remove that polygon
-vri <- vri %>% filter(POLYGON_ID != 35930437)
+  filter(ID %in% c("mi_2_hdm_m", "mi_2_hdm_r", "ph_2_hdm_m"))
+head(vri)
 
-#Create single column for codominant, hemlock height
+#Create two columns to align with hdm_ht dataset:
+#crown class (call these codominant)
+#height_m (height in meters)
 vri <- vri %>% 
-  mutate(cd_hw_ht = case_when(SPECIES_CD_1 == "HW" ~ PROJ_HEIGHT_1,
+  mutate(height_m = case_when(SPECIES_CD_1 == "HW" ~ PROJ_HEIGHT_1,
                               SPECIES_CD_2 == "HW" ~ PROJ_HEIGHT_2, 
-                              .default = NA))
+                              .default = NA),
+         crown_class = "C")
+head(vri)
+
+#Two vri polygons representing mi_2 regen.
+#Treat that by taking average
+vri <- vri %>% group_by(ID, crown_class, tree_type) %>% 
+  summarise(height_m = mean(height_m))
+head(vri)
+
+#Combine field measured and vri heights into a single dataset
+common_vars <- intersect(names(ht_hdm), names(vri))
+ht_hdm <- ht_hdm %>% select(all_of(common_vars))
+vri <- vri %>% select(all_of(common_vars))
+ht_hdm <- rbind(ht_hdm, vri)
+
+########Summarize field measured heights by site component
+#First filter to just codominant and dominant heights
+#Other crown classes were only measured at one site (cr_3)
+ht_hdm <- ht_hdm %>% mutate(crown_class = as.factor(crown_class))
+levels(ht_hdm$crown_class)
+ht_hdm <- ht_hdm %>% filter(crown_class %in% c("C", "D")) %>%  
+  mutate(crown_class = as.character(crown_class)) %>% 
+  mutate(crown_class = as.factor(crown_class))
+levels(ht_hdm$crown_class) #good, filtered correctly
+#Look at variability in codominant/dominant height by site
+ggplot(ht_hdm, aes(x = ID, y = height_m)) + 
+  geom_point(aes(color=crown_class)) + 
+  geom_boxplot(fill=NA)+
+  theme(axis.text.x = element_text(angle=90))
+
+#generally, mature components have more height variability
+#vri heights are represented by one number and so will have no standard
+#deviation. Deal with this by assigning them the average of the mature/regen
+#components respectively
+
+#Summarise height data for each site component with three variables: mean, 
+#median and standard deviation
+ht_hdm_sum <- ht_hdm %>% group_by(ID, tree_type) %>% 
+  summarise(mean_ht = mean(height_m),
+            median_ht = median(height_m),
+            sd_ht = sd(height_m))
+summary(ht_hdm_sum)
+missing_sd <- ht_hdm_sum %>% filter(is.na(sd_ht)) %>% pull(ID)
+reg_sd <- mean(ht_hdm_sum$sd_ht[ht_hdm_sum$tree_type == "regen"], na.rm = TRUE)
+mat_sd <- mean(ht_hdm_sum$sd_ht[ht_hdm_sum$tree_type == "mature"], na.rm = TRUE)
+
+#Assign group standard deviation to vri sites with only one measurement
+ht_hdm_sum <- ht_hdm_sum %>% 
+  mutate(sd_ht = case_when(ID %in% missing_sd & 
+                              tree_type == "mature" ~ 
+                              mat_sd,
+                            ID %in% missing_sd & 
+                              tree_type == "regen" ~ 
+                              reg_sd,
+                            .default = sd_ht))
+
+#Split this dataset by tree type
+ht_hdm_reg <- ht_hdm_sum %>% filter(tree_type == "regen")
+ht_hdm_mat <- ht_hdm_sum %>% filter(tree_type == "mature")
+#Good. This is final dataset of height metrics for integration into PCA
 ```
 
 #Load, process and and filter the permanent sample plot data
 Data from downloaded from here on 24 Jul 2024: https://catalogue.data.gov.bc.ca/dataset/forest-inventory-ground-plot-data-and-interactive-map 
 data dictionary: ./data/raw/psp/PSP_data_dictionary_20240125.xlsx
 ```{r}
-#Read in four datasets
+########Read in four datasets
 #t_psp: tree level data
 #Note, this is big dataset, a filtered dataset is loaded in the code because
 #we don't need every tree in every psp plot in bc
@@ -264,6 +332,8 @@ summary(v_psp)
 summary(s_psp)
 summary(p_psp)
 
+#########################
+######Filter to sites by proximity, bec zone and measurment completeness
 #Filter the sites that are: 
 ##BEC = CWH subzones that are represented in the hdm sites
 ##TSAs close to or containing one of our research sites
@@ -307,7 +377,8 @@ summary(t_psp)
 #Sites are identified by SITE_IDENTIFIER but there can be multiple plots 
 #per site. Not sure what multiple plots would look like because all plots 
 #are anchored on the site centre.
-idcheck <- t_psp %>% group_by(SITE_IDENTIFIER) %>% summarise(nplots = n_distinct(PLOT)) %>% filter(nplots>1)
+idcheck <- t_psp %>% group_by(SITE_IDENTIFIER) %>% 
+  summarise(nplots = n_distinct(PLOT)) %>% filter(nplots>1)
 idcheck
 #Only one site with more than one plot. Can just remove this site. 
 t_psp <- t_psp %>% anti_join(idcheck, by="SITE_IDENTIFIER")
@@ -321,7 +392,7 @@ t_psp <- t_psp %>% anti_join(idcheck, by="SITE_IDENTIFIER")
 any(is.na(t_psp$PHF_TREE)) 
 phf_na <- t_psp %>% filter(is.na(t_psp$PHF_TREE)) #340 trees
 dim(phf_na)
-view(phf_na)
+head(phf_na)
 phf_na$MEAS_INTENSE
 #All of these trees have measurement intensity = "OUT_OF_PLOT". Data dictionary
 #defines as "=sample tree within the 5.64m radius sample tree plot, but not a
@@ -426,9 +497,10 @@ s_psp <- s_psp %>% semi_join(t_psp, by = "SITE_IDENTIFIER")
 v_psp <- v_psp %>% semi_join(t_psp, by = "CLSTR_ID")
 p_psp <- p_psp %>% semi_join(t_psp, by = "CLSTR_ID")
 
-#leaves us with
+#leaves us with this many site visits:
 dim(v_psp)
 
+##########################
 ########CODE TO CALCULATE ADD AGE AND SITE INDEX DATA FOR PSP PLOTS
 # #Calculate age and site index estimates for each site visit
 # #Age and site index data are made on a subset of trees called sample trees
@@ -501,7 +573,9 @@ dim(v_psp)
 # 
 # #Leaves us with 301 site visits to try and pair with hdm sites
 # dim(v_psp)
-
+  
+######################
+#######Subset dataframes for integration with hdm data
 #HDM dataframes used different dbh cutoffs. Regen cutoff = 4cm. Mature = 9cm. 
 #Create two subdatasets from psp data, one to compare with regen sites and 
 #one with mature sites
@@ -534,20 +608,129 @@ t_psp_mat <- t_psp_mat %>%
                                        160, 165, 170, 175, 180, 185, 190, 
                                        195, 200, 500),
                        include.lowest = TRUE))
+
+#######################
+#######Calculate co-dominant/dominant Hw tree heights for each site visit
+#NOTE: For exploring height values, used t_psp dataset that hasn't been broken
+#into pieces to compare with mature and regen datasets. When summary metrics
+#are calculated in last step, then use seperate mature/regen datasets. 
+#First, look at summary of height data from each site visit
+#Mean height of codominant and dominant Hw ranges from 4.3m to 67m 
+t_psp %>% filter(HEIGHT_SOURCE == "Field measured" 
+                 & SPECIES == "HW"
+                 & CR_CL %in% c("C", "D")) %>% 
+  group_by(CLSTR_ID) %>% 
+  summarise(ht_mean = mean(HEIGHT), ht_sd =  sd(HEIGHT)) %>% summary()
+
+#See how many field measured heights of Hw trees there are by crown class
+#More than >75% of sites have field measured heights for: 
+#1 dominant Hw tree
+#3 co dominant Hw trees
+#1 intermediate Hw tree
+#0 suppressed trees (median is 1)
+ht_check_psp <- t_psp %>% group_by(CLSTR_ID) %>% 
+  summarise(n_d_hw_ht = sum(CR_CL == "D" & 
+                              SPECIES == "HW" & 
+                              HEIGHT_SOURCE == "Field measured"),
+            n_c_hw_ht = sum(CR_CL == "C" & 
+                              SPECIES == "HW" & 
+                              HEIGHT_SOURCE == "Field measured"), 
+            n_i_hw_ht = sum(CR_CL == "I" & 
+                              SPECIES == "HW" & 
+                              HEIGHT_SOURCE == "Field measured"), 
+            n_s_hw_ht = sum(CR_CL == "S" & 
+                              SPECIES == "HW" & 
+                              HEIGHT_SOURCE == "Field measured"))
+summary(ht_check_psp)
+
+#Create three variables to integrate into PCA workflow from codominant and 
+#dominant field measured Hw heights: median, mean, standard deviation
+
+#psp heights for dataset comparing against hdm regen site components
+ht_psp_reg <- t_psp_reg %>% 
+  filter(CR_CL %in% c("C", "D") & 
+           SPECIES == "HW" &
+           HEIGHT_SOURCE == "Field measured") %>%
+  group_by(CLSTR_ID) %>% 
+  summarise(n_d_c_ht = n(),
+            mean_ht = mean(HEIGHT), 
+            median_ht = median(HEIGHT),
+            sd_ht = sd(HEIGHT))
+summary(ht_psp_reg)
+
+#Check if there are any NA values
+any(is.na(ht_psp_reg$mean_ht))
+any(is.na(ht_psp_reg$median_ht))
+any(is.na(ht_psp_reg$sd_ht)) #NA values here, likely from site visits with only
+#one measurement
+sum(is.na(ht_psp_reg$sd_ht)) #eleven sites visits
+filter(ht_psp_reg, is.na(sd_ht))
+
+#Filter to sites with at least 5 height measurements
+ht_psp_reg <- ht_psp_reg %>% filter(n_d_c_ht >=5)
+
+#Create ID variable used to join with pca dataframe
+ht_psp_reg <- ht_psp_reg %>% mutate(site_type = "psp_r") %>% 
+  unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"), remove = FALSE)
+head(ht_psp_reg)
+
+#psp heights for dataset comparing against hdm mature site components
+ht_psp_mat <- t_psp_mat %>% 
+  filter(CR_CL %in% c("C", "D") & 
+           SPECIES == "HW" &
+           HEIGHT_SOURCE == "Field measured") %>%
+  group_by(CLSTR_ID) %>% 
+  summarise(n_d_c_ht = n(),
+            mean_ht = mean(HEIGHT), 
+            median_ht = median(HEIGHT),
+            sd_ht = sd(HEIGHT))
+summary(ht_psp_mat)
+
+#Check if there are any NA values
+any(is.na(ht_psp_mat$mean_ht))
+any(is.na(ht_psp_mat$median_ht))
+any(is.na(ht_psp_mat$sd_ht)) #NA values here, likely from site visits with only
+#one measurement
+sum(is.na(ht_psp_mat$sd_ht)) #eleven sites visits
+filter(ht_psp_mat, is.na(sd_ht))
+
+#Filter to sites with at least 5 height measurements
+ht_psp_mat <- ht_psp_mat %>% filter(n_d_c_ht >=5)
+
+#Create ID variable used to join with pca dataframe
+ht_psp_mat <- ht_psp_mat %>% mutate(site_type = "psp_m") %>% 
+  unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"), remove = FALSE)
+head(ht_psp_mat)
+
+#Update tree level psp dataset to refelct site visits filtered out for not
+#having complete height measurements
+t_psp_reg <- t_psp_reg %>% semi_join(ht_psp_reg, by = "CLSTR_ID")
+t_psp_mat <- t_psp_mat %>% semi_join(ht_psp_mat, by = "CLSTR_ID")
+
+#Leaves us with this amount for PCA: 
+length(unique(t_psp_reg$CLSTR_ID))
+length(unique(t_psp_mat$CLSTR_ID))
 ```
 
-#PCA
-Idea here is to calculate some metrics capturing the size class distribution and amount of Hw on each site and combine those with the properties of each site visit (site index, age of leading canopy layer), then use those metrics in a PCA to identify similar pairs of psp - hdm sites.
+#Generate datasets for PCA
 ```{r}
 #Stats we are going to use:
 #DBH all species: mean, median, 25th quantile, 75th quantile, max
 #DBH Hw: mean, median, 25th quantile, 75th quantile, max
 #Basal area of Hw
 #stem density (stems/ha)
-#site index
-#age of the leading trees in the codominant/dominant canopy layers
+
+#Optionally, I've tried integrating
+#Combination 1: site index and age of the leading trees in the 
+#codominant/dominant canopy layers. Problematic because you lose a lot of the
+#psp samples. 
+#Combination 2: mean, median and sd of height of codominant/dominant Hw trees. 
+#This combination retains more psp samples and is aimed at finding pairs of
+#sites where the dimensions of trees are the same. Site characteristics are 
+#emphasized less in this approach (following Déa's suggestion)
+
 #Not using min(dbh) because the minimum is set by the dbh cutoff used in the
-#protocols for measuring both our sites and the psp sites
+#protocols for measuring both hdm sites and the psp sites
 
 #Add basal area variable in the three datasets
 regen_15 <- regen_15 %>% mutate(ba_m2 = pi*((dbh/100)/2)^2)
@@ -555,7 +738,7 @@ mature_comp <- mature_comp %>% mutate(ba_m2 = pi*((dbh/100)/2)^2)
 t_psp_reg <- t_psp_reg %>% mutate(ba_m2 = pi*((DBH/100)/2)^2)
 t_psp_mat <- t_psp_mat %>% mutate(ba_m2 = pi*((DBH/100)/2)^2)
 
-#Calculate the PCA metrics for the hdm data sets
+#Calculate the dbh metrics for the hdm data sets
 reg_dbh_stat <- regen_15 %>% group_by(site_id) %>% summarise(
   n_stem_ha = sum(PHF_TREE), 
   mean_dbh = mean(dbh),
@@ -617,21 +800,22 @@ psp_mat_dbh_stat <- t_psp_mat %>% group_by(CLSTR_ID) %>% summarise(
   ba_m2_hw = sum(ba_m2[SPECIES == "HW"]*PHF_TREE[SPECIES == "HW"])
 )
 
-
 #Rename columns in each dataframe so we can combine hdm and psp datasets
 #Also add a column that identifies the dataset
 reg_dbh_stat <- reg_dbh_stat %>% 
   mutate(site_type = "hdm_r") %>% 
-  unite(col = ID, sep = "_", c("site_id", "site_type"), remove = FALSE)
+  unite(col = ID, sep = "_", c("site_id", "site_type"), remove = FALSE) %>% 
+  rename(orig_id = site_id)
 mat_dbh_stat <- mat_dbh_stat  %>% mutate(site_type = "mature") %>% 
   mutate(site_type = "hdm_m") %>% 
-  unite(col = ID, sep = "_", c("site_id", "site_type"), remove = FALSE)
+  unite(col = ID, sep = "_", c("site_id", "site_type"), remove = FALSE)%>% 
+  rename(orig_id = site_id)
 psp_reg_dbh_stat <- psp_reg_dbh_stat %>% mutate(site_type = "psp_r") %>% 
   unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"), remove = FALSE) %>% 
-  rename(site_id = CLSTR_ID)
+  rename(orig_id = CLSTR_ID)
 psp_mat_dbh_stat <- psp_mat_dbh_stat %>% mutate(site_type = "psp_m") %>% 
   unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"), remove = FALSE) %>% 
-  rename(site_id = CLSTR_ID)
+  rename(orig_id = CLSTR_ID)
 
 #Create two combined dataframes
 #pca_stat_reg: combines hdm regen data and psp data filtered to dbh>4cm
@@ -639,75 +823,68 @@ psp_mat_dbh_stat <- psp_mat_dbh_stat %>% mutate(site_type = "psp_m") %>%
 pca_stat_reg <- rbind(reg_dbh_stat, psp_reg_dbh_stat)
 pca_stat_mat <- rbind(mat_dbh_stat, psp_mat_dbh_stat)
 
-#Add age and site_index data
-si_age_reg_hdm <- si_age_reg_hdm %>% mutate(site_type = "hdm_r") %>% 
-  unite(col = ID, sep = "_", c("site_id", "site_type"))
-si_age_mat_hdm <- si_age_mat_hdm %>% mutate(site_type = "hdm_m") %>% 
-  unite(col = ID, sep = "_", c("site_id", "site_type"))
-si_age_reg_psp <- si_age_psp %>% semi_join(t_psp_reg, by = "CLSTR_ID") %>% 
-  mutate(site_type = "psp_r") %>% 
-  unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"))
-si_age_mat_psp <- si_age_psp %>% semi_join(t_psp_mat, by = "CLSTR_ID") %>% 
-  mutate(site_type = "psp_m") %>% 
-  unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"))
-si_age_reg <- rbind(si_age_reg_hdm, si_age_reg_psp)
-si_age_mat <- rbind(si_age_mat_hdm, si_age_mat_psp)
-pca_stat_reg <- left_join(pca_stat_reg, si_age_reg, by = "ID")
-pca_stat_mat <- left_join(pca_stat_mat, si_age_mat, by = "ID")
+# #Add optional variable combination 1: age and site_index data
+# si_age_reg_hdm <- si_age_reg_hdm %>% mutate(site_type = "hdm_r") %>% 
+#   unite(col = ID, sep = "_", c("site_id", "site_type"))
+# si_age_mat_hdm <- si_age_mat_hdm %>% mutate(site_type = "hdm_m") %>% 
+#   unite(col = ID, sep = "_", c("site_id", "site_type"))
+# si_age_reg_psp <- si_age_psp %>% semi_join(t_psp_reg, by = "CLSTR_ID") %>% 
+#   mutate(site_type = "psp_r") %>% 
+#   unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"))
+# si_age_mat_psp <- si_age_psp %>% semi_join(t_psp_mat, by = "CLSTR_ID") %>% 
+#   mutate(site_type = "psp_m") %>% 
+#   unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"))
+# si_age_reg <- rbind(si_age_reg_hdm, si_age_reg_psp)
+# si_age_mat <- rbind(si_age_mat_hdm, si_age_mat_psp)
+# pca_stat_reg <- left_join(pca_stat_reg, si_age_reg, by = "ID")
+# pca_stat_mat <- left_join(pca_stat_mat, si_age_mat, by = "ID")
 
-#These are the final dataframes (pca_stat_reg) and (pca_stat_mat) that will be
+#Add optional variable combination 2: height metrics of codominant/dominant Hw
+#Combine vri and psp height datasets
+common_vars <- intersect(names(ht_hdm_reg), names(ht_psp_reg))
+ht_hdm_reg <- ht_hdm_reg %>% select(all_of(common_vars))
+ht_psp_reg <- ht_psp_reg %>% select(all_of(common_vars))
+ht_reg <- rbind(ht_hdm_reg, ht_psp_reg)
+
+common_vars <- intersect(names(ht_hdm_mat), names(ht_psp_mat))
+ht_hdm_mat <- ht_hdm_mat %>% select(all_of(common_vars))
+ht_psp_mat <- ht_psp_mat %>% select(all_of(common_vars))
+ht_mat <- rbind(ht_hdm_mat, ht_psp_mat)
+
+#Add height metrics to pca dataframes
+pca_stat_reg <- left_join(pca_stat_reg, ht_reg, by = "ID")
+pca_stat_mat <- left_join(pca_stat_mat, ht_mat, by = "ID")
+
+#The numeric variables in these datasets should be the final set of variables 
+#for PCA. Look at them:
+str(pca_stat_reg)
+str(pca_stat_mat)
+
+#Now do a coarse filter based on DBH to remove psp sites that have no 
+#chance of acting as a pair. We want to remove sites with big trees from
+#comparisons with regen sites. On the flip side, we only want to compare
+#mature sites with sites that have big trees. 
+
+#For regen sites, use the max DBH
+max_dbh_reg <- max(pca_stat_reg$max_dbh[pca_stat_reg$site_type == "hdm_r"])
+max_dbh_reg
+#Filter out sites from the pca dataframe where max dbh >20cm larger than the 
+#max dbh of all regen sites
+pca_stat_reg <- pca_stat_reg %>% filter(max_dbh < (max_dbh_reg + 20))
+#leaves this many sites: 
+dim(pca_stat_reg)
+
+#For mature sites, look at the ranges of a few dbh measures
+range(pca_stat_mat$mean_dbh[pca_stat_mat$site_type == "hdm_m"])
+range(pca_stat_mat$median_dbh[pca_stat_mat$site_type == "hdm_m"])
+range(pca_stat_mat$max_dbh[pca_stat_mat$site_type == "hdm_m"])
+#Filter out sites from pca dataframe where max dbh <60cm
+pca_stat_mat <- pca_stat_mat %>% filter(max_dbh>60)
+#leaves this many sites: 
+dim(pca_stat_mat)
+
+#These are the final dataframes (pca_stat_reg) and (pca_stat_mat) that will
 #feed into the PCAs to identify candidate sites
-
-####REGEN
-#Run a pca to explain variation in dbh stats and find similar sites
-#Check for infinite values
-sum(is.infinite(as.matrix(pca_stat_reg)))
-#Check for missing values
-sum(is.na(as.matrix(pca_stat_reg)))
-#Remove NA values if there are any
-pca_stat_reg <- pca_stat_reg %>% drop_na()
-#Select only nuermic columns
-pca_stat_reg_numeric <- pca_stat_reg %>% select_if(is.numeric)
-
-#Run the pca
-#prcomp() function uses singular value decomposition
-#because scale. = TRUE, this is will produce a correlation biplot
-pca_reg <- prcomp(pca_stat_reg_numeric, scale. = TRUE)
-
-#Inspect the pca object
-pca_reg$sdev #the Eigenvalues (=proportional to the percent of variation explained)
-head(pca_reg$x) #the actual scores for each site on the each axis
-summary(pca_reg) #summary of the percent of variation explained by each axis
-
-#Create a scree plot = shows how much variation is explained by each axis
-scree.data <- tibble(axis = as.integer(1:length(pca_reg$sdev)), 
-                     ev = pca_reg$sdev) %>% 
-  mutate(var = ev^2) %>% mutate(tot_var = sum(var)) %>% 
-  mutate(prop_ex = var/tot_var)
-ggplot(scree.data, aes(x= axis, y=prop_ex)) + geom_col() + 
-  geom_point(col="lightblue") +
-  geom_line(col="lightblue")
-#axis one and two explain 77% of the variation cumulatively
-
-#Add the scores back to the initial dataframe
-pca_stat_reg <- pca_stat_reg %>% bind_cols(pca_reg$x)
-
-#Plot the first two PCA axes. We will use these axes to select potential pairs of sites
-pca_stat_reg <- pca_stat_reg %>% mutate(site_type = as.factor(site_type))
-levels(pca_stat_reg$site_type)
-colors_r <- c("hdm_r" = "#FF0000",
-            "psp_r" = "#00FF0070")  # Green with 80% transparency 
-
-ggplot(pca_stat_reg, aes(x=PC1, y=PC2, color = site_type)) + 
-  geom_point() + scale_color_manual(values = colors_r)
-
-#Plot a covariance biplot to see which variables are driving each axes
-#See Section 12.5 of Zuur et al (2007) for comparison of correlation
-#vs distance biplot
-ggbiplot(pca_reg, scale = 1)
-#Axis 1: driven by DBH stats, # of stems/ha
-#Axis 2 driven by site index and to a lesser extent, other things (max_dbh
-# and age)
 ```
 
 
@@ -742,7 +919,7 @@ scree.data <- tibble(axis = as.integer(1:length(pca_reg$sdev)),
 ggplot(scree.data, aes(x= axis, y=prop_ex)) + geom_col() + 
   geom_point(col="lightblue") +
   geom_line(col="lightblue")
-#axis one and two explain 77% of the variation cumulatively
+#axis one and two explain 86% of the variation cumulatively
 
 #Add the scores back to the initial dataframe
 pca_stat_reg <- pca_stat_reg %>% bind_cols(pca_reg$x)
@@ -759,10 +936,9 @@ ggplot(pca_stat_reg, aes(x=PC1, y=PC2, color = site_type)) +
 #Plot a covariance biplot to see which variables are driving each axes
 #See Section 12.5 of Zuur et al (2007) for comparison of correlation
 #vs distance biplot
-ggbiplot(pca_reg, scale = 1)
+ggbiplot(pca_reg, scale = 1, varname.color = "brown", varname.size = 2)
 #Axis 1: driven by DBH stats, # of stems/ha
-#Axis 2 driven by site index and to a lesser extent, other things (max_dbh
-# and age)
+#Axis 2 driven by # stems/ha
 
 ####################PART 2: Identify candidate sites based on PCA Results
 #Add bec zone to the pca_stat dataframe
@@ -772,44 +948,25 @@ v_psp_reg <- v_psp %>% semi_join(t_psp_reg, by="CLSTR_ID")
 v_psp_reg <- v_psp_reg %>% 
   left_join(select(s_psp, SITE_IDENTIFIER, bec), by="SITE_IDENTIFIER")
 #Create a dataframe that has bec info for both psp and hdm sites
-v_psp_reg <- v_psp_reg %>% mutate(site_id = CLSTR_ID)
-bec <- rbind(select(site, site_id, bec), select(v_psp_reg, site_id, bec))
+v_psp_reg_bec <- v_psp_reg %>% select(CLSTR_ID, bec) %>% 
+  rename(orig_id = CLSTR_ID)
+site_reg_bec <- site %>% select(site_id, bec) %>% 
+  rename(orig_id = site_id)
+bec <- rbind(v_psp_reg_bec, site_reg_bec)
 #Join this to the pca.stat dataframe
-pca_stat_reg <- left_join(pca_stat_reg, bec, by = "site_id")
+pca_stat_reg <- left_join(pca_stat_reg, bec, by = "orig_id")
 
 #Plot the PCA plot again, this time coloured by bec
 pca_stat_reg <- pca_stat_reg %>% 
-  mutate(site_id_lab = if_else(site_type == "hdm_r", site_id, NA))
+  mutate(site_id_lab = if_else(site_type == "hdm_r", orig_id, NA))
 ggplot(pca_stat_reg, aes(x=PC1, y=PC2, shape = site_type, 
                          color = bec, label = site_id_lab)) + 
   geom_point() + geom_text()
 #Sites without any close reference psp plots:
-#CWHdm- sites (mk_1, mk_3, mi_2), cluster in bottom left
+#CWHdm- sites (mk_1, mk_3, mi_1, mi_2), cluster in bottom left
 #CWHvm2 site (mk_2)
 
-#First, filter the pca.stat dataframe to just candidate psp sites
-pca.stat.psp <- pca.stat %>% filter(site_type=="psp")
-#Split this dataframe by bec zone
-#Gives list of dataframes in order of the bec factor
-levels(pca.stat$bec) #Order of dataframes
-pca.stat.psp <- pca.stat.psp %>% group_split(bec)
-#Rename the dataframes by bec zone
-names(pca.stat.psp) <- c(levels(pca.stat$bec))
-
-#Calculate difference in PCA axis scores, weighted by the amount of variation
-#they explain, for each site component
-#Add weighting variaable for first two axes = percent of variation explained
-pca.stat <- pca.stat %>% mutate(PC1_wt = scree.data$prop_ex[1],
-                                PC2_wt = scree.data$prop_ex[2])
-pca.stat <- pca.stat %>% 
-  mutate(cr_1_sim = abs(PC1 - PC1[ID == "cr_1, regen"])*PC1_wt + 
-           abs(PC2 - PC2[ID == "cr_1, regen"])*PC2_wt)
-cr1r_cand <- pca.stat %>% filter(bec == bec[ID == "cr_1, regen"]) %>%
-  arrange(cr_1_sim) %>% 
-  filter(ID == "cr_1, regen" | site_type =="psp") %>% 
-  slice_head(n=4)
-
-#Try to automate this in a loop
+############ Loops to identify paired hdm-psp sites ###########
 #With help from ChatGPT
 
 #Add weighting variaable for first two axes = percent of variation explained
@@ -820,26 +977,48 @@ pca_stat_reg <- pca_stat_reg %>% mutate(PC1_wt = scree.data$prop_ex[1],
 hdm_r_ids <- pca_stat_reg %>% 
   filter(site_type == "hdm_r") %>% 
   pull(ID)
+
 #Create an empty list to store results
 results <- list()
 
+####Loop 1: hdm-psp pairs within bec zones
 for (i in hdm_r_ids) {
 #Create a new variable for each hdm site component that calculates the
-#difference in PCA axis scores between it and the psp sites. Weight each PCA axis by the amount of variation it explains. 
+#difference in PCA axis scores between it and the psp sites. 
+#Weight each PCA axis by the amount of variation it explains. 
 pca_stat_reg <- pca_stat_reg %>% 
   mutate(!!i := abs(PC1 - PC1[ID == i])*PC1_wt + 
            abs(PC2 - PC2[ID == i])*PC2_wt)
 
-#Create a sub dataframe that contains the target hdm site and the three psp
-#sites that are in the same bec subzone and have the closest PCA scores
-cand <- pca_stat_reg %>% filter(bec == bec[ID == i]) %>%
+#Create an object that is just the hdm site in question
+hdm_site <- pca_stat_reg %>% 
+  filter(ID == i) %>% mutate(restr ="hdm_site")
+
+#Create a sub dataframe that contains  the three psp sites that are:
+#in the same bec subzone 
+#have a greater max hw dbh
+#and have the closest PCA scores
+cand_1 <- pca_stat_reg %>% 
+  filter(bec == bec[ID == i] & max_hw_dbh >= max_hw_dbh[ID == i]) %>% 
   arrange(!!sym(i)) %>% 
   filter(ID == i | site_type =="psp_r") %>% 
-  slice_head(n=4)
+  slice(2:4) %>% 
+  mutate(restr ="w_bec")
+
+#Create a second sub dataframe with the same criteria but this time relaxing
+#the bec requirement
+#Filter out psp sites already identified as top candidates from selecting from
+#within bec zones
+cand_2 <- pca_stat_reg %>% 
+  filter(max_hw_dbh >= max_hw_dbh[ID == i]) %>% 
+  arrange(!!sym(i)) %>% 
+  filter(ID == i | (site_type =="psp_r" & !ID %in% cand_1$ID)) %>% 
+  slice(2:4) %>% 
+  mutate(restr ="wo_bec")
 
 #Store each sub dataframe in list. Name each dataframe with the target hdm site
 #ID
-results[[i]] <- cand
+results[[i]] <- rbind(hdm_site, cand_1, cand_2)
 }
 
 #Combine the output into a single dataframe
@@ -848,39 +1027,389 @@ reg_candidates <- bind_rows(results, .id = "hdm_site")
 #Get a sense of the range of PCA score differences - a first indicator of 
 #whether hdm sites are equally or unequally well matched with psp sites
 reg_candidates <- reg_candidates %>% 
-  pivot_longer(cols = cr_1_hdm_r:ph_3_hdm_r, names_to = "sim_site", 
+  pivot_longer(cols = all_of(hdm_r_ids), names_to = "sim_site", 
                values_to = "pca_diff") %>% 
   filter(hdm_site == sim_site)
 summary(reg_candidates$pca_diff)
-ggplot(reg_candidates, aes(x=bec, y=pca_diff, colour = bec)) + 
+
+#Look at PCA differences for psp pairs restricted to being in the same
+#bec zone
+ggplot(filter(reg_candidates, restr == "w_bec"), 
+       aes(x=bec, y=pca_diff, colour = bec)) + 
   geom_point()
-#Sites in the CWHdm- and one site in vm2 (mk_2) have disproportionately 
-#higher values
+#Sites in the CWHdm- have disproportionately higher values. These are the sites
+#where we might have to relax bec restriction
 
 #Create a single dataset of tree level dbh data from hdm and psp datasets
-#First, create variable to identify site and rename variables so they are
+#Create ID variable (but also keep IDs from respective dataset)
+#Rename variables so they are consistent between datasets
 #shared across the datasets
 regen_15 <- regen_15 %>% mutate(site_type = "hdm_r") %>% 
-  unite(col = ID, sep = "_", c("site_id", "site_type"), remove = FALSE)
+  unite(col = ID, sep = "_", c("site_id", "site_type"), remove = FALSE) %>% 
+  rename(orig_id = "site_id")
 t_psp_reg <- t_psp_reg %>% mutate(site_type = "psp_r") %>% 
   unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"), remove = FALSE) %>% 
-  rename(dbh = DBH)
+  rename(orig_id = CLSTR_ID, dbh = DBH, spp = SPECIES)
 #Bind the datasets
-dbh_reg <- rbind(select(regen_15, ID, PHF_TREE, dbh, dbh_bin),
-                 select(t_psp_reg, ID, PHF_TREE, dbh, dbh_bin))
+dbh_reg <- rbind(select(regen_15, ID, orig_id, spp, PHF_TREE, dbh, dbh_bin),
+                 select(t_psp_reg, ID, orig_id, spp, PHF_TREE, dbh, dbh_bin))
+
+#Create a binary variable for whether a tree is a Hw
+dbh_reg <- dbh_reg %>% 
+  mutate(hw = if_else(spp %in% c("Hw", "HW"), "Hw", "non-Hw"))
+
+#Add bec zone and then create a faceting variable that combines orig_id and bec 
+#to have at the head of each plot 
+dbh_reg <- left_join(dbh_reg, select(pca_stat_reg, ID, bec), 
+                     by = "ID")
+dbh_reg <- dbh_reg %>% 
+  unite(col = id_bec, sep = ";", c("orig_id", "bec"), remove = FALSE)
 
 #Summarize the number of trees in each dbh bin
-dbh_reg_bin <- dbh_reg %>% group_by(ID, dbh_bin) %>% 
+dbh_reg_bin <- dbh_reg %>% group_by(ID, id_bec, hw, dbh_bin) %>% 
   summarise(n_trees_ha = sum(PHF_TREE))
 
-#Plot their size class distributions
-#Each set of sites is represented by four rows. First row is the hdm site, 
-#next three are the psp sites with the smallest PCA difference on the first 
-#two axes. Cycle through differentsets by calling different sets of 4 rows 
-#from reg_candidates.
-ggplot(filter(dbh_reg_bin, ID %in% (reg_candidates$ID[41:44])),
-       aes(x=dbh_bin, y=n_trees_ha)) + 
+#Plot the size class distributions of candidate sites and their matched
+#hdm site. 
+#To look the candidate sites for a given hdm site, subset size class 
+#dataframe(dbh_reg_bin) by ids in the candidate site dataframe 
+#(reg_candidates). The column "hdm_site" identifies the hdm site the candidate 
+#psp sites are being compared to. Use this column to pull a vector of IDs,
+#then filter dbh_reg_bin by those IDs. To move to next site, just change
+#ID of hdm site in first line below. The hdm site IDs are in the vector 
+#hdm_r_ids
+#cr_1: Good. 1 good and 1 okay psp pair bec, another good in vm1
+#cr_2: Okay. 1 good within bec, another okay in vm1. This site thinned, which 
+#is likely the cause for differences. 
+#cr_3: Okay, 1 or 2 potentials within bec zone. 
+#mi_1: Good, two reasonable candidates within bec zone. 
+#mi_2: Okay, 1 reasonable bec in vm1 and one in xm2. 
+#mk_1: Okay, outside of bec there is 1 reasonable site in xm2 and 1 in vm2
+#mk_2: Okay, outside of bec there is 1 reasonable site in xm2 and one in vm1
+#mk_3: Okay, outside of bec, there is 1 reasoanble site in vm1 and one in xm2
+#ph_1: Good: 1 reasonable site in bec and one in vm2
+#ph_2: Okay: 1 reasonable site in bec and one in vm2
+#ph_3: Good: A couple pretty good matches in bec
+hdm_r_ids
+focal_hdm_site <- reg_candidates %>% filter(hdm_site == hdm_r_ids[11])
+plot_reg <- dbh_reg_bin %>% filter(ID %in% focal_hdm_site$ID)
+plot_reg <- left_join(plot_reg, 
+                      select(focal_hdm_site, ID, restr),
+                      by = "ID")
+ggplot(plot_reg,
+       aes(x=dbh_bin, y=n_trees_ha, fill = hw)) + 
   geom_bar(position = "stack", stat = "identity") +
-  facet_wrap(~ID)
+  facet_wrap(restr~id_bec)
+
+#Plot dbh-height relationships for psp sites and hdm sites
+#Create a single dataset of tree level dbh-ht data from hdm and psp datasets
+
+# #Filter trees dataset to those with height recorded
+# ht_hdm <- trees %>% filter(!is.na(height_m))
+# 
+# #Read in dataset with extra heights
+# ht_hdm_extra <- read_csv(here("./data/cleaned/regen_extra_ht_c.csv"))
+# summary(ht_hdm_extra)
+# 
+# #Merge the two datasets
+# #Create variable in ht_hdm_extra that identifies it as all regen trees
+# ht_hdm_extra <- ht_hdm_extra %>% mutate(tree_type = "regen")
+# #Only keep variables present in both
+# ht_comm_var <- intersect(names(ht_hdm), names(ht_hdm_extra))
+# ht_hdm <- ht_hdm %>% select(all_of(ht_comm_var))
+# ht_hdm_extra <- ht_hdm_extra %>% select(all_of(ht_comm_var))
+# #Bind datasets
+# ht_hdm <- rbind(ht_hdm, ht_hdm_extra)
+# 
+# #Filter out observations with missing dbh and to just regen
+# t_ht_hdm_reg <- ht_hdm %>% filter(!is.na(dbh) & tree_type == "regen")
+# 
+# #Then create an aligned dataset from psp data
+# t_ht_psp_reg <- t_psp %>% 
+#   filter(SPECIES == "HW" &
+#            CR_CL %in% c("C", "D") &
+#            HEIGHT_SOURCE == "Field measured")
+# 
+# t_ht_hdm_reg <- t_ht_hdm_reg %>% 
+#   mutate(site_type = "hdm_r") %>% 
+#   unite(col = ID, sep = "_", c("site_id", "site_type"), remove = FALSE)
+# t_ht_psp_reg <- t_ht_psp_reg %>% mutate(site_type = "psp_r") %>% 
+#   unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"), remove = FALSE) %>% 
+#   rename(dbh = DBH, height_m = HEIGHT)
+# 
+# #bind the two datasets
+# t_ht_reg <- rbind(select(t_ht_hdm_reg, ID, dbh, height_m),
+#                  select(t_ht_psp_reg, ID, dbh, height_m))
+# 
+# ggplot(filter(t_ht_reg, ID %in% (reg_candidates$ID[13:16])),
+#        aes(x=dbh, y=height_m, color = ID)) + 
+#   geom_point()
+```
+
+#Mature candidate sites
+```{r}
+################ PART 1: Run the PCA
+#Run a pca to explain variation in dbh stats and find similar sites
+#Check for infinite values
+sum(is.infinite(as.matrix(pca_stat_mat)))
+#Check for missing values
+sum(is.na(as.matrix(pca_stat_mat)))
+#Remove NA values if there are any
+pca_stat_mat <- pca_stat_mat %>% drop_na()
+#Select only nuermic columns
+pca_stat_mat_numeric <- pca_stat_mat %>% select_if(is.numeric)
+
+#Run the pca
+#prcomp() function uses singular value decomposition
+#because scale. = TRUE, this is will produce a correlation biplot
+pca_mat <- prcomp(pca_stat_mat_numeric, scale. = TRUE)
+
+#Inspect the pca object
+pca_mat$sdev #the Eigenvalues (=proportional to the percent of variation explained)
+head(pca_mat$x) #the actual scores for each site on the each axis
+summary(pca_mat) #summary of the percent of variation explained by each axis
+
+#Create a scree plot = shows how much variation is explained by each axis
+scree.data <- tibble(axis = as.integer(1:length(pca_mat$sdev)), 
+                     ev = pca_mat$sdev) %>% 
+  mutate(var = ev^2) %>% mutate(tot_var = sum(var)) %>% 
+  mutate(prop_ex = var/tot_var)
+ggplot(scree.data, aes(x= axis, y=prop_ex)) + geom_col() + 
+  geom_point(col="lightblue") +
+  geom_line(col="lightblue")
+#axis one and two explain 74% of the variation cumulatively
+
+#Add the scores back to the initial dataframe
+pca_stat_mat <- pca_stat_mat %>% bind_cols(pca_mat$x)
+
+#Plot the first two PCA axes. We will use these axes to select potential pairs of sites
+pca_stat_mat <- pca_stat_mat %>% mutate(site_type = as.factor(site_type))
+levels(pca_stat_mat$site_type)
+colors_r <- c("hdm_m" = "blue",
+            "psp_m" = "#00FF0070")  # Green with 80% transparency 
+
+ggplot(pca_stat_mat, aes(x=PC1, y=PC2, color = site_type)) + 
+  geom_point() + scale_color_manual(values = colors_r)
+
+#Plot a covariance biplot to see which variables are driving each axes
+#See Section 12.5 of Zuur et al (2007) for comparison of correlation
+#vs distance biplot
+ggbiplot(pca_mat, scale = 1, varname.color = "brown", varname.size = 2)
+#Axis 1: driven by DBH stats, # of stems/ha
+#Axis 2 driven by basal area of hw, max dbh and standard deviation of 
+#codominant, dominant hw height
+
+####################PART 2: Identify candidate sites based on PCA Results
+#Add bec zone to the pca_stat dataframe
+#Filter visit dataframe to remaining sites
+v_psp_mat <- v_psp %>% semi_join(t_psp_mat, by="CLSTR_ID") 
+#Add bec variable from site level dataset
+v_psp_mat <- v_psp_mat %>% 
+  left_join(select(s_psp, SITE_IDENTIFIER, bec), by="SITE_IDENTIFIER")
+#Create a dataframe that has bec info for both psp and hdm sites
+v_psp_mat_bec <- v_psp_mat %>% select(CLSTR_ID, bec) %>% 
+  rename(orig_id = CLSTR_ID)
+site_mat_bec <- site %>% select(site_id, bec) %>% 
+  rename(orig_id = site_id)
+bec_mat <- rbind(v_psp_mat_bec, site_mat_bec)
+#Join this to the pca.stat dataframe
+pca_stat_mat <- left_join(pca_stat_mat, bec_mat, by = "orig_id")
+
+#Plot the PCA plot again, this time coloured by bec
+pca_stat_mat <- pca_stat_mat %>% 
+  mutate(site_id_lab = if_else(site_type == "hdm_m", orig_id, NA))
+ggplot(pca_stat_mat, aes(x=PC1, y=PC2, shape = site_type, 
+                         color = bec, label = site_id_lab)) + 
+  geom_point() + geom_text()
+#Sites without any close reference psp plots:
+#ph_2 (big trees?), ph_3 (rocky bluff?)
+#mk_1 (also big trees?)
+#mk_2 (not many vm2 sites)
+
+############ Loops to identify paired hdm-psp sites ###########
+#With help from ChatGPT
+
+#Add weighting variaable for first two axes = percent of variation explained
+pca_stat_mat <- pca_stat_mat %>% mutate(PC1_wt = scree.data$prop_ex[1],
+                                PC2_wt = scree.data$prop_ex[2])
+
+#Save the column of ids of hdm sites
+hdm_m_ids <- pca_stat_mat %>% 
+  filter(site_type == "hdm_m") %>% 
+  pull(ID)
+
+#Create an empty list to store results
+results <- list()
+
+####Loop 1: hdm-psp pairs within bec zones
+for (i in hdm_m_ids) {
+#Create a new variable for each hdm site component that calculates the
+#difference in PCA axis scores between it and the psp sites. 
+#Weight each PCA axis by the amount of variation it explains. 
+pca_stat_mat <- pca_stat_mat %>% 
+  mutate(!!i := abs(PC1 - PC1[ID == i])*PC1_wt + 
+           abs(PC2 - PC2[ID == i])*PC2_wt)
+
+#Create an object that is just the hdm site in question
+hdm_site <- pca_stat_mat %>% 
+  filter(ID == i) %>% mutate(restr ="hdm_site")
+
+#Create a sub dataframe that contains  the three psp sites that are:
+#in the same bec subzone 
+#have a greater max hw dbh
+#and have the closest PCA scores
+cand_1 <- pca_stat_mat %>% 
+  filter(bec == bec[ID == i] & max_hw_dbh >= max_hw_dbh[ID == i]) %>% 
+  arrange(!!sym(i)) %>% 
+  filter(ID == i | site_type =="psp_m") %>% 
+  slice(2:4) %>% 
+  mutate(restr ="w_bec")
+
+#Create a second sub dataframe with the same criteria but this time relaxing
+#the bec requirement
+#Filter out psp sites already identified as top candidates from selecting from
+#within bec zones
+cand_2 <- pca_stat_mat %>% 
+  filter(max_hw_dbh >= max_hw_dbh[ID == i]) %>% 
+  arrange(!!sym(i)) %>% 
+  filter(ID == i | (site_type =="psp_m" & !ID %in% cand_1$ID)) %>% 
+  slice(2:4) %>% 
+  mutate(restr ="wo_bec")
+
+#Store each sub dataframe in list. Name each dataframe with the target hdm site
+#ID
+results[[i]] <- rbind(hdm_site, cand_1, cand_2)
+}
+
+#Combine the output into a single dataframe
+mat_candidates <- bind_rows(results, .id = "hdm_site")
+
+#Get a sense of the range of PCA score differences - a first indicator of 
+#whether hdm sites are equally or unequally well matched with psp sites
+mat_candidates <- mat_candidates %>% 
+  pivot_longer(cols = all_of(hdm_m_ids), names_to = "sim_site", 
+               values_to = "pca_diff") %>% 
+  filter(hdm_site == sim_site)
+summary(mat_candidates$pca_diff)
+
+#Look at PCA differences for psp pairs restricted to being in the same
+#bec zone
+ggplot(filter(mat_candidates, restr == "w_bec"), 
+       aes(x=bec, y=pca_diff, colour = bec)) + 
+  geom_point()
+
+#Sites in the CWHdm- have somewhat higher differences. vm2 site (mk_2) has 
+#highest differences (maybe just because there isn't many psp sites to 
+#compare against?)
+
+#Create a single dataset of tree level dbh data from hdm and psp datasets
+#Create ID variable (but also keep IDs from respective dataset)
+#Rename variables so they are consistent between datasets
+#shared across the datasets
+mature_comp <- mature_comp %>% mutate(site_type = "hdm_m") %>% 
+  unite(col = ID, sep = "_", c("site_id", "site_type"), remove = FALSE) %>% 
+  rename(orig_id = "site_id")
+t_psp_mat <- t_psp_mat %>% mutate(site_type = "psp_m") %>% 
+  unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"), remove = FALSE) %>% 
+  rename(orig_id = CLSTR_ID, dbh = DBH, spp = SPECIES)
+#Bind the datasets
+dbh_mat <- rbind(select(mature_comp, ID, orig_id, spp, PHF_TREE, dbh, dbh_bin),
+                 select(t_psp_mat, ID, orig_id, spp, PHF_TREE, dbh, dbh_bin))
+
+#Create a binary variable for whether a tree is a Hw
+dbh_mat <- dbh_mat %>% 
+  mutate(hw = if_else(spp %in% c("Hw", "HW"), "Hw", "non-Hw"))
+
+#Add bec zone and then create a faceting variable that combines orig_id and bec 
+#to have at the head of each plot 
+dbh_mat <- left_join(dbh_mat, select(pca_stat_mat, ID, bec), 
+                     by = "ID")
+dbh_mat <- dbh_mat %>% 
+  unite(col = id_bec, sep = ";", c("orig_id", "bec"), remove = FALSE)
+
+#Summarize the number of trees in each dbh bin
+dbh_mat_bin <- dbh_mat %>% group_by(ID, id_bec, hw, dbh_bin) %>% 
+  summarise(n_trees_ha = sum(PHF_TREE))
+
+#Plot the size class distributions of candidate sites and their matched
+#hdm site. 
+#To look the candidate sites for a given hdm site, subset size class 
+#dataframe(dbh_reg_bin) by ids in the candidate site dataframe 
+#(mat_candidates). The column "hdm_site" identifies the hdm site the candidate 
+#psp sites are being compared to. Use this column to pull a vector of IDs,
+#then filter dbh_reg_bin by those IDs. To move to next site, just change
+#ID of hdm site in first line below. The hdm site IDs are in the vector 
+#hdm_r_ids
+#cr_1: Okay. One reasonable site in bec. One outside in vm1. 
+#cr_2: Good. Two reasonable ons wihtin bec. One good match in vm1. 
+#cr_3: Okay. Some okay matches in bec and one good one in vm1.  
+#mi_1: Not awesome. Only one candidate within bec zone. Others likely filtered 
+#out by criteria requiring max hw dbh being greater than that of hdm site.
+#mi_2: Okay. One reasonable site within bec and another in xm2. 
+#mk_1: PRetty good. This site has a clear change in timber type in mature 
+#component, which makes its dbh distribution hard to match. 
+#mk_2: Okay. Site within bec (vm2) not great. cm1 and xm2 site that are 
+#reasonable. 
+#mk_3: Good, a couple good matches within bec. 
+#ph_1: Okay. Sites within bec (vm1) are okay matches but lack continuous 
+#coverage in upper dbh classes. 
+#ph_2: Okay. No obvious matches but some reasonable matches in and outside
+#Of bec. 
+#ph_3: Okay. One close-ish site in bec (vm1). WOnder if this is the right bec 
+#for this site?
+hdm_m_ids
+focal_hdm_site <- mat_candidates %>% filter(hdm_site == hdm_m_ids[11])
+plot_mat <- dbh_mat_bin %>% filter(ID %in% focal_hdm_site$ID)
+plot_mat <- left_join(plot_mat, 
+                      select(focal_hdm_site, ID, restr),
+                      by = "ID")
+ggplot(plot_mat,
+       aes(x=dbh_bin, y=n_trees_ha, fill = hw)) + 
+  geom_bar(position = "stack", stat = "identity") +
+  facet_wrap(restr~id_bec)
+
+#Plot dbh-height relationships for psp sites and hdm sites
+#Create a single dataset of tree level dbh-ht data from hdm and psp datasets
+
+# #Filter trees dataset to those with height recorded
+# ht_hdm <- trees %>% filter(!is.na(height_m))
+# 
+# #Read in dataset with extra heights
+# ht_hdm_extra <- read_csv(here("./data/cleaned/regen_extra_ht_c.csv"))
+# summary(ht_hdm_extra)
+# 
+# #Merge the two datasets
+# #Create variable in ht_hdm_extra that identifies it as all regen trees
+# ht_hdm_extra <- ht_hdm_extra %>% mutate(tree_type = "regen")
+# #Only keep variables present in both
+# ht_comm_var <- intersect(names(ht_hdm), names(ht_hdm_extra))
+# ht_hdm <- ht_hdm %>% select(all_of(ht_comm_var))
+# ht_hdm_extra <- ht_hdm_extra %>% select(all_of(ht_comm_var))
+# #Bind datasets
+# ht_hdm <- rbind(ht_hdm, ht_hdm_extra)
+# 
+# #Filter out observations with missing dbh and to just regen
+# t_ht_hdm_reg <- ht_hdm %>% filter(!is.na(dbh) & tree_type == "regen")
+# 
+# #Then create an aligned dataset from psp data
+# t_ht_psp_reg <- t_psp %>% 
+#   filter(SPECIES == "HW" &
+#            CR_CL %in% c("C", "D") &
+#            HEIGHT_SOURCE == "Field measured")
+# 
+# t_ht_hdm_reg <- t_ht_hdm_reg %>% 
+#   mutate(site_type = "hdm_r") %>% 
+#   unite(col = ID, sep = "_", c("site_id", "site_type"), remove = FALSE)
+# t_ht_psp_reg <- t_ht_psp_reg %>% mutate(site_type = "psp_r") %>% 
+#   unite(col = ID, sep = "_", c("CLSTR_ID", "site_type"), remove = FALSE) %>% 
+#   rename(dbh = DBH, height_m = HEIGHT)
+# 
+# #bind the two datasets
+# t_ht_reg <- rbind(select(t_ht_hdm_reg, ID, dbh, height_m),
+#                  select(t_ht_psp_reg, ID, dbh, height_m))
+# 
+# ggplot(filter(t_ht_reg, ID %in% (reg_candidates$ID[13:16])),
+#        aes(x=dbh, y=height_m, color = ID)) + 
+#   geom_point()
 ```
 
