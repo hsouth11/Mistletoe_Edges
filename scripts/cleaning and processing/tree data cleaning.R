@@ -1,8 +1,7 @@
 # Regen and Mature Tree Data Cleaning
-# Updated: 1 May 2024
-
-# need to update stem_pa to be broom_pa (7 May 2024)
-
+# Author: Hanno Southam
+# Date updated: 21 Aug 2024
+# Date last ran: 21 Aug 2024
 rm(list=ls(all=TRUE))
 
 # Load packages
@@ -39,7 +38,7 @@ dim(regen); dim(mature) #682 mature trees, 1051 regen trees
 # dmr_l, dmr_m, dmr_u: dwarm mistletoe rating for lower, middle and upper LIVE crown respectively, 0 = none, 1 = <50% primary branches infected, 2 = >50% branches infected
 # broom_pa: presence or absence of brooms, Y = present, N = absent, - = not applicable; factor
 # broom_pos: position of brooms, 1 = lower live crown (lc), 2 = middle lc, 3 = upper lc, 4 = lower and middle lc, 5 = lower and upper lc, 6 = middle and upper lc, 7 = all lc, 8 = below lc, (-) not applicable
-# broom_pa: presence or absence of stem infection, Y = present, N = absent, - = not applicable; only recorded for live trees; factor
+# stem_pa: presence or absence of stem infection, Y = present, N = absent, - = not applicable; only recorded for live trees; factor
 # crown_class: codominant (C), dominant (D), intermediate(I), suppressed (S), not applicable (-); factor
 # dam_agent_1 and dam_agent_2: damage agents; characters (for now, not planning on doing anything with this data)
 # path_ind_1 and path_ind_2: pathological indicators; characters (for now, not planning on doing anything with this data)
@@ -265,6 +264,41 @@ trees <- trees %>%
 
 trees %>% select(dmr_f) %>% table(useNA = "ifany") #Looks good!
 
+############################################
+########## Cleaning HDM variables ########## 
+#The protocol we used to measure height differed from the provincial ground
+#sampling procedures. We added height to accommodate the apical droop of Hw. 
+#Prov procedures measure to top of apical droop. 
+#Correct by subtracting standard amount for each component/crown class.
+#Intermediate/suppressed crown classes only measured at one site (cr_3), 
+#but still correct them. 
+#Mature: if codominant/dominant = 1m; intermediate = 0.75, suppressed = 0.5m
+#Regen: codominant = 0.5m; intermediate = 0.4m, suppressed = 0.3m
+trees <- trees %>% 
+  mutate(ht_corr = 
+           case_when(tree_type == "regen" & crown_class %in% c("D", "C") ~
+                       height_m - 0.5,
+                     tree_type == "regen" & crown_class == "I" ~ 
+                       height_m - 0.4,
+                     tree_type == "regen" & crown_class =="S" ~ 
+                       height_m - 0.3,
+                     tree_type == "mature" & crown_class %in% c("D", "C") ~
+                       height_m - 1,
+                     tree_type == "mature" & crown_class =="I" ~
+                       height_m - 0.75,
+                     tree_type == "mature" & crown_class == "S" ~
+                       height_m - 0.5))
+
+#Check this worked correctly.
+#Use site cr_3 where a sample of all crown classes were measured as a reference
+#Check length of non-NA values to ensure no data was lost
+sum(!is.na(trees$height_m))
+sum(!is.na(trees$ht_corr))
+trees %>% filter(!is.na(height_m), site_id == "cr_3", tree_type == "regen") %>% 
+  select(tree_type, crown_class, height_m, ht_corr) 
+trees %>% filter(!is.na(height_m), site_id == "cr_3", tree_type == "mature") %>% 
+  select(tree_type, crown_class, height_m, ht_corr) 
+############################################
 ########## Export data ##########
 # As an R object
 saveRDS(trees, "./data/cleaned/trees.RDS")
