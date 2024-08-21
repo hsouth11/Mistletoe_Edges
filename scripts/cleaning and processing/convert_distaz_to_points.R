@@ -1,7 +1,8 @@
-# Converting tree position values to georeferenced spatial features
-# Original: September 14, 2023 - Liam Irwin (liamakirwin@gmail.com)
-# For Hanno
-# Updated: May 2024, by Hanno Southam (hannosoutham@gmail.com)
+#Converting tree position values to georeferenced spatial features
+#Original: September 14, 2023 - Liam Irwin (liamakirwin@gmail.com)
+#Adapted by: Hanno Southam (hannosoutham@gmail.com) 
+#Last updated: 21 Aug 2024
+#Last ran: 21 Aug 2024
 
 rm(list=ls(all=TRUE))
 
@@ -10,7 +11,8 @@ library(dplyr)
 library(tidyverse)
 library(tmap)
 
-#### PART 1: Define function to create XY coordinates from distance and azimuth reading from trimble point
+#### PART 1: Define function to create XY coordinates from distance and azimuth 
+#### reading from trimble point
 #azimuth = azimuth from centre point in degrees
 #distance = distance from center point in m
 #xcenter/ycenter = X and Y coordinates of trimble reference point
@@ -47,60 +49,88 @@ polar_to_XY <- function(azimuth,
   return(tree_locations)
 }
 
-# Replace coordinate system with whatever EPSG code you're using (NAD1983/BC Albers=3005; WGS84 = 4326). Check https://epsg.io/ for more info on what your code is
+#Replace coordinate system with whatever EPSG code you're using (NAD1983/BC Albers=3005; WGS84 = 4326). Check https://epsg.io/ for more info on what your code is
 crs <- 3005
 
 ##############################################################
 ##############################################################
 #### PART 2: Prepare Trimble Points
-# Read in trimble gps points (Trimble Locations)
+#Read in trimble gps points (Trimble Locations)
 trimb <- read_csv('./data/cleaned/hdm_trimbpoints.csv')
 summary(trimb)
 
-# Make site_id and pt_type factors
+#Make site_id and pt_type factors
 trimb <- trimb %>% mutate(across(c(site_id, pt_type), ~ as.factor(.)))
 trimb$pt_id <- as.numeric(trimb$pt_id) #make point id a numeric
 levels(trimb$site_id)
 
-# Make the points a spatial object (simple features sf object from sf package). CRS = WGS84
+#Add a column that identifies that these are all "raw" gps points (i.e. they
+#haven't been generated based off their relationship to another point
+#like the points we create in this script are)
+trimb <- trimb %>% mutate(origin = "diff gps")
+
+#Make the points a spatial object (simple features sf object from sf package). 
+#CRS = WGS84
 trimb <- st_as_sf(trimb, coords = c("Longitude", "Latitude"), crs=4326)
 st_crs(trimb)$proj4string #check CRS
 
-# Reproject to NAD1983/BC Albers because this CRS is a projected system with units in m
+# Reproject to NAD1983/BC Albers because this CRS is a projected system 
+# with units in m
 # Liam's function below uses meters
 ?st_transform()
 trimb <- st_transform(trimb, crs = 3005)
 st_crs(trimb)$proj4string #check CRS
 
-#Plot to look for outliers:
+#Graph to look for outliers:
+#Remove reference tree points because they make scale too small
+trimb_grf <- trimb %>% filter(pt_type != "ref tree") %>% 
+  mutate(pt_type = as.character(pt_type)) %>% 
+  mutate(pt_type = as.factor(pt_type))
+#Plot
 tmap_mode("plot")
-tm_shape(trimb, is.master = TRUE) + tm_symbols(col="pt_type") + tm_text("pt_id") +
-  tm_facets(by="site_id")
-#Plan: 
-# -use transect end points to define transect start points because they are more consistent
-# -exception: (1) middle transect at mk_1 (transect_id = 101) and (2) transect 250 at ph_2
+tm_shape(trimb_grf, is.master = TRUE) + tm_symbols(col="pt_type") + 
+  tm_text("pt_id") + tm_facets(by="site_id")
 
-# Convert working object back to a basic dataframe. Extract the new UTM coordinates to their own columns. 
-utm_coords <- data.frame((st_coordinates(trimb))) #extract the coordinates from the geometry component of the trimb object
-trimb <- trimb %>% mutate(plot_x_utm = utm_coords$X, plot_y_utm = utm_coords$Y) %>% st_drop_geometry()
+#PLAN: 
+#Use transect end points to define transect start points because they are more 
+#because they are more consistent. Use stem mapping points for mature trees. 
+#Exceptions
+# (1) transect 101 at mk_1
+# (2) transect 250 at ph_2
+# Both of these transect ends seem weird
+# (3) stem map plot 20 at mi_2. Could not relocate this plot so stem mapped
+# from edge end point (ed.2.mi2)
 
-# Define transect start points based on transect end points
-# Read in transect data
+#Convert working object back to a basic dataframe. 
+#Extract the new UTM coordinates to their own columns. 
+utm_coords <- data.frame((st_coordinates(trimb))) 
+trimb <- trimb %>% 
+  mutate(plot_x_utm = utm_coords$X, plot_y_utm = utm_coords$Y) %>% 
+  st_drop_geometry()
+
+#TASK 1: Define transect start points based on transect end points
+#Read in transect data
 transect <- read_csv('./data/cleaned/transect data_c.csv')
 summary(transect)
 
-# Extract transect start points and transect end points
+#Extract transect start points and transect end points
 ts <- trimb %>% filter(pt_type=="tran start")
 te <- trimb %>% filter(pt_type=="tran end")
 
 #Join transect end coordinates to transect start observations
-ts <- left_join(ts, select(te, pt_id, plot_x_utm, plot_y_utm), by = c("pt_id"="pt_id")) %>% rename(end_X=plot_x_utm.y, end_Y=plot_y_utm.y)
+ts <- left_join(ts, select(te, pt_id, plot_x_utm, plot_y_utm), 
+                by = c("pt_id"="pt_id")) %>% 
+  rename(end_X=plot_x_utm.y, end_Y=plot_y_utm.y)
 
-# Transect data contains transect length (tr_leng) and azimuth (tr_az). Join these to the transect starts by the pt_id column. Then calculate angle 180 deg from tr_az because we want distance from end to start of transect.
-ts <- left_join(ts, select(transect, tr_leng, tr_az, transect_id), by = c("pt_id"="transect_id"))
+#Transect data contains transect length (tr_leng) and azimuth (tr_az). 
+#Join these to the transect starts by the pt_id column. 
+#Then calculate angle 180 deg from tr_az because we want distance from end 
+#to start of transect.
+ts <- left_join(ts, select(transect, tr_leng, tr_az, transect_id), 
+                by = c("pt_id"="transect_id"))
 ts <- ts %>% mutate(tr_az_inv = (tr_az + 180)%%360)
 
-# Use polar_to_XY to define new coordinates
+#Use polar_to_XY to define new coordinates
 ts <- ts %>%
   mutate(polar_to_XY(azimuth = tr_az_inv, distance = tr_leng,
                      xcenter = end_X, ycenter = end_Y, crs = crs,
@@ -111,33 +141,137 @@ adj_ts_XY <- data.frame(st_coordinates(ts$geometry))
 #Convert back to dataframe with coordinates as columns
 ts <- ts %>% select(!plot_x_utm.x:geometry) %>%
   mutate(plot_x_utm = adj_ts_XY$X, plot_y_utm = adj_ts_XY$Y)
-# Okay, these are final adjusted transect starts. 
 
-# Combine this with stem mapping points to get final set of reference points to generate tree locations from. 
-ts <- ts %>% filter(!pt_id %in% c(101, 250)) %>% #filter out two transects that seems misplaced by using transect ends
-  mutate(pt_type = "r adj tran start")
-ts_101_250 <- trimb %>% filter(pt_type=="tran start" & (pt_id %in% c(101, 250))) %>% 
-  mutate(pt_type="r adj tran start") #add ts for 101 from field data
-trimb <- rbind(trimb, ts, ts_101_250)
-#FINAL DATASET OF TRANSECT POINTS TO STEM MAP FROM
+#Identify that these points were created based off another point (transect ends)
+#with origin column. 
+ts <- ts %>% mutate(origin = "r adj")
 
-#Because of the pesky little transects (101, 250) that weren't created based of a transect end point, need to create another transect end point for it to make graphing later look good. 
-#Create new transect end point from field collected 101
+#TASK 2: Address exceptions.
+#Filter out two transects that seems misplaced by using transect ends
+ts <- ts %>% filter(!pt_id %in% c(101, 250))
+#Extract the measured gps points for these to use instead
+ts_101_250 <- trimb %>% 
+  filter(pt_type=="tran start" & (pt_id %in% c(101, 250))) 
+#Bind them
+ts <- rbind(ts, ts_101_250)
+
+#Define two new columns: one that identifies whether these are points used
+#in stem mapping. Another that defines whether they should be used in graphing. 
+ts <- ts %>% mutate(stem_map = "Y", graph = "Y")
+#This is the final set of transect start points we will use to generate 
+#locations of regen trees. 
+
+###########
+#Because of the pesky little transect starts (101, 250) that weren't created 
+#based off a transect end points,  we need to do the reverse of what we did 
+#above and generate transect end points. If we don't, graphing later will
+#look weird. Every transect will be perfectly perpendicular 
+#except for these two. 
+#Add transect azimuth and length to the transect start points for 101 and 250
 ts_101_250 <- left_join(ts_101_250, select(transect, transect_id, tr_az, tr_leng), 
                     by=c("pt_id" = "transect_id"))
-te_101_250 <- ts_101_250 %>%
+
+#Use function to generate new transect end points
+te_101_250 <- ts_101_250 %>% 
   mutate(polar_to_XY(azimuth = tr_az, distance = tr_leng,
                      xcenter = plot_x_utm, ycenter = plot_y_utm, crs = crs,
                      shape_file = TRUE))
-adj_te_101_250_XY <- data.frame(st_coordinates(te_101_250$geometry))
-te_101_250 <- trimb %>% filter(pt_type=="tran end" & (pt_id %in% c(101, 250))) %>% mutate(plot_x_utm=adj_te_101_250_XY$X, plot_y_utm=adj_te_101_250_XY$Y)
+#Define pt_type, stem_map, graph  and origin variables. 
+#These were generated based off another point, won't be used to stem map 
+#but will be used to graph. 
+te_101_250 <- te_101_250 %>% 
+  mutate(pt_type = "tran end", origin = "r adj",stem_map = "N", graph = "Y")
 
-trimb <- trimb %>% filter(!(pt_type=="tran end" & (pt_id %in% c(101, 250)))) #using tran end level(and not creating another factor level) because this is how all other transects ends are identified
-trimb <- rbind(trimb, te_101_250)
+#Extract coordinates:
+adj_te_XY <- data.frame(st_coordinates(te_101_250$geometry))
 
+#Convert back to dataframe with coordinates as columns
+te_101_250 <- te_101_250 %>% select(!geometry) %>%
+  mutate(plot_x_utm = adj_te_XY$X, plot_y_utm = adj_te_XY$Y)
+############
+
+#Now deal with stem map plot 20 at mi_2 that couldn't be relocated. 
+#Filter it out of the trimb dataframe. 
+trimb <- trimb %>% filter(pt_id != 20)
+
+#Trees were remeasured from nearby edge end point (ed.2.mi2). Extract that
+ed.2.mi2 <- trimb %>% filter(Comment == "ed.2.mi2")
+
+#Redefine values to identify it as a stem mapping point. Essentially creating 
+#a duplicate of the end point.
+levels(trimb$pt_type)
+ed.2.mi2 <- ed.2.mi2 %>% mutate(pt_id = 20,
+                                pt_type = "stem map",
+                                stem_map = "Y", 
+                                graph = "Y")
+
+####DONE with exceptions. 
+
+#Now bind the three objects just generated (transect starts, transect ends
+#from exception 1 and 2 and the stem mapping point replacing pt_id 20) with the 
+#larger trimb abject. 
+
+#First, add the "stem_map" and "graph" columns to the trimb dataframe. 
+trimb <- trimb %>% 
+  mutate(stem_map = if_else(pt_type == "stem map", "Y", "N"),
+         graph = case_when(pt_type %in% c("edge", "infect perim",
+                                          "landscape feat", "ref tree", 
+                                          "residual",
+                                          "stem map") ~ "Y",
+                           pt_type == "tran start" ~ "N",
+                           pt_type == "tran end" & 
+                             pt_id %in% c(101, 250) ~ "N",
+                           pt_type == "tran end" & 
+                             !(pt_id %in% c(101, 250)) ~ "Y"))
+
+#Bind it all together
+trimb_comm_var <- intersect(names(trimb), names(te_101_250))
+trimb <- trimb %>% select(all_of(trimb_comm_var))
+te_101_250 <- te_101_250 %>% select(all_of(trimb_comm_var))
+ed.2.mi2 <- ed.2.mi2 %>% select(all_of(trimb_comm_var))
+ts <- ts %>% select(all_of(trimb_comm_var))
+
+trimb <- rbind(trimb, ts, te_101_250, ed.2.mi2)
 #FINAL TRIMB POINTS
+
+#Plot to check some things. 
+trimb_sf <- st_as_sf(trimb, coords = c("plot_x_utm", "plot_y_utm"), crs=3005)
+
+#Plot 1: using graph points
+#Check:
+#should be only three transect starts and 3 transect ends
+#trasects should be perpendicular
+trimb_grf <- trimb_sf %>% filter(graph == "Y")
+tmap_mode("plot")
+tm_shape(trimb_grf, is.master = TRUE) + tm_symbols(col="pt_type") + 
+  tm_text("pt_id") + tm_facets(by="site_id")
+
+#Plot 2: r adjusted points
+#Check:
+#adjusted points should be all transect starts except 101 and 250 and transect 
+#ends of 101 and 250
+trimb_grf <- trimb_sf %>% filter(graph == "Y", pt_type != "ref tree")
+tmap_mode("plot")
+tm_shape(trimb_grf, is.master = TRUE) + tm_symbols(col="origin") + 
+  tm_text("pt_id") + tm_facets(by="site_id")
+
+#Plot 3: stem mapping points
+#Check:
+#stem mapping points should be transect starts, and stem mapping plots in
+#mature component
+trimb_grf <- trimb_sf %>% filter(stem_map == "Y")
+tmap_mode("plot")
+tm_shape(trimb_grf, is.master = TRUE) + tm_symbols(col="origin") + 
+  tm_text("pt_id") + tm_facets(by="site_id")
+
+#Looks good. 
+
 #Export this:
 write_csv(trimb, "./data/workflow/trimb_radjusted.csv")
+
+#Create a subset to use to generate tree locations
+trimb_sm <- trimb %>% filter(stem_map == "Y") %>% 
+  select(pt_id, plot_x_utm, plot_y_utm)
 
 ##############################################################
 ##############################################################
@@ -234,9 +368,11 @@ trees <- trees %>% mutate(corr_az_deg = case_when(tree_type == "regen" ~ (tr_az 
 #Clean up data set by removing columns used for data processing
 trees <- trees %>% select(!c(tr_dist1:tr_dist1_sl, az_adj))
 
-# Join relevant plot center coordinate with each tree. Two key columns for stem mapping: dist_m (distance from stem mapping point (stem map or tran start)) and corr_az_deg (aziumuth from that point)
-stem_map <- trimb %>% filter(pt_type %in% c("stem map", "r adj tran start"))
-trees <- inner_join(trees, select(stem_map, pt_id, plot_x_utm, plot_y_utm), by = c("plot_id" = "pt_id"))
+#Join relevant plot center coordinate with each tree. Two key columns for 
+#stem mapping: dist_m (distance from stem mapping point ) 
+#and corr_az_deg (aziumuth from that point)
+trees <- inner_join(trees, trimb_sm, 
+                    by = c("plot_id" = "pt_id"))
 
 # Run the function. Need to set azimuth, distance, xcenter, ycenter equal to variable names in stem mapped polar. 
 stem_mapped_XY <- trees %>%
@@ -248,8 +384,14 @@ class(stem_mapped_XY)
 #Convert it to a spatial object:
 stem_mapped_XY <- st_as_sf(stem_mapped_XY)
 
+#Graph one site to make sure it looks good
+mi_2 <- stem_mapped_XY %>% filter(site_id == "mi_2")
+tmap_mode("plot")
+tm_shape(mi_2, is.master = TRUE) + tm_symbols(col = "tree_type")
+
 # Write your spatial features as a geojson file and a regular csv 
 st_write(stem_mapped_XY, './data/workflow/trees_mapped.geojson', append = FALSE)
-st_write(stem_mapped_XY, "./data/workflow/trees_mapped.csv", layer_options = "GEOMETRY=AS_XY", append=FALSE)
+st_write(stem_mapped_XY, "./data/workflow/trees_mapped.csv", 
+         layer_options = "GEOMETRY=AS_XY", append=FALSE)
 ?st_write
 
