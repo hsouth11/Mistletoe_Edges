@@ -1,0 +1,956 @@
+---
+title: "crown volume"
+output: html_document
+date: "2024-09-13"
+---
+##############
+READ ME
+This script is a way to get simple estimates of crown volume for each live Hw 
+crown class at each site. 
+
+It uses the one site where we collected data from all crown classes (cr_3) 
+to estimate to height proportions between codonminant/dominant and the 
+intermediate and suppressed crown classes. Then it assumes those proportions are
+equal across all the other sites (e.g. suppressed tree ht is always xxx% of 
+codom tree height).
+
+Data from the BC Government's Permanent Sample Plot database are used to fit
+models that estimate height to live crown from tree height. Two models are fit
+one for the regen component and one for the mature component in the HDM data. 
+These models are applied to the hdm data so that data now has a height
+and height to live crown estimate. 
+
+These estimates are for each crown class, within a site component at each hdm 
+site. Within this grouping (e.g. suppressed trees in the regen component at 
+site mi_1) trees are treated the same. 
+
+Equations from Marshall et al. (2003) are used to estimate crown profiles
+(= the width of the crown at a given height (h)). The minimum inputs for their
+equations are tree height and height to base of live crown. These crown width 
+functions are integrated to estimate crown volume.
+
+These crown volume estimates will feed into the seed load proxy. 
+
+REFERENCES
+Marshall, David D, Gregory P Johnson, and David W Hann. ‘Crown Profile Equations for Stand-Grown Western Hemlock Trees in Northwestern Oregon’. Canadian Journal of Forest Research 33, no. 11 (1 November 2003): 2059–66. https://doi.org/10.1139/x03-126.
+
+LIST OF POTENTIAL IMPROVEMENTS/FUTURE WORK
+- See if you could improve height to crown base estimates by associating hdm
+sites with psp sites (e.g. use random site effect for psp with most similar
+top height and stem density to predict HT_BR)
+- Account for differences arising from vri. VRI is projected to 2021, hdm data 
+and measurements are for 2023/2024. So height estimates are two years behind. 
+Also, don't know what vri does with apical droop of Hw. 
+- Create model for cr_3 to get tree specific height and crown volume 
+measurements we can run something like a sensitivity test later on. 
+################
+
+Load packages.
+```{r}
+library(tidyverse)
+library(here)
+library(nlme)
+library(pracma)
+```
+
+Read in the data.
+```{r}
+rm(list=ls(all=TRUE))
+
+####Dataset 1: hdm site data 
+#This contains variables at the site level
+site <- read_csv(here("./data/cleaned/site data.csv"))
+str(site)
+summary(site)
+
+#Create a single variable for BEC
+site <- site %>% unite(col = bec, sep = "", 
+                       c("bec_z", "bec_sz", "bec_var"), 
+                       remove = FALSE) %>% 
+  mutate(bec = factor(bec))
+
+#Convert date_surveyed to date format
+site <- site %>% rename(date_sur_char = date_surveyed) %>% 
+  mutate(date_sur = dmy(date_sur_char)) %>% 
+  relocate(date_sur, .after = date_sur_char)
+#Extract year
+site <- site %>% mutate(yr_sur = year(date_sur))
+#Recalculate age column
+site <- site %>% mutate(age = yr_sur - yr_har)
+
+####Dataset 2: main tree dataset
+#Read in the tree data
+t_hdm <- read_csv(here("data/workflow/trees_mapped.csv"))
+
+#Convert factor vars to factors: 
+t_hdm <- t_hdm %>% mutate(across(
+  c(site_id, spp, status, hdm_pa, b_lc, 
+    broom_pa, broom_pos, stem_pa, crown_class, crown_cond, outside_10, 
+    assessed_by, tree_type, dmr_f),
+  ~as.factor(.)))
+
+#Convert plot_id and dmrs to integers
+t_hdm <- t_hdm %>% mutate(across(
+  c(plot_id, dmr_l, dmr_m, dmr_u, dmr), ~as.integer(.)))
+
+#Create new factor variable that combines codom and dom trees
+t_hdm <- t_hdm %>% 
+  mutate(crown_class_2 = case_when(crown_class %in% c("D", "C") ~ "C",
+                                   .default = crown_class)) %>% 
+  mutate(crown_class_2 = as.factor(crown_class_2))
+
+#Check variables in object
+str(t_hdm)
+
+########################################
+####Dataset 3: extra measured regen tree heights
+#Read in the dataset
+ht_hdm_extra <- read_csv(here("./data/cleaned/regen_extra_ht_c.csv"))
+summary(ht_hdm_extra)
+
+#All of these are from regen trees
+#Create variable that identifies them as that
+ht_hdm_extra <- ht_hdm_extra %>% mutate(tree_type = "regen")
+
+########################################
+####Dataset 4: vri data
+#Attributes from vri polygons that are representative of the mature and regen
+#components of each site.
+#1 or 2 polygons represent a regen OR mature component at each site
+#When there is 2, the component captures a change in forest type
+#This dataset contains estimates of:
+# (1) site index, (2) age of leading species at site and 
+# (3) co/dominant tree height of leading species
+
+#Read in data
+vri <- read_csv(here("data/raw/vri_hdm_sites.csv"))
+
+#Variables we may use are:
+#site_id (corresponds to site_id in HDM sites)
+#tree_type: mature or regen
+#SPECIES_CD_1 and SPECIES_CD_2: codes of leading and second species
+#PROJ_HEIGHT_1 and PROJ_HEIGHT_2: projected heights of of the first and second
+#species
+variable.names(vri)
+
+#Subset dataset to just these variables
+vri <- vri %>% select(POLYGON_ID, site_id, tree_type, 
+                      SPECIES_CD_1,SPECIES_CD_2, 
+                      PROJ_HEIGHT_1, PROJ_HEIGHT_2)
+
+#Take a look at these variables
+summary(vri)
+
+#Sort by site_id then look at it manually
+vri <- vri %>% arrange(site_id)
+#Problem sites: 
+#mk_1 regen - missing all values
+#mk_3 regen - missing evrything but site index. 
+
+#mk_1 data is in MKRF data layer, add that here
+mk_1 <- c(62, "mk_1", "regen", "HW", "FDC", NA, NA)
+vri <- vri %>% filter(!(site_id == "mk_1" & tree_type =="regen")) %>%
+  rbind(mk_1)
+vri %>% filter(site_id == "mk_1", tree_type == "regen")
+
+#We have a sample of co-dominant/dominant Hw heights for both of these sites. 
+#So data gaps aren't actually a big deal here. 
+```
+
+Calculate height factors from the cr_3 site
+```{r}
+#Subset this dataset to the site cr_3 by tree component (regen and mature)
+t_r_cr3 <- t_hdm %>% filter(tree_type == "regen" & site_id == "cr_3")
+t_m_cr3 <- t_hdm %>% filter(tree_type == "mature" & site_id == "cr_3")
+
+#Subset these to Hw trees with ht measurements
+t_r_cr3 <- t_r_cr3 %>% filter(spp == "Hw" & !is.na(height_m))
+t_m_cr3 <- t_m_cr3 %>% filter(spp == "Hw" & !is.na(height_m))
+
+#See how many measurements there are per crown class
+t_r_cr3 %>% group_by(crown_class_2) %>% summarise(n_tree = n())
+t_m_cr3 %>% group_by(crown_class_2) %>% summarise(n_tree = n())
+
+#Graph their height measurements by crown class
+ggplot(t_r_cr3, aes(x=crown_class_2, y = height_m)) + geom_point()
+ggplot(t_m_cr3, aes(x=crown_class_2, y = height_m)) + geom_point()
+
+#Calculate the mean ht by crown class and the ratio of intermediate and 
+#suppressed tree ht to codom/dominant hts
+ht_cr3_r_sum <- t_r_cr3 %>%
+  summarise(mean_ht_c = mean(height_m[crown_class_2 == "C"]),
+            mean_ht_i = mean(height_m[crown_class_2 == "I"]),
+            mean_ht_s = mean(height_m[crown_class_2 == "S"]),
+            htr_ci_r = mean_ht_i/mean_ht_c,
+            htr_cs_r = mean_ht_s/mean_ht_c)
+ht_cr3_m_sum <- t_m_cr3 %>%
+  summarise(mean_ht_c = mean(height_m[crown_class_2 == "C"]),
+            mean_ht_i = mean(height_m[crown_class_2 == "I"]),
+            mean_ht_s = mean(height_m[crown_class_2 == "S"]),
+            htr_ci_m = mean_ht_i/mean_ht_c,
+            htr_cs_m = mean_ht_s/mean_ht_c)
+
+#Extract the ht conversion factors
+#ratio of int/codom,dom in mature component
+htr_ci_r <- ht_cr3_r_sum$htr_ci_r[1]
+htr_cs_r <- ht_cr3_r_sum$htr_cs_r[1]
+htr_ci_m <- ht_cr3_m_sum$htr_ci_m[1]
+htr_cs_m <- ht_cr3_m_sum$htr_cs_m[1]
+```
+
+Calculate top heights for each site component
+Top height = average height of the co-dominant/dominant tree layers
+```{r}
+#Top heights come from three sources: 
+#(1) measured heights in the main trees dataset
+#(2) at some sites, there wasn't enough codominant/dominant hemlocks on the 
+#regen transects to get height measurements. When that happened, 
+#adjacent codominant/dominant hemlock trees were measured. Those are recorded
+#in a separate dataset (ht_hdm_extra) that we will integrate here.
+#(3) at a few sites we didn't have time to take a sample of heights. For those, 
+#we will substitute vri rank 1 tree layer data. 
+
+########################################
+#Height sources 1 and 2: main tree dataset and adjacent codom/dom hts
+#Filter trees dataset to those with height recorded
+ht_hdm <- t_hdm %>% filter(!is.na(height_m))
+
+#Merge the main trees and extra height tree datasets
+#Only keep variables present in both
+ht_comm_var <- intersect(names(ht_hdm), names(ht_hdm_extra))
+ht_hdm <- ht_hdm %>% select(all_of(ht_comm_var))
+ht_hdm_extra <- ht_hdm_extra %>% select(all_of(ht_comm_var))
+#Bind datasets
+ht_hdm <- rbind(ht_hdm, ht_hdm_extra)
+ht_hdm
+str(ht_hdm)
+
+#Check how many height measurements there are per site component
+ht_hdm %>% group_by(site_id, tree_type) %>% 
+  summarise(n_ht_meas = n()) 
+#Missing height data from: mi_2 and the mature component of ph_2
+#Will add this from vri dataset
+
+#Filter to just codominant and dominant heights
+#Other crown classes were only measured at cr_3 site
+ht_hdm <- ht_hdm %>% mutate(crown_class = as.factor(crown_class))
+levels(ht_hdm$crown_class)
+ht_hdm <- ht_hdm %>% filter(crown_class %in% c("C", "D")) %>%  
+  mutate(crown_class = as.character(crown_class)) %>% 
+  mutate(crown_class = as.factor(crown_class))
+levels(ht_hdm$crown_class) #good, filtered correctly
+
+#Calculate mean height in each site component
+ht_hdm_sum <- ht_hdm %>% 
+  group_by(site_id) %>% 
+  summarise(tht_r_hdm = mean(height_m[tree_type == "regen"]),
+            tht_m_hdm = mean(height_m[tree_type == "mature"]))
+summary(ht_hdm_sum)
+
+########################################
+#Height sources 3: vri
+#We will get vri top ht estimates for all sites that have data, but we will
+#only use it for the site components that have missing data
+#Going to take the average when there are two vri polygons that represent
+#a component. 
+#One disadvantage of using this data is that it is projected to 2021. We did 
+#our field measurements in 2023/2024 so we are missing a couple years of 
+#height growth by using these estimates. 
+str(vri)
+
+#All variables are currently stored as characters, not sure why 
+#Make numerics numeric and factors factors 
+vri <- vri %>% 
+  mutate(across(c(POLYGON_ID, PROJ_HEIGHT_1, PROJ_HEIGHT_2), 
+                ~as.numeric(.)))
+
+#Pull out the height value for hemlocks into a single column
+vri <- vri %>% mutate(ht_hw = case_when(SPECIES_CD_1 == "HW" ~ PROJ_HEIGHT_1,
+                              SPECIES_CD_2 == "HW" ~ PROJ_HEIGHT_2,
+                              .default = NA))
+
+#Then calculate top height for mature and regen components
+ht_vri_sum <- vri %>% group_by(site_id) %>% 
+  summarise(tht_r_vri = mean(ht_hw[tree_type == "regen"], na.rm=T),
+            tht_m_vri = mean(ht_hw[tree_type == "mature"], na.rm=T))
+
+########################################
+#Compile calculated top heights from the various into a single dataset
+top_ht <- site %>% select(site_id)
+
+#Join top height estimates from field data (sources 1 and 2) and vri (source 3)
+top_ht <- left_join(top_ht, ht_hdm_sum, by = "site_id")
+top_ht <- left_join(top_ht, ht_vri_sum, by = "site_id")
+
+#Graph to compare vri estimates with ours
+#Summary: vri isn't the best predictor
+#Remember VRI is offset by 2 or 3 years from field data, depending on when 
+#field data was collected. Would expect field data to consistently be larger 
+#than vri estimates but that isn't what we see. vri consistently overpredicts
+#ht in mature component. 
+top_ht_g <- top_ht %>% 
+  pivot_longer(cols = contains("tht"), 
+               names_to = c("tree_type", "source"),
+               names_pattern = "tht_(.)_(.*)",
+               values_to = "tht")
+ggplot(top_ht_g, aes(x = site_id, y = tht, color = source)) +
+  geom_point() + 
+  facet_wrap(~tree_type)
+
+#Create new combined columns for mature and regen top heights
+#Use measured heights when they are available
+#When they aren't use vri estimate
+top_ht <- top_ht %>% 
+  mutate(ht_r_C = if_else(!is.na(tht_r_hdm), tht_r_hdm, tht_r_vri),
+         ht_m_C = if_else(!is.na(tht_m_hdm), tht_m_hdm, tht_m_vri))
+```
+
+Use height factors from cr_3 to estimate heights by crown class for each site
+component at each site. 
+```{r}
+#Create new dataframe. Called cv because it will be used to estimate crown 
+#volume eventually. Start by adding the top height estimates
+cv <- top_ht %>% select(site_id, ht_r_C, ht_m_C)
+
+#These values will be the ht estimates for all of the codom/dom live Hw in a 
+#site component 
+#Estimate heights for intermediate and suppressed layers at each site component
+#by applying factors from cr_3
+cv <- cv %>% mutate(ht_r_I = ht_r_C*htr_ci_r,
+                        ht_r_S = ht_r_C*htr_cs_r,
+                        ht_m_I = ht_m_C*htr_ci_m,
+                        ht_m_S = ht_m_C*htr_cs_m)
+
+#Gather all of the columns into a single column
+cv_l <- cv %>% 
+  pivot_longer(cols = starts_with("ht"), 
+               names_to = c("tree_type", "crown_class_2"),
+               names_pattern = "ht_(.)_(.*)",
+               values_to = "HEIGHT")
+
+#Recode the tree_type variable
+cv_l <- cv_l %>% 
+  mutate(tree_type = if_else(tree_type == "r", "regen", "mature"))
+
+#Create id column to identify each canopy class in each component at each site
+cv_l <- cv_l %>% 
+  unite(col="id", c("site_id", "tree_type", "crown_class_2"), 
+        sep = "_", remove = FALSE)
+
+#Calculate the mean DBH for each canopy class at each site
+dbh_hdm <- t_hdm %>% 
+  filter(crown_class_2 != "-") %>% 
+  group_by(site_id, tree_type, crown_class_2) %>% 
+  summarise(mean_dbh = mean(dbh))
+
+#Create id column to identify each canopy class in each component at each site
+dbh_hdm <- dbh_hdm %>% 
+  unite(col="id", c("site_id", "tree_type", "crown_class_2"), 
+        sep = "_", remove = TRUE)
+
+#Join the DBH values to the height dataframe
+cv_l <- left_join(cv_l, dbh_hdm, by = "id")
+```
+
+Next task is to generate a believable equation for height to crown base. 
+Use psp data for this. 
+13 Sep 2024: Starting with something simple. Assume that height to crown base is
+controlled more by intrinsic tree factors than by site factors. Create two 
+equations, one for regen one for mature trees. Use top height to get psp
+sites within 1 standard deviation of mean top height across a tree type. Then 
+use that sample to create a height to crown base estimate. 
+```{r}
+####Read in the four datasets comprising the psp data
+#t_psp: tree level data
+#Note, this is big dataset, a filtered dataset is loaded in the code because
+#we don't need every tree in every psp plot in bc. Instead a subset is loaded
+#of sites in the CWH and located near hdm sites. 
+#v_psp:attributes of visit to a site
+#p_psp: attributes of each plot
+#s_psp: attributes of each site
+
+# t_psp <- read_csv(here("./data/raw/psp/psp_tree.csv")) 
+t_psp <- read_csv(here("./data/workflow/psp_tree_cwh.csv"))
+v_psp <- read_csv(here("./data/raw/psp/faib_sample_byvisit.csv"))
+p_psp <- read_csv(here("./data/raw/psp/faib_plot_header.csv")) 
+s_psp <- read_csv(here("./data/raw/psp/faib_header.csv"))
+
+#Inspect the site, visit and plot level data 
+#(will look at the tree level data when its a bit smaller)
+summary(v_psp)
+summary(s_psp)
+summary(p_psp)
+
+#ID variables
+#Sites are identified by a variable called SITE_IDENTIFIER
+#but sites are revisited. A second ID variable, only in the v_psp, s_psp and 
+#t_psp, datasets called CLSTR_ID, identifies each site visit.
+
+########################################
+####Filter to sites by proximity, bec zone and measurement completeness
+
+#PSP sites only have one plot per site, check this is true: 
+nplotcheck <- t_psp %>% group_by(SITE_IDENTIFIER) %>% 
+  summarise(nplots = n_distinct(PLOT)) %>% filter(nplots>1)
+nplotcheck
+#Only one site with more than one plot. Can just remove this site. 
+t_psp <- t_psp %>% anti_join(nplotcheck, by="SITE_IDENTIFIER")
+
+#Filter psp sites to ones in zones that are represented in the hdm sites
+#Create a single variable for BEC zone
+s_psp <- s_psp %>% unite(col = bec, sep = "", 
+                       c("BEC_ZONE", "BEC_SBZ", "BEC_VAR"), 
+                       remove = FALSE) %>% 
+  mutate(bec = str_replace_all(bec, "NA", "-")) %>% 
+  mutate(bec = as.factor(bec))
+
+#Filter. Code calls the variable in HDM site dataframe directly
+s_psp <- s_psp %>% filter(bec %in% site$bec) %>% 
+  mutate(bec = as.character(bec)) %>% 
+  mutate(bec = as.factor(bec))
+levels(s_psp$bec)
+
+#Filter to sites in Timber Supply Areas (TSAs) that contain or are 
+#close to our sites
+s_psp <- s_psp %>% mutate(TSA_DESC = as.factor(TSA_DESC))
+levels(s_psp$TSA_DESC)
+s_psp <- s_psp %>% 
+  filter(TSA_DESC %in% c("Arrowsmith TSA", "Fraser TSA", "North Island TSA", 
+                         "Pacific TSA", "Strathcona TSA", "Sunshine Coast TSA"))
+
+dim(s_psp)
+#This leaves us with 924 sites (but sites can be visited multiple times so
+#so our potential sample is bigger than this). 
+
+#Update the other psp datasets with the filtering done thus far
+t_psp <- t_psp %>% semi_join(s_psp, by="SITE_IDENTIFIER")
+v_psp <- v_psp %>% semi_join(t_psp, by = "CLSTR_ID")
+p_psp <- p_psp %>% semi_join(t_psp, by = "CLSTR_ID")
+
+#Check if there are any NA in PHF_TREE variable
+any(is.na(t_psp$PHF_TREE)) 
+phf_na <- t_psp %>% filter(is.na(t_psp$PHF_TREE))
+dim(phf_na) #340 trees
+
+#All of these trees have measurement intensity = "OUT_OF_PLOT". Data dictionary
+#defines as "=sample tree within the 5.64m radius sample tree plot, but not a
+#tagged tree)
+head(phf_na$MEAS_INTENSE)
+
+#Déa advised just removing them, it is a some data consistency thing. 
+#Only 340 trees (out of 486000). 
+t_psp <- t_psp %>% filter(!is.na(PHF_TREE))
+any(is.na(t_psp$PHF_TREE))
+
+###
+#Okay, now filter to trees that have the data we want to model: Hw trees, with
+#field measured heights and height to live crown data
+dim(t_psp)
+t_psp <- t_psp %>% filter(SPECIES == "HW" & 
+                            HEIGHT_SOURCE ==  "Field measured" & 
+                            !is.na(HT_BRCH))
+dim(t_psp) #2079 trees
+
+#Update other psp datasets with this filtering
+s_psp <- s_psp %>% semi_join(t_psp, by="SITE_IDENTIFIER")
+v_psp <- v_psp %>% semi_join(t_psp, by = "CLSTR_ID")
+p_psp <- p_psp %>% semi_join(t_psp, by = "CLSTR_ID")
+
+#How many sites are represented in this? 
+#Also check there aren't any sites with repeat measurements (compare 
+#SITE_IDENTIFIER with CLSTR_ID). Same length --> no repeats
+length(unique(t_psp$CLSTR_ID)) #51 sites
+length(unique(t_psp$SITE_IDENTIFIER)) #51 site visits
+
+#See how many trees there are on average per site
+#Mean = 41 trees, min = 1, max = 226
+t_psp %>% group_by(SITE_IDENTIFIER) %>% 
+  summarise(n_trees = n()) %>% summary()
+```
+
+Next, select a subset of sites to develop equations for mature and regen 
+components respectively. 
+```{r}
+#Calculate mean and standard deviation of top height of mature and regen 
+#components in the hdm data
+mean_tht_m <- mean(cv$ht_m_C)
+sd_tht_m <- sd(cv$ht_m_C)
+mean_tht_r <- mean(cv$ht_r_C)
+sd_tht_r <- sd(cv$ht_r_C)
+
+#Combine these to define a range (+/- 1 sd from mean) to filter psp sites on
+tht_m_lb <- mean_tht_m - sd_tht_m
+tht_m_ub <- mean_tht_m + sd_tht_m
+tht_r_lb <- mean_tht_r - sd_tht_r
+tht_r_ub <- mean_tht_r + sd_tht_r
+
+#Then calculate the top heights of the psp sample
+#Get mean height of codominant/dominant hw trees
+#You lose some sites in this step because presumably they don't have many 
+#codominant hemlock
+v_ht_psp <- t_psp %>% group_by(CLSTR_ID) %>% 
+  filter(CR_CL %in% c("C", "D")) %>% 
+  summarise(tht = mean(HEIGHT))
+dim(v_ht_psp)
+
+#Filter the other psp datasets to just these sites
+t_psp <- t_psp %>% semi_join(v_ht_psp, by = "CLSTR_ID")
+v_psp <- v_psp %>% semi_join(v_ht_psp, by = "CLSTR_ID")
+s_psp <- s_psp %>% semi_join(t_psp, by = "SITE_IDENTIFIER")
+
+#Now, subset these to a set that can be used for regen trees and one that can
+#be used for mature trees
+v_psp_r <- v_ht_psp %>% filter(tht >= tht_r_lb & tht <= tht_r_ub)
+v_psp_m <- v_ht_psp %>% filter(tht >= tht_m_lb & tht <= tht_m_ub)
+
+#Subset tree level dataset also
+t_psp_r <- t_psp %>% semi_join(v_psp_r, by = "CLSTR_ID")
+t_psp_m <- t_psp %>% semi_join(v_psp_m, by = "CLSTR_ID")
+
+#Graph ht to live crown vs tree height for these
+ggplot(t_psp_r, aes(x = HEIGHT, y = HT_BRCH)) + 
+  geom_point(aes(color = CLSTR_ID)) + 
+  geom_smooth(method="lm", aes(group = CLSTR_ID, color = CLSTR_ID), se = FALSE) +
+  geom_smooth(method = "lm", color = "darkblue", linetype = "dashed")
+ggplot(t_psp_m, aes(x = HEIGHT, y = HT_BRCH)) + 
+  geom_point(aes(color = CLSTR_ID)) + 
+  geom_smooth(method="lm", aes(group = CLSTR_ID, color = CLSTR_ID), se = FALSE) +
+  geom_smooth(method = "lm", color = "darkblue", linetype = "dashed")
+```
+
+Fit models for regen component
+```{r}
+#Check for NAs
+any(is.na(t_psp_r$HEIGHT))
+any(is.na(t_psp_r$HT_BRCH))
+
+#Fit model
+m1_reg <- lm(HT_BRCH ~ HEIGHT, t_psp_r)
+summary(m1_reg)
+
+#Store the predicted and residual values in dataframe
+t_psp_r$m1_yhat <- fitted(m1_reg)
+t_psp_r$m1_resid <- residuals(m1_reg)
+
+#Check assumptions
+###Diagnosis###
+#Linearity: overpredicting at high values
+#Equal variance: not met, increasing
+#Normality: good
+#Independence: could include a random site effect
+par(mfrow=c(2,2),mai=c(0.6,0.6,0.6,0.6),cex=0.55)
+plot(t_psp_r$m1_yhat, t_psp_r$m1_resid, main="OLS Model, Residual Plot",
+     xlab="yhat", ylab="residual")
+abline(h=0, col="red")
+plot(t_psp_r$HT_BRCH, t_psp_r$m1_yhat, main="OLS Model, Fitted Line Plot",
+     ylab="yhat", xlab="ht_br")
+abline(a=0, b=1, col="red")
+qqnorm(t_psp_r$m1_resid, main="OLS Model, Normality Plot")
+qqline(t_psp_r$m1_resid, col="red")
+hist(t_psp_r$m1_resid, breaks =8 , density=10,col="green", border="black",
+     main="OLS Model, Error Distribution") 
+par(mfrow=c(1,1),mai=c(1.0,1.0,1.0,1.0),cex=1.0)
+
+#Fit a second model and add a random effect for site
+#First refit the first model with REML (not OLS), so you can compare it to this 
+#model
+m1_reg_reml <- gls(HT_BRCH ~ HEIGHT, data=t_psp_r, method="REML")
+
+#Then fit the model with the random effect, also with REML
+m2_reg <- lme(HT_BRCH ~ HEIGHT, data=t_psp_r, method="REML",
+                  random=~1|CLSTR_ID) 
+
+#Look at the model summary
+#Standard deviation of the polygon and plot errors reported in the summary 
+#output under Random effects. Intercept = CLSTR_ID, Residual = leftover 
+#variance (here tree level). 
+summary(m2_reg) 
+#The random site effect explains far more of the variance than is left over as 
+#residual variance
+
+#See if random effect is significant. Likelihood ratio test. It is. 
+anova(m1_reg_reml, m2_reg)
+
+#Save predicted values and residuals
+#Level 0 = population averaged
+#Level 1 = unique to each CLSTR_ID (subject specific)
+t_psp_r$m2.0_yhat <- fitted(m2_reg, level=0)  
+t_psp_r$m2.1_yhat <- fitted(m2_reg, level=1)  
+t_psp_r$m2.0_resid <- resid(m2_reg, level=0)  
+t_psp_r$m2.1_resid <- resid(m2_reg, level=1) 
+
+#Check assumptions
+###Diagnosis###
+#Linearity: met
+#Equal variance: met
+#Normality: met
+#Independence: met
+par(mfrow=c(2,2),mai=c(0.6,0.6,0.6,0.6),cex=0.55)
+plot(t_psp_r$m2.1_yhat, t_psp_r$m2.1_resid, main="OLS Model, Residual Plot",
+     xlab="yhat", ylab="residual")
+abline(h=0, col="red")
+plot(t_psp_r$HT_BRCH, t_psp_r$m2.1_yhat, main="OLS Model, Fitted Line Plot",
+     ylab="yhat", xlab="ht_br")
+abline(a=0, b=1, col="red")
+qqnorm(t_psp_r$m2.1_resid, main="OLS Model, Normality Plot")
+qqline(t_psp_r$m2.1_resid, col="red")
+hist(t_psp_r$m2.1_resid, breaks =8 , density=10,col="green", border="black",
+     main="OLS Model, Error Distribution") 
+par(mfrow=c(1,1),mai=c(1.0,1.0,1.0,1.0),cex=1.0)
+
+#Good.
+```
+
+Fit models for mature component
+```{r}
+#Check for NAs
+any(is.na(t_psp_m$HEIGHT))
+any(is.na(t_psp_m$HT_BRCH))
+
+#Fit model
+m1_mat <- lm(HT_BRCH ~ HEIGHT, t_psp_m)
+summary(m1_mat)
+
+#Store the predicted and residual values in dataframe
+t_psp_m$m1_yhat <- fitted(m1_mat)
+t_psp_m$m1_resid <- residuals(m1_mat)
+
+#Check assumptions
+###Diagnosis###
+#Does it fit the data?: good, fitted line plot shows 1:1 relationship between
+#predicted and actual values
+#Linearity: good
+#Equal variance: not met, increasing
+#Normality: okay, sligtly left skewed
+#Independence: could include a random site effect
+par(mfrow=c(2,2),mai=c(0.6,0.6,0.6,0.6),cex=0.55)
+plot(t_psp_m$m1_yhat, t_psp_m$m1_resid, main="OLS Model, Residual Plot",
+     xlab="yhat", ylab="residual")
+abline(h=0, col="red")
+plot(t_psp_m$HT_BRCH, t_psp_m$m1_yhat, main="OLS Model, Fitted Line Plot",
+     ylab="yhat", xlab="ht_br")
+abline(a=0, b=1, col="red")
+qqnorm(t_psp_m$m1_resid, main="OLS Model, Normality Plot")
+qqline(t_psp_m$m1_resid, col="red")
+hist(t_psp_m$m1_resid, breaks =8 , density=10,col="green", border="black",
+     main="OLS Model, Error Distribution") 
+par(mfrow=c(1,1),mai=c(1.0,1.0,1.0,1.0),cex=1.0)
+
+#Fit a second model and add a random effect for site
+#First refit the first model with REML (not OLS), so you can compare it to this 
+#model
+m1_mat_reml <- gls(HT_BRCH ~ HEIGHT, data=t_psp_m, method="REML")
+
+#Then fit the model with the random effect, also with REML
+m2_mat <- lme(HT_BRCH ~ HEIGHT, data=t_psp_m, method="REML",
+                  random=~1|CLSTR_ID) 
+
+#Look at the model summary
+#Standard deviation of the polygon and plot errors reported in the summary 
+#output under Random effects. Intercept = CLSTR_ID, Residual = Plot. 
+summary(m2_mat) 
+#The random site effect explains similar amount of variance as the amount 
+#that is left over
+
+#See if random effect is significant. It is. 
+anova(m1_mat_reml, m2_mat)
+
+#Save predicted values and residuals
+#Level 0 = population averaged
+#Level 1 = unique to each CLSTR_ID (subject specific)
+t_psp_m$m2.0_yhat <- fitted(m2_mat, level=0)  
+t_psp_m$m2.1_yhat <- fitted(m2_mat, level=1)  
+t_psp_m$m2.0_resid <- resid(m2_mat, level=0)  
+t_psp_m$m2.1_resid <- resid(m2_mat, level=1) 
+
+#Check assumptions
+###Diagnosis###
+#Linearity: met
+#Equal variance: met
+#Normality: met
+#Independence: met
+par(mfrow=c(2,2),mai=c(0.6,0.6,0.6,0.6),cex=0.55)
+plot(t_psp_m$m2.1_yhat, t_psp_m$m2.1_resid, main="OLS Model, Residual Plot",
+     xlab="yhat", ylab="residual")
+abline(h=0, col="red")
+plot(t_psp_m$HT_BRCH, t_psp_m$m2.1_yhat, main="OLS Model, Fitted Line Plot",
+     ylab="yhat", xlab="ht_br")
+abline(a=0, b=1, col="red")
+qqnorm(t_psp_m$m2.1_resid, main="OLS Model, Normality Plot")
+qqline(t_psp_m$m2.1_resid, col="red")
+hist(t_psp_m$m2.1_resid, breaks =8 , density=10,col="green", border="black",
+     main="OLS Model, Error Distribution") 
+par(mfrow=c(1,1),mai=c(1.0,1.0,1.0,1.0),cex=1.0)
+
+#Good. 
+```
+
+Add height to crown base estimates to hdm data.
+```{r}
+#Add a variable called CLSTR_ID to the hdm dataframe with height estimates
+#so that it will go into the predict function
+#CLSTR_ID will be NA for all of the hdm sites, but that okay, we are just going
+#to use the population averaged predictions to do that
+cv_l <- cv_l %>% mutate(CLSTR_ID = NA)
+
+#Add height to crown base estimate
+#If its a regen tree, use the regen model, if a mature tree, mature model
+cv_l <- cv_l %>%
+  mutate(HT_BR = if_else(tree_type == "r",
+                         predict(m2_reg, newdata = ., level = 0),
+                         predict(m2_mat, newdata = ., level = 0)))
+
+#Calculate crown length
+cv_l <- cv_l %>% 
+  mutate(CL = HEIGHT - HT_BR)
+
+#Look at summary of crown length by crown class, does this make sense?
+cv_l %>% group_by(crown_class_2) %>% 
+  summarise(mean_cl = mean(CL), min_cl = min(CL), 
+            max_cl = max(CL), sd_cl = sd(CL))
+```
+
+Estimate crown volume with equations from: 
+Marshall, David D, Gregory P Johnson, and David W Hann. ‘Crown Profile Equations for Stand-Grown Western Hemlock Trees in Northwestern Oregon’. Canadian Journal of Forest Research 33, no. 11 (1 November 2003): 2059–66. https://doi.org/10.1139/x03-126.
+
+Variable naming corresponds to the variables used in their paper (Table 1)
+```{r}
+#Calculate crown ratio = crown length/height
+cv_l <- cv_l %>% 
+  mutate(CR = CL/HEIGHT)
+
+#Equation 5d, maximum crown width (MCW) of an open grown tree
+#I interpret this as a tree with no light restrictions. A tree grown in the
+#middle of a field. This represents a maximum, inherent in a species. We 
+#calculate other crown widths as restrictions (e.g. light) on that maximum. 
+cv_l <- cv_l %>% 
+  mutate(MCW = 1.32852 + (0.18894*mean_dbh) - (0.000484971*mean_dbh^2))
+
+#Equation 4, largest crown width of a stand grown tree
+#Note: the listed equation includes a third parameter but it was not 
+#significant so it wasn't included
+#This is scaled from MCW to represent a tree growing in a managed stand I think. 
+theta0_eq4 <- 0.105590
+theta1_eq4 <- 0.011699
+cv_l <- cv_l %>% 
+  mutate(LCW = MCW*CR^(theta0_eq4 + (theta1_eq4*CL)))
+
+#Equation 6, distance above crown base to LCW (DACB)
+#Also calculate the actual height of LCW here (HLCW)
+c1_eq6 <- 0.355270
+cv_l <- cv_l %>% 
+  mutate(DACB = c1_eq6*CL,
+         HLCW = HT_BR + DACB)
+
+#Equations 7 and 8, predict crown width (CW) at a given height
+#Define both as functions, then integrate to get crown volume
+#Eq. 7 predicts CW above the position where LCW occurs
+f_eq7 <- function(h, HEIGHT, HLCW, LCW){
+  a0_eq7 <- 0.461782
+  a1_eq7 <- 0.552011
+  LCW*((HEIGHT - h)/(HEIGHT-HLCW))^(a0_eq7 + 
+     (a1_eq7*((HEIGHT - h)/(HEIGHT-HLCW))^(1/2)))
+}
+
+#Eq. 8 predicts CW below where LCW occurs
+f_eq8 <- function(LCW){
+  b1_eq8 <- 0.809414 #coefficient
+  b1_eq8*LCW 
+}
+
+#Define a function for crown width
+f_cw <- function(h, HEIGHT, HLCW, LCW, f_eq7, f_eq8) {
+  if_else(h >= HLCW, f_eq7(h, HEIGHT, HLCW, LCW), f_eq8(LCW))
+}
+
+#Define an area function for each horizontal slice at a height (h)
+f_area <- function(h, HEIGHT, HLCW, LCW, f_eq7, f_eq8) {
+  diameter <- f_cw(h, HEIGHT, HLCW, LCW, f_eq7, f_eq8)
+  radius <- diameter/2
+  pi*radius^2
+}
+
+#Define a crown volume function using integration
+f_cv <- function(h_min, h_max, HEIGHT, HLCW, LCW, f_eq7, f_eq8){
+  f_int_area <- function(h) f_area(h, HEIGHT, HLCW, LCW, f_eq7, f_eq8)
+  crown_vol <- integral(f_int_area, h_min, h_max)
+  return(crown_vol)
+}
+
+#Calculate crown volume for whole tree
+#Rowwise here operates similarly to a for loop, repeating the function where
+#for each row
+#This is key because h_min and h_max are scalar inputs (i.e. define values)
+#by specifying rowwise, we can iterate the integral function over many rows
+cv_l <- cv_l %>% rowwise() %>% 
+  mutate(CV = f_cv(h_min = HT_BR, h_max = HEIGHT, HEIGHT, HLCW, 
+                   LCW, f_eq7, f_eq8))
+
+#Check a couple by hand
+test <- cv_l %>% select(id, HEIGHT, LCW, DACB, HLCW, CV) %>% head(2)
+
+#Assume the bottom is a cylinder
+#vol_cyl = pi*r^2*h
+b1_eq8 <- 0.809414
+test <- test %>% mutate(b_r = (b1_eq8*LCW)/2,
+                        b_h = DACB,
+                        b_vol = pi*b_r^2*b_h)
+
+#Assume top is a cone
+#volume_cone = pi*r^2*(h/3)
+a0_eq7 <- 0.461782
+a1_eq7 <- 0.552011
+test <- test %>% mutate(t_r = (LCW*((HEIGHT - HLCW)/(HEIGHT-HLCW))^(a0_eq7 +
+                                (a1_eq7*((HEIGHT - HLCW)/(HEIGHT-HLCW))^(1/2))))/2,
+                        t_h = HEIGHT - HLCW,
+                        t_vol = pi*t_r^2*(t_h/3))
+
+#Add the bottom and the top together
+#Looks good
+test <- test %>% mutate(vol_est = b_vol + t_vol)
+test %>% select(id, CV, vol_est)
+
+#Get a summary of crown volume by height
+cv_l %>% group_by(tree_type, crown_class_2) %>% 
+  select(HEIGHT, CV) %>% summarise(ht_mean = mean(HEIGHT),
+                           ht_max = max(HEIGHT),
+                           ht_min = min(HEIGHT),
+                           cv_mean = mean(CV),
+                           cv_min = min(CV),
+                           cv_max = max(CV))
+
+#Get a summary of profile
+cv_l %>% group_by(tree_type, crown_class_2) %>% 
+  select(HEIGHT, LCW) %>% summarise(ht_mean = mean(HEIGHT),
+                           ht_max = max(HEIGHT),
+                           ht_min = min(HEIGHT),
+                           lcw_mean = mean(LCW),
+                           lcw_min = min(LCW),
+                           lcw_max = max(LCW))
+cv_l %>% group_by(tree_type, crown_class_2) %>% 
+  select(HEIGHT, CR) %>% summarise(ht_mean = mean(HEIGHT),
+                           ht_max = max(HEIGHT),
+                           ht_min = min(HEIGHT),
+                           cr_mean = mean(CR),
+                           cr_min = min(CR),
+                           cr_max = max(CR))
+
+#Calculate volume by crown third
+#First, calculate upper limit of bottom and middle thirds
+cv_l <- cv_l %>% 
+  mutate(ct_leng = CL/3,
+         bt_ul = HT_BR + ct_leng,
+         mt_ul = bt_ul + ct_leng)
+
+#Calculate volume of each third
+#CV_diff is just to check this is given the same results as the calculation 
+#for the whole crown
+cv_l <- cv_l %>% 
+  mutate(CV_lt = f_cv(h_min = HT_BR, h_max = bt_ul, HEIGHT, HLCW, 
+                   LCW, f_eq7, f_eq8),
+         CV_mt = f_cv(h_min = bt_ul, h_max = mt_ul, HEIGHT, HLCW, 
+                   LCW, f_eq7, f_eq8),
+         CV_ut = f_cv(h_min = mt_ul, h_max = HEIGHT, HEIGHT, HLCW, 
+                   LCW, f_eq7, f_eq8),
+         CV_diff = sum(CV_lt + CV_mt + CV_ut) - CV)
+cv_l %>% select(CV_diff) %>% summary() #functionally identical
+```
+
+Plot the crown profile
+```{r}
+#To plot the profile, we need define a set of height values to estimate crown
+#width for.
+#Define a function to create a value for every 0.5 step between the height to 
+#the crown base and the top of the tree
+f_ht_seq <- function(ht_br, t_ht, HLCW){
+  #Define sequence
+  h_seq <- seq(from = ht_br, to = t_ht, by = 0.5)
+  #Add the top of the tree, unless it happens to land on a 0.5 interval
+  if (tail(h_seq, 1) < t_ht) {
+    h_seq <- c(h_seq, t_ht)
+  }
+  #Add HLCW value
+  if (!(HLCW %in% h_seq)) {
+    h_seq <- c(h_seq, HLCW)
+  }
+  #Sort it from smallest to largest value
+  h_seq <- sort(h_seq)
+  
+  #Return the sequence
+  return(h_seq)
+}
+
+#Create a dataframe for plotting
+cv_g <- cv_l %>% select(id, site_id, tree_type, crown_class_2,
+                        HT_BR, HEIGHT, HLCW, LCW)
+
+#Apply the function to lengthen this dataset so there is one row for each (h)
+#value for each tree
+#This uses rowwise(), which is a dplyr friendly version of a forloop
+#A list of (h) values is created for each tree
+#unnest() is used to expand that list into the dataframe
+cv_g <- cv_g %>% 
+  rowwise() %>% 
+  mutate(h_seq = list(f_ht_seq(ht_br = HT_BR, t_ht = HEIGHT, HLCW = HLCW))) %>% 
+  unnest(h_seq)
+
+#Now apply crown width function about to caculate crown width for each (h)
+#value
+cv_g <- cv_g %>% 
+  mutate(CW = f_cw(h_seq, HEIGHT, HLCW, LCW, f_eq7, f_eq8))
+
+#Create points that visualize profile of crown
+#Do this by centring crown width on zero and creating an outline left and
+#right of zero
+cv_g <- cv_g %>% 
+  mutate(CW_lb = 0 - (CW/2),
+         CW_ub = 0 + (CW/2))
+
+#Gather these columns into one column for plotting
+cv_g <- cv_g %>%
+  pivot_longer(cols = c("CW_lb", "CW_ub"), 
+               names_to = "CW_bound",
+               values_to = "CW_2")
+
+#Sort the table in the order that the points of the profile should be 
+#connected: within each tree, start with the points on the left side of the 
+#crown (CW_lb), then plot from smallest h to largest h, 
+ggplot(cv_g, aes(x=CW_2, y = h_seq, colour = site_id)) + geom_point() +
+  facet_grid(tree_type ~ crown_class_2) + 
+  labs(x = "Crown width (m)", y = "Height (m)") +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+Export a dataset of crown volume variables
+```{r}
+#Select variables
+#General: site_id, tree_type, crown_class_2
+#Tree metrics: HEIGHT, mean_dbh, HT_BR
+#Crown metrics: CL, CR, MCW, LCW, DACB, HLCW, CV, CV_lt, CV_mt, CV_ut
+cv_export <- cv_l %>% select(site_id, 
+                             tree_type,
+                             crown_class_2,
+                             HEIGHT, 
+                             mean_dbh,
+                             HT_BR,
+                             CL,
+                             CR,
+                             MCW, 
+                             LCW,
+                             DACB,
+                             HLCW,
+                             CV,
+                             CV_lt,
+                             CV_mt,
+                             CV_ut)
+
+#Rename HEIGHT, mean_dbh because there are similar variables in the tree 
+#dataset already. Don't want to confuse with them. 
+cv_export <- cv_export %>% rename(height_cv_est = HEIGHT,
+                                  dbh_cv_est = mean_dbh)
+
+#Write csv
+# write_csv(cv_export, here("./data/workflow/crown_vol.csv"))
+```
+
