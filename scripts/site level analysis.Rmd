@@ -241,7 +241,7 @@ clim_g <- climate %>%
   pivot_longer(MAT:Tmin_as, names_to = "climvar", values_to = "climval")
 
 #Create a plot
-ggplot(clim_g, aes(x=bec, y=climval, label=site_id, color = cluster)) +
+p <- ggplot(clim_g, aes(x=bec, y=climval, label=site_id, color = cluster)) +
   geom_text_repel() +
   geom_point() +
   facet_wrap(~climvar, scales = "free_y") +
@@ -249,6 +249,11 @@ ggplot(clim_g, aes(x=bec, y=climval, label=site_id, color = cluster)) +
   theme(axis.text.x = element_text(angle = 90,
                                    hjust = 1, vjust = 0.5)) +  # Rotate x-axis labels
   scale_x_discrete(labels = function(x) str_replace_all(x, " ", "\n")) #add a line break wherever there is a space
+
+#Export this plot
+pdf(here("./figures/climate_vars.pdf"), width = 11, height = 8.5)
+p
+dev.off()
 ```
 
 #SECTION 2: Size class distribution and species composition
@@ -643,7 +648,7 @@ ggplot(mat.hdmpa_dbh, aes(x=dbh_bin2, y=ba_m2, fill=hdm_pa)) +
   scale_fill_manual(values = colors_hdm_pa) 
 
 #Repeat same process but breaking down by DMR
-mat.dmr_dbh <- mat.hwba %>% group_by(id_bec_age_f, dmr_f2, dbh_bin2) %>%
+mat.dmr_dbh <- mat.hwba %>% group_by(site_id, dmr_f2, dbh_bin2) %>%
   summarise(ba_m2 = sum(ba_m2), nstem = n()) %>% 
   complete(dbh_bin2, fill=list(ba_m2=0, nstem=0))
 
@@ -664,7 +669,7 @@ mat.dmr_dbh <- mat.dmr_dbh %>% filter(ba_m2>0) #Remove rows with 0 because R wil
 ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=nstem, fill=dmr_f2)) + 
   theme_classic() +
   geom_bar(position = position_stack(reverse = TRUE), stat="identity") +
-  facet_wrap(vars(id_bec_age_f)) + 
+  facet_wrap(vars(site_id)) + 
   scale_fill_manual(values = colors_dmr_f2) + 
   guides(fill = guide_legend(ncol = 2)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
@@ -675,17 +680,18 @@ ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=nstem, fill=dmr_f2)) +
 
 #By basal area
 #WIFDWC GRAPH
+levels(mat.dmr_dbh$dmr_f2)
 p <- ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=ba_m2, fill=dmr_f2)) + 
   theme_classic() +
   geom_bar(position = position_stack(reverse = TRUE), stat="identity") +
-  facet_wrap(vars(id_bec_age_f)) + scale_fill_manual(values = colors_dmr_f2) + 
-  guides(fill = guide_legend(ncol = 2)) +
+  facet_wrap(vars(site_id)) + 
+  scale_fill_manual(values = colors_dmr_f2) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
-        legend.position = c(0.88, 0.1),
-        legend.background = element_rect(fill = "lightgrey"),
-        legend.key = element_rect(fill = "lightgrey", color = NA)) + 
-  labs(x = "DBH bin", y = expression("Basal area (m"^2*")"), 
-       fill = "Modified DMR")
+        legend.position = "none",
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 24),
+        strip.text = element_text(size = 16)) + 
+  labs(x = "DBH bin", y = expression("Basal area (m"^2*")"))
 
 #Export this plot
 pdf(here("./figures/mat_inf.pdf"), width = 11, height = 8.5)
@@ -749,6 +755,7 @@ range(reg.infper$reg.infper) #0's kept
 reg.infper_s <- reg.infper %>% group_by(site_id) %>% 
   summarise(reg.infper_m = mean(reg.infper), 
             reg.infper_sd = sd(reg.infper)) 
+summary(reg.infper_s)
 
 #Join these back to the results dataframe
 reg_infection <- left_join(reg_infection, reg.infper_s, by="site_id")
@@ -768,9 +775,11 @@ reg.inf <- reg.hw %>% filter(hdm_pa =="Y") %>%
 #Join these stats back to results dataframe
 reg_infection <- left_join(reg_infection, reg.inf, by="site_id")
 
-#Calculate the proportion of Hw infected within 15m
+#Calculate the proportion of Hw infected within 15m and total
 reg_infection <- reg_infection %>% 
-  mutate(reg.p_inf_ba_m2_15 = reg.inf_ba_m2_15/reg.hw_ba_m2_15,
+  mutate(reg.p_inf_ba_m2 = reg.inf_ba_m2/reg.hw_ba_m2,
+         reg.p_inf_nstem = reg.inf_nstem/reg.hw_nstem,
+         reg.p_inf_ba_m2_15 = reg.inf_ba_m2_15/reg.hw_ba_m2_15,
          reg.p_inf_nstem_15 = reg.inf_nstem_15/reg.hw_nstem_15)
 
 #Take a look
@@ -808,6 +817,7 @@ reg_infection <- left_join(reg_infection, reg.s_dmr, by="site_id")
 #Take a look
 reg_infection %>% select(site_id, reg.s_dmr_15, reg.s_dmi_15) %>% 
   arrange(reg.s_dmr_15)
+reg_infection %>% select(site_id, reg.s_dmr_15, reg.s_dmi_15) %>% summary()
 
 #Now find the basal area and number of stems in each dmr class
 #Do this for within whole site and for within 15m 
@@ -940,8 +950,7 @@ reg.dmr_disty <- reg.hw.disty %>%
   complete(dist_y_h_bin, fill=list(ba_m2=0, nstem=0))
 
 ##Plot nstem and basal area across distance from the edge, coloured by dmr
-#WIFDWC GRAPH
-p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem, fill=dmr_f2)) + 
+ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem, fill=dmr_f2)) + 
   geom_bar(position=position_stack(reverse = TRUE), stat="identity") +
   theme_classic() +
   facet_wrap(vars(id_bec_age_f)) + 
@@ -955,25 +964,35 @@ p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem, fill=dmr_f2)) +
        fill = "Modified DMR") + 
   guides(fill = guide_legend(ncol = 2))
 
+p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=ba_m2, fill=dmr_f2)) + 
+  geom_bar(position=position_stack(reverse = TRUE), stat="identity") +
+  theme_classic() +
+  facet_wrap(vars(id_bec_age_f)) + 
+  scale_fill_manual(values = colors_dmr_f2, 
+                    labels = c("Dead uninfected", "0",
+                                 "Infected below \nlive crown",
+                                 "1-2",
+                                 "3-4",
+                                 "5-6",
+                                 "Dead uninfected")) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
+        legend.position = c(0.88, 0.01),
+        legend.background = element_rect(fill = "lightgrey"),
+        legend.key = element_rect(fill = "lightgrey", color = NA),
+        legend.title = element_text(size = 24),
+        legend.text = element_text(size = 18),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 24),
+        strip.text = element_text(size = 16)) + 
+  labs(x = "Distance from edge (m)", 
+       y = expression("Basal area (m"^2*")"), 
+       fill = "Modified DMR") + 
+  guides(fill = guide_legend(ncol = 1))
+
 #Export this plot
 pdf(here("./figures/reg_inf_disty.pdf"), width = 11, height = 8.5)
 p
 dev.off()
-
-ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=ba_m2, fill=dmr_f2)) + 
-  geom_bar(position=position_stack(reverse = TRUE), stat="identity") +
-  theme_classic() +
-  facet_wrap(vars(id_bec_age_f)) + 
-  scale_fill_manual(values = colors_dmr_f2) + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
-        legend.position = c(0.88, 0.1),
-        legend.background = element_rect(fill = "lightgrey"),
-        legend.key = element_rect(fill = "lightgrey", color = NA)) + 
-  labs(x = "Distance from edge (m)", 
-       y = expression("Basal area (m"^2*")"), 
-       fill = "Modified DMR") + 
-  guides(fill = guide_legend(ncol = 2))
-
 
 ##############
 #(27 Aug 2024). Commented out, not a very informative set of plots
@@ -995,9 +1014,49 @@ ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=ba_m2, fill=dmr_f2)) +
 #Plot 6: dmr as a function of distance from the edge
 #A bit misleading because beyond 15m we only have data from some sites but 
 #all of the trees past the end of transects are uninfected
-ggplot((reg.hw %>% filter(status %in% c("LS", "LL", "LF"))), 
-       aes(x=dist_y_h, y=dmr, color = site_id)) + geom_jitter()
+#WIFDWC PLOT
+p <- ggplot((reg.hw %>% filter(status %in% c("LS", "LL", "LF"))), 
+       aes(x=dist_y_h, y=dmr)) + 
+  theme_classic() +
+  scale_y_continuous(limits = c(-0.1, 6.1),
+                     breaks = seq(0, 6, by =1)) +
+  geom_jitter(height = 0.1, width = 0) +
+  labs(x="Distance from edge (m)", y = "DMR") +
+  theme(axis.text = element_text(size = 20),
+        axis.title = element_text(size = 28))
+?scale_y_continuous
+#Export this plot
+pdf(here("./figures/reg_dmr_disty.pdf"), width = 11, height = 4)
+p
+dev.off()
+
+?geom_jitter
 ```
+
+
+```{r}
+#Assembling a summary table of site level results for WIFDWC
+#Variables: 
+#descriptors: site_id, bec, regen age 
+#regen: infection perimeter, percent infection (within 15 and total), stand DMR 
+#(within 15 and total) 
+#mature: BA infected, stand DMR
+wifdwc <- site %>% select (site_id, bec, age)
+wifdwc <- left_join(wifdwc, select(reg_infection, site_id, reg.infper_m, 
+                                 reg.p_inf_ba_m2_15, reg.p_inf_ba_m2,
+                                 reg.s_dmr, 
+                                 reg.s_dmr_15, 
+                                 reg.s_dmi,
+                                 reg.s_dmi_15), 
+                    by = "site_id")
+wifdwc <- left_join(wifdwc, select(mat_infection, site_id, mat.inf_ba_m2,
+                                   mat.s_dmr,
+                                   mat.s_dmi),
+                    by = "site_id")
+write_csv(wifdwc, here("./tables/wifdwc_2024.csv"))
+```
+
+
 
 Extra code
 ```{r}
