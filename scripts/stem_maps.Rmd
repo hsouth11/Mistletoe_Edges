@@ -12,6 +12,7 @@ Read in data and load packages.
 rm(list=ls(all=TRUE))
 
 library(tidyverse)
+library(here)
 library(sp)
 library(sf)
 library(tmap)
@@ -143,9 +144,15 @@ Make the stem mapped plot.
 levels(trees_rot$outside_10)
 trees_rot <- trees_rot %>% filter(outside_10 == "N" | is.na(outside_10))
 
+#Filter to trimble points identified as for graphing
+trimb_rot <- trimb_rot %>% filter(graph == "Y")
+
+#Takea look at the levels of pt_type, used frequentlty below
+levels(trimb_rot$pt_type)
+
 #Create the footprints of the each site:
 tran_pts <- trimb_rot %>% #filter trimb_points to just transect starts and ends
-  filter(pt_type %in% c("r adj tran start", "tran end"))
+  filter(pt_type %in% c("tran start", "tran end"))
 rot_points <- rbind(select(trees_rot, site_id), select(tran_pts, site_id)) #combine trees_rot and trimb_rot datasets
 rot_points <- rot_points %>% group_by(site_id) %>% #split rotated points into separate datasets for each site
   summarise(geometry=st_combine(geometry)) %>% st_geometry()
@@ -185,7 +192,7 @@ st_crs(adjusted_fp_rot) = 3005 #define crs
 
 #Create the transect lines for the site
 tran_pts <- trimb_rot %>% #filter to just transect starts and ends
-  filter(pt_type %in% c("r adj tran start", "tran end"))
+  filter(pt_type %in% c("tran start", "tran end"))
 tran_line_att <- tran_pts %>% st_drop_geometry() #save attributes
 tran_lines <- tran_pts %>% group_by(pt_id) %>% # draw lines between start and end. Creates two lines one from start to end and one from end to start.
   summarize() %>% st_cast("LINESTRING")
@@ -223,7 +230,7 @@ dist_mark <- left_join(dist_mark, select(tran, transect_id, site_id, tr_leng), b
 dist_mark <- dist_mark %>% mutate(diff_mark_tr = tr_leng-dist_y) %>% filter(diff_mark_tr > 0)
 
 #Join these points to transect starts
-ts_pts <- trimb_rot %>% filter(pt_type == "r adj tran start")
+ts_pts <- trimb_rot %>% filter(pt_type == "tran start")
 ts_coords <- st_coordinates(ts_pts) %>% as.data.frame()
 ts_coords <- mutate(ts_coords, transect_id = ts_pts$pt_id)
 dist_mark <- left_join(dist_mark, ts_coords, by="transect_id")
@@ -282,7 +289,7 @@ dist_mark <- st_as_sf(dist_mark)
 #Create some edge lines:
 levels(trimb_rot$pt_type)
 edge_lines <- trimb_rot %>% #filter to points that define edge ("edge" and "r adj tran start")
-  filter(pt_type %in% c("edge", "r adj tran start"))
+  filter(pt_type %in% c("edge", "tran start"))
 edge_line_coords <- st_coordinates(edge_lines) %>%  #extract coordinates
   as.data.frame() %>% mutate(diff=(X-Y))
 edge_lines <- edge_lines %>% mutate(diff=edge_line_coords$diff)
@@ -302,12 +309,26 @@ trees_rot <- left_join(trees_rot, select(site, site_id, id_bec_ag_f), by ="site_
 #sl <- left_join(sl, select(site, site_id, id_bec_ag_f), by ="site_id")
 
 #Make new version of dmr_f for graphing that simplifies some of the ratings
-trees_rot <- trees_rot %>% mutate(dmr_f_graph = case_when(dmr_f == "-" ~ "non Hw", dmr_f %in% c("1", "2") ~ "1-2", dmr_f %in% c("3", "4") ~ "3-4", dmr_f %in% c("5", "6") ~ "5-6", .default = dmr_f)) %>% mutate(dmr_f_graph = factor(dmr_f_graph, levels = c("non Hw", "DU", "0", "DI", "IBLC", "1-2", "3-4", "5-6")))
+levels(trees_rot$dmr_f)
+trees_rot <- trees_rot %>% 
+  mutate(dmr_f_graph = case_when(dmr_f == "-" ~ "non Hw", 
+                                 dmr_f %in% c("1", "2") ~ "1-2", 
+                                 dmr_f %in% c("3", "4") ~ "3-4", 
+                                 dmr_f %in% c("5", "6") ~ "5-6", 
+                                 dmr_f == "DI" ~ "dead infected",
+                                 dmr_f == "DU" ~ "dead uninfected",
+                                 dmr_f == "IBLC" ~ "infected below live crown",
+                                 .default = dmr_f)) %>% 
+  mutate(dmr_f_graph = factor(dmr_f_graph, 
+                              levels = c("non Hw", "dead uninfected", "0", 
+                                         "infected below live crown", "1-2", 
+                                         "3-4", "5-6", "dead infected")))
 
 #Define colour pallette
 # https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
 levels(trees_rot$dmr_f_graph)
-dmr_colour <- c('#cccccc','#4575b4', '#74add1', '#c994c7','#fdbb84','#ef6548','#d7301f','#990000')
+dmr_colour <- c("#cccccc", "#1F78B4", "#A6CEE3", brewer.pal(4, "Oranges"), 
+                "hotpink")
 sl_colour <- brewer.pal(n=9, name="Greys")
 brewer.pal.info
 
@@ -329,5 +350,48 @@ dev.off()
 
 #Seed load addition
 #tm_shape(sl) + tm_symbols(size = 2, col="sl", border.lwd = NA, title.col = "seed load", legend.size.is.portrait = TRUE, legend.col.is.portrait = FALSE)
+
+#WIFDWC Plot, 3 representative sites: cr_3, mk_2, ph_1
+#Filter all objects to these three sites
+rep_sites <- c("cr_3", "mk_2", "ph_1")
+adjusted_fp_rot <- adjusted_fp_rot %>% filter(site_id %in% rep_sites)
+edge_lines <- edge_lines %>% filter(site_id %in% rep_sites)
+tran_lines <- tran_lines %>% filter(site_id %in% rep_sites)
+tran_pts <- tran_pts %>% filter(site_id %in% rep_sites)
+dist_mark <- dist_mark %>% filter(site_id %in% rep_sites)
+trees_rot <- trees_rot %>% filter(site_id %in% rep_sites)
+
+pdf(here("./figures/trees_wifdwc.pdf"), width = 11, height = 4)
+tmap_mode("plot")
+#define map extent using site footprints
+tm_shape(adjusted_fp_rot, is.master = TRUE) + #define map extent using site footprints
+  tm_facets(by = "id_bec_ag_f", free.scales = FALSE, free.coords = TRUE, ncol = 3) +
+  tm_polygons(col="white", border.col = NULL) +
+#add edge lines
+tm_shape(edge_lines) + 
+  tm_lines(col="blue", lty=2) + 
+#add transect pologyons, start/end points and labels
+tm_shape(tran_lines) + 
+  tm_polygons(alpha=0.25) + 
+  tm_text("tr_leng", ymod = 1, scale = 0.8) + 
+tm_shape(tran_pts) + 
+  tm_symbols(col="blue", shape=3, size=0.1) + 
+tm_shape(dist_mark) + tm_lines(lty = 3, alpha = 0.7) +
+#add tree points
+  tm_shape(trees_rot) + 
+  tm_symbols(size = "dbh", scale = 1.5, col="dmr_f_graph", palette = dmr_colour, 
+             border.lwd = NA, title.size = "DBH (cm)", title.col = "Modified DMR", 
+             legend.size.is.portrait = TRUE, legend.col.is.portrait = TRUE) + 
+  tm_layout(legend.outside=TRUE, 
+            legend.outside.position = "right", 
+            legend.position=c(0.05, 0.05),
+            legend.stack="vertical",
+            legend.frame = TRUE,
+            legend.outside.size = .3,
+            legend.title.size = 1.5,
+            legend.text.size = 1,
+            panel.label.size = 1.5)
+dev.off()
+?tm_layout
 ```
 
