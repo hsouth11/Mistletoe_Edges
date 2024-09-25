@@ -234,6 +234,13 @@ ts <- ts %>% select(all_of(trimb_comm_var))
 trimb <- rbind(trimb, ts, te_101_250, ed.2.mi2)
 #FINAL TRIMB POINTS
 
+#Export this:
+write_csv(trimb, "./data/workflow/trimb_radjusted.csv")
+
+#Create a subset to use to generate tree locations
+trimb_sm <- trimb %>% filter(stem_map == "Y") %>% 
+  select(pt_id, plot_x_utm, plot_y_utm)
+
 #Plot to check some things. 
 trimb_sf <- st_as_sf(trimb, coords = c("plot_x_utm", "plot_y_utm"), crs=3005)
 
@@ -265,13 +272,6 @@ tm_shape(trimb_grf, is.master = TRUE) + tm_symbols(col="origin") +
   tm_text("pt_id") + tm_facets(by="site_id")
 
 #Looks good. 
-
-#Export this:
-write_csv(trimb, "./data/workflow/trimb_radjusted.csv")
-
-#Create a subset to use to generate tree locations
-trimb_sm <- trimb %>% filter(stem_map == "Y") %>% 
-  select(pt_id, plot_x_utm, plot_y_utm)
 
 ##############################################################
 ##############################################################
