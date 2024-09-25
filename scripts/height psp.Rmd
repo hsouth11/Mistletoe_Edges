@@ -44,7 +44,8 @@ site <- site %>% unite(col = bec, sep = "",
 
 #Convert date_surveyed to date format
 site <- site %>% rename(date_sur_char = date_surveyed) %>% 
-  mutate(date_sur = dmy(date_sur_char))
+  mutate(date_sur = dmy(date_sur_char)) %>% 
+  relocate(date_sur, .after = date_sur_char)
 #Extract year
 site <- site %>% mutate(yr_sur = year(date_sur))
 #Recalculate age column
