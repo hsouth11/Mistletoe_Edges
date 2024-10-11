@@ -6,27 +6,39 @@ output: html_document
 ---
 ##############
 READ ME
+This script estimates seed load = a proxy for the amount of HDM seed that is 
+hitting a given target tree. There are three pieces in the script: (1) seed 
+production is estimated by combining DMR and crown volume
+estimates, (2) the proportion of a trees seed production that hits a given 
+distance from the tree stem is estimated with a seed dispersal function and (3) 
+pairs of source and target trees at each site are defined and interception
+between them is estimated. These three pieces are combined to estimate 
+seed load. 
 
-TO DO
-- Refine gamma function. Could define it only for outside of crown width? Then use throughfall to define it within crown width? 
-- Write interception workflow into a function that can be iterated over 
-multiple sites
+Right now, only live Hw are considered source and target trees. Future versions
+could find a way to consider dead trees and Amabalis fir, the other HDM site,
+which was only a significant host at one site (ph_2). 
+
+NECESSARY TO DO
+- How is amabilis fir being treated right now? It shouldn't have a crown vol
+estimate so its sp should be 0, which means it is probably being filtered out. 
 
 LIST OF POTENTIAL IMPROVEMENTS/FUTURE WORK
-- Need to think about Don Robinson's idea of how things that are farther away 
-are smaller targets. Use circumference of a circle analogy. Circumference of 
-circle with radius = 5 is smaller than a circumfrence of a circle with radius
-8. The bigger the circumference, the bigger the area the seed originating from
-the centre of the circle is deposited over. 
 - Is multiplying DMR x crown volume the best approach? Look at how they combine
 dmr and crown volume in Robinson model
-- Adapt dispersal function to consider crown width. E.g. define separate 
-equations for crown thirds where peak is shifted closer to stem for small trees
-and father from stem for big trees
+- Adapt dispersal function to operate at the crown third level. E.g. start 
+exponential decay function at edge of crown at the base or middle of each crown 
+third
 - Need to trial multiple versions of interception workflow that differ in the 
 width of the path used to find intercepting trees and the factors that 
 reduce the seed load value
--Trial some analysis pathways that include dead trees
+- Trial some analysis pathways that include dead trees
+- Include Amabalis fir as source trees (ph_2 site)
+
+REFERENCES
+Smith, Richard B. ‘Hemlock and Larch Dwarf Mistletoe Seed Dispersal’. The Forestry Chronicle 42, no. 4 (1 December 1966): 395–401. https://doi.org/10.5558/tfc42395-4.
+
+Bloomberg, W. J., R. B. Smith, and A. Van Der Wereld. ‘A Model of Spread and Intensification of Dwarf Mistletoe Infection in Young Western Hemlock Stands’. Canadian Journal of Forest Research 10, no. 1 (1 March 1980): 42–52. https://doi.org/10.1139/X80-008.
 ##############
 
 ```{r}
@@ -68,17 +80,22 @@ smith <- read_csv(here("./data/raw/seed dispersal_smith1966.csv"))
 str(smith)
 ```
 
+
 #Seed production
 Create a proxy metric for seed production of live Hw trees
 ```{r}
+#Subset to live Hw trees
+hw <- trees %>% filter(spp == "Hw" &
+                         status %in% c("LS", "LL", "LF"))
+
 #Gather the columns that have dmr and crown volume for each crown third into 
 #long format
 #The result is a dataframe with three rows (corresponding to three crown thirds)
 #per tree, with values of dmr and crown volume
-t_dmr <- trees %>% select(tree_id, dmr_l, dmr_m, dmr_u) %>% 
+t_dmr <- hw %>% select(tree_id, dmr_l, dmr_m, dmr_u) %>% 
   pivot_longer(cols = starts_with("dmr"), names_to = "ct", 
                names_prefix = "dmr_", values_to = "dmr_ct")
-t_cv <- trees %>% select(tree_id, CV_l, CV_m, CV_u) %>% 
+t_cv <- hw %>% select(tree_id, CV_l, CV_m, CV_u) %>% 
   pivot_longer(cols = starts_with("CV"), names_to = "ct", 
                names_prefix = "CV_", values_to = "cv_ct")
 t <- t_dmr %>% left_join(t_cv, by = c("tree_id", "ct"))
@@ -94,12 +111,12 @@ sp <- t %>% group_by(tree_id) %>%
 trees <- trees %>% left_join(sp, by = "tree_id")
 
 #Seed production is NA for all trees where dmr isn't defined. 
-#Set it to 0 for HDM hosts where NAs occur and keep it as NA otherwise
+#Set it to 0 for Hw where NAs occur and keep it as NA otherwise
 trees <- trees %>% 
   mutate(sp = if_else(!is.na(sp), sp, case_when(
-    spp %in% c("Hw", "Ba") ~ 0,
-    !(spp %in% c("Hw", "Ba")) ~ NA)))
-#Check. Looks good, only defined for Ba and Hw
+    spp == "Hw" ~ 0,
+    spp != "Hw" ~ NA)))
+#Check. Looks good, only defined for Hw
 trees %>% select(spp, sp) %>% 
   group_by(spp) %>% 
   summarise(n_na = sum(is.na(sp)),
@@ -194,14 +211,13 @@ smith2 <- smith2 %>%
   mutate(dist_m_ed = dist_m - dist_pt1)
 
 #Solve for lambda
-N0 <- smith2$p_seed_mean[1]
 smith2 <- smith2 %>% 
-  mutate(lambda = -log(p_seed_mean/N0)/dist_m_ed)
+  mutate(lambda = -log(p_seed_mean/p_seed_dl)/dist_m_ed)
 l1 <- mean(smith2$lambda, na.rm = T)
 
 #Calculate the fitted exponential decay
 smith2 <- smith2 %>% 
-  mutate(p_seed_ed_l1 = N0*exp(-l1*dist_m_ed))
+  mutate(p_seed_ed_l1 = p_seed_dl*exp(-l1*dist_m_ed))
 
 #Plot to check
 #Looks okay. Smith data shoes almost linear decline. Function underestimates at
@@ -221,8 +237,8 @@ ggplot(smith3, aes(x=dist_m_ed, y = p_seed, colour = source)) +
 l2 <- 0.25
 l3 <- 0.20
 smith2 <- smith2 %>% 
-  mutate(p_seed_ed_l2 = N0*exp(-l2*dist_m_ed),
-         p_seed_ed_l3 = N0*exp(-l3*dist_m_ed))
+  mutate(p_seed_ed_l2 = p_seed_dl*exp(-l2*dist_m_ed),
+         p_seed_ed_l3 = p_seed_dl*exp(-l3*dist_m_ed))
 smith3 <- smith2 %>% 
   pivot_longer(cols = starts_with("p_seed_"),
                names_to = "source",
@@ -233,7 +249,7 @@ smith3 <- smith3 %>%
 ggplot(smith3, aes(x=dist_m_ed, y = p_seed, colour = source)) + 
   geom_point() + geom_smooth()
 
-#Use l2 as a compromis
+#Use l2 as a compromise
 
 #Define a function to be applied to hdm data
 ##sl: seed load (the output variable of the function)
@@ -251,7 +267,7 @@ f_p_seed <- function(dist_m_ed){
   #[2] Define seed load in second interval: beyond crown edge
   #Define seed load as an exponential decay, controlled by lambda (l)
   if(dist_m_ed > 0) {
-    p_seed <- N0*exp(-l2*dist_m_ed)
+    p_seed <- p_seed_dl*exp(-l2*dist_m_ed)
   }
   
   return(p_seed)
@@ -260,7 +276,7 @@ f_p_seed <- function(dist_m_ed){
 
 #Interception function
 Workflow generally looks like: 
-(1) find all pairs of Hw and Ba trees within 25m of each other, 
+(1) find all pairs of Hw trees within 25m of each other, 
 (2) separate into regen-mature and regen-regen pairs, (3) draw lines, then 
 polygons between them to approximate the path of a seed, (4) intersect those 
 paths with the rest of the trees at a site and (5) count the number of 
@@ -285,13 +301,17 @@ et al. (1980).
 ## [tree1 = regen, tree2 = regen tree]
 
 #How is interception calculated
-## only trees in the same component can intercept
-## crown_class_2 is used to define interception rules
+## Only trees in the same component can intercept;
+## Crown_class_2 is used to define interception rules;
 ## Factors are the proportion of seed production blocked by an intercepting 
 ## tree. Bloomberg et al. (1980) estimates 90% of seed is blocked by an 
 ## intervening tree in the same canopy class. So we are going to use 0.9 for 
 ## trees in the same canopy class and 0.45 for trees in a lower canopy class
-## as a starting place. Specific rules below. 
+## as a starting place. The functions are defined with named variables 
+## (icpt_f1 and icpt_f2) so that we can test different factors to see what 
+## gives the best predictions.
+
+#FACTOR RULES
 ## For tree1=regen, tree2=mature:
 ### if tree2 is C, C and I (but to a lesser extent) can intercept
 ##### C factor = 0.9, I factor = 0.45
@@ -299,6 +319,7 @@ et al. (1980).
 ##### C factor = 0.9, I factor = 0.9, S factor = 0.45
 ### if tree2 is S, I and S can intercept
 ##### I factor = 0.9, S factor = 0.9
+
 ## For tree1=regen, tree2=regen
 ### if tree2 is C, C and I (but to a lesser extent) can intercept
 ##### C factor = 0.9, I = 0.45
@@ -318,8 +339,8 @@ trees_sf <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
 #check CRS
 st_crs(trees_sf)
 
-#Filter the mature trees from the dataset that were beyond the 10m boundary used 
-#across all sites. 
+#Filter the mature trees from the dataset that were beyond the 10m boundary 
+#used across all sites. 
 trees_sf <- trees_sf %>% filter(outside_10 == "N" | is.na(outside_10))
 
 #Pull out a small area from one site to use as a test piece
@@ -328,12 +349,14 @@ mi_1 <- trees_sf %>% filter(site_id == "mi_1")
 tmap_mode("plot") + tm_shape(mi_1) + 
   tm_symbols() + tm_text("tree_id") + tm_grid()
 
-#Filter based on x and y coordinates
+#Create the dataset by filtering based on x and y coordinates
 test <- mi_1 %>% 
   mutate(x_utm = st_coordinates(.)[,1],
          y_utm = st_coordinates(.)[,2]) %>% 
   filter((x_utm < 1264055 & x_utm > 1264030) & 
            (y_utm < 476900 & y_utm > 476875))
+
+#Plot so we can see what we are working with
 tmap_mode("plot") + tm_shape(test) + 
   tm_symbols(col = "spp", shape = "tree_type") + tm_text("tree_id") + 
   tm_grid()
@@ -341,9 +364,17 @@ tmap_mode("plot") + tm_shape(test) +
   tm_symbols(col = "crown_class_2", shape = "tree_type") + 
   tm_text("tree_id") + tm_grid()
 
-#Next calculate the distance between each tree pair
-dim(test) #41 trees, unique pairs = 41^2 = 1681
-dist_matrix <- st_distance(test, by_element = FALSE)
+#Subset the dataset to live Hw trees
+hw <- test %>% filter(spp == "Hw" &
+                           status %in% c("LS", "LF", "LL"))
+dim(hw) #Number of pairs is number of rows^2
+
+#Save row number as a variable
+hw$row <- as.integer(row.names(hw))
+
+#Calculate the distance between each tree pair
+dim(hw) #26 trees, unique pairs = 26^2 = 676
+dist_matrix <- st_distance(hw, by_element = FALSE)
 dim(dist_matrix)
 
 #Use which() function to test which are <25m and get indices 
@@ -354,69 +385,68 @@ dim(dist_matrix)
 indices <- which(dist_matrix < units::set_units(25, "m"), arr.ind = TRUE)
 pairs <- as.data.frame(indices)
 pairs$dist_m <- as.numeric(dist_matrix[indices])
-dim(pairs) #1133 pairs left
+dim(pairs) #676 pairs (all Hw in test area are within 25m of each other here)
 
 #Rename row and col in the pairs df. These correspond to the row 
 #number of tree1 and tree2 in the site level dataframe respectively
 pairs <- pairs %>% 
   rename(t1_row = row, t2_row = col)
 
-#Add columns specifying tree ids by relating it back to the site level df
-test$row <- as.integer(row.names(test))
-pairs <- left_join(pairs, 
-                            select(st_drop_geometry(test), tree_id, row), 
-                            by = join_by(t1_row==row)) 
-pairs <- pairs %>% rename(tree1 = tree_id)
-pairs <- left_join(pairs, 
-                            select(st_drop_geometry(test), tree_id, row), 
-                            by = join_by(t2_row==row)) 
-pairs <- pairs %>% rename(tree2 = tree_id)
-
 #At this point, the dataframe has a row for each pair, with the distance value
 #and the ids of each tree
-#Add tree type, status, species and crown class of tree one and two
-pairs <- left_join(pairs, 
-                            select(trees, tree_id, tree_type, 
-                                   status, spp, crown_class_2),
-                            by = join_by(tree1 == tree_id)) %>% 
-  rename(t1_st = status, t1_spp = spp, t1_tt = tree_type, 
-         t1_cc = crown_class_2)
-pairs <- left_join(pairs, 
-                            select(trees, tree_id, tree_type, 
-                                   status, spp, crown_class_2),
-                            by = join_by(tree2 == tree_id)) %>% 
-  rename(t2_st = status,t2_spp = spp, t2_tt = tree_type, 
-         t2_cc = crown_class_2)
+#Add attributes of each tree to the dataframe of pairs
+##tree_id, tree_type, status, species, crown class, plot_id (corresponding to 
+## transect_id for regen trees) and sp (seed production, only for source trees)
+x <- hw %>% st_drop_geometry()
+pairs <- left_join(pairs,
+              select(x, row, tree_id, plot_id, tree_type, status, spp,
+                     crown_class_2),
+              by = join_by(t1_row == row)) %>% 
+    rename(tree1 = tree_id, t1_pid = plot_id, t1_st = status, t1_spp = spp, 
+           t1_tt = tree_type, t1_cc = crown_class_2)
+pairs <- left_join(pairs,
+              select(x, row, tree_id, plot_id, tree_type, status, spp, 
+                     crown_class_2, sp),
+              by = join_by(t2_row == row)) %>% 
+    rename(tree2 = tree_id, t2_pid = plot_id, t2_st = status,t2_spp = spp, 
+           t2_tt = tree_type, t2_cc = crown_class_2)
 
-#Filter based on the rules above
-#Filter out rows where tree1 and tree2 are the same
+#Add a variable that identifies pair type
+pairs <- pairs %>% 
+    mutate(pair_type = case_when(
+      (t1_tt == "regen" & t2_tt == "regen") ~ "r-r",
+      (t1_tt == "regen" & t2_tt == "mature") ~ "r-m",
+      (t1_tt == "mature" & t2_tt == "mature") ~ "m-m"))
+
+#Filter based on the rules of pairs (above)
+##Filter out rows where tree1 and tree2 are the same
 pairs <- pairs %>% filter(tree1 != tree2)
+dim(pairs)
 
-#Filter out cases where source tree is a non-hdm host
+##Filter to pairs we are going to consider
+##regen-mature pairs and regen-regen pairs on same transect
 pairs <- pairs %>% 
-  filter(t2_spp %in% c("Hw", "Ba"))
-
-#Filter out cases where the source tree is dead:
-pairs <- pairs %>% 
-  filter(t2_st %in% c("LS", "LL", "LF"))
-
-#Filter to pairs we are going to consider
-pairs <- 
-  pairs %>% 
-  filter((t1_tt == "regen" & t2_tt == "mature") | 
-           (t1_tt == "regen" & t2_tt == "regen"))
+    filter((pair_type == "r-m") | 
+           (pair_type == "r-r" &
+              t1_pid == t2_pid))
+dim(pairs)
   
-#tree2 = source tree. Add seed production values of those trees
-pairs <- left_join(pairs, 
-                            select(trees, tree_id, sp), by = 
-                              join_by(tree2 == tree_id))
-
-#Filter out cases where sp = 0
+##Filter out cases where sp = 0
 pairs <- pairs %>% 
   filter(sp>0)
+dim(pairs)
+
+##Filter out trees in the same place (dist = 0)
+##Use this object to calculate interception. Trees in same place have no 
+##interception by default and the spatial function below would throw up 
+##errors if they were present. But these pairs are relevant and contribute 
+##a lot to seed load (a tree forked with another is a major infection source). 
+##So save the larger object with the dist_m=0 trees to join later. 
+pairs_icpt <- pairs %>% filter(dist_m > 0)
+dim(pairs_icpt)
 
 #Check how many pairs are left at this point
-dim(pairs) #189
+dim(pairs_icpt) #123
 
 #Graph the test set again so we know what we are looking at
 tmap_mode("plot") + tm_shape(test) + 
@@ -432,16 +462,17 @@ tmap_mode("plot") + tm_shape(test) +
 #same two trees. This is because directionality matters. In (2, 1) we are 
 #modelling seed moving from tree 1 to tree 2; in (1, 2) we are modelling seed #moving from tree 2 to tree 1. 
 #Because of the filtering above, for regen-mature tree pairs, only one case
-#will be represented in the data. But for regen-regen pairs, there will be
+#will be represented in the data (the case where tree 1 (target) is regen and 
+#tree 2 (source) is a mature tree). But for regen-regen pairs, there will be
 #two cases.
 #We are going to define potential interception trees based on the crown class 
 #of the source tree, so directionality matters for the interception component 
-#too
+#too.
 #Interception is calculated within a component (see rules above). So separate
 #out two sets of pairs [regen-mature] and [regen-regen] at outset
-pair_lines_rm <- pairs %>% 
+pair_lines_rm <- pairs_icpt %>% 
   filter(t1_tt == "regen" & t2_tt == "mature")
-pair_lines_rr <- pairs %>% 
+pair_lines_rr <- pairs_icpt %>% 
   filter(t1_tt == "regen" & t2_tt == "regen")
 
 #Draw lines between each unique pair
@@ -450,23 +481,25 @@ pair_lines_rr <- pairs %>%
 pair_lines_rm <- pair_lines_rm %>% select(t1_row, t2_row)
 pair_lines_rr <- pair_lines_rr %>% select(t1_row, t2_row)
 
-#Now use the dataframe to call points to connect with a line
+#Now use theses dataframes to call points from hw object to connect with a 
+#line
 pair_lines_rm <- pair_lines_rm %>% 
   rowwise() %>% 
   mutate(geometry = 
-           st_union(test$geometry[t1_row,], test$geometry[t2_row,]) %>% 
+           st_union(hw$geometry[t1_row,], hw$geometry[t2_row,]) %>% 
            st_cast("LINESTRING")) %>% 
   ungroup() %>% 
   st_as_sf()
 pair_lines_rr <- pair_lines_rr %>% 
   rowwise() %>% 
   mutate(geometry = 
-           st_union(test$geometry[t1_row,], test$geometry[t2_row,]) %>% 
+           st_union(hw$geometry[t1_row,], hw$geometry[t2_row,]) %>% 
            st_cast("LINESTRING")) %>% 
   ungroup() %>% 
   st_as_sf()
 
 #Check the geometries all came out valid
+#Should be empty (0 rows)
 pair_lines_rm[!st_is_valid(pair_lines_rm), ]
 pair_lines_rr[!st_is_valid(pair_lines_rr), ]
 
@@ -490,7 +523,7 @@ tmap_mode("plot") +
   tm_shape(pair_fp_rr[1:3,]) + tm_polygons(alpha = 0.2, col = "lightblue") 
 
 #Add tree_ids to the footprints
-x <- pairs %>% 
+x <- pairs_icpt %>% 
   select(t1_row, t2_row, tree1, tree2)
 pair_fp_rm <- left_join(pair_fp_rm, x, by = c("t1_row", "t2_row"))
 pair_fp_rr <- left_join(pair_fp_rr, x, by = c("t1_row", "t2_row"))
@@ -619,18 +652,12 @@ icpt_rr <- pair_fp_rr %>%
                crown_class_2 == "S") %>% 
       nrow())
 
-#Plot these to ensure this is working correctly. 
-##First, a path with just the intervening trees:
-tmap_mode("plot") + 
-  tm_shape(pair_fp_rm[39,]) + 
-    tm_polygons(alpha = 0.2, col = "darkblue") +
-  tm_shape(pair_lines[39, ]) + 
-    tm_lines() +
-  tm_shape(test %>% slice(icpt_rm$intersect_indices[[39]])) + 
-    tm_symbols(col = "spp", shape = "crown_class_2") + 
-  tm_grid() 
+#Plot these to ensure this is working correctly.
+##Select a representative case
+##3 livestanding trees on path, 1 C Hw, 1 S Hw and 1 I non-Hw
+View(icpt_rm[39,])
 
-##Same plot but adding the pair that created the path
+##First, plot a path with just the intervening trees:
 tmap_mode("plot") + 
   tm_shape(pair_fp_rm[39,]) + 
     tm_polygons(alpha = 0.2, col = "darkblue") +
@@ -638,8 +665,22 @@ tmap_mode("plot") +
     tm_lines() +
   tm_shape(test %>% slice(icpt_rm$intersect_indices[[39]])) + 
     tm_symbols(col = "spp", shape = "crown_class_2") + 
+  tm_grid() 
+
+##Same plot but adding the pair that created the path
+tmap_mode("plot") + 
+  #Path between pair (5m wide polygon)
+  tm_shape(pair_fp_rm[39,]) + 
+    tm_polygons(alpha = 0.2, col = "darkblue") +
+  #Line connecting pair
+  tm_shape(pair_lines_rm[39, ]) + 
+    tm_lines() +
+  #Intervening tree points
+  tm_shape(test %>% slice(icpt_rm$intersect_indices[[39]])) + 
+    tm_symbols(col = "spp", shape = "crown_class_2") + 
     tm_grid() +
-  tm_shape(test %>% slice(c(icpt_rm$t1_row[39], icpt_rm$t2_row[39]))) +
+  #Pair points
+  tm_shape(hw %>% slice(c(icpt_rm$t1_row[39], icpt_rm$t2_row[39]))) +
     tm_symbols(col="black")
 
 ##################
@@ -715,143 +756,191 @@ icpt_rr <- icpt_rr %>%
       .default = 0)
     )
 
+#Get a summary of interception
+icpt_rm %>% select(icpt_tot, icpt_hw, icpt_nh) %>% 
+  summary()
+icpt_rm %>% select(icpt_tot, icpt_hw, icpt_nh) %>% 
+  summary()
+
+
 #Now join the dataframes back together
 icpt_all <- rbind(icpt_rm, icpt_rr)
 
 #Also join the connecting lines back together for visualizations
 pair_lines <- rbind(pair_lines_rm, pair_lines_rr)
+
+#icpt_xx objects are polygons of paths between trees that have 
+#interception attributes attached. Don't need to keep the polygons for 
+#the final output so drop those 
+icpt_all <- icpt_all %>% st_drop_geometry()
+
+#Join interception estimates back to dataframe of pairs
+x <- icpt_all %>% select(t1_row, t2_row, icpt_tot, icpt_hw, 
+                           icpt_nh)
+pairs <- left_join(pairs, x, by = c("t1_row", "t2_row"))
+
+#Set interception equal to 0 for pairs in the same place
+#There aren't any of these cases in the test dataframe but there are in the 
+#larger dataset
+pairs <- pairs %>% 
+    mutate(across(c("icpt_tot", "icpt_hw", "icpt_nh"), 
+                  ~if_else(dist_m == 0, 0, .)))
+
+#Join interception estimates to paired lines
+x <- pairs %>% select(t1_row, t2_row, pair_type, icpt_tot, icpt_hw, 
+                           icpt_nh)
+pair_lines <- left_join(pair_lines, x, by = c("t1_row", "t2_row"))
+
+#Plot interception to get a sense of its distribution:
+ggplot(pairs, aes(x = pair_type, y = icpt_tot)) + 
+  geom_jitter(width = 0.05) + geom_violin(fill = NA)
 ```
 
-Combine dispersal function, seed production and interception to calculate seed load
+Still working with the test area, combine dispersal function, seed production and interception to calculate seed load
 ```{r}
-#Calculate seed load on the target tree for each pair (ignoring interception)
+#Seed dispersal function (defined above) operates over two intervals (1) within 
+#the crown of a tree and (2) beyond it. In first interval, a constant factor is 
+#applied to the seed production value of the source tree to estimate the 
+#proportion of seed hitting the target tree. Beyond the crown, an exponential
+#decay function is used to estimate the proportion of seed. 
 
 #Add crown width of the source tree
 x <- trees %>% select(tree_id, LCW)
 pairs <- left_join(pairs, x, by = join_by(tree2 == tree_id))
 summary(pairs$LCW)
 
-#Define new distance variable: distance - the crown width
+#Define new distance variable: distance zeroed on the edge of the crown
 pairs <- pairs %>% 
-  mutate(dist_m_ed = dist_m - LCW)
+  mutate(dist_m_ed = dist_m - (LCW/2))
+
+#Check there are no NAs in sp
+any(is.na(pairs$sp))
 
 #Then use dispersal function to estimate proportion of sp hitting a given tree 
-pairs <- pairs %>%
-  mutate(sl = f_p_seed(sp, dist_m_ed))
+pairs <- pairs %>% rowwise %>% 
+  mutate(p_seed = f_p_seed(dist_m_ed))
 
-#Check there are no NAs in sp or sl
-pairs %>% select(sp, sl) %>% summary()
-any(is.na(pairs$sp))
-any(is.na(pairs$sl))
+#Check there are no NAs
+any(is.na(pairs$p_seed))
 
-#Visualize this for a given target tree
-#Regen tree at centre of plot is r3
-#Join seed load to the lines object
-x <- pairs %>% select(t1_row, t2_row, tree1, tree2, sl)
-pair_lines <- left_join(pair_lines, x, by = c("t1_row", "t2_row"))
-pair_lines <- pair_lines %>% 
-  filter(sl>0)
+#Plot proportion of seed vs. distance between pairs
+#Coloured by crown class of source tree because they have bigger crowns and 
+#should be able to reach trees farther away
+ggplot(pairs, aes(x = dist_m, y = p_seed, shape = t2_tt, 
+                  colour = t2_cc)) + 
+  geom_point()
 
-tmap_mode("plot") + 
-  tm_shape(test) + 
-    tm_symbols(shape = "tree_type", col = "sp",
-               breaks = c(0, 0, 1, 200, 400, 600, 800, 1000),
-               palette = c("blue", 
-                           brewer.pal("YlOrRd", n = 6))) +
-  tm_shape(filter(pair_lines, tree1 == "r3")) + 
-    tm_lines(lwd = "sl", scale = 5) +  tm_grid()
+#Also just plot simple violin plot
+ggplot(pairs, aes(x = t2_tt, y = p_seed)) + 
+  geom_point() +
+  geom_violin(fill = NA)
 
-#Now incorporate interception
-#Add interception to the pairs df
-x <- icpt_all %>% st_drop_geometry() %>% 
-  select(t1_row, t2_row, icpt_tot, icpt_hw,
-         icpt_nh)
-pairs <- 
-  left_join(pairs, x, by = c("t1_row", "t2_row"))
-
-#Calculate sl with interception
+#Now calculate seed load assuming no interception (just accounting for 
+#dispersal)
 pairs <- pairs %>% 
-  mutate(sl_i_tot = sl - (sl*icpt_tot),
-         sl_i_hw = sl - (sl*icpt_hw),
-         sl_i_nh = sl - (sl*icpt_nh)) %>% 
+  mutate(sl_ni = sp*p_seed)
+
+#Plot
+ggplot(pairs, aes(x = dist_m, y = sl_ni, shape = t2_tt)) + 
+  geom_point()
+
+#Now calculate sl with interception
+pairs <- pairs %>% 
+  mutate(sl_i_tot = sl_ni - (sl_ni*icpt_tot),
+         sl_i_hw = sl_ni - (sl_ni*icpt_hw),
+         sl_i_nh = sl_ni - (sl_ni*icpt_nh)) %>% 
   mutate(sl_i_tot = if_else(sl_i_tot < 0, 0, sl_i_tot),
          sl_i_hw = if_else(sl_i_hw < 0, 0, sl_i_hw),
          sl_i_nh = if_else(sl_i_nh < 0, 0, sl_i_nh))
 
-pairs %>% select(sp, sl, sl_i_tot) %>% summary()
+#Check there are no NAs in the sl columns
+any(is.na(pairs$sl_ni))
+any(is.na(pairs$sl_i_tot))
+any(is.na(pairs$sl_i_hw))
+any(is.na(pairs$sl_i_nh))
 
-#Visualize test set again
-#Notice the lines that drop out because of interception
-x <- pairs %>% select(t1_row, t2_row, icpt_tot, sl_i_tot)
-pair_lines <- left_join(pair_lines, x, by = c("t1_row", "t2_row"))
+#Summarise data to get the cumulative seed load for each target tree
+##For regen-mature pairs
+sl_target_rm <- pairs %>% 
+  filter(pair_type == "r-m") %>% 
+  group_by(tree1) %>% 
+  summarise(sl_ni_rm = sum(sl_ni),
+            sl_i_tot_rm = sum(sl_i_tot),
+            sl_i_hw_rm = sum(sl_i_hw),
+            sl_i_nh_rm = sum(sl_i_nh))
+
+##For regen-regen pairs
+sl_target_rr <- pairs %>% 
+  filter(pair_type == "r-r") %>% 
+  group_by(tree1) %>% 
+  summarise(sl_ni_rr = sum(sl_ni),
+            sl_i_tot_rr = sum(sl_i_tot),
+            sl_i_hw_rr = sum(sl_i_hw),
+            sl_i_nh_rr = sum(sl_i_nh))
+
+#Add these values back to the tree level dataframe:
+trees <- left_join(test, sl_target_rm, by = join_by(tree_id == tree1))
+trees <- left_join(test, sl_target_rr, by = join_by(tree_id == tree1))
+
+#Gather seed load columns in the pairs dataset and the test dataset to do 
+#some plotting
+sl_comp <- pairs %>% 
+  pivot_longer(cols = starts_with("sl_"),
+               names_to = "sl_ver",
+               names_prefix = "sl_",
+               values_to = "sl")
+test_sl_comp <- test %>% 
+  pivot_longer(cols = starts_with("sl_"),
+               names_to = "sl_ver",
+               names_prefix = "sl_",
+               values_to = "sl")
+
+#Visualize seed load for a given target tree
+##Regen tree at centre of plot is r3
+##Create a lines object that has the seed load values
+#Layer this on top of a point layer that is coloured by cumulative seed load
+##Facet by the different versions of seed load (no interception, hemlock 
+##interception, non-hw interception and total interception)
+x <- sl_comp %>% select(t1_row, t2_row, tree1, tree2, sl, sl_ver)
+x1 <- pair_lines %>% select(t1_row, t2_row)
+pair_lines_sl <- left_join(x, x1, by = c("t1_row", "t2_row")) 
+pair_lines_sl <- st_as_sf(pair_lines_sl)
 
 tmap_mode("plot") + 
-  tm_shape(test) + 
-    tm_symbols(shape = "tree_type", col = "sp",
-               breaks = c(0, 0, 1, 200, 400, 600, 800, 1000),
-               palette = c("blue", 
-                           brewer.pal("YlOrRd", n = 6))) +
-  tm_shape(filter(pair_lines, tree1 == "r3")) + 
-    tm_lines(lwd = "sl_i_tot", scale = 5) +  tm_grid()
+  tm_shape(test_sl_comp) + 
+    tm_symbols(col = "sl") +
+  tm_shape(filter(pair_lines_sl, tree1 == "r3")) + 
+    tm_lines(lwd = "sl", scale = 5) +  
+  tm_grid() +
+  tm_facets(by = "sl_ver")
 
-#Summarize seed load for each target tree
-sl <- pairs %>% group_by(tree1) %>% 
-  summarise(sl = sum(sl),
-            sl_i_tot = sum(sl_i_tot),
-            sl_i_hw = sum(sl_i_hw),
-            sl_i_nh = sum(sl_i_nh)
-            )
+#Also just plot a violin plot
+ggplot(sl_comp, aes(x = sl_ver, y = sl)) +
+  geom_point() +
+  geom_violin(fill=NA)+
+  facet_wrap(~pair_type, scales = "free")
 
 #How much is seed load reduced by interception? 
+#Calculate ratio between seed load with and without interception
 #Answer: some, seed load accounting for interception is ~ 67% of
 #initial sl value
-sl %>% mutate(icpt_frac = sl_i_tot/sl) %>% summary()
-
-#Join the results back to test object
-test <- left_join(test, sl, by = join_by(tree_id == tree1))
-
-#Visualize again
-#Plot is faceted by the version of seed load. Interception obviously
-#influential here. 
-x <- test %>% 
-  pivot_longer(cols = starts_with("sl"),
-               names_to = "sl_ver",
-               values_to = "sl")
-summary(x$sl)
-
-tmap_mode("plot") + 
-  tm_shape(x) + 
-    tm_symbols(col = "sl") +
-  tm_facets(by = "sl_ver")
+pairs <- pairs %>% 
+  mutate(icpt_frac = sl_i_tot/sl_ni) 
+pairs %>% select(icpt_frac) %>% summary()
 ```
 
-Now recreate the example above but applied across all trees at all sites
+Now recreate the example above but applied across all trees at all sites. Start
+by defining a function for interception:
 ```{r}
-#Only sparse comments. For detailed comments, see previous block.
-#Starting object: tree data from hdm sites, as sf object
-#Convert trees object to a spatial (sf) object
-#Coordinates are called X and Y
-#CRS BC Albers NAD83 = 3005
-trees_sf <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
-#check CRS
-st_crs(trees_sf)
-
-#Filter the mature trees from the dataset that were beyond the 10m boundary used across all sites. 
-trees_sf <- trees_sf %>% filter(outside_10 == "N" | is.na(outside_10))
-
-#Separate dataset into a list of dataframes, one for each site. 
-site_sf <- trees_sf %>% 
-  group_by(site_id) %>% 
-  group_split()
-
-#Also create a test dataset with just three sites
-test <- trees_sf %>% 
-  filter(site_id %in% c("mi_1", "cr_1", "ph_1")) %>% 
-  group_by(site_id) %>% 
-  group_split()
-
-#####################
-#Define a function to calculate interception, for each df
+#Input requirements:
+##sf: sf dataframe of trees at a site, with point geometry
+##buffer: scalar vector: how wide should the path between a pair of trees be?
+##all trees stems that intersect this path are considered as interception trees.
+##icpt_f1: interception factor 1, for trees in the same canopy class (or 
+##considered to have foliage throughout the same vertical stratum) as the 
+##source tree
+##icpt_f2: interception factor 2, for trees in a lower canopy class than the 
+##source tree, that only restrict some of the vertical space on a path
 f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
   #tree1 = target tree
   #tree2 = source tree
@@ -860,20 +949,20 @@ f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
   site_id <- as.character(sf$site_id[1])
   
   #Filter dataframe to live Hw and Ba trees
-  hw_ba <- sf %>% filter(spp %in% c("Hw", "Ba") &
+  hw <- sf %>% filter(spp == "Hw" &
                            status %in% c("LS", "LF", "LL"))
-  dim(hw_ba) #Number of pairs is number of rows^2
+  dim(hw) #Number of pairs is number of rows^2
   
   #Save row number as a variable
-  hw_ba$row <- as.integer(row.names(hw_ba))
+  hw$row <- as.integer(row.names(hw))
   
   #Calculate distance between each unique pair in this set
-  dist_matrix <- st_distance(hw_ba, by_element = FALSE)
+  dist_matrix <- st_distance(hw, by_element = FALSE)
   dim(dist_matrix)
   
-  #Get indices of pairs within 15m. Then use these indices to create a df of 
+  #Get indices of pairs within 25m. Then use these indices to create a df of 
   #pairs
-  indices <- which(dist_matrix < units::set_units(15, "m"), arr.ind = TRUE)
+  indices <- which(dist_matrix < units::set_units(25, "m"), arr.ind = TRUE)
   pairs <- as.data.frame(indices)
   pairs$dist_m <- as.numeric(dist_matrix[indices])
   dim(pairs) 
@@ -888,7 +977,7 @@ f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
   #Add tree_id, tree type, status, species, crown class and plot_id 
   #(=transect_id) of tree one and two
   #Also add seed production for source tree (tree2)
-  x <- hw_ba %>% st_drop_geometry()
+  x <- hw %>% st_drop_geometry()
   pairs <- 
     left_join(pairs,
               select(x, row, tree_id, plot_id, tree_type, status, spp,
@@ -935,7 +1024,7 @@ f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
   ##Use this object to calculate interception. Trees in same place have no 
   ##interception by default and the spatial function below would throw up 
   ##errors if they were present. But these pairs are relevant and contribute 
-  ##a lot to seed load (a tree forked with another is a major infeciton source). 
+  ##a lot to seed load (a tree forked with another is a major infection source). 
   ##So save the larger object with the dist_m=0 trees to join later. 
   pairs_icpt <- pairs %>% filter(dist_m > 0)
   dim(pairs_icpt)
@@ -962,11 +1051,11 @@ f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
     pair_lines_rm <- pairs_rm %>% select(tree1, tree2, t1_row, t2_row)
     
     ##Now use these dataframes to call points from original pairs object 
-    ##(hw_ba) to connect with a line
+    ##(hw) to connect with a line
     pair_lines_rm <- pair_lines_rm %>% 
       rowwise() %>% 
       mutate(geometry = 
-               st_union(hw_ba$geometry[t1_row,], hw_ba$geometry[t2_row,]) %>% 
+               st_union(hw$geometry[t1_row,], hw$geometry[t2_row,]) %>% 
                st_cast("LINESTRING")) %>% 
       ungroup() %>% 
       st_as_sf()
@@ -1085,12 +1174,12 @@ f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
     #Also include tree ids
     pair_lines_rr <- pairs_rr %>% select(tree1, tree2, t1_row, t2_row)
     
-    ##Now use these dataframes to call points from original pairs object (hw_ba) 
+    ##Now use these dataframes to call points from original pairs object (hw) 
     ##to connect with a line
     pair_lines_rr <- pair_lines_rr %>% 
       rowwise() %>% 
       mutate(geometry = 
-               st_union(hw_ba$geometry[t1_row,], hw_ba$geometry[t2_row,]) %>% 
+               st_union(hw$geometry[t1_row,], hw$geometry[t2_row,]) %>% 
                st_cast("LINESTRING")) %>% 
       ungroup() %>% 
       st_as_sf()
@@ -1247,10 +1336,29 @@ f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
   ##of interception. Good for graphing. 
   return(list(pairs = pairs, pair_lines = pair_lines))    
 }
-#####################
+```
 
-#Set parameters for the function. Do this by redifining generic function
-#above, but with the buffer parameter set. 
+Try applying the function over another test set of three sites
+```{r}
+#Redefine trees_sf object in case the cut block above wasn't run
+#Coordinates are called X and Y
+#CRS BC Albers NAD83 = 3005
+trees_sf <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+#check CRS
+st_crs(trees_sf)
+
+#Filter the mature trees from the dataset that were beyond the 10m boundary used across all sites. 
+trees_sf <- trees_sf %>% filter(outside_10 == "N" | is.na(outside_10))
+
+#Subset to three sites, one from each cluster, then separate out each site
+#Resulting object is a list of dataframes
+test <- trees_sf %>% 
+  filter(site_id %in% c("mi_1", "cr_1", "ph_1")) %>% 
+  group_by(site_id) %>% 
+  group_split()
+
+#Set parameters for the function. Do this by redefining generic function
+#above, but with buffer and interception factors set. 
 #First parameter set: 
 ## buffer = 2.5m
 ## icpt_f1 = 0.9 (trees where this factor apply reduce seed load by 90%)
@@ -1280,14 +1388,16 @@ pair_lines <- pair_lines %>% select(site_id, pair_type, everything())
 #Plot these objects to make sure they worked
 ##First plot, points and connecting lines with no filter
 ##These are all the pairs created in the interception workflow --> all pairs 
-##of live Hw or Ba trees where source tree has seed production > 0
+##of live Hw trees where source tree has seed production > 0
+##Lack of regen-regen pairs at ph_1 isn't a mistake. There was almost no 
+##infection at that site
 test_g <- trees_sf %>% 
   filter(site_id %in% c("mi_1", "cr_1", "ph_1"))
 tmap_mode("plot") + 
    tm_shape(pair_lines) + 
     tm_lines(col="pair_type") +
   tm_shape(test_g) + 
-    tm_symbols(col = "tree_type", scale = 0.5) + 
+    tm_symbols(col = "sp", scale = 0.5) + 
   tm_grid() +
     tm_facets(by = "site_id", ncol = 3, free.coords = T, free.scales = T)
 
@@ -1297,57 +1407,262 @@ tmap_mode("plot") +
   tm_shape(pair_lines %>% filter(icpt_tot < 1)) + 
     tm_lines(col="pair_type") +
   tm_shape(test_g) + 
-    tm_symbols(col = "tree_type", scale = 0.5) + 
+    tm_symbols(col = "dmr_f", scale = 0.5) + 
   tm_grid() +
     tm_facets(by = "site_id", ncol = 3, free.coords = T, free.scales = T)
 
-#Doesn't look like any regen-regen pairs remain after this filter. 
-#See how many pairs remain
-#Need to check if trees in the pair are being included in the interception. 
-#We don't want that. 
-pairs %>% filter(pair_type == "r-r" & icpt_tot >1) %>% 
-  nrow()
+##Third plot: violin plot of interception
+icpt_comp <- pairs %>% pivot_longer(cols = starts_with("icpt"),
+                                    names_to = "icpt_ver",
+                                    names_prefix = "icpt_",
+                                    values_to="icpt")
+ggplot(icpt_comp, aes(x = site_id, y = icpt)) +
+  geom_point() +
+  geom_violin(fill=NA) + 
+  facet_grid(pair_type~icpt_ver, scales = "free")
 ```
 
-
+Scale up and apply function to entire HDM dataset
 ```{r}
-#join LCW to pairs
+#Redefine trees_sf object in case the cut block above wasn't run
+#Coordinates are called X and Y
+#CRS BC Albers NAD83 = 3005
+trees_sf <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+#check CRS
+st_crs(trees_sf)
+
+#Filter the mature trees from the dataset that were beyond the 10m boundary used across all sites. 
+trees_sf <- trees_sf %>% filter(outside_10 == "N" | is.na(outside_10))
+
+#Separate out each site. Resulting object is a list of dataframes
+site_sf <- trees_sf %>% 
+  group_by(site_id) %>% 
+  group_split()
+
+#Set parameters for the function. Do this by redefining generic function
+#above, but with buffer and interception factors set. 
+#First parameter set: 
+## buffer = 2.5m
+## icpt_f1 = 0.9 (trees where this factor apply reduce seed load by 90%)
+## icpt_f1 = 0.45 (trees where this factor apply reduce seed load by 45%)
+f_icpt_set1 <- function(sf){
+  f_icpt(sf = sf, buffer = 2.5, icpt_f1 = 0.9, icpt_f2 = 0.45)
+}
+
+#Apply the function to each site level dataframe automatically with map 
+#function
+#Output: list of two item lists. The higher level list is for each site. Within 
+#each site, there is a list of the two outputs (see above) from the function. 
+icpt <- map(site_sf, f_icpt_set1)
+
+#Extract the dataframes with interception estimates
+pairs <- lapply(icpt, function(x) x[[1]])
+pairs <- do.call(rbind, pairs)
+##Reorder the columns
+pairs <- pairs %>% select(site_id, pair_type, everything())
+
+#Extract the paired lines
+pair_lines <- lapply(icpt, function(x) x[[2]])
+pair_lines <- do.call(rbind, pair_lines)
+##Reorder the columns
+pair_lines <- pair_lines %>% select(site_id, pair_type, everything())
+
+#Plot these objects to make sure they worked
+##First plot, points and connecting lines with no filter
+##These are all the pairs created in the interception workflow --> all pairs 
+##of live Hw trees where source tree has seed production > 0
+##Lack of regen-regen pairs at ph_1 isn't a mistake. There was almost no 
+##infection at that site
+tmap_mode("plot") + 
+   tm_shape(pair_lines) + 
+    tm_lines(col="pair_type") +
+  tm_shape(trees_sf) + 
+    tm_symbols(col = "sp", scale = 0.5) + 
+  tm_grid() +
+    tm_facets(by = "site_id", ncol = 4, free.coords = T, free.scales = T)
+```
+
+#Put it all together
+At this point we have:
+- seed production estimates for each Hw tree
+- a seed dispersal function that estimates the proportion of a seed production 
+value that reaches a given distance
+- a dataframe of pairs of live Hw trees that are within 25m of eachother 
+and where the source tree has some amount of HDM
+- estimates of interception on the path between each pair
+
+Next step is to combine these pieces to estimate the seed load reaching the 
+target tree in each pair. Then sum the seed load values for each pair a target
+tree is involved in to get the total cumulative seed load for each regen tree.
+
+Calculate seed load from regen source trees and seed load from mature source
+trees separately and then together so both can be used in analysis. 
+```{r}
+#Add crown width of the source tree to the pairs dataset
 x <- trees %>% select(tree_id, LCW)
+pairs <- left_join(pairs, x, by = join_by(tree2 == tree_id))
+summary(pairs$LCW)
 
-test <- pairs %>% 
-  left_join(x, by = join_by(tree2 == tree_id))
-
-#Calculate distance for each pair, centred on the edge of the crown (dist_m_ed)
-test <- test %>% 
+#Define new distance variable: distance zeroed on the edge of the crown
+#Crown width havled to get crown radius
+pairs <- pairs %>% 
   mutate(dist_m_ed = dist_m - (LCW/2))
 
-#Calculate seed load on target tree
-test <- test %>% rowwise() %>% 
-  mutate(sl = f_p_seed(sp = sp, dist_m_ed = dist_m_ed))
+#Check there are no NAs in sp
+any(is.na(pairs$sp))
 
-#Graph this:
-ggplot(test, aes(x=dist_m, y = sl, colour = site_id)) + geom_point()+
-  facet_wrap(~t2_cc, scales = "free_y")
+#Then use dispersal function to estimate proportion of sp hitting a given tree 
+pairs <- pairs %>% rowwise %>% 
+  mutate(p_seed = f_p_seed(dist_m_ed))
 
-#Looks good, check for individual source trees
-#Find which source trees are a part of the most pairs in each crown class
-x <- test %>% 
-  group_by(t2_cc, tree2) %>% 
-  summarise(n_pairs = n()) %>% 
-  arrange(t2_cc, -n_pairs)
-c <- x %>% filter(t2_cc == "C") %>% 
-  slice(1:2) %>% pull(tree2)
-i <- x %>% filter(t2_cc == "I") %>% 
-  slice(1:2) %>% pull(tree2)
-s <- x %>% filter(t2_cc == "S") %>% 
-  slice(1:2) %>% pull(tree2)
-test_trees <- c(c, i, s)
+#Check there are no NAs
+any(is.na(pairs$p_seed))
 
-#Filter to just the trees and graph again
-test <- test %>% filter(tree2 %in% test_trees)
-ggplot(test, aes(x=dist_m, y = sl, colour = tree2)) + geom_point() +
-  facet_wrap(~t2_cc, scales = "free_y")
+#Plot proportion of seed vs. distance between pairs
+##Coloured by crown class of source tree because they have bigger crowns and 
+##should be able to reach trees farther away
+##looks good
+ggplot(pairs, aes(x = dist_m, y = p_seed, 
+                  colour = t2_cc)) + 
+  geom_point() +
+  facet_wrap(~pair_type)
 
+#Also just make simple violin plot
+##Most regen-mature pairs far apart, low p_seed, relative to regen-regen pairs
+ggplot(pairs, aes(x = t2_cc, y = p_seed)) + 
+  geom_point() +
+  geom_violin(fill = NA) + 
+  facet_wrap(~pair_type)
+
+#Now calculate seed load assuming no interception (just accounting for 
+#dispersal)
+pairs <- pairs %>% 
+  mutate(sl_ni = sp*p_seed)
+
+#Plot seed load vs. distance between trees
+##Behaving as it should, co-dominant trees, have bigger sp value and reach 
+##farther. Suppressed trees (on other end of the spectrum) have smaller sp 
+##values and smaller crowns, so reach trees closer
+ggplot(pairs, aes(x = dist_m, y = sl_ni, colour = t2_cc)) + 
+  geom_point() + 
+  facet_wrap(~pair_type, scales = "free_y")
+
+#Now calculate sl with interception
+pairs <- pairs %>% 
+  mutate(sl_i_tot = sl_ni - (sl_ni*icpt_tot),
+         sl_i_hw = sl_ni - (sl_ni*icpt_hw),
+         sl_i_nh = sl_ni - (sl_ni*icpt_nh)) %>% 
+  mutate(sl_i_tot = if_else(sl_i_tot < 0, 0, sl_i_tot),
+         sl_i_hw = if_else(sl_i_hw < 0, 0, sl_i_hw),
+         sl_i_nh = if_else(sl_i_nh < 0, 0, sl_i_nh))
+
+#Check there are no NAs in the sl columns
+any(is.na(pairs$sl_ni))
+any(is.na(pairs$sl_i_tot))
+any(is.na(pairs$sl_i_hw))
+any(is.na(pairs$sl_i_nh))
+
+#Gather seed load with and without interception into a single column to compare
+sl_comp <- pairs %>% 
+  pivot_longer(cols = starts_with("sl_"),
+               names_to = "sl_ver",
+               names_prefix = "sl_",
+               values_to = "sl")
+
+#Make a violin plot
+##Looks good, interception lowers seed load relative to no interception 
+##scenario (ni)
+ggplot(sl_comp, aes(x = sl_ver, y = sl)) +
+  geom_violin(fill=NA)+
+  facet_wrap(~pair_type, scales = "free")
+
+#Summarise data to get the cumulative seed load for each target tree
+##For regen-mature pairs
+sl_target_rm <- pairs %>% 
+  filter(pair_type == "r-m") %>% 
+  group_by(tree1) %>% 
+  summarise(sl_ni_rm = sum(sl_ni),
+            sl_i_tot_rm = sum(sl_i_tot),
+            sl_i_hw_rm = sum(sl_i_hw),
+            sl_i_nh_rm = sum(sl_i_nh))
+
+##For regen-regen pairs
+sl_target_rr <- pairs %>% 
+  filter(pair_type == "r-r") %>% 
+  group_by(tree1) %>% 
+  summarise(sl_ni_rr = sum(sl_ni),
+            sl_i_tot_rr = sum(sl_i_tot),
+            sl_i_hw_rr = sum(sl_i_hw),
+            sl_i_nh_rr = sum(sl_i_nh))
+
+#Add these values back to the tree level dataframe:
+trees <- left_join(trees, sl_target_rm, by = join_by(tree_id == tree1))
+trees <- left_join(trees, sl_target_rr, by = join_by(tree_id == tree1))
+
+#Get a summary of these new variables
+##Lots of NAs here, some are valid, some aren't. 
+##seed load should have a value for all live Hw trees. If they 
+##are more than 25m from the edge and/or don't have any regen trees in their
+##vicinity with HDM, they may be NA when they should be 0. Reassign these 
+##cases
+trees %>% select(starts_with("sl")) %>% summary()
+
+#Create a temporary object with al lthe trees that should have values for sl
+x <- trees %>% 
+  filter(tree_type == "regen" &
+           spp =="Ba" &
+           status %in% c("LS", "LL", "LF"))
+x %>% select(starts_with("sl")) %>% summary()
+
+#Find out how many need to be reassigned
+x %>% filter(is.na(sl_ni_rm) | is.na(sl_ni_rr)) %>% nrow()
+
+#Then do the reassignment: 
+trees <- trees %>% 
+  mutate(across(starts_with("sl") & ends_with("rm"), 
+                  ~ if_else(tree_type == "regen" &
+                              spp == "Hw" &
+                              status %in% c("LS", "LL", "LF") &
+                              is.na(sl_ni_rm), 0, .)),
+         across(starts_with("sl") & ends_with("rr"), 
+                  ~ if_else(tree_type == "regen" &
+                              spp == "Hw" &
+                              status %in% c("LS", "LL", "LF") &
+                              is.na(sl_ni_rr), 0, .))
+         )
+
+#Calculate the total seed load (sum of regen and mature source trees)
+trees <- trees %>% 
+  mutate(sl_ni_all = sl_ni_rm + sl_ni_rr,
+         sl_i_tot_all = sl_i_tot_rm + sl_i_tot_rr,
+         sl_i_hw_all = sl_i_hw_rm + sl_i_hw_rr,
+         sl_i_nh_all = sl_i_nh_rm + sl_i_nh_rr)
+
+#Done. Export this version of the trees object
+# write_csv(trees, here("./data/workflow/trees_sl.csv"))
+```
+
+#Exploratory plots relating seed load to regen tree infection
+```{r}
+#Plot seed load from mature trees as function of distance from the edge:
+x <- pivot_longer(trees, 
+                  cols = starts_with("sl_i_tot"),
+                  names_to = "sl_source",
+                  names_prefix = "sl_i_tot",
+                  values_to = "sl")
+ggplot(x, aes(x = dist_y_h, y = sl, colour = sl_source)) + 
+  geom_point()
+
+#Plot seed load of mature trees vs dmr
+#Looks sort of promising, there is a slight right trend
+x <- trees %>% 
+  filter(tree_type == "regen" &
+           spp == "Hw" &
+           status %in% c("LS", "LL", "LF"))
+x <- x
+ggplot(x, aes(x = sl_i_tot_rm, y = factor(dmr, levels = c(0,1,2,3,4,5,6),
+                                          ordered = TRUE))) + 
+  geom_boxplot() 
 ```
 
 
