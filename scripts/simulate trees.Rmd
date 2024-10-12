@@ -628,4 +628,3 @@ Everything looks good. Export object as a csv.
 ```{r}
 # write_csv(trees, here("./data/workflow/trees_sim.csv"))
 ```
-
