@@ -16,12 +16,8 @@ between them is estimated. These three pieces are combined to estimate
 seed load. 
 
 Right now, only live Hw are considered source and target trees. Future versions
-could find a way to consider dead trees and Amabalis fir, the other HDM site,
-which was only a significant host at one site (ph_2). 
-
-NECESSARY TO DO
-- How is amabilis fir being treated right now? It shouldn't have a crown vol
-estimate so its sp should be 0, which means it is probably being filtered out. 
+could find a way to consider dead trees and Amabalis fir, the other HDM host,
+which was only present in significant amounts at one site (ph_2). 
 
 LIST OF POTENTIAL IMPROVEMENTS/FUTURE WORK
 - Is multiplying DMR x crown volume the best approach? Look at how they combine
