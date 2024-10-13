@@ -10,9 +10,9 @@ crown class at each site.
 
 It uses the one site where we collected data from all crown classes (cr_3) 
 to estimate to height proportions between codonminant/dominant and the 
-intermediate and suppressed crown classes. Then it assumes those proportions are
-equal across all the other sites (e.g. suppressed tree ht is always xxx% of 
-codom tree height).
+intermediate and suppressed crown classes. Then it assumes those proportions 
+are equal across all the other sites (e.g. suppressed tree ht is always 
+xxx% of codom tree height).
 
 Data from the BC Government's Permanent Sample Plot database are used to fit
 models that estimate height to live crown from tree height. Two models are fit
@@ -43,6 +43,7 @@ and measurements are for 2023/2024. So height estimates are two years behind.
 Also, don't know what vri does with apical droop of Hw. 
 - Create model for cr_3 to get tree specific height and crown volume 
 measurements we can run something like a sensitivity test later on. 
+- Include a model for Ba. 
 ################
 
 Load packages.
@@ -80,13 +81,13 @@ site <- site %>% mutate(age = yr_sur - yr_har)
 
 ####Dataset 2: main tree dataset
 #Read in the tree data
-t_hdm <- read_csv(here("data/workflow/trees_mapped.csv"))
+t_hdm <- read_csv(here("data/workflow/trees_sim.csv"))
 
 #Convert factor vars to factors: 
 t_hdm <- t_hdm %>% mutate(across(
   c(site_id, spp, status, hdm_pa, b_lc, 
-    broom_pa, broom_pos, stem_pa, crown_class, crown_cond, outside_10, 
-    assessed_by, tree_type, dmr_f),
+    broom_pa, broom_pos, stem_pa, crown_class, crown_cond, 
+    outside_10, assessed_by, tree_type, tree_type_2, dmr_f),
   ~as.factor(.)))
 
 #Convert plot_id and dmrs to integers
@@ -101,6 +102,10 @@ t_hdm <- t_hdm %>%
 
 #Check variables in object
 str(t_hdm)
+
+#Subset data to measured trees to use in estimates in the script. 
+t_hdm_meas <- t_hdm %>% 
+  filter(tree_type_2 != "sim regen")
 
 ########################################
 ####Dataset 3: extra measured regen tree heights
@@ -160,8 +165,8 @@ vri %>% filter(site_id == "mk_1", tree_type == "regen")
 Calculate height factors from the cr_3 site
 ```{r}
 #Subset this dataset to the site cr_3 by tree component (regen and mature)
-t_r_cr3 <- t_hdm %>% filter(tree_type == "regen" & site_id == "cr_3")
-t_m_cr3 <- t_hdm %>% filter(tree_type == "mature" & site_id == "cr_3")
+t_r_cr3 <- t_hdm_meas %>% filter(tree_type == "regen" & site_id == "cr_3")
+t_m_cr3 <- t_hdm_meas %>% filter(tree_type == "mature" & site_id == "cr_3")
 
 #Subset these to Hw trees with ht measurements
 t_r_cr3 <- t_r_cr3 %>% filter(spp == "Hw" & !is.na(height_m))
@@ -213,7 +218,7 @@ Top height = average height of the co-dominant/dominant tree layers
 ########################################
 #Height sources 1 and 2: main tree dataset and adjacent codom/dom hts
 #Filter trees dataset to those with height recorded
-ht_hdm <- t_hdm %>% filter(!is.na(height_m))
+ht_hdm <- t_hdm_meas %>% filter(!is.na(height_m))
 
 #Merge the main trees and extra height tree datasets
 #Only keep variables present in both
@@ -338,7 +343,7 @@ cv_l <- cv_l %>%
         sep = "_", remove = FALSE)
 
 #Calculate the mean DBH for each canopy class at each site
-dbh_hdm <- t_hdm %>% 
+dbh_hdm <- t_hdm_meas %>% 
   filter(crown_class_2 != "-") %>% 
   group_by(site_id, tree_type, crown_class_2) %>% 
   summarise(mean_dbh = mean(dbh))
@@ -846,13 +851,13 @@ cv_l <- cv_l %>%
 #CV_diff is just to check this is given the same results as the calculation 
 #for the whole crown
 cv_l <- cv_l %>% 
-  mutate(CV_lt = f_cv(h_min = HT_BR, h_max = bt_ul, HEIGHT, HLCW, 
+  mutate(CV_l = f_cv(h_min = HT_BR, h_max = bt_ul, HEIGHT, HLCW, 
                    LCW, f_eq7, f_eq8),
-         CV_mt = f_cv(h_min = bt_ul, h_max = mt_ul, HEIGHT, HLCW, 
+         CV_m = f_cv(h_min = bt_ul, h_max = mt_ul, HEIGHT, HLCW, 
                    LCW, f_eq7, f_eq8),
-         CV_ut = f_cv(h_min = mt_ul, h_max = HEIGHT, HEIGHT, HLCW, 
+         CV_u = f_cv(h_min = mt_ul, h_max = HEIGHT, HEIGHT, HLCW, 
                    LCW, f_eq7, f_eq8),
-         CV_diff = sum(CV_lt + CV_mt + CV_ut) - CV)
+         CV_diff = sum(CV_l + CV_m + CV_u) - CV)
 cv_l %>% select(CV_diff) %>% summary() #functionally identical
 ```
 
@@ -941,9 +946,9 @@ cv_export <- cv_l %>% select(site_id,
                              DACB,
                              HLCW,
                              CV,
-                             CV_lt,
-                             CV_mt,
-                             CV_ut)
+                             CV_l,
+                             CV_m,
+                             CV_u)
 
 #Rename HEIGHT, mean_dbh because there are similar variables in the tree 
 #dataset already. Don't want to confuse with them. 
@@ -952,5 +957,14 @@ cv_export <- cv_export %>% rename(height_cv_est = HEIGHT,
 
 #Write csv
 # write_csv(cv_export, here("./data/workflow/crown_vol.csv"))
+
+#Next, join the crown volume data back to the tree level dataset
+#Add a variable to cv_export that identifies them as Hw
+cv_export <- cv_export %>% mutate(spp = "Hw")
+t_hdm_export <- t_hdm %>%
+  left_join(cv_export, by = c("site_id", "tree_type", "spp", "crown_class_2"))
+
+#Export this:
+# write_csv(t_hdm_export, here("./data/workflow/trees_cv.csv"))
 ```
 
