@@ -37,17 +37,18 @@ Smith, Richard B. ‘Hemlock and Larch Dwarf Mistletoe Seed Dispersal’. The Fo
 Bloomberg, W. J., R. B. Smith, and A. Van Der Wereld. ‘A Model of Spread and Intensification of Dwarf Mistletoe Infection in Young Western Hemlock Stands’. Canadian Journal of Forest Research 10, no. 1 (1 March 1980): 42–52. https://doi.org/10.1139/X80-008.
 ##############
 
-```{r}
+```{r, echo=FALSE}
 #Load packages
 library(tidyverse)
 library(here)
 library(sf)
 library(tmap)
 library(RColorBrewer)
+library(knitr)
 ```
 
 Read in and format the data
-```{r}
+```{r, echo=FALSE, results='markup'}
 rm(list = ls(all = TRUE))
 
 #Dataset 1: hdm tree data
@@ -75,7 +76,6 @@ str(trees) #check
 smith <- read_csv(here("./data/raw/seed dispersal_smith1966.csv"))
 str(smith)
 ```
-
 
 #Seed production
 Create a proxy metric for seed production of live Hw trees
@@ -651,7 +651,7 @@ icpt_rr <- pair_fp_rr %>%
 #Plot these to ensure this is working correctly.
 ##Select a representative case
 ##3 livestanding trees on path, 1 C Hw, 1 S Hw and 1 I non-Hw
-View(icpt_rm[39,])
+icpt_rm[39,] %>% select(starts_with("icpt"))
 
 ##First, plot a path with just the intervening trees:
 tmap_mode("plot") + 
@@ -875,21 +875,31 @@ sl_target_rr <- pairs %>%
             sl_i_nh_rr = sum(sl_i_nh))
 
 #Add these values back to the tree level dataframe:
-trees <- left_join(test, sl_target_rm, by = join_by(tree_id == tree1))
-trees <- left_join(test, sl_target_rr, by = join_by(tree_id == tree1))
+test <- left_join(test, sl_target_rm, by = join_by(tree_id == tree1))
+test <- left_join(test, sl_target_rr, by = join_by(tree_id == tree1))
 
 #Gather seed load columns in the pairs dataset and the test dataset to do 
 #some plotting
-sl_comp <- pairs %>% 
+g1 <- pairs %>% 
   pivot_longer(cols = starts_with("sl_"),
                names_to = "sl_ver",
                names_prefix = "sl_",
-               values_to = "sl")
-test_sl_comp <- test %>% 
+               values_to = "sl") %>% 
+  mutate(sl_source = case_match(
+    pair_type,
+    "r-r" ~ "regen",
+    "r-m" ~ "mature"
+  ))
+
+g2 <- test %>% 
   pivot_longer(cols = starts_with("sl_"),
-               names_to = "sl_ver",
-               names_prefix = "sl_",
-               values_to = "sl")
+               names_to = c("sl_ver", "sl_source"),
+               names_pattern = "sl_(.*)_(rm|rr)",
+               values_to = "sl") %>% 
+  mutate(sl_source = case_when(
+    sl_source == "rr" ~ "regen",
+    sl_source == "rm" ~ "mature"
+  ))
 
 #Visualize seed load for a given target tree
 ##Regen tree at centre of plot is r3
@@ -897,28 +907,40 @@ test_sl_comp <- test %>%
 #Layer this on top of a point layer that is coloured by cumulative seed load
 ##Facet by the different versions of seed load (no interception, hemlock 
 ##interception, non-hw interception and total interception)
-x <- sl_comp %>% select(t1_row, t2_row, tree1, tree2, sl, sl_ver)
+x <- g1 %>% select(t1_row, t2_row, tree1, tree2, sl, sl_ver, sl_source)
 x1 <- pair_lines %>% select(t1_row, t2_row)
 pair_lines_sl <- left_join(x, x1, by = c("t1_row", "t2_row")) 
 pair_lines_sl <- st_as_sf(pair_lines_sl)
 
+#Plot looking at seed load from mature component first:
 tmap_mode("plot") + 
-  tm_shape(test_sl_comp) + 
-    tm_symbols(col = "sl") +
-  tm_shape(filter(pair_lines_sl, tree1 == "r3")) + 
+  tm_shape((g2 %>% filter(sl_source == "mature"))) + 
+    tm_symbols(col = "sl") + tm_facets(by = "sl_ver") +
+  tm_shape(filter(pair_lines_sl, tree1 == "r3" & sl_source == "mature")) + 
     tm_lines(lwd = "sl", scale = 5) +  
   tm_grid() +
   tm_facets(by = "sl_ver")
 
-#Also just plot a violin plot
-ggplot(sl_comp, aes(x = sl_ver, y = sl)) +
+#Then looking at regen component:
+tmap_mode("plot") + 
+  tm_shape((g2 %>% filter(sl_source == "regen"))) + 
+    tm_symbols(col = "sl") + tm_facets(by = "sl_ver") +
+  tm_shape(filter(pair_lines_sl, tree1 == "r3" & sl_source == "regen")) + 
+    tm_lines(lwd = "sl", scale = 5) +  
+  tm_grid() +
+  tm_facets(by = "sl_ver")
+
+#Plot a violin plot looking at seed load by with and without interception
+#originating from mature and regen sources
+##Note: axis scales are different
+ggplot(g2, aes(x = sl_ver, y = sl)) +
   geom_point() +
   geom_violin(fill=NA)+
-  facet_wrap(~pair_type, scales = "free")
+  facet_wrap(~sl_source, scales = "free")
 
 #How much is seed load reduced by interception? 
 #Calculate ratio between seed load with and without interception
-#Answer: some, seed load accounting for interception is ~ 67% of
+#Answer: some, seed load accounting for interception is ~ 47% of
 #initial sl value
 pairs <- pairs %>% 
   mutate(icpt_frac = sl_i_tot/sl_ni) 
@@ -1597,16 +1619,16 @@ trees <- left_join(trees, sl_target_rr, by = join_by(tree_id == tree1))
 
 #Get a summary of these new variables
 ##Lots of NAs here, some are valid, some aren't. 
-##seed load should have a value for all live Hw trees. If they 
+##seed load should have a value for all live Hw regen trees. If they 
 ##are more than 25m from the edge and/or don't have any regen trees in their
 ##vicinity with HDM, they may be NA when they should be 0. Reassign these 
 ##cases
 trees %>% select(starts_with("sl")) %>% summary()
 
-#Create a temporary object with al lthe trees that should have values for sl
+#Create a temporary object with all the trees that should have values for sl
 x <- trees %>% 
   filter(tree_type == "regen" &
-           spp =="Ba" &
+           spp =="Hw" &
            status %in% c("LS", "LL", "LF"))
 x %>% select(starts_with("sl")) %>% summary()
 
@@ -1626,6 +1648,13 @@ trees <- trees %>%
                               status %in% c("LS", "LL", "LF") &
                               is.na(sl_ni_rr), 0, .))
          )
+
+#Check we got them all
+x <- trees %>% 
+  filter(tree_type == "regen" &
+           spp =="Hw" &
+           status %in% c("LS", "LL", "LF"))
+x %>% filter(is.na(sl_ni_rm) | is.na(sl_ni_rr)) %>% nrow()
 
 #Calculate the total seed load (sum of regen and mature source trees)
 trees <- trees %>% 
@@ -1655,7 +1684,7 @@ x <- trees %>%
   filter(tree_type == "regen" &
            spp == "Hw" &
            status %in% c("LS", "LL", "LF"))
-x <- x
+
 ggplot(x, aes(x = sl_i_tot_rm, y = factor(dmr, levels = c(0,1,2,3,4,5,6),
                                           ordered = TRUE))) + 
   geom_boxplot() 
