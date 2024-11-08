@@ -73,7 +73,11 @@ str(transect)
 
 ####Dataset 3: main tree dataset
 #Read in the tree data
-trees <- read_csv(here("data/workflow/trees_mapped.csv"))
+trees <- read_csv(here("data/workflow/trees_mapped.csv"),
+                  col_types = cols(
+                    outside_10 = col_character(),
+                    assessed_by = col_character()
+                  ))
 
 #Convert factor vars to factors: 
 trees <- trees %>% mutate(across(
