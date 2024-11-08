@@ -18,7 +18,7 @@ library(sf)
 library(tmap)
 library(RColorBrewer)
 
-trees <- read_sf("./data/workflow/trees_mapped.geojson")
+trees <- read_csv("./data/workflow/trees_sl.csv")
 trimb <- read_csv("./data/workflow/trimb_radjusted.csv")
 tran <- read_csv('./data/cleaned/transect data_c.csv')
 site <- read_csv('./data/cleaned/site data.csv')
@@ -26,19 +26,24 @@ site <- read_csv('./data/cleaned/site data.csv')
 
 Format the trees dataset. 
 ```{r}
+#Convert to a sf, point feature object
+trees <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+
 class(trees)
 summary(trees)
 
-#check CRS, should be BC Albers NAD83 
+#Check CRS, should be BC Albers NAD83 
 st_crs(trees) #check CRS, should be BC Albers NAD83 = 3005
 
 #Sort by site_id
 trees <- trees %>% arrange(site_id)
 
-# Convert to factor: spp, status, hdm_pa, b_lc, broom_pa, stem_pa, crown class, crown_cond, outside_10
-trees <- trees %>% mutate(across(c(site_id, spp, status, hdm_pa, b_lc, broom_pa, 
-                                   broom_pos, stem_pa, crown_class, crown_cond, outside_10, 
-                                   assessed_by, tree_type, dmr_f), ~ as.factor(.)))
+#Convert to factor: spp, status, hdm_pa, b_lc, broom_pa, stem_pa, crown class, 
+#crown_cond, outside_10
+trees <- trees %>% 
+  mutate(across(c(site_id, spp, status, hdm_pa, b_lc, broom_pa, broom_pos, 
+                  stem_pa, crown_class, crown_cond, outside_10, 
+                  assessed_by, tree_type, tree_type_2, dmr_f), ~ as.factor(.)))
 
 #Convert to integer: plot_id, dmrs
 trees <- trees %>% mutate(across(
@@ -82,50 +87,73 @@ site <- site %>% mutate(across(c(site_id, cluster, bec_sz), ~ as.factor(.)))
 site <- site %>% mutate(age = (2023-yr_har))
 
 #Create combined factor variable for plotting: site id + bec zone + age
-site <- site %>% unite(col = bec_z_sz, sep = "", c("bec_z", "bec_sz"), remove = FALSE) %>% unite(col = id_bec_ag_f, sep = ", ", c("site_id", "bec_z_sz", "age"), remove = FALSE) %>% mutate(id_bec_ag_f = factor((id_bec_ag_f)))
+site <- site %>% 
+  unite(col = bec_z_sz, sep = "", c("bec_z", "bec_sz"), remove = FALSE) %>% 
+  unite(col = id_bec_ag_f, sep = ", ", 
+        c("site_id", "bec_z_sz", "age"), remove = FALSE) %>% 
+  mutate(id_bec_ag_f = factor((id_bec_ag_f)))
 ```
 
-
-Rotate the points at each site (in both trees and trimb) so they are all oriented with the mature component running vertically and the transects running horizontally. Code adapted with help from Chat GPT from: https://stackoverflow.com/questions/31873151/how-rotate-map-in-r
+Rotate the points at each site (in both trees and trimb) so they are all 
+oriented with the mature component running vertically and the transects running 
+horizontally. Code adapted with help from Chat GPT and from: https://stackoverflow.com/questions/31873151/how-rotate-map-in-r
 ```{r}
-#Calculate vector with how many degrees each site needs to be rotated. Want each transect to be az = 90deg. 
+#Calculate vector with how many degrees each site needs to be rotated. Want 
+#each transect to be az = 90deg. 
 degrees <- trees %>% 
-  mutate(rot_deg = case_when(tr_az<90 ~ (-1)*(tr_az-90), #define degree adjustment
+  #define degree adjustment
+  mutate(rot_deg = case_when(tr_az<90 ~ (-1)*(tr_az-90), 
                              tr_az>90 ~ (-1)*(tr_az-90))) %>% 
-  filter(str_detect(tree_id, "r")) %>% #filter to just regen trees
+  #filter to just regen trees
+  filter(str_detect(tree_id, "r")) %>%
+  #get unique values for each site
   group_by(site_id) %>% 
-  distinct(rot_deg) %>% # get unique values for each site
-  pull(rot_deg) #make vector
+  distinct(rot_deg) %>% 
+  #pull out that vector of adjusment values for each site
+  pull(rot_deg)
 
-#Define a list of centre coordinate corresponding to each site. Use the centroid of all the stem mapped trees.
+#Define a list of centre coordinate corresponding to each site. Use the 
+#centroid of all the stem mapped trees.
 center_coords <- trees %>% group_by(site_id) %>% 
   summarise(geometry = st_centroid(st_combine(geometry))) %>% st_geometry()
 
-#Split datasets, one for each site. This results in list of sf objects, one for each site. For the point datasets (trees and trimb) all the points at a site have been combined to a single feature (corresponding to a sf class change of POINT to MULTIPOINT). 
+#Split datasets, one for each site. This results in list of sf objects, one for 
+#each site. For the point datasets (trees and trimb) all the points at a site 
+#have been combined to a single feature (corresponding to a sf class change of 
+#POINT to MULTIPOINT). 
 pts_trees <- trees %>% group_by(site_id) %>% 
   summarise(geometry=st_combine(geometry)) %>% st_geometry()
 pts_trimb <- trimb %>% group_by(site_id) %>% 
   summarise(geometry=st_combine(geometry)) %>% st_geometry()
 
-#Define a function to rotate a spatial feature. x = an sf object, center_coords = the centre coordinates to anchor each site, degrees=the number of degrees to rotate the object
+#Define a function to rotate a spatial feature. x = an sf object, 
+#center_coords = the centre coordinates to anchor each site, degrees=the number 
+#of degrees to rotate the object
 rotate_sf <- function(x, center_coords, degrees) {
-  radians <- degrees * pi/180 #convert to radians
-  transform_matrix <- matrix(c(cos(radians), sin(radians), #the transformation matrix
+  #convert to radians
+  radians <- degrees * pi/180 
+  #the transformation matrix
+  transform_matrix <- matrix(c(cos(radians), sin(radians), 
                                  -sin(radians), cos(radians)), 2, 2)
-  rot_site <- ((x - center_coords) * transform_matrix) + center_coords #the actual math
+  #the actual math
+  rot_site <- ((x - center_coords) * transform_matrix) + center_coords 
   return(rot_site) #output
 }
 
-#Map function applies another function to each item in a vector successively. Here, it rotates each site level MULTIPOINT sf object by the number of degrees in the "degrees" vector. 
+#Map function applies another function to each item in a vector successively. 
+#Here, it rotates each site level MULTIPOINT sf object by the number of degrees 
+#in the "degrees" vector. 
 trees_rot <- Map(rotate_sf, pts_trees, center_coords, degrees)
 
 trimb_rot <- Map(rotate_sf, pts_trimb, center_coords, degrees)
 
-#This output is a new list of sf multipoint objects. Combine these back together into a dataframe of x, y coordinates. 
-trees_rot <- do.call(rbind, trees_rot) #do.call applies function to each item in a list
+#This output is a new list of sf multipoint objects. Combine these back 
+#together into a dataframe of x, y coordinates. 
+#do.call applies function to each item in a list
+trees_rot <- do.call(rbind, trees_rot) 
 trees_rot <- as.data.frame(trees_rot) %>% rename(X=V1, Y=V2)
 
-trimb_rot <- do.call(rbind, trimb_rot) #do.call applies function to each item in a list
+trimb_rot <- do.call(rbind, trimb_rot) 
 trimb_rot <- as.data.frame(trimb_rot) %>% rename(X=V1, Y=V2)
 
 #Then associate back to the attribute data associated with each point
@@ -140,32 +168,52 @@ trimb_rot <- st_as_sf(trimb_rot, coords = c("X", "Y"), crs=3005)
 
 Make the stem mapped plot. 
 ```{r}
-# Filter out mature trees that were mapped outside of 10m. Only happened at a few sites. 
-levels(trees_rot$outside_10)
+#Object 1: trees points
+#Filter out mature trees that were mapped outside of 10m. Only happened 
+#at a few sites. 
 trees_rot <- trees_rot %>% filter(outside_10 == "N" | is.na(outside_10))
+##################
 
+#Object 2: Trimble points
 #Filter to trimble points identified as for graphing
 trimb_rot <- trimb_rot %>% filter(graph == "Y")
 
-#Takea look at the levels of pt_type, used frequentlty below
+#Take a look at the levels of pt_type, used frequently below
 levels(trimb_rot$pt_type)
+##################
+
+#Object 3: Footprints of each site
+##These are standardized to be the same size across all sites to ensure the 
+##scale is the the same. 
 
 #Create the footprints of the each site:
-tran_pts <- trimb_rot %>% #filter trimb_points to just transect starts and ends
-  filter(pt_type %in% c("tran start", "tran end"))
-rot_points <- rbind(select(trees_rot, site_id), select(tran_pts, site_id)) #combine trees_rot and trimb_rot datasets
-rot_points <- rot_points %>% group_by(site_id) %>% #split rotated points into separate datasets for each site
+##Split rotated points into separate datasets for each site
+fp_points <- trees_rot %>% group_by(site_id) %>% 
   summarise(geometry=st_combine(geometry)) %>% st_geometry()
-fp_rot <- Map(st_bbox, rot_points) #create bounding box around each of these sets of points
 
-# Calculate the maximum differences in x and y directions among all bounding boxes
-# With help from ChatGPT
-# Here, sapply applies the same function over each item in a list and outputs a vector. function defines what is going to be allied to each list item. Each item is called 'bbox' so it calls that item and then specifies which element e.g. bbox[1] = xmin. max() takes that vector and finds the biggest value. 
-fp_rot[[1]][1] # just an example of how you access individual bbox elements. This accesses the first element (xmin) of the first bounding box
+##Create bounding box around each of these sets of points
+fp_rot <- Map(st_bbox, fp_points)
+
+#Calculate the maximum differences in x and y directions among all bounding 
+#boxes
+#With help from ChatGPT
+#Here, sapply applies the same function over each item in a list and outputs 
+#a vector. 
+#Function defines what is going to be applied to each list item. Each item is 
+#called 'bbox' so it calls that item and then specifies which element 
+#e.g. bbox[1] = xmin. max() takes that vector and finds the biggest value. 
+
+#Example of how you access individual bbox elements. This accesses the first 
+#element (xmin) of the first bounding box
+fp_rot[[1]][1] 
+
 max_x_diff <- max(sapply(fp_rot, function(bbox) bbox[3] - bbox[1]))
 max_y_diff <- max(sapply(fp_rot, function(bbox) bbox[4] - bbox[2]))
-# Adjust each bounding box to have the maximum differences
-# Here lapply applies a function to each item in a list. {} defines the function. In the function it finds the centre of xmin and xmax and then adds/subtracts half of what the extend should be (max_x_dff).
+
+#Adjust each bounding box to have the maximum differences
+#Here lapply applies a function to each item in a list. {} defines the 
+#function. In the function it finds the centre of xmin and xmax and then 
+#adds/subtracts half of what the extend should be (max_x_dff).
 adjusted_fp_rot <- lapply(fp_rot, function(bbox) {
   adj_xmin <- ((bbox[1] + bbox[3])/2) - (max_x_diff/2) #calculate new xmin
   adj_ymin <- ((bbox[2] + bbox[4])/2) - (max_y_diff/2) #calculate new ymin
@@ -177,65 +225,122 @@ adjusted_fp_rot <- lapply(fp_rot, function(bbox) {
   bbox
 })
 
-# Print adjusted bounding boxes
+#Print adjusted bounding boxes
 max_x_diff; max_y_diff
 adjusted_fp_rot
 adjusted_fp_rot[[2]][2] - adjusted_fp_rot[[2]][4]
 
 #Turn this back into an sf object that can be plotted
-adjusted_fp_rot <- Map(st_as_sfc, adjusted_fp_rot) #turn bbox object into sfc object
-adjusted_fp_rot <- Map(st_as_sf, adjusted_fp_rot) #trun sfc object into sf object
-adjusted_fp_rot <- do.call(rbind, adjusted_fp_rot) #combine sf objects to single object
-sites <- trees %>% st_drop_geometry() %>% distinct(site_id) #get column of site_ids
-adjusted_fp_rot <- adjusted_fp_rot %>% mutate(site_id=sites$site_id) #add comlumn of site_ids to sf object
-st_crs(adjusted_fp_rot) = 3005 #define crs
+##Rurn bbox object into sfc object
+adjusted_fp_rot <- Map(st_as_sfc, adjusted_fp_rot) 
 
-#Create the transect lines for the site
-tran_pts <- trimb_rot %>% #filter to just transect starts and ends
+##Turn sfc object into sf object
+adjusted_fp_rot <- Map(st_as_sf, adjusted_fp_rot) 
+
+##Combine sf objects to single object
+adjusted_fp_rot <- do.call(rbind, adjusted_fp_rot) 
+
+##Get column of site_ids
+sites <- trees %>% st_drop_geometry() %>% distinct(site_id) 
+
+##Add comlumn of site_ids to sf object
+adjusted_fp_rot <- adjusted_fp_rot %>% mutate(site_id=sites$site_id) 
+st_crs(adjusted_fp_rot) = 3005 #define crs
+##################
+
+#Object 4 and 5: transect start/end points and footprints
+
+#Pull out transect start and end points separately
+#Will use these objects for plotting below
+te_pts <- trimb_rot %>% 
+  filter(pt_type == "tran start" & 
+           graph == "Y")
+ts_pts <- trimb_rot %>% 
+  filter(pt_type == "tran end" & 
+           graph == "Y")
+
+#Add transect length to transect end points
+x <- tran %>% select(transect_id, tr_leng)
+te_pts <- left_join(te_pts, x, by = join_by(pt_id == transect_id))
+
+#Generate transect footprints from start and end points
+##Pull out transect start and end points together
+##Will use this object to generate footprints
+tran_pts <- trimb_rot %>% 
   filter(pt_type %in% c("tran start", "tran end"))
-tran_line_att <- tran_pts %>% st_drop_geometry() #save attributes
-tran_lines <- tran_pts %>% group_by(pt_id) %>% # draw lines between start and end. Creates two lines one from start to end and one from end to start.
+
+##Save attributes.  Use transect start attributes to represent footprints
+tran_line_att <- tran_pts %>% st_drop_geometry() %>% 
+  filter(pt_type == "tran start")
+
+##Draw lines between start and end. 
+##group_by() and summarize() ensure only one line is created for each pair
+tran_lines <- tran_pts %>% group_by(pt_id) %>% 
   summarize() %>% st_cast("LINESTRING")
-tran_lines <- st_buffer(tran_lines, dist = 2.5, endCapStyle = 'FLAT') # buffer
+
+##Buffer
+tran_lines <- st_buffer(tran_lines, dist = 2.5, endCapStyle = 'FLAT')
+
+##Join back to attributes.
 tran_lines <- left_join(tran_lines, tran_line_att, by="pt_id")
-tran_lines <- tran_lines %>% filter(pt_type=="tran end")
-tran_lines <- left_join(tran_lines, select(tran, transect_id, tr_leng), by=c("pt_id"="transect_id"))
+
+##Add transect length from transect data
+tran_lines <- left_join(tran_lines, select(tran, transect_id, tr_leng), 
+                        by=c("pt_id"="transect_id"))
 
 #Create horizontal lines marking transect distances at 5m intervals
-#Up to 6 lines/transect, 2pts/line, 10 sites, 3 transects/site
-# #pts = 3*8*6*2 = 288 pts
-max(tran$tr_leng) #find longest transect length. 32.8m (cr_1)
-# Create new fake points
-dist_x <- rep(c(-2.5, 2.5), 3*length(site$site_id)*6) #define vector of x coords
-dist_y <- rep(c(5, 5, 10, 10, 15, 15, 20, 20, 25, 25, 30, 30), 3*length(site$site_id)) #define vector of y coordinates
+##Up to 10 lines/transect, 2pts/line, 11 sites, 3 transects/site
+
+##Find the longest transect length. 51m (cr_3)
+max(tran$tr_leng)
+
+##Calculate how many 5m intervals are needed for the max length transect
+n_5_int <- round(max(tran$tr_leng)/5, 0)
+
+##Create new fake points
+###Define vector of x coords
+dist_x <- rep(c(-2.5, 2.5), 3*length(site$site_id)*n_5_int)
+
+###Define vector of y coordinates
+dist_y <- rep(c(5, 5, 10, 10, 15, 15, 20, 20, 25, 25, 30, 30, 35, 35, 40, 40, 
+                45, 45, 50, 50), 
+              3*length(site$site_id)) 
 dist_y <- sort(dist_y)
-ids <- sample(1:500, length(site$site_id)*3*6, replace = FALSE) #generate 80 random unique ids
+
+###Generate random unique ids
+ids <- sample(1:500, length(site$site_id)*3*n_5_int, replace = FALSE) 
 ids <- sort(rep(ids, 2))
 transect_id <- pull(tran, transect_id)
 transect_id <- rep(transect_id, 2)
 transect_id <- sort(transect_id)
-transect_id <- rep(transect_id, 6)
+transect_id <- rep(transect_id, n_5_int)
 dist_mark <- tibble(ids, transect_id, dist_x, dist_y)
 
-#calculate distance and degree adjustment from transect line
-dist_mark <- dist_mark %>% mutate(dist = (dist_x^2 + dist_y^2)^0.5, az_adj = atan(dist_x/dist_y)*(180/pi))
+##Calculate distance and degree adjustment from transect line
+dist_mark <- dist_mark %>% mutate(dist = (dist_x^2 + dist_y^2)^0.5, 
+                                  az_adj = atan(dist_x/dist_y)*(180/pi))
 
-#Because we are working with points, we know all transects are oriented to 90degrees. Azimuth to each point
+##Calculate angle from transect start point to the distance marker
 dist_mark <- dist_mark %>% mutate(az = (90 + az_adj)%%360)
 
-#Add site_id and transect length to this dataframe
-dist_mark <- left_join(dist_mark, select(tran, transect_id, site_id, tr_leng), by="transect_id")
+##Add site_id and transect length to this dataframe
+dist_mark <- left_join(dist_mark, 
+                       select(tran, transect_id, site_id, tr_leng), 
+                       by="transect_id")
 
-#Add column to check if dist_y > transect length. If it is, then drop the row
-dist_mark <- dist_mark %>% mutate(diff_mark_tr = tr_leng-dist_y) %>% filter(diff_mark_tr > 0)
+##Add column to check if dist_y > transect length. If it is, then drop the row
+dist_mark <- dist_mark %>% 
+  mutate(diff_mark_tr = tr_leng-dist_y) %>% 
+  filter(diff_mark_tr > 0)
 
-#Join these points to transect starts
-ts_pts <- trimb_rot %>% filter(pt_type == "tran start")
-ts_coords <- st_coordinates(ts_pts) %>% as.data.frame()
+##Join these points to transect starts used for stem mapping
+ts_pts_sm <- trimb_rot %>% 
+  filter(pt_type == "tran start" & stem_map == "Y")
+ts_coords <- st_coordinates(ts_pts_sm) %>% as.data.frame()
 ts_coords <- mutate(ts_coords, transect_id = ts_pts$pt_id)
 dist_mark <- left_join(dist_mark, ts_coords, by="transect_id")
 
-#Define function from Liam to generate points from from dist and az readings
+##Define function from Liam to generate points from from dist and az readings
 polar_to_XY <- function(azimuth,
                         distance,
                         xcenter,
@@ -268,45 +373,62 @@ polar_to_XY <- function(azimuth,
   return(tree_locations)
 }
 
-#Run function
+##Run function
 crs <- 3005
 dist_mark <- dist_mark %>%
   mutate(polar_to_XY(azimuth = az, distance = dist,
                      xcenter = X, ycenter = Y, crs = crs,
                      shape_file = TRUE))
 
-#Convert it to a spatial object:
+##Convert it to a spatial object:
 dist_mark <- st_as_sf(dist_mark)
 class(dist_mark)
 
-#Create lines from each set of two points that mark intervals on the transect
-dist_mark_att <- dist_mark %>% st_drop_geometry() #save attributes
-dist_mark <- dist_mark %>% group_by(ids) %>% # draw lines between two points. Creates two lines one from start to end and one from end to start.
+##Create lines from each set of two points that mark intervals on the transect
+###Save attributes
+dist_mark_att <- dist_mark %>% st_drop_geometry() 
+
+###Draw lines between two points. Creates two lines one from start to end and
+###one from end to start.
+dist_mark <- dist_mark %>% group_by(ids) %>% 
   summarize() %>% st_cast("LINESTRING")
 dist_mark <- left_join(dist_mark_att, dist_mark, by="ids")
 dist_mark <- st_as_sf(dist_mark)
+##################
+
+#Object 6: Edge lines
 
 #Create some edge lines:
 levels(trimb_rot$pt_type)
-edge_lines <- trimb_rot %>% #filter to points that define edge ("edge" and "r adj tran start")
+
+##Filter to points that define edge ("edge" and "r adj tran start")
+edge_lines <- trimb_rot %>% 
   filter(pt_type %in% c("edge", "tran start"))
-edge_line_coords <- st_coordinates(edge_lines) %>%  #extract coordinates
+
+##Extract coordinates
+edge_line_coords <- st_coordinates(edge_lines) %>%  
   as.data.frame() %>% mutate(diff=(X-Y))
+
+##Draw lines between start and end
 edge_lines <- edge_lines %>% mutate(diff=edge_line_coords$diff)
-edge_lines <- edge_lines %>% group_by(site_id) %>% arrange(diff) %>% # draw lines between start and end
+edge_lines <- edge_lines %>% group_by(site_id) %>% arrange(diff) %>% 
   summarise(do_union = FALSE) %>% st_cast("LINESTRING")
 
-#Add a layer to visualize seed load
-#sl <- trees_rot %>% filter(tree_type=="regen" & sl>0)
-
-#Add site data to each of the objects being plotted
-adjusted_fp_rot <- left_join(adjusted_fp_rot, select(site, site_id, id_bec_ag_f), by ="site_id")
-edge_lines <- left_join(edge_lines, select(site, site_id, id_bec_ag_f), by ="site_id")
-tran_lines <- left_join(tran_lines, select(site, site_id, id_bec_ag_f), by ="site_id")
-tran_pts <- left_join(tran_pts, select(site, site_id, id_bec_ag_f), by ="site_id")
-dist_mark <- left_join(dist_mark, select(site, site_id, id_bec_ag_f), by ="site_id")
-trees_rot <- left_join(trees_rot, select(site, site_id, id_bec_ag_f), by ="site_id")
-#sl <- left_join(sl, select(site, site_id, id_bec_ag_f), by ="site_id")
+#Add site id and factor with site_id, bec and age to each of the objects
+adjusted_fp_rot <- left_join(adjusted_fp_rot, 
+                             select(site, site_id, id_bec_ag_f), by ="site_id")
+edge_lines <- left_join(edge_lines, 
+                        select(site, site_id, id_bec_ag_f), by ="site_id")
+tran_lines <- left_join(tran_lines, 
+                        select(site, site_id, id_bec_ag_f), by ="site_id")
+ts_pts <- left_join(ts_pts, 
+                      select(site, site_id, id_bec_ag_f), by ="site_id")
+te_pts <- left_join(te_pts, 
+                      select(site, site_id, id_bec_ag_f), by ="site_id")
+dist_mark <- left_join(dist_mark, 
+                       select(site, site_id, id_bec_ag_f), by ="site_id")
+trees_rot <- left_join(trees_rot, 
+                       select(site, site_id, id_bec_ag_f), by ="site_id")
 
 #Make new version of dmr_f for graphing that simplifies some of the ratings
 levels(trees_rot$dmr_f)
@@ -314,44 +436,132 @@ trees_rot <- trees_rot %>%
   mutate(dmr_f_graph = case_when(dmr_f == "-" ~ "non Hw", 
                                  dmr_f %in% c("1", "2") ~ "1-2", 
                                  dmr_f %in% c("3", "4") ~ "3-4", 
-                                 dmr_f %in% c("5", "6") ~ "5-6", 
-                                 dmr_f == "DI" ~ "dead infected",
-                                 dmr_f == "DU" ~ "dead uninfected",
-                                 dmr_f == "IBLC" ~ "infected below live crown",
+                                 dmr_f %in% c("5", "6") ~ "5-6",
                                  .default = dmr_f)) %>% 
   mutate(dmr_f_graph = factor(dmr_f_graph, 
-                              levels = c("non Hw", "dead uninfected", "0", 
-                                         "infected below live crown", "1-2", 
-                                         "3-4", "5-6", "dead infected")))
+                              levels = c("non Hw", "DU", "0", 
+                                         "IBLC", "1-2", 
+                                         "3-4", "5-6", "DI")))
 
 #Define colour pallette
 # https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
 levels(trees_rot$dmr_f_graph)
 dmr_colour <- c("#cccccc", "#1F78B4", "#A6CEE3", brewer.pal(4, "Oranges"), 
                 "hotpink")
-sl_colour <- brewer.pal(n=9, name="Greys")
-brewer.pal.info
+
+#Define shape palette for tree_type_2
+levels(trees_rot$tree_type_2)
+tt2_shape <- c(16, 16, 1)
 
 # Plot it all together
-# pdf("./figures/trees_25Jul2024.pdf", width=11, height=8.5)
-tmap_mode("plot")
-tm_shape(adjusted_fp_rot, is.master = TRUE) + #define map extent using site footprints
-  tm_facets(by = "id_bec_ag_f", free.scales = FALSE, free.coords = TRUE, ncol = 4) +
-  tm_polygons(col="white", border.col = NULL) +
-tm_shape(edge_lines) + tm_lines(col="blue", lty=2) + #add edge lines
-tm_shape(tran_lines) + tm_polygons(alpha=0.25) + 
-  tm_text("tr_leng", ymod = 1.7) + #add transects
-tm_shape(tran_pts) + tm_symbols(col="blue", shape=3, size=0.1) + #transect start and end points
-tm_shape(dist_mark) + tm_lines(lty = 3, alpha = 0.7) +
-tm_shape(trees_rot) + tm_symbols(size = "dbh", scale = 2, col="dmr_f_graph", palette = dmr_colour, border.lwd = NA, title.col = "HDM status", legend.size.is.portrait = TRUE, legend.col.is.portrait = FALSE) + #add tree points
-tm_legend(legend.outside=TRUE, legend.outside.position = "bottom", legend.position=c(0.4, 0.2), 
-                                 legend.stack="horizontal")
-dev.off()
+# pdf("./figures/trees_13Oct2024.pdf", width=11, height=8.5)
+tmap_mode("plot") +
+  #Define map extent using site footprints
+  tm_shape(adjusted_fp_rot, is.master = TRUE) +
+    tm_facets(by = "id_bec_ag_f", free.scales = FALSE, 
+              free.coords = TRUE, ncol = 4) +
+    tm_polygons(col="white", border.col = NULL) +
+  #Edge lines
+  tm_shape(edge_lines) + 
+    tm_lines(col="blue", lty=2) +
+  #Transect start/end points, footprints and distance markers
+  tm_shape(tran_lines) + 
+    tm_polygons(alpha=0.25) + 
+  #Transect start and end points
+  tm_shape(ts_pts) + 
+    tm_symbols(col="blue", shape=3, size=0.1) + 
+  tm_shape(te_pts) + 
+    tm_symbols(col="blue", shape=3, size=0.1) +
+  tm_shape(dist_mark) + 
+    tm_lines(lty = 3, alpha = 0.7) +
+  #Tree points
+  tm_shape(trees_rot) + 
+    tm_symbols(col="dmr_f_graph",
+               palette = dmr_colour,
+               shape =  "tree_type_2",
+               shapes =  tt2_shape, 
+               size = "dbh", scale = 2,
+               title.col = "HDM status",
+               legend.col.is.portrait = FALSE,
+               title.size = "DBH (cm)",
+               legend.size.is.portrait = TRUE,
+               title.shape = "Tree type",
+               legend.shape.is.portrait = TRUE) +
+  tm_layout(legend.outside=TRUE, 
+            legend.outside.position = "bottom", 
+            legend.position=c(.2, .4), 
+            legend.stack="horizontal")
+# dev.off()
 
 #Seed load addition
-#tm_shape(sl) + tm_symbols(size = 2, col="sl", border.lwd = NA, title.col = "seed load", legend.size.is.portrait = TRUE, legend.col.is.portrait = FALSE)
+#Pull out an object where seed low is defined. 
+#These are all live, Hw, regen, trees. Going to plot two versions of this,
+#one coloured by seed load and one by dmr. 
+trees_sl <- trees_rot %>% 
+  filter(!is.na(sl_i_tot_rm))
+summary(trees_sl$tree_type_2)
+summary(trees_sl$status)
+summary(trees_sl$spp)
 
-#WIFDWC Plot, 3 representative sites: cr_3, mk_2, ph_1
+#Pull out another object that is live, mature Hw trees where sp is defined
+trees_sp <- trees_rot %>% 
+  filter(tree_type == "mature" & sp > 0)
+
+# pdf("./figures/trees_sl_13Oct2024.pdf", width=11, height=8.5)
+tmap_mode("plot") +
+  #Define map extent using site footprints
+  tm_shape(adjusted_fp_rot, is.master = TRUE) +
+    tm_facets(by = "id_bec_ag_f", free.scales = FALSE, 
+              free.coords = TRUE, ncol = 4) +
+    tm_polygons(col="white", border.col = NULL) +
+  #Edge lines
+  tm_shape(edge_lines) + 
+    tm_lines(col="blue", lty=2) +
+  #Transect footprints
+  tm_shape(tran_lines) + 
+    tm_polygons(alpha=0.25) + 
+  tm_shape(dist_mark) + 
+    tm_lines(lty = 3, alpha = 0.7) +
+  #Transect start and end points
+  tm_shape(ts_pts) + 
+    tm_symbols(col="blue", shape=3, size=0.1) + 
+  tm_shape(te_pts) + 
+    tm_symbols(col="blue", shape=3, size=0.1) +
+  #Tree points
+  tm_shape(trees_sl) +
+    tm_symbols(col = "sl_i_tot_rm", 
+               palette ="-viridis", 
+               scale = 1,
+               n=10,
+               alpha = 0.5,
+               style = "cont",
+               border.lwd = NA,
+               legend.col.is.portrait = FALSE,
+               title.col = "Seed load") +
+  tm_shape(trees_sl) +
+    tm_symbols(col = "dmr", 
+               palette = "Oranges", 
+               scale = 0.5,
+               legend.col.is.portrait = TRUE) +
+  tm_shape(trees_sp) +
+    tm_symbols(size = "dbh",
+               col = "sp", 
+               palette = "Greys", 
+               n=10,
+               style = "cont",
+               legend.col.is.portrait = FALSE,
+               legend.size.is.portrait = FALSE,
+               title.col = "Seed production") +
+  tm_layout(legend.outside=TRUE, 
+            legend.outside.position = "bottom", 
+            legend.position=c(.2, .4), 
+            legend.stack="horizontal")
+# dev.off()
+```
+
+Plot for WIFDWC 2024
+```{r}
+#Plot three representative sites: cr_3, mk_2, ph_1
 #Filter all objects to these three sites
 rep_sites <- c("cr_3", "mk_2", "ph_1")
 adjusted_fp_rot <- adjusted_fp_rot %>% filter(site_id %in% rep_sites)
@@ -392,6 +602,5 @@ tm_shape(dist_mark) + tm_lines(lty = 3, alpha = 0.7) +
             legend.text.size = 1,
             panel.label.size = 1.5)
 dev.off()
-?tm_layout
 ```
 
