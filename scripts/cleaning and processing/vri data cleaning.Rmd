@@ -1,0 +1,96 @@
+---
+title: "vri data cleaning"
+author: "Hanno Southam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+##############
+READ ME
+This script pulls out the relevant vri attributes for this project from the raw
+object that contains 193 attributes and does some formatting. 
+
+FUTURE IMPROVEMENTS
+- Could download latest vri release (2023)
+- Could look at other VRI layers for height info and for BA height estimates
+##############
+
+Load packages and read in data
+```{r}
+rm(list = ls(all=TRUE))
+
+library(tidyverse)
+library(here)
+
+#Read in raw vri data
+vri <- read_csv(here("./data/raw/vri_hdm_sites.csv"))
+dim(vri)
+
+#Read in site data
+site <- read_csv(here("./data/cleaned/site data.csv"))
+```
+
+Pull out relevant variables. We want: a vri id column, site_id (of associated
+hdm site), projected date, species, their relative proportions, age, and height.
+```{r}
+vri <- vri %>% 
+  select(FEATURE_ID,
+         site_id,
+         tree_type,
+         PROJECTED_DATE,
+         starts_with("BEC"),
+         HARVEST_DATE,
+         starts_with("SPECIES_CD"),
+         starts_with("SPECIES_PCT"),
+         starts_with("PROJ_AGE"),
+         starts_with("PROJ_HEIGHT"))
+```
+
+Reformat dates
+```{r}
+#Convert date columns in vri data to date classes. Raw format is month-day-year
+#hour:min:sec
+vri <- vri %>% 
+  mutate(PROJECTED_DATE = mdy_hms(PROJECTED_DATE),
+         HARVEST_DATE = mdy_hms(HARVEST_DATE))
+
+#Pull out the year of these
+vri <- vri %>% 
+  mutate(PROJECTED_YR = year(PROJECTED_DATE),
+         HARVEST_YR = year(HARVEST_DATE)) %>% 
+  relocate(PROJECTED_YR, .after = PROJECTED_DATE) %>% 
+  relocate(HARVEST_YR, .after = HARVEST_DATE)
+
+#Convert date columns in site data to date classes
+site <- site %>% rename(date_sur_char = date_surveyed) %>% 
+  mutate(date_sur = dmy(date_sur_char)) %>% 
+  mutate(yr_sur = year(date_sur)) %>% 
+  relocate(c(date_sur, yr_sur), .after = date_sur_char)
+
+#Add the year surveyed to vri data
+x <- site %>% 
+  select(site_id, yr_sur)
+vri <- left_join(vri, x, by = "site_id")
+
+#Calculate the projected age at the time of measurement:
+vri <- vri %>% 
+  mutate(YR_DIFF = yr_sur - PROJECTED_YR) %>% 
+  mutate(AGE_MEAS_1 = PROJ_AGE_1 + YR_DIFF,
+         AGE_MEAS_2 = PROJ_AGE_2 + YR_DIFF)
+
+#Pull out estimates of Hw relative abundance, age and height
+#HW is always first or second species, which is why the logic in this code 
+#works
+#Note: age we are easily able to correct to the height at the measurement 
+#year but height we can't. It is projected to 2021.
+vri <- vri %>% 
+  mutate(PERC_HW = if_else(SPECIES_CD_1 == "HW", SPECIES_PCT_1, 
+                           SPECIES_PCT_2), 
+         AGE_HW = if_else(SPECIES_CD_1 == "HW", AGE_MEAS_1, 
+                          AGE_MEAS_2),
+         HEIGHT_HW = if_else(SPECIES_CD_1 == "HW", PROJ_HEIGHT_1, 
+                             PROJ_HEIGHT_2))
+
+#Has everything we need to start modelling. Export this: 
+# write_csv(vri, here("./data/cleaned/vri_c.csv"))
+```
+
