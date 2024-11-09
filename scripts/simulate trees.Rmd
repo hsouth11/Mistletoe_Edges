@@ -29,7 +29,7 @@ counts are averaged across the three transects at a site, then used to generate
 a corresponding number of points to fill the area on each transect between its 
 end and 50m.
 
-This script starts with the ouput object from the stem map script (stem map.R).
+This script starts with the output object from the stem map script (stem map.R).
 The output feeds into the script to estimate crown volume (crown volume.Rmd)
 ##############
 
@@ -308,14 +308,21 @@ f_sim_trees <- function(df) {
     mutate(sim_trees = list(
       tibble(
         dbh = if (!is.na(dbh_sd)) {
-        rnorm(n_stem_sim, dbh_mean, dbh_sd)
-      } else {
+          replicate(n_stem_sim, {
+            value <- rnorm(1, dbh_mean, dbh_sd)
+            while (value < 4) {
+              value <- rnorm(1, dbh_mean, dbh_sd)
+            }
+            value
+          })
+        }  else {
         rep(dbh_mean, n_stem_sim)
       },
-        dist_x = sample(-2.5:2.5, n_stem_sim, replace = TRUE),
-        dist_y_h = sample(tr_leng:50, n_stem_sim, replace = TRUE)))) %>%
+        dist_x = sample(seq(-2.5, 2.5, by=0.1), n_stem_sim, replace = TRUE),
+        dist_y_h = sample(seq(tr_leng, 50, by = 0.1), n_stem_sim, replace = TRUE)))) %>%
     unnest(sim_trees)  # Unnest the simulated data into rows
 }
+
 ```
 
 Now simulate the trees
@@ -330,11 +337,31 @@ sum(sim_needs$n_stem_sim) #954
 #Run the function
 sim_trees <- f_sim_trees(sim_needs)
 
+#Did it create the right number of trees?
+sum(sim_needs$n_stem_sim) 
+nrow(sim_trees) 
+
 #Plot to makes sure this is doing what we want: 
-ggplot(sim_trees, aes(x = crown_class, y = dbh, colour = site_id)) +
-  geom_point()
-ggplot(sim_trees, aes(x = crown_class, y = dist_y_h)) + 
-  geom_point()
+##DBH, lower limit should be 4
+ggplot(sim_trees, aes(x = status, y = dbh, colour = crown_class)) +
+  geom_point() + 
+  scale_y_continuous(limits = c(0, 50)) +
+  geom_hline(yintercept = 4, color = "red", linetype = 2)
+
+##Distance from the edge, should start at the end of the transect
+x <- sim_trees %>% 
+  mutate(transect_id = as.character(transect_id))
+ggplot(x, aes(x = transect_id, y = dist_y_h)) + 
+  geom_point() + 
+  scale_y_continuous(limits = c(0, 50)) +
+  geom_point(aes(x = transect_id, y = tr_leng), shape = "-", colour = "red",
+             size = 10)
+
+##X distance, limits = -2.5 an 2.5
+ggplot(sim_trees, aes(x = transect_id, y = dist_x)) + 
+  geom_point() + 
+  scale_y_continuous(limits = c(-3, 3)) +
+  geom_hline(yintercept = c(-2.5, 2.5), colour = "red", linetype = 2)
 ```
 
 #Align simulate points with the larger dataset
