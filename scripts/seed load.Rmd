@@ -19,6 +19,10 @@ Right now, only live Hw are considered source and target trees. Future versions
 could find a way to consider dead trees and Amabalis fir, the other HDM host,
 which was only present in significant amounts at one site (ph_2). 
 
+This script start with the output of the 'crown volume.Rmd' script 
+(trees_cv.csv) and produces the 'trees_sl.csv' object, which feeds into the 
+analysis scripts ('modelling.Rmd' and 'site level analysis.Rmd'). 
+
 LIST OF POTENTIAL IMPROVEMENTS/FUTURE WORK
 - Is multiplying DMR x crown volume the best approach? Look at how they combine
 dmr and crown volume in Robinson model

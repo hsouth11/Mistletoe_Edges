@@ -29,7 +29,9 @@ Equations from Marshall et al. (2003) are used to estimate crown profiles
 equations are tree height and height to base of live crown. These crown width 
 functions are integrated to estimate crown volume.
 
-These crown volume estimates will feed into the seed load proxy. 
+This script begins with the output from the 'simulate trees.Rmd' script
+(trees_sim.csv) and creates the 'trees_cv.csv' object, which feeds into the
+'seed load.Rmd' script. 
 
 REFERENCES
 Marshall, David D, Gregory P Johnson, and David W Hann. ‘Crown Profile Equations for Stand-Grown Western Hemlock Trees in Northwestern Oregon’. Canadian Journal of Forest Research 33, no. 11 (1 November 2003): 2059–66. https://doi.org/10.1139/x03-126.
