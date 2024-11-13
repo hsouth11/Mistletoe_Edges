@@ -4,10 +4,22 @@ author: "Hanno Southam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-Read in data and load packages. 
-"trees.geojson" is the output of the convert_distaz_to_points.R script. It contains all of the mature and regen trees as points and their associated data (e.g. DMR).  
-"hdm_trimbpoints_2023.csv" are the trimble points from 2023 that have been cleaned up in GIS following the workflow in: /Users/hannosoutham/OneDrive - UBC (1)/Msc/GIS/ArcGIS_data_analysis_v1/hdm_arcgis_workflow.docx
-"transect data_c.csv" is the cleaned transect data. Its used here to add the transect distances to the plot. 
+##############
+READ ME
+This script generates stem maps of each HDM site. The core starting objects are
+the output of the 'seed load.Rmd' script (trees_sl.csv) and processed version 
+of the trimble points (trimb_radjusted.csv). 
+
+The {sf} and {sp} packages are used to process the spatial data and the {tmap}
+package is used to make the actual plots. {tmap} has a similar syntax to ggplot and a similar logic to ArcGIS. You can add layers and slowly build up a map. 
+
+The script has two major sections.The first section defines a function to 
+rotate the points at each site a fixed number of degrees so they all end up 
+pointing the same direction in the stem maps. The second section does the 
+actual plotting. 
+##############
+
+#Setup
 ```{r}
 rm(list=ls(all=TRUE))
 
@@ -43,7 +55,8 @@ trees <- trees %>% arrange(site_id)
 trees <- trees %>% 
   mutate(across(c(site_id, spp, status, hdm_pa, b_lc, broom_pa, broom_pos, 
                   stem_pa, crown_class, crown_cond, outside_10, 
-                  assessed_by, tree_type, tree_type_2, dmr_f), ~ as.factor(.)))
+                  assessed_by, tree_type, tree_type_2, dmr_f,
+                  sim_tree), ~ as.factor(.)))
 
 #Convert to integer: plot_id, dmrs
 trees <- trees %>% mutate(across(
@@ -94,6 +107,7 @@ site <- site %>%
   mutate(id_bec_ag_f = factor((id_bec_ag_f)))
 ```
 
+#Rotate points
 Rotate the points at each site (in both trees and trimb) so they are all 
 oriented with the mature component running vertically and the transects running 
 horizontally. Code adapted with help from Chat GPT and from: https://stackoverflow.com/questions/31873151/how-rotate-map-in-r
@@ -166,23 +180,25 @@ trimb_rot <- trimb_att %>% mutate(X=trimb_rot$X, Y=trimb_rot$Y)
 trimb_rot <- st_as_sf(trimb_rot, coords = c("X", "Y"), crs=3005)
 ```
 
-Make the stem mapped plot. 
+#Make the stem maps
+##Layer 1: tree points
 ```{r}
-#Object 1: trees points
 #Filter out mature trees that were mapped outside of 10m. Only happened 
 #at a few sites. 
 trees_rot <- trees_rot %>% filter(outside_10 == "N" | is.na(outside_10))
-##################
+```
 
-#Object 2: Trimble points
+##Layer 2: trimble points
+```{r}
 #Filter to trimble points identified as for graphing
 trimb_rot <- trimb_rot %>% filter(graph == "Y")
 
 #Take a look at the levels of pt_type, used frequently below
 levels(trimb_rot$pt_type)
-##################
+```
 
-#Object 3: Footprints of each site
+##Layer 3: Site footprints
+```{r}
 ##These are standardized to be the same size across all sites to ensure the 
 ##scale is the the same. 
 
@@ -246,10 +262,11 @@ sites <- trees %>% st_drop_geometry() %>% distinct(site_id)
 ##Add comlumn of site_ids to sf object
 adjusted_fp_rot <- adjusted_fp_rot %>% mutate(site_id=sites$site_id) 
 st_crs(adjusted_fp_rot) = 3005 #define crs
-##################
+```
 
-#Object 4 and 5: transect start/end points and footprints
-
+##Layers 4, 5, 6: Transects
+Transect start and end points
+```{r}
 #Pull out transect start and end points separately
 #Will use these objects for plotting below
 te_pts <- trimb_rot %>% 
@@ -262,7 +279,10 @@ ts_pts <- trimb_rot %>%
 #Add transect length to transect end points
 x <- tran %>% select(transect_id, tr_leng)
 te_pts <- left_join(te_pts, x, by = join_by(pt_id == transect_id))
+```
 
+Transect footprints
+```{r}
 #Generate transect footprints from start and end points
 ##Pull out transect start and end points together
 ##Will use this object to generate footprints
@@ -287,7 +307,10 @@ tran_lines <- left_join(tran_lines, tran_line_att, by="pt_id")
 ##Add transect length from transect data
 tran_lines <- left_join(tran_lines, select(tran, transect_id, tr_leng), 
                         by=c("pt_id"="transect_id"))
+```
 
+Transect distance markers
+```{r}
 #Create horizontal lines marking transect distances at 5m intervals
 ##Up to 10 lines/transect, 2pts/line, 11 sites, 3 transects/site
 
@@ -394,10 +417,10 @@ dist_mark <- dist_mark %>% group_by(ids) %>%
   summarize() %>% st_cast("LINESTRING")
 dist_mark <- left_join(dist_mark_att, dist_mark, by="ids")
 dist_mark <- st_as_sf(dist_mark)
-##################
+```
 
-#Object 6: Edge lines
-
+##Layer 7: Edge lines
+```{r}
 #Create some edge lines:
 levels(trimb_rot$pt_type)
 
@@ -413,8 +436,13 @@ edge_line_coords <- st_coordinates(edge_lines) %>%
 edge_lines <- edge_lines %>% mutate(diff=edge_line_coords$diff)
 edge_lines <- edge_lines %>% group_by(site_id) %>% arrange(diff) %>% 
   summarise(do_union = FALSE) %>% st_cast("LINESTRING")
+```
 
-#Add site id and factor with site_id, bec and age to each of the objects
+##Plotting prep
+Add site id and factor with site_id, bec and age to each of the objects and 
+make a new version of DMR for plotting.
+```{r}
+#Add site id, bec and age
 adjusted_fp_rot <- left_join(adjusted_fp_rot, 
                              select(site, site_id, id_bec_ag_f), by ="site_id")
 edge_lines <- left_join(edge_lines, 
@@ -442,24 +470,37 @@ trees_rot <- trees_rot %>%
                               levels = c("non Hw", "DU", "0", 
                                          "IBLC", "1-2", 
                                          "3-4", "5-6", "DI")))
+```
 
-#Define colour pallette
+Define a new factor that describes whether a tree was simulated or not to use
+as the shape aesthetic in these plots. 
+```{r}
+trees_rot <- trees_rot %>% 
+  mutate(sim_tree_g = if_else(sim_tree == "Y", "simulated", "measured")) %>% 
+  mutate(sim_tree_g = factor(sim_tree_g, levels = c("measured", "simulated")))
+levels(trees_rot$sim_tree_g)
+```
+
+Define shapes and colours
+```{r}
+#DMR colour palette
 # https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
 levels(trees_rot$dmr_f_graph)
-dmr_colour <- c("#cccccc", "#1F78B4", "#A6CEE3", brewer.pal(4, "Oranges"), 
-                "hotpink")
+color_dmr <- c("#cccccc", "#1F78B4", "#A6CEE3", 
+                       brewer.pal(4, "Oranges"), "hotpink")
 
-#Define shape palette for tree_type_2
-levels(trees_rot$tree_type_2)
-tt2_shape <- c(16, 16, 1)
+#Data source
+levels(trees_rot$sim_tree_g)
+shape_sim <- c(16, 1)
+```
 
-# Plot it all together
-# pdf("./figures/trees_13Oct2024.pdf", width=11, height=8.5)
-tmap_mode("plot") +
+##Plot 1: standard stem map
+```{r}
+p <- tmap_mode("plot") +
   #Define map extent using site footprints
   tm_shape(adjusted_fp_rot, is.master = TRUE) +
-    tm_facets(by = "id_bec_ag_f", free.scales = FALSE, 
-              free.coords = TRUE, ncol = 4) +
+    tm_facets(by = "site_id", free.scales = FALSE, 
+              free.coords = TRUE, ncol = 2) +
     tm_polygons(col="white", border.col = NULL) +
   #Edge lines
   tm_shape(edge_lines) + 
@@ -476,90 +517,107 @@ tmap_mode("plot") +
     tm_lines(lty = 3, alpha = 0.7) +
   #Tree points
   tm_shape(trees_rot) + 
-    tm_symbols(col="dmr_f_graph",
-               palette = dmr_colour,
-               shape =  "tree_type_2",
-               shapes =  tt2_shape, 
+    tm_symbols(col ="dmr_f_graph",
+               palette = color_dmr,
+               shape =  "sim_tree_g",
+               shapes =  shape_sim, 
                size = "dbh", scale = 2,
-               title.col = "HDM status",
-               legend.col.is.portrait = FALSE,
+               title.col = "Adapted DMR",
+               legend.col.is.portrait = T,
                title.size = "DBH (cm)",
-               legend.size.is.portrait = TRUE,
+               legend.size.is.portrait = T,
                title.shape = "Tree type",
-               legend.shape.is.portrait = TRUE) +
-  tm_layout(legend.outside=TRUE, 
-            legend.outside.position = "bottom", 
-            legend.position=c(.2, .4), 
-            legend.stack="horizontal")
-# dev.off()
+               legend.shape.is.portrait = T) +
+  tm_layout(inner.margins = 0.01, panel.label.size = 2,
+            panel.label.bg.color = "white",
+            legend.outside=T, 
+            legend.outside.position = "right",
+            legend.position=c(0.1, 0.3), 
+            legend.stack="vertical",
+            legend.title.size = 2,
+            legend.text.size = 1.5,
+            legend.bg.color = "white")
 
-#Seed load addition
-#Pull out an object where seed low is defined. 
-#These are all live, Hw, regen, trees. Going to plot two versions of this,
-#one coloured by seed load and one by dmr. 
+pdf("./figures/trees_13Nov2024.pdf", width=8.5, height=11)
+p 
+dev.off()
+```
+
+##Plot 2: stem map with seed load overlay
+```{r}
+#Subset the trees object to points where seed load is defined
 trees_sl <- trees_rot %>% 
   filter(!is.na(sl_i_tot_rm))
+
+#These are all live Hw trees, about half measured and half simulated
 summary(trees_sl$tree_type_2)
 summary(trees_sl$status)
 summary(trees_sl$spp)
 
-#Pull out another object that is live, mature Hw trees where sp is defined
-trees_sp <- trees_rot %>% 
-  filter(tree_type == "mature" & sp > 0)
-
-# pdf("./figures/trees_sl_13Oct2024.pdf", width=11, height=8.5)
-tmap_mode("plot") +
+p <- tmap_mode("plot") +
   #Define map extent using site footprints
   tm_shape(adjusted_fp_rot, is.master = TRUE) +
-    tm_facets(by = "id_bec_ag_f", free.scales = FALSE, 
-              free.coords = TRUE, ncol = 4) +
+    tm_facets(by = "site_id", free.scales = FALSE, 
+              free.coords = TRUE, ncol = 2) +
     tm_polygons(col="white", border.col = NULL) +
   #Edge lines
   tm_shape(edge_lines) + 
     tm_lines(col="blue", lty=2) +
-  #Transect footprints
+  #Transect start/end points, footprints and distance markers
   tm_shape(tran_lines) + 
     tm_polygons(alpha=0.25) + 
-  tm_shape(dist_mark) + 
-    tm_lines(lty = 3, alpha = 0.7) +
   #Transect start and end points
   tm_shape(ts_pts) + 
     tm_symbols(col="blue", shape=3, size=0.1) + 
   tm_shape(te_pts) + 
     tm_symbols(col="blue", shape=3, size=0.1) +
-  #Tree points
+  tm_shape(dist_mark) + 
+    tm_lines(lty = 3, alpha = 0.7) +
+  #Seed load values
   tm_shape(trees_sl) +
     tm_symbols(col = "sl_i_tot_rm", 
                palette ="-viridis", 
-               scale = 1,
-               n=10,
+               scale = 0.75,
+               n=5,
                alpha = 0.5,
                style = "cont",
                border.lwd = NA,
-               legend.col.is.portrait = FALSE,
+               legend.col.is.portrait = T,
                title.col = "Seed load") +
-  tm_shape(trees_sl) +
-    tm_symbols(col = "dmr", 
-               palette = "Oranges", 
-               scale = 0.5,
-               legend.col.is.portrait = TRUE) +
-  tm_shape(trees_sp) +
-    tm_symbols(size = "dbh",
-               col = "sp", 
-               palette = "Greys", 
-               n=10,
-               style = "cont",
-               legend.col.is.portrait = FALSE,
-               legend.size.is.portrait = FALSE,
-               title.col = "Seed production") +
-  tm_layout(legend.outside=TRUE, 
-            legend.outside.position = "bottom", 
-            legend.position=c(.2, .4), 
-            legend.stack="horizontal")
-# dev.off()
+  #Tree points
+  tm_shape(trees_rot) + 
+    tm_symbols(col ="dmr_f_graph",
+               palette = color_dmr,
+               shape =  "sim_tree_g",
+               shapes =  shape_sim, 
+               size = "dbh",
+               scale = 2,
+               title.col = "Adapted DMR",
+               legend.col.is.portrait = T,
+               title.size = "DBH (cm)",
+               legend.size.is.portrait = T,
+               title.shape = "Tree type",
+               legend.shape.is.portrait = T,
+               sizes.legend = c(10, 50, 100, 150)) +
+  tm_layout(inner.margins = 0.01, panel.label.size = 2,
+            panel.label.bg.color = "white",
+            legend.outside=T, 
+            legend.outside.position = "right",
+            legend.position=c(0.1, 0.1), 
+            legend.stack="vertical",
+            legend.title.size = 2,
+            legend.text.size = 1.5,
+            legend.bg.color = "white",
+            legend.frame = T)
+
+#Save the plot
+pdf("./figures/trees_sl_13Nov2024.pdf", width=8.5, height=11)
+p
+dev.off()
+?tm_layout
 ```
 
-Plot for WIFDWC 2024
+##Plot for WIFDWC 2024
 ```{r}
 #Plot three representative sites: cr_3, mk_2, ph_1
 #Filter all objects to these three sites
