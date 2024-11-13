@@ -1,0 +1,12 @@
+site_id,cluster,bec,elevation,reg_az,reg_sl
+cr_1,Campbell River,CWHxm2,95,87.7,-12.8
+cr_2,Campbell River,CWHxm2,137,89.3,-4.4
+cr_3,Campbell River,CWHxm2,85,15.7,-8.4
+mi_1,Fraser Valley,CWHdm-,196,112.3,-13.6
+mi_2,Fraser Valley,CWHdm-,199,236.7,-12.8
+mk_1,Fraser Valley,CWHdm-,247,110,-13.1
+mk_2,Fraser Valley,CWHvm2,391,23,-27.1
+mk_3,Fraser Valley,CWHdm-,195,118.3,-14.3
+ph_1,Pacific Highway,CWHvm1,267,230.3,-38.1
+ph_2,Pacific Highway,CWHvm1,69,NA,0
+ph_3,Pacific Highway,CWHvm1,59,76,-18.6
