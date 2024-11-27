@@ -387,17 +387,18 @@ p <- ggplot(clim_g, aes(x=bec, y=climval, label=site_id, color = cluster)) +
 p
 
 #Export this plot
-pdf(here("./figures/climate_vars.pdf"), width = 11, height = 8.5)
-p
-dev.off()
+# pdf(here("./figures/climate_vars.pdf"), width = 11, height = 8.5)
+# p
+# dev.off()
 ```
 
 ##Assemble output tables
 Build clean tables combining physical and climate variables. We will 
-create two: a large one with site id, cluster, elevation, slope, aspect, 
+create two: (1) a large one with site id, cluster, elevation, slope, aspect, 
 BEC zone and all the climate variables that we can use in other downstream 
-analyses and two create tables I didn't think of in the future and a smaller 
-one for thesis that omits the cliamte variables.
+analyses and to create tables I didn't think of in the future and (2) a smaller 
+one for thesis that includes site_id, cluster, elevation, slope, aspect and 
+a few descriptive climate variables.
 
 Start by out climate variables described above. Also include MAT (mean annual 
 temperature), TD (temperature difference betweenmean coldest month temperature 
@@ -461,7 +462,8 @@ Export the tables.
 ```{r}
 #Subset a table for thesis
 climate3 <- climate2 %>% select(site_id, cluster,
-                                bec, elevation, reg_az, reg_sl)
+                                bec, elevation, reg_az, reg_sl,
+                                MAT, Tmin_all, MAP, PAR, PAS)
 
 #Export
 # write_csv(climate2, "./tables/site_climphys_big.csv")
@@ -1062,6 +1064,26 @@ ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=ba_m2_ha, fill=dmr_f2)) +
   labs(x = "DBH bin", y = expression("Basal area (m"^2*")"))
 ```
 
+##Brooming and stem infections
+Calculate the number of stems (per ha) with brooms and stem infections. 
+```{r}
+x <- mat.hwba %>% 
+  group_by(site_id) %>% 
+  summarise(mat.hwba_nstem_wb = sum(phf_site[broom_pa == "Y"]),
+            mat.hwba_nstem_si = sum(phf_site[stem_pa == "Y"]))
+  
+#Join these back to results table
+mat_infection <- left_join(mat_infection, x, by = "site_id")
+
+#Calculate proportion of trees with brooming
+mat_infection <- mat_infection %>% 
+  mutate(mat.p_nstem_ha_inf_wb = mat.hwba_nstem_wb/mat.inf_nstem_ha,
+         mat.p_nstem_ha_inf_si = mat.hwba_nstem_si/mat.inf_nstem_ha)
+
+#Take a look
+mat_infection %>% select(p.nstem_wb, p.nstem_si) %>% summary()
+```
+
 ##Stand DMR and DMI of each site
   - Stand DMR = mean DMR of all live susceptible trees (an proxy of infection 
   severity at a site)
@@ -1320,10 +1342,6 @@ reg.dmr_50 <- reg.dmr_50 %>%
 reg.dmr_50 <- pivot_wider(reg.dmr_50, names_from = dmr_f2, 
                        values_from = c(ba_m2_ha_50, nstem_ha_50))
 
-reg.dmr <- reg.dmr %>% filter(dmr_f2 != "-")
-reg.dmr <- pivot_wider(reg.dmr, names_from = dmr_f2, 
-                       values_from = c(ba_m2, nstem, ba_m2_15, nstem_15))
-
 #Add these to results dataframe
 reg_infection <- left_join(reg_infection, reg.dmr_15, by = "site_id")
 reg_infection <- left_join(reg_infection, reg.dmr_50, by = "site_id")
@@ -1450,9 +1468,9 @@ p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem_ha, fill=dmr_f2)) +
   guides(fill = guide_legend(ncol = 2))
 
 #Export this plot
-pdf(here("./figures/reg_dmr_disty_nstem.pdf"), width = 11, height = 8.5)
-p
-dev.off()
+# pdf(here("./figures/reg_dmr_disty_nstem.pdf"), width = 11, height = 8.5)
+# p
+# dev.off()
 ```
 
 ##Vertical infection distribution
@@ -1533,53 +1551,115 @@ p <- ggplot(reg.vpos, aes(x = dmr, y = cont, fill = ct)) +
 # dev.off()
 ```
 
+##Brooming and stem infections
+Calculate the proportion of infected stems with brooms and stem infections
+```{r}
+#0-15m
+reg.wb_si_15 <- reg.hw_15 %>% 
+  group_by(site_id) %>% 
+  summarise(reg.nstem_ha_wb_15 = sum(phf_site[broom_pa == "Y"]),
+            reg.nstem_ha_si_15 = sum(phf_site[stem_pa == "Y"])) %>% 
+  complete(site_id, 
+           fill=list(reg.nstem_ha_wb_15=0, 
+                     reg.nstem_ha_si_15=0))
+
+#0-50m
+reg.wb_si_50 <- reg.hw_50 %>% 
+  group_by(site_id) %>% 
+  summarise(reg.nstem_ha_wb_50 = sum(phf_site[broom_pa == "Y"]),
+            reg.nstem_ha_si_50 = sum(phf_site[stem_pa == "Y"])) %>% 
+    complete(site_id, 
+           fill=list(reg.nstem_ha_wb_50=0, 
+                     reg.nstem_ha_si_50=0))
+
+#Join these back to results table
+reg_infection <- left_join(reg_infection, reg.wb_si_15, by = "site_id")
+reg_infection <- left_join(reg_infection, reg.wb_si_50, by = "site_id")
+
+#Calculate proportion of trees with brooming
+reg_infection <- reg_infection %>% 
+  mutate(reg.p_nstem_inf_wb_15 = reg.nstem_ha_wb_15/reg.nstem_ha_hw_inf_15,
+         reg.p_nstem_inf_si_15 = reg.nstem_ha_si_15/reg.nstem_ha_hw_inf_15,
+         reg.p_nstem_inf_wb_50 = reg.nstem_ha_wb_50/reg.nstem_ha_hw_inf_50,
+         reg.p_nstem_inf_si_50 = reg.nstem_ha_si_50/reg.nstem_ha_hw_inf_50
+         )
+
+#Take a look
+reg_infection %>% 
+  select(contains(c("p_nstem_inf_wb", "p_nstem_inf_si"))) %>% 
+  summary()
+```
+
 ##Tables for writing/downstream analyses
 We've built up a table of infection stats in the regen component in this 
-script. We will pull from that and from the paired on in the mature component 
+script. We will pull from that and from the paired one in the mature component 
 to compile a table for the thesis that summarizes infection levels. 
 ```{r}
 #Vars: site_id and the distance to the infected tree farthest from the edge
 #the latter is tr_leng_s in the transect dataset
-t_the_inf <- site %>% select(site_id)
+inf_sum <- site %>% select(site_id)
 x <- tran %>% 
   group_by(site_id) %>% 
   summarise(out_dist_inf = min(tr_leng_s))
-t_the_inf$out_inf_dist <- x$out_dist_inf
+inf_sum$out_inf_dist <- x$out_dist_inf
 
 #Vars: infection perimeter and the percent of trees simulated
 x <- reg_infection %>% 
-  select(site_id, reg.infper_mean, reg.infper_sd, reg.p_sim) %>% 
-  mutate(across(c(reg.infper_mean, reg.infper_sd), ~ round(., 1)))
+  select(site_id, reg.infper_mean, reg.p_sim) 
+
 x <- x %>% 
-  mutate(reg.infper = paste0(reg.infper_mean, " (", reg.infper_sd,
-                             ")"))
-x <- x %>% 
-  select(site_id, reg.infper, reg.p_sim) 
-t_the_inf <- left_join(t_the_inf, x, by = "site_id")
+  select(site_id, reg.infper_mean, reg.p_sim) 
+inf_sum <- left_join(inf_sum, x, by = "site_id")
 
 #Vars: regen infection stats
 x <- reg_infection %>% 
   select(site_id, reg.p_nstem_inf_15, reg.p_nstem_inf_50, reg.s_dmr_15,
-         reg.s_dmr_50, reg.s_dmi_15, reg.s_dmi_50)
-t_the_inf <- left_join(t_the_inf, x, by = "site_id")
+         reg.s_dmr_50, reg.s_dmi_15, reg.s_dmi_50, reg.p_nstem_inf_wb_15,
+         reg.p_nstem_inf_wb_50, reg.p_nstem_inf_si_15, reg.p_nstem_inf_si_50)
+inf_sum <- left_join(inf_sum, x, by = "site_id")
 
 #Vars: mature infection stats
 x <- mat_infection %>% 
-  select(site_id, mat.inf_ba_m2_ha, mat.p_nstem_inf, mat.s_dmr, mat.s_dmi)
-t_the_inf <- left_join(t_the_inf, x, by = "site_id")
+  select(site_id, mat.inf_ba_m2_ha, mat.p_nstem_inf, mat.s_dmr, mat.s_dmi, 
+         mat.p_nstem_ha_inf_wb, mat.p_nstem_ha_inf_si)
+inf_sum <- left_join(inf_sum, x, by = "site_id")
+summary(inf_sum)
 
-#Round the numbers to 2 or 1 figures
-t_the_inf <- t_the_inf %>% 
-  mutate(across(c(out_inf_dist, reg.s_dmr_15, reg.s_dmr_50, reg.s_dmi_15,
-                  reg.s_dmi_50, mat.s_dmr, mat.s_dmi), ~ round(., 1)),
-         across(c(reg.p_sim, reg.p_nstem_inf_15, reg.p_nstem_inf_50, 
-                  mat.inf_ba_m2_ha, mat.p_nstem_inf), ~ round(., 2)))
+#Summarize each variable into mean, median and range
+##With help from ChatGPT
+inf_sum <- inf_sum %>% 
+  select(-site_id) %>% 
+  summarise(across(everything(), list(
+    mean = ~mean(.),
+    median = ~median(.),
+    min = ~min(.),
+    max = ~max(.)
+  ), .names = "{.col}_{.fn}")) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = c("Variable", "Stat"),
+    names_pattern = "(.+)_(.+)"
+  ) %>%
+  pivot_wider(
+    names_from = Stat,
+    values_from = value
+  )
+
+#Clean up the formatting
+#Round everything to two decimals
+inf_sum <- inf_sum %>% 
+  mutate(across(mean:max, ~ round(., 2)))
+
+#Combine max and min into a range
+inf_sum <- inf_sum %>% 
+  mutate(range = paste0("[", min, "-", max, "]")) %>% 
+  select(-c(min, max))
 ```
 
 Export this and the table with all of the regen infection summary stats. 
 ```{r}
 #Table for thesis
-# write_csv(t_the_inf, "./tables/thesis_inf_stats.csv")
+# write_csv(inf_sum, "./tables/thesis_inf_stats.csv")
 
 #Table with all of the regen infection stats
 # write_csv(reg_infection, "./tables/reg_infection.csv")
