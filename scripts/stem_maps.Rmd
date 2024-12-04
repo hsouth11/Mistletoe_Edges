@@ -538,9 +538,9 @@ p <- tmap_mode("plot") +
             legend.text.size = 1.5,
             legend.bg.color = "white")
 
-pdf("./figures/trees_13Nov2024.pdf", width=8.5, height=11)
-p 
-dev.off()
+# pdf("./figures/trees_13Nov2024.pdf", width=8.5, height=11)
+# p 
+# dev.off()
 ```
 
 ##Plot 2: stem map with seed load overlay
@@ -556,8 +556,9 @@ summary(trees_sl$spp)
 
 p <- tmap_mode("plot") +
   #Define map extent using site footprints
-  tm_shape(adjusted_fp_rot, is.master = TRUE) +
-    tm_facets(by = "site_id", free.scales = FALSE, 
+  tm_shape(adjusted_fp_rot, is.master = TRUE,
+           unit = "m") +
+    tm_facets(by = "site_id", free.scales = TRUE, 
               free.coords = TRUE, ncol = 2) +
     tm_polygons(col="white", border.col = NULL) +
   #Edge lines
@@ -599,6 +600,12 @@ p <- tmap_mode("plot") +
                title.shape = "Tree type",
                legend.shape.is.portrait = T,
                sizes.legend = c(10, 50, 100, 150)) +
+  #Scale bar
+  tm_scale_bar(position = c("RIGHT", "BOTTOM"), 
+               lwd = 0.5,
+               breaks = c(0, 25, 50),
+               text.size = 0.8) +
+  #Formatting
   tm_layout(inner.margins = 0.01, panel.label.size = 2,
             panel.label.bg.color = "white",
             legend.outside=T, 
@@ -610,11 +617,11 @@ p <- tmap_mode("plot") +
             legend.bg.color = "white",
             legend.frame = T)
 
+
 #Save the plot
-pdf("./figures/trees_sl_13Nov2024.pdf", width=8.5, height=11)
+pdf("./figures/trees_sl_4Dec2024.pdf", width=8.5, height=11)
 p
 dev.off()
-?tm_layout
 ```
 
 ##Plot for WIFDWC 2024
