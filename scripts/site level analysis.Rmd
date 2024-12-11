@@ -4,7 +4,7 @@ author: "Hanno Southam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-UPDATED: 13 Nov 2024
+UPDATED: 11 Dec 2024
 ##############
 READ ME
 This script compares the 11 HDM study sites to eachother. 
@@ -168,6 +168,7 @@ trees <- trees %>% mutate(ba_m2 = pi*((dbh/100)/2)^2)
 Break apart the dataset into different components. At the highest level, 
 separate mature and regen components. Then within regen components, separate
 out a dataset of trees <=15m from the edge and one of trees <=50m from the edge.
+
 The minimum transect length was 15m, so all sites have data for 0-15m; this 
 subset will be used to compare size an composition across sites and also for
 HDM infection summaries within the zone of influence of the mature component. 
@@ -176,7 +177,7 @@ different sites; it will be used to provide HDM infection summaries over a
 larger range. 
 
 A binned version of dbh is also created here for plotting to avoid creating it
-multipe times when the objects are split apart. 
+multiple times when the objects are split apart. 
 ```{r}
 #Subdivide data into mature and regen components
 mature <- trees %>% filter(tree_type=="mature") 
@@ -1066,22 +1067,30 @@ ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=ba_m2_ha, fill=dmr_f2)) +
 
 ##Brooming and stem infections
 Calculate the number of stems (per ha) with brooms and stem infections. 
+Restrict this to live trees because that is what we did in the regenerating 
+component. In the revised survey protocol, we would have broom/stem infection 
+data for the recently dead tree status trees but we were inconsistent about 
+that in our initial data collection. The live trees were consistently measured 
+for these fields. 
 ```{r}
 x <- mat.hwba %>% 
+  filter(status %in% c("LS", "LL", "LF")) %>% 
   group_by(site_id) %>% 
-  summarise(mat.hwba_nstem_wb = sum(phf_site[broom_pa == "Y"]),
-            mat.hwba_nstem_si = sum(phf_site[stem_pa == "Y"]))
+  summarise(mat.l_hwba_nstem_ha = sum(phf_site), 
+            mat.l_hwba_nstem_wb = sum(phf_site[broom_pa == "Y"]),
+            mat.l_hwba_nstem_si = sum(phf_site[stem_pa == "Y"]))
   
 #Join these back to results table
 mat_infection <- left_join(mat_infection, x, by = "site_id")
 
-#Calculate proportion of trees with brooming
+#Calculate proportion of live trees with brooming and stem infections
 mat_infection <- mat_infection %>% 
-  mutate(mat.p_nstem_ha_inf_wb = mat.hwba_nstem_wb/mat.inf_nstem_ha,
-         mat.p_nstem_ha_inf_si = mat.hwba_nstem_si/mat.inf_nstem_ha)
+  mutate(mat.p_l_hwba_nstem_ha_wb = mat.l_hwba_nstem_wb/mat.l_hwba_nstem_ha,
+         mat.p_l_hwba_nstem_ha_si = mat.l_hwba_nstem_si/mat.l_hwba_nstem_ha)
 
 #Take a look
-mat_infection %>% select(p.nstem_wb, p.nstem_si) %>% summary()
+mat_infection %>% select(mat.p_l_hwba_nstem_ha_wb, 
+                         mat.p_l_hwba_nstem_ha_si) %>% summary()
 ```
 
 ##Stand DMR and DMI of each site
@@ -1100,10 +1109,54 @@ mat.s_dmr_dmi <- mat.hwba %>%
 mat_infection <- left_join(mat_infection, mat.s_dmr_dmi, by = "site_id")
 ```
 
+##Summary table for thesis
+Compile a summary table for thesis that summarizes site level estimates of key
+infection variables. 
+  - Variables: 
+    - basal area infected (live and dead Hw and Ba)
+    - proportion live and dead Hw and Ba stems infected 
+    - average DMR (live Hw and Ba)
+    - DMI (live Hw and Ba)
+    - Proportion of live Hw and Ba stems with brooms
+    - Proportion of live Hw and Ba stems with stem infection
+  - Structure:
+    - Rows: variables
+    - Columns: mean, median, range
+```{r}
+#Pull out variables from mat_infection table
+mat_inf2 <- mat_infection %>% 
+  select(mat.inf_ba_m2_ha, mat.p_nstem_inf, mat.s_dmr, mat.s_dmi, 
+         mat.p_l_hwba_nstem_ha_wb, mat.p_l_hwba_nstem_ha_si)
+
+#Summarise estimates across sites
+mat_inf2 <- mat_inf2 %>% 
+  summarise(across(everything(), list(
+    mean = ~mean(.),
+    median = ~median(.),
+    min = ~min(.),
+    max = ~max(.)
+  ), .names = "{.col}_{.fn}")) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = c("Variable", "Stat"),
+    names_pattern = "(.+)_(.+)"
+  ) %>%
+  pivot_wider(
+    names_from = Stat,
+    values_from = value
+  ) %>% 
+  mutate(across(where(is.numeric), ~ round(., 2))) %>% 
+  mutate(range = paste0("[", min, "-", max, "]")) %>% 
+  select(-c(min, max))
+```
+
 ##Export
 ```{r}
-#Export table with infection metrics for future writing/analyses
+#Table with all infection summary metrics
 # write_csv(mat_infection, here("./tables/mat_infection.csv"))
+
+#Table for subset to report in thesis
+# write_csv(mat_inf2, here("./tables/mat_infection_thesis.csv"))
 ```
 
 #SECTION 4 - Compare infection levels in regen trees
@@ -1113,7 +1166,7 @@ we want to know how infection changes based on how far a tree is away from the
 edge. The regen transects were variable in length and we will need to account 
 for that; we'll do that by comparing 0-15m (which is within the zone of 
 influence of the mature component and only contains measured trees) and 0-50 
-(which  extends past the zone of influece and will contain simulated trees for 
+(which  extends past the zone of influence and will contain simulated trees for 
 all but one site, to varying extents). 
 
 Start by removing residual trees from the regen datasets. 
@@ -1590,80 +1643,296 @@ reg_infection %>%
   summary()
 ```
 
-##Tables for writing/downstream analyses
-We've built up a table of infection stats in the regen component in this 
-script. We will pull from that and from the paired one in the mature component 
-to compile a table for the thesis that summarizes infection levels. 
+##Summary table for thesis
+Create a summary table for thesis. This recreates some of the work above but 
+when comparing to other papers, it became important to have infection metrics
+broken down by crown class. The code above combines all trees across crown 
+classes. Most other papers report infection metrics for the
+something analagous to the codominant layer so need this for comparison. 
+
+Going to filter summary to live Hw trees. This will be much simpler to 
+summarize and aligns with what is in the ordinal models. 
+
+Variables:
+  - Outer infected tree (m)
+  - Infection perimeter (m)
+  - Proportion of trees simulated
+  - Proportion of Hw stems infected
+  - Average DMR
+  - DMI
+  - Prop Hw stems with brooms
+  - Prop Hw stems with stem infections
+  
+Structure: 
+  - Rows: 
+    - Interval (distnace from the edge; all, 0-15m or 0-50)
+    - Crown class (all, C, I, S)
+  - Columns: metrics
 ```{r}
-#Vars: site_id and the distance to the infected tree farthest from the edge
-#the latter is tr_leng_s in the transect dataset
-inf_sum <- site %>% select(site_id)
-x <- tran %>% 
-  group_by(site_id) %>% 
-  summarise(out_dist_inf = min(tr_leng_s))
-inf_sum$out_inf_dist <- x$out_dist_inf
+regen_15_l <- regen_15 %>% 
+  filter(spp == "Hw" & status %in% c("LS", "LL", "LF") & 
+           sim_tree == "N")
+regen_50_l <- regen_50 %>% 
+  filter(spp == "Hw" & status %in% c("LS", "LL", "LF"))
+```
 
-#Vars: infection perimeter and the percent of trees simulated
-x <- reg_infection %>% 
-  select(site_id, reg.infper_mean, reg.p_sim) 
+Start with metrics that are summarized for each section x crown class 
+combination: proportion of Hw stems infected, average Hw DMR and DMI and the 
+proportion infected Hw with brooms and stem infections. Summarize them at the
+site level first then again across sites, which is what will go in the 
+summary table. 
+```{r}
+#Calcualte summary metrics at the site level
+#For 0 - 15m
+x <- regen_15_l %>% 
+  group_by(site_id, crown_class_2) %>% 
+  summarise(nstem_ha_l_hw = sum(phf_site),
+            nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
+            s_dmr = mean(dmr),
+            s_dmi = if_else(length(dmr[hdm_pa == "Y"]) > 0,
+                            mean(dmr[hdm_pa == "Y"]),
+                            0),
+            nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
+            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
+  mutate(p_l_hw_inf = nstem_ha_l_hw_inf/nstem_ha_l_hw,
+         p_l_hw_wb = nstem_ha_l_hw_wb/nstem_ha_l_hw,
+         p_l_hw_si = nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
+  select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, nstem_ha_l_hw_wb,
+            nstem_ha_l_hw_si))
 
+#For 0-50m 
+x1 <- regen_50_l %>% 
+  group_by(site_id, crown_class_2) %>% 
+  summarise(nstem_ha_l_hw = sum(phf_site),
+            nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
+            s_dmr = mean(dmr),
+            s_dmi = if_else(length(dmr[hdm_pa == "Y"]) > 0,
+                            mean(dmr[hdm_pa == "Y"]),
+                            0),
+            nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
+            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
+  mutate(p_l_hw_inf = nstem_ha_l_hw_inf/nstem_ha_l_hw,
+         p_l_hw_wb = nstem_ha_l_hw_wb/nstem_ha_l_hw,
+         p_l_hw_si = nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
+  select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, nstem_ha_l_hw_wb,
+            nstem_ha_l_hw_si))
+
+#Summarize each variable across sites
+#For 0-15m
 x <- x %>% 
-  select(site_id, reg.infper_mean, reg.p_sim) 
-inf_sum <- left_join(inf_sum, x, by = "site_id")
+  group_by(crown_class_2) %>% 
+  summarise(across(where(is.numeric), list(
+    mean = ~mean(.),
+    median = ~median(.),
+    min = ~min(.),
+    max = ~max(.)
+  ), .names = "{.col}_{.fn}")) %>% 
+  pivot_longer(
+    cols = where(is.numeric), 
+    names_to = c("variable", "metric"),
+    names_pattern = "^(.*)_(mean|median|min|max)$",
+    values_to = "value"
+  ) %>%
+  pivot_wider(names_from = metric, 
+              values_from = value) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  mutate(range = paste0("[", min, "-", max, "]")) %>% 
+  select(-c(min, max)) %>% 
+  pivot_wider(names_from = variable,
+              values_from = c(mean, median, range))
 
-#Vars: regen infection stats
-x <- reg_infection %>% 
-  select(site_id, reg.p_nstem_inf_15, reg.p_nstem_inf_50, reg.s_dmr_15,
-         reg.s_dmr_50, reg.s_dmi_15, reg.s_dmi_50, reg.p_nstem_inf_wb_15,
-         reg.p_nstem_inf_wb_50, reg.p_nstem_inf_si_15, reg.p_nstem_inf_si_50)
-inf_sum <- left_join(inf_sum, x, by = "site_id")
+#For 0-50m
+x1 <- x1 %>% 
+  group_by(crown_class_2) %>% 
+  summarise(across(where(is.numeric), list(
+    mean = ~mean(.),
+    median = ~median(.),
+    min = ~min(.),
+    max = ~max(.)
+  ), .names = "{.col}_{.fn}")) %>% 
+  pivot_longer(
+    cols = where(is.numeric), 
+    names_to = c("variable", "metric"),
+    names_pattern = "^(.*)_(mean|median|min|max)$",
+    values_to = "value"
+  ) %>%
+  pivot_wider(names_from = metric, 
+              values_from = value) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  mutate(range = paste0("[", min, "-", max, "]")) %>% 
+  select(-c(min, max)) %>% 
+  pivot_wider(names_from = variable,
+              values_from = c(mean, median, range))
 
-#Vars: mature infection stats
-x <- mat_infection %>% 
-  select(site_id, mat.inf_ba_m2_ha, mat.p_nstem_inf, mat.s_dmr, mat.s_dmi, 
-         mat.p_nstem_ha_inf_wb, mat.p_nstem_ha_inf_si)
-inf_sum <- left_join(inf_sum, x, by = "site_id")
-summary(inf_sum)
+#Join the two datasets
+x$sec <- "0_15"
+x1$sec <- "0_50"
+reg_inf2 <- bind_rows(x, x1) %>% 
+  relocate(sec, .before = everything())
+```
 
-#Summarize each variable into mean, median and range
-##With help from ChatGPT
-inf_sum <- inf_sum %>% 
-  select(-site_id) %>% 
-  summarise(across(everything(), list(
+That is super. Now repeat this for the same variables but ingnoring crown 
+class. Then append that to the working dataframe. 
+```{r}
+#Calculate each variable at the site level
+#For 0-15m
+x <- regen_15_l %>% 
+  group_by(site_id) %>% 
+  summarise(ip = if_else(sum(hdm_pa == "Y")>0,
+                      quantile(dist_y_h[hdm_pa == "Y"], probs = 0.9),
+                                 0),
+            nstem_ha_l_hw = sum(phf_site),
+            nstem_ha_l_hw_sim = sum(phf_site[sim_tree =="Y"]),
+            nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
+            s_dmr = mean(dmr),
+            s_dmi = if_else(length(dmr[hdm_pa == "Y"]) > 0,
+                            mean(dmr[hdm_pa == "Y"]),
+                            0),
+            nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
+            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
+  mutate(p_sim = nstem_ha_l_hw_sim/nstem_ha_l_hw, 
+         p_l_hw_inf = nstem_ha_l_hw_inf/nstem_ha_l_hw,
+         p_l_hw_wb = nstem_ha_l_hw_wb/nstem_ha_l_hw,
+         p_l_hw_si = nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
+  select(-c(nstem_ha_l_hw, nstem_ha_l_hw_sim, nstem_ha_l_hw_inf, 
+            nstem_ha_l_hw_wb, nstem_ha_l_hw_si))
+
+#For 0-50m
+x1 <- regen_50_l %>% 
+  group_by(site_id) %>% 
+  summarise(ip = if_else(sum(hdm_pa == "Y")>0,
+                      quantile(dist_y_h[hdm_pa == "Y"], probs = 0.9),
+                                 0),
+            nstem_ha_l_hw = sum(phf_site),
+            nstem_ha_l_hw_sim = sum(phf_site[sim_tree == "Y"]),
+            nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
+            s_dmr = mean(dmr),
+            s_dmi = if_else(length(dmr[hdm_pa == "Y"]) > 0,
+                            mean(dmr[hdm_pa == "Y"]),
+                            0),
+            nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
+            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
+  mutate(p_sim = nstem_ha_l_hw_sim/nstem_ha_l_hw, 
+         p_l_hw_inf = nstem_ha_l_hw_inf/nstem_ha_l_hw,
+         p_l_hw_wb = nstem_ha_l_hw_wb/nstem_ha_l_hw,
+         p_l_hw_si = nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
+  select(-c(nstem_ha_l_hw, nstem_ha_l_hw_sim, nstem_ha_l_hw_inf, 
+            nstem_ha_l_hw_wb, nstem_ha_l_hw_si))
+
+#Summarize variables across sites
+#For 0-15m
+x <- x %>% 
+  summarise(across(where(is.numeric), list(
     mean = ~mean(.),
     median = ~median(.),
     min = ~min(.),
     max = ~max(.)
   ), .names = "{.col}_{.fn}")) %>%
   pivot_longer(
-    cols = everything(),
-    names_to = c("Variable", "Stat"),
-    names_pattern = "(.+)_(.+)"
+    cols = where(is.numeric), 
+    names_to = c("variable", "metric"),
+    names_pattern = "^(.*)_(mean|median|min|max)$",
+    values_to = "value"
   ) %>%
-  pivot_wider(
-    names_from = Stat,
-    values_from = value
-  )
-
-#Clean up the formatting
-#Round everything to two decimals
-inf_sum <- inf_sum %>% 
-  mutate(across(mean:max, ~ round(., 2)))
-
-#Combine max and min into a range
-inf_sum <- inf_sum %>% 
+  pivot_wider(names_from = metric, 
+              values_from = value) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
   mutate(range = paste0("[", min, "-", max, "]")) %>% 
-  select(-c(min, max))
+  select(-c(min, max)) %>% 
+  pivot_wider(names_from = variable,
+              values_from = c(mean, median, range))
+
+#For 0-50m
+x1 <- x1 %>% 
+  summarise(across(where(is.numeric), list(
+    mean = ~mean(.),
+    median = ~median(.),
+    min = ~min(.),
+    max = ~max(.)
+  ), .names = "{.col}_{.fn}")) %>%
+  pivot_longer(
+    cols = where(is.numeric), 
+    names_to = c("variable", "metric"),
+    names_pattern = "^(.*)_(mean|median|min|max)$",
+    values_to = "value"
+  ) %>%
+  pivot_wider(names_from = metric, 
+              values_from = value) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  mutate(range = paste0("[", min, "-", max, "]")) %>% 
+  select(-c(min, max)) %>% 
+  pivot_wider(names_from = variable,
+              values_from = c(mean, median, range))
+
+#Add a columns identifying section and crown class
+x <- x %>% 
+  mutate(sec = "0_15", 
+         crown_class_2 = "all")
+x1 <- x1 %>% 
+  mutate(sec = "0_50", 
+         crown_class_2 = "all")
+
+#Bind this to the working dataframe
+reg_inf2 <- bind_rows(reg_inf2, x, x1)
 ```
 
-Export this and the table with all of the regen infection summary stats. 
+Next calculate the the outer infected tree at teach site. 
 ```{r}
-#Table for thesis
-# write_csv(inf_sum, "./tables/thesis_inf_stats.csv")
+#Start by getting the outer infected tree at each site
+x <- regen %>% 
+  mutate(resid = if_else(tree_id %in% resid_rm, "Y", "N")) %>% 
+  filter(resid == "N" & spp == "Hw" & status %in% c("LS", "LL", "LF") &
+           hdm_pa == "Y") %>% 
+  group_by(site_id) %>% 
+  summarise(out_inf_dist = max(dist_y_h)) %>% 
+  ungroup() %>% 
+  summarise(mean_od = mean(out_inf_dist),
+            median_od = median(out_inf_dist),
+            min_od = min(out_inf_dist),
+            max_od = max(out_inf_dist)) %>%
+  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  mutate(range = paste0("[", min_od, "-", max_od, "]")) %>% 
+  select(-c(min_od), max_od)
 
+#Join this back to the working dataframe
+x <- x %>% 
+  mutate(sec = "all",
+         crown_class_2 = "all")
+reg_inf2 <- full_join(reg_inf2, x)
+```
+
+Good, format and clean up. 
+```{r}
+names(reg_inf2)
+#Reorder columns
+reg_inf2 <- reg_inf2 %>% 
+  select(sec, crown_class_2, ends_with("p_sim"), 
+         ends_with("od"), ends_with("ip"), 
+         ends_with("p_l_hw_inf"), ends_with("s_dmr"),
+         ends_with("s_dmi"), ends_with("p_l_hw_wb"),
+         ends_with("p_l_hw_si"))
+
+#Reorder rows
+reg_inf2 <- reg_inf2 %>% 
+  mutate(crown_class_2 = as.character(crown_class_2)) %>% 
+  mutate(crown_class_2 = if_else(crown_class_2 == "C", 
+                                 "D_C", 
+                                 crown_class_2)) %>% 
+  mutate(sec = factor(sec, levels = c("all", "0_15", "0_50")),
+         crown_class_2 = factor(crown_class_2, 
+                                levels = c("all", "D_C", "I", "S"))) %>% 
+  arrange(sec, crown_class_2)
+```
+
+##Export
+```{r}
 #Table with all of the regen infection stats
 # write_csv(reg_infection, "./tables/reg_infection.csv")
+
+#Table with broken down by interval and crown class for thesis
+# write_csv(reg_inf2, here("./tables/reg_infection_thesis.csv"))
 ```
+
 
 #Extra code
 Presence/absence of infection in 5m intervals from the edge using basal area 

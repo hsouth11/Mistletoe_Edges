@@ -1,0 +1,7 @@
+Variable,mean,median,range
+mat.inf_ba_m2_ha,54.6,53.07,[18.03-105.55]
+mat.p_nstem_inf,0.61,0.61,[0.28-0.83]
+mat.s_dmr,2.95,2.6,[0.62-5.37]
+mat.s_dmi,3.31,3.03,[1.73-5.37]
+mat.p_l_hwba_nstem_ha_wb,0.53,0.42,[0.08-1]
+mat.p_l_hwba_nstem_ha_si,0.29,0.17,[0.02-0.83]
