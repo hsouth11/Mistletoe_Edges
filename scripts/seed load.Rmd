@@ -274,6 +274,42 @@ f_p_seed <- function(dist_m_ed){
 }
 ```
 
+##Create plot for thesis
+Simulate some data and plot it to show how seed dispersal is modeled.
+```{r}
+#Simulate distance of seperation of two trees (dist_m_ed). <0 is within the 
+#crown of the source tree, >0 is outside the crown. 
+#Median largest crown width of mature codominant trees is 7.71m. So set lower
+#limit at half of that. 
+sdisp <- tibble(dist_m_ed = seq(from = -3.855, to = 20, by = 0.5))
+
+#Calculate p_seed with the function defined above. 
+sdisp <- sdisp %>% rowwise() %>% 
+  mutate(p_seed = f_p_seed(dist_m_ed = dist_m_ed))
+
+#Calculate new distance varaible to plot with. Zero this at the tree stem.
+sdisp <- sdisp %>% 
+  mutate(dist_m_stem = dist_m_ed + 3.855)
+
+#Plot
+p1 <- ggplot(sdisp, aes(x=dist_m_stem, y = p_seed)) + 
+  geom_point() + 
+  geom_vline(xintercept = c(0, 3.855),
+             linetype = 2, colour = "grey") + 
+  annotate("text", x = 0, y = 0.4, 
+           label = "Stem", hjust = 0, colour = "grey", size = 4) + 
+  annotate("text", x = 3.855, y = 0.4, 
+           label = "Crown edge", hjust = 0, colour = "grey", size = 4) +
+  lims(y=c(0, 0.5),
+       x=c(0, 25))+
+  theme_classic() +
+  labs(x = "Distance between trees (m)", 
+       y = "Proportion of seed production") + 
+  theme(axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16))
+p1
+```
+
 #Interception function
 Workflow generally looks like: 
 (1) find all pairs of Hw trees within 25m of each other, 
@@ -281,10 +317,15 @@ Workflow generally looks like:
 polygons between them to approximate the path of a seed, (4) intersect those 
 paths with the rest of the trees at a site and (5) count the number of 
 intersecting trees according to some rules to approximate interception. 
+Interception estimates come from Bloomberg et al. (1980). 
 
-Start by defining a small test area within one of the sites. This is wrapped 
-into a function in the next block. Interception estimates come from Bloomberg 
-et al. (1980). 
+##Build function step by step
+Start by defining a small test area within one of the sites and developing the
+function step by step. This is wrapped into a function in the next section. 
+Figures are created at each step to contribute to the summary figure for 
+seed load. 
+
+###Define the test area
 ```{r}
 #We are primarily interested in the seed load from mature trees on regen trees.
 #Seed load between regen trees is also included
@@ -363,7 +404,32 @@ tmap_mode("plot") + tm_shape(test) +
 tmap_mode("plot") + tm_shape(test) + 
   tm_symbols(col = "crown_class_2", shape = "tree_type") + 
   tm_text("tree_id") + tm_grid()
+```
 
+####Panel for thesis plot
+Create a simple plot of the mi_1 site with trees as points and draw a 
+rectangle of the area you use to develop the interception function. Just to 
+orient the reader. 
+```{r}
+#Extract the bounding box of the test area
+bbox <- st_as_sfc(st_bbox(test))
+
+#Plot
+p2 <- tmap_mode("plot") +
+  tm_shape(mi_1) +
+    tm_symbols(shape = "tree_type",
+               title.shape = "Tree type") +
+  tm_shape(bbox) +
+    tm_borders(col = "blue") +
+  tm_layout(legend.position = c("left", "top"),
+            legend.title.size = 1.4,
+            legend.text.size = 1.2)
+p2
+?tm_legend
+```
+
+###Define tree pairs
+```{r}
 #Subset the dataset to live Hw trees
 hw <- test %>% filter(spp == "Hw" &
                            status %in% c("LS", "LF", "LL"))
@@ -455,7 +521,10 @@ tmap_mode("plot") + tm_shape(test) +
   tm_symbols(col = "dmr") + tm_grid()
 tmap_mode("plot") + tm_shape(test) + 
   tm_symbols(col = "sp") + tm_grid()
+```
 
+###Define paths
+```{r}
 #Now we need to incorporate interception
 #Each row in the dataset contains a unique pair
 #In these, (2,1) and (1,2) are considered unique, even though these are the 
@@ -527,9 +596,71 @@ x <- pairs_icpt %>%
   select(t1_row, t2_row, tree1, tree2)
 pair_fp_rm <- left_join(pair_fp_rm, x, by = c("t1_row", "t2_row"))
 pair_fp_rr <- left_join(pair_fp_rr, x, by = c("t1_row", "t2_row"))
+```
 
-#With these polygons, representing the path between the crowns of two trees, 
-#we can calculate interception
+####Panels for thesis plot
+Create two clean plots for seed load figure: one with lines between all pairs 
+and then one focusing on a single regen tree, with 5m wide paths plotted.  
+```{r}
+#Define palette for seed production variable
+colour_sp <- c("#A6CEE3", brewer.pal(5, "YlOrRd"))
+
+#Plot with lines between pairs 
+p3 <- tmap_mode("plot") + 
+  tm_shape(pair_lines_rm) + tm_lines(lty = 1) +
+  tm_shape(test) + 
+    tm_symbols(shape = "tree_type", 
+               title.shape = "Tree type",
+               col = "sp",
+               breaks = c(0, 1, 250, 500, 750, 1000),
+               title.col = "Seed production",
+               palette = colour_sp,
+               legend.shape.show = F) +
+  tm_layout(legend.width = 0.5,
+            legend.title.size = 1.4,
+            legend.text.size = 1.2,
+            legend.bg.color = "white",
+            legend.bg.alpha = 0.5)
+p3
+
+#Plot with one focal regen tree with paths of all mature trees
+#Create some layers
+x <- pair_fp_rm %>% filter(tree1 == "r1")
+x1 <- test %>% filter(tree_id == "r1")
+x2 <- test %>% filter(status %in% c("LS", "LL", "LF"), 
+                      tree_type == "mature") %>% 
+  mutate(crown_class_2 = as.character(crown_class_2)) %>% 
+  mutate(crown_class_2 = factor(crown_class_2, levels = c("C", "I", "S")))
+
+#Define a colour palette for crown class
+colour_cc2 <- c("lightgoldenrod4", "lightgoldenrod3","lightgoldenrodyellow")
+p4 <- tmap_mode("plot") + 
+  tm_shape(test) + 
+    tm_symbols(shape = "tree_type",
+               title.shape = "Tree type",
+               legend.shape.show = F) +
+  tm_shape(x2) +
+    tm_symbols(col = "crown_class_2",
+               palette = colour_cc2,
+               title.col = "Crown class") +
+  tm_shape(x) + 
+    tm_polygons(alpha = 0.1, col = "darkblue") +
+  tm_shape(x1) + 
+    tm_symbols(col = "red",
+               shape = 15) +
+  tm_layout(legend.title.size = 1.4,
+            legend.text.size = 1.2)
+p4
+```
+
+###Calculate interception
+With these polygons, representing the path between the crowns of two trees, 
+we can calculate interception. Start by getting counts of the trees that would
+cause interception.
+
+####Get counts of intercepting trees
+For regen-mature pairs. 
+```{r}
 #For [regen-mature] pairs:
 icpt_rm <- pair_fp_rm %>% 
   rowwise() %>% 
@@ -589,8 +720,10 @@ icpt_rm <- pair_fp_rm %>%
                spp != "Hw" & 
                crown_class_2 == "S") %>% 
       nrow())
+```
 
-##################
+For regen-regen pairs. 
+```{r}
 #For [regen-regen] pairs:
 icpt_rr <- pair_fp_rr %>% 
   rowwise() %>% 
@@ -651,7 +784,10 @@ icpt_rr <- pair_fp_rr %>%
                spp != "Hw" & 
                crown_class_2 == "S") %>% 
       nrow())
+```
 
+Plot these objects to make sure they are working correctly. 
+```{r}
 #Plot these to ensure this is working correctly.
 ##Select a representative case
 ##3 livestanding trees on path, 1 C Hw, 1 S Hw and 1 I non-Hw
@@ -682,9 +818,11 @@ tmap_mode("plot") +
   #Pair points
   tm_shape(hw %>% slice(c(icpt_rm$t1_row[39], icpt_rm$t2_row[39]))) +
     tm_symbols(col="black")
+```
 
-##################
-#Now use tree counts to calculate interception factors
+####Calculate interception factor
+Use tree counts to calculate interception for each pair. 
+```{r}
 #First, join tree type and crown class class to table
 x <- pairs %>% select(t1_row, t2_row, t1_tt, t2_tt, t1_spp, t2_spp,
                                t1_cc, t2_cc)
@@ -755,13 +893,15 @@ icpt_rr <- icpt_rr %>%
         (icpt_nh_C)*icpt_f1 + (icpt_nh_I)*icpt_f1 + (icpt_nh_S)*icpt_f1,
       .default = 0)
     )
+```
 
+Summarise these interception estimates. 
+```{r}
 #Get a summary of interception
 icpt_rm %>% select(icpt_tot, icpt_hw, icpt_nh) %>% 
   summary()
 icpt_rm %>% select(icpt_tot, icpt_hw, icpt_nh) %>% 
   summary()
-
 
 #Now join the dataframes back together
 icpt_all <- rbind(icpt_rm, icpt_rr)
@@ -796,6 +936,7 @@ ggplot(pairs, aes(x = pair_type, y = icpt_tot)) +
   geom_jitter(width = 0.05) + geom_violin(fill = NA)
 ```
 
+####Combine the pieces
 Still working with the test area, combine dispersal function, seed production and interception to calculate seed load
 ```{r}
 #Seed dispersal function (defined above) operates over two intervals (1) within 
@@ -951,8 +1092,52 @@ pairs <- pairs %>%
 pairs %>% select(icpt_frac) %>% summary()
 ```
 
-Now recreate the example above but applied across all trees at all sites. Start
-by defining a function for interception:
+####Panel for thesis plot
+```{r}
+#Subset some objects
+x <- pair_lines_sl %>% 
+  filter(sl_source == "mature" & 
+           sl_ver == "i_tot" & 
+           tree1 == "r1")
+x1 <- test %>% 
+  filter(tree_id == "r1")
+p5 <- tmap_mode("plot") + 
+  tm_shape(test) + 
+    tm_symbols(shape = "tree_type", 
+               title.shape = "Tree type",
+               legend.shape.show = F) +
+  tm_shape(x1) + 
+    tm_symbols(shape = 15,
+               col = "red") +
+  tm_shape(x) +
+    tm_lines(lwd = "sl",
+             title.lwd = "Seed load",
+             scale = 2,
+             legend.lwd.is.portrait = T) + 
+  tm_layout(legend.title.size = 1.4,
+            legend.text.size = 1.2)
+```
+
+###Combine panels for single thesis plot
+```{r}
+#Convert tmap objects to grobs that can be arranged with ggarrange
+p2_grob <- tmap_grob(p2)
+p3_grob <- tmap_grob(p3)
+p4_grob <- tmap_grob(p4)
+p5_grob <- tmap_grob(p5)
+
+pdf("./figures/sl_workflow.pdf", width=11, height=15)
+ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob, 
+          ncol = 2, nrow = 3, labels = "AUTO",
+          font.label = list(size = 20),
+          align = "hv")
+dev.off()
+```
+
+##Interception across all sites
+Now recreate the example above but applied across all trees at all sites. 
+
+###Define interception function
 ```{r}
 #Input requirements:
 ##sf: sf dataframe of trees at a site, with point geometry
@@ -1360,6 +1545,7 @@ f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
 }
 ```
 
+###Trial across three sites
 Try applying the function over another test set of three sites
 ```{r}
 #Redefine trees_sf object in case the cut block above wasn't run
@@ -1444,6 +1630,7 @@ ggplot(icpt_comp, aes(x = site_id, y = icpt)) +
   facet_grid(pair_type~icpt_ver, scales = "free")
 ```
 
+###Apply function across entire HDM dataset
 Scale up and apply function to entire HDM dataset
 ```{r}
 #Redefine trees_sf object in case the cut block above wasn't run
@@ -1671,7 +1858,7 @@ trees <- trees %>%
 # write_csv(trees, here("./data/workflow/trees_sl.csv"))
 ```
 
-#Exploratory plots relating seed load to regen tree infection
+##Exploratory plots relating seed load to regen tree infection
 ```{r}
 #Plot seed load from mature trees as function of distance from the edge:
 x <- pivot_longer(trees, 
@@ -1692,6 +1879,76 @@ x <- trees %>%
 ggplot(x, aes(x = sl_i_tot_rm, y = factor(dmr, levels = c(0,1,2,3,4,5,6),
                                           ordered = TRUE))) + 
   geom_boxplot() 
+```
+
+##Summary table of seed produciton and seed load for thesis
+Variables:
+  - Seed production (mature trees)
+  - Seed load no interception (regen-mat pairs)
+  - Seed load with interception (regen-mat pairs)
+  - Proportion intercepted (regen-mat pairs)
+Structure: rows = variables, columns = crown classes
+```{r}
+#Summarise seed production
+##Only do this for mature trees because we didn't incoporate seed load from
+##regen-regen pairs in our modelling efforts
+tbl_sp_sl <- trees %>% filter(is.na(outside_10) &
+                        spp == "Hw" & status %in% c("LS", "LL", "LF"))
+tbl_sp_sl <- tbl_sp_sl %>% group_by(tree_type, crown_class_2) %>% 
+  summarise(sp_median = median(sp),
+            sp_min = min(sp),
+            sp_max = max(sp)) %>% 
+  mutate(across(starts_with("sp"), 
+                ~if_else(tree_type == "regen", NA_real_, .x)))
+
+#Summarise seed load
+##Only do this for regenerating trees that are within the zone of influence of
+##mature trees
+x <- trees %>% filter(tree_type == "regen") %>% 
+  select(tree_id, tree_type, crown_class_2)
+x <- left_join(sl_target_rm, x, by = join_by(tree1 == tree_id))
+x <- x %>% 
+  select(-c(sl_i_hw_rm, sl_i_nh_rm)) %>% 
+  mutate(p_int = sl_i_tot_rm/sl_ni_rm) %>% 
+  group_by(tree_type, crown_class_2) %>% 
+  summarise(across(where(is.numeric), list(
+    median = ~median(.),
+    min = ~min(.),
+    max = ~max(.)
+  ), .names = "{.col}_{.fn}"))
+
+#Join this to the summary table
+tbl_sp_sl <- left_join(tbl_sp_sl, x, by = c("tree_type", "crown_class_2"))
+
+#Reshape dataframe
+tbl_sp_sl <- tbl_sp_sl %>%
+  pivot_longer(
+    cols = where(is.numeric), 
+    names_to = c("variable", "metric"),
+    names_pattern = "^(.*)_(median|min|max)$",
+    values_to = "value"
+  ) %>%
+  pivot_wider(names_from = metric, 
+              values_from = value)
+
+#Round and combine to a single column 
+tbl_sp_sl <- tbl_sp_sl %>% 
+  mutate(across(where(is.numeric), ~ round(.x, 1))) %>% 
+  mutate(combined = if_else(!is.na(median), 
+                            paste0(median, " [", min, "-", max, "]"),
+                            "-"))
+
+#Reshape again so each variable is a unique row and crown classes are columns
+tbl_sp_sl <- tbl_sp_sl %>% 
+  unite(tt_var, tree_type, variable, sep = ".") %>% 
+  select(tt_var, crown_class_2, combined) %>% 
+  pivot_wider(id_cols = tt_var, 
+              names_from = crown_class_2,
+              values_from = combined) %>% 
+  filter(C != "-")
+
+#Export
+# write_csv(tbl_sp_sl, here("./tables/sl_summary.csv"))
 ```
 
 
