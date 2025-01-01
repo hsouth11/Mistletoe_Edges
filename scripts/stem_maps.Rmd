@@ -17,7 +17,7 @@ The script has two major sections.The first section defines a function to
 rotate the points at each site a fixed number of degrees so they all end up 
 pointing the same direction in the stem maps. The second section does the 
 actual plotting. 
-##############
+##############x
 
 #Setup
 ```{r}
