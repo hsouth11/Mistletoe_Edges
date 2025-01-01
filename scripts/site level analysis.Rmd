@@ -4,7 +4,7 @@ author: "Hanno Southam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-UPDATED: 11 Dec 2024
+UPDATED: 31 Dec 2024
 ##############
 READ ME
 This script compares the 11 HDM study sites to eachother. 
@@ -147,10 +147,12 @@ There are a couple things we need to consider to ensure we are making fair
 comparisons throughout this script: 
 (1) At a few sites we mapped mature trees up to 15m from the edge, when the 
 standard was 10m.
-(2) Regen transects are variable length. When making any comparison of two 
-sites need to ensure we are comparing data from equivalent transect lengths. 
+(2) Regen transects are variable lengths (but constant within a site, with two
+exceptions).  
 (3) At two sites (mi_1) and (mk_3) the transect length within a site varied.
-When calculating site level metrics we will need to consider this too. 
+
+We want to make sure that whenever we are comparing two sites, we are comparing
+trees from equivalent areas. 
 
 Deal with the first of these right off the bat by removing mature trees >10m 
 from the edge. 
@@ -221,6 +223,12 @@ we need to pool the three transects.
 mature <- mature %>% mutate(phf_site = 1/(55*10/10000))
 regen_15 <- regen_15 %>% mutate(phf_site = 1/(3*15*5/10000))
 regen_50 <- regen_50 %>% mutate(phf_site = 1/(3*50*5/10000))
+```
+
+Often in this script, data gets filtered to just live tree classes. Save the 
+status codes for live trees so we can call it. 
+```{r}
+live_stat <- c("LS", "LL", "LF")
 ```
 
 ##Plotting colours
@@ -472,7 +480,7 @@ climate3 <- climate2 %>% select(site_id, cluster,
 ```
 
 #SECTION 2: Size class distribution and species composition
-Here I compare the composition and size class distribution of the trees 
+Here we compare the composition and size class distribution of the trees 
 between sites. We will use the 'regen_15' object for the regen component
 because that is object contains only measured trees; it will be free from any
 bias created by simulating trees. As a general principle, usually two versions
@@ -484,7 +492,8 @@ mat_cs <- site %>% select(site_id)
 ```
 
 ##Basal area, stem density
-Start by basic site level metrics: basal area, number of stems. 
+Start by basic site level metrics: basal area, number of stems. This is for all
+measured trees (live and dead).
 ```{r}
 #Regen
 reg.ba_nstem <- regen_15 %>% 
@@ -515,12 +524,14 @@ mat_cs %>% select(site_id, mat.ba_m2:mat.nstem_ha) %>%
 
 ##DBH, codominant tree layer
 Next, summarize the dbh of the codominant/dominant trees at each site. Do it 
-across all species and then for hemlock. 
+across all species and then for hemlock. At a few trees, crown class is 
+recorded for dead trees when it shouldn't be. Want this to be for live trees
+so also filter for those. 
 ```{r}
 #Regen
 reg.dbh <- regen_15 %>% 
   group_by(site_id) %>% 
-  filter(crown_class_2 == "C") %>% 
+  filter(crown_class_2 == "C" & status %in% live_stat) %>% 
   summarise(reg.dbh_mean_cd_all = mean(dbh, na.rm = T),
             reg.dbh_sd_cd_all = sd(dbh, na.rm = T),
             reg.dbh_mean_cd_hw = mean(dbh[spp == "Hw"], na.rm = T),
@@ -529,7 +540,7 @@ reg.dbh <- regen_15 %>%
 #Mature
 mat.dbh <- mature %>% 
   group_by(site_id) %>% 
-  filter(crown_class_2 == "C") %>% 
+  filter(crown_class_2 == "C" & status %in% live_stat) %>% 
   summarise(mat.dbh_mean_cd_all = mean(dbh, na.rm = T),
             mat.dbh_sd_cd_all = sd(dbh, na.rm = T),
             mat.dbh_mean_cd_hw = mean(dbh[spp == "Hw"], na.rm = T),
@@ -849,7 +860,6 @@ cs_sum <- cs_sum %>%
                               ")"))
 ```
 
-
 ##Export tables
 Export the summary table and the two tables that contain the composition and 
 size stats for writing and other analyses. 
@@ -860,24 +870,10 @@ size stats for writing and other analyses.
 # write_csv(mat_cs, "./tables/mat_comp_size.csv")
 ```
 
-##Extra code
-```{r}
-# #Assemble mature and regen results into a single table for thesis
-# #Bind the cols together
-# comp_size <- bind_cols(reg_cs, select(mat_cs, -site_id))
-# 
-# #Pivot the table longer so every measured variable shared between the two 
-# #two datasets is in one column
-# comp_size <- comp_size %>% 
-#   pivot_longer(cols = -site_id, names_to = c("tree_type", ".value"), names_sep = "\\.")
-# comp_size <- comp_size %>% mutate(tree_type = case_when(tree_type == "reg" ~ "regen", #recode tree_type
-#                                                         tree_type == "mat" ~ "mature"))
-```
-
 #SECTION 3: Compare infection levels in mature trees
 We will do this using number of stems and basal area on a per hectare basis 
 as metrics. Using both is useful because basal area captures biases in 
-infection towards bigger or smaller trees. Generally we aretrying to assess 
+infection towards bigger or smaller trees. Generally we are trying to assess 
 whether the mature components are similar infection sources. 
 
 Amabalis fir (Ba) is another HDM host that was a significant portion of the 
@@ -1160,14 +1156,19 @@ mat_inf2 <- mat_inf2 %>%
 ```
 
 #SECTION 4 - Compare infection levels in regen trees
-Approach this similarly to mature component. We will use number of stems and
-basal area for metrics. There is the added component of a spatial dimension - 
-we want to know how infection changes based on how far a tree is away from the 
-edge. The regen transects were variable in length and we will need to account 
-for that; we'll do that by comparing 0-15m (which is within the zone of 
-influence of the mature component and only contains measured trees) and 0-50 
-(which  extends past the zone of influence and will contain simulated trees for 
-all but one site, to varying extents). 
+This section focuses on Hw (because it is our target tree). Amabalis fir (Ba)
+that we considered in the mature component is only important at one site and 
+is much less affected by HDM. The ordinal modelling only considers Hw, so 
+taking this approach here aligns with that. 
+
+It is broken into two subsections. The first that looks at infections across 
+live and dead trees, while the second looks just at live trees. 
+
+Both subsections break summary stats down into intervals from the edge. 
+  - 0-15m which is within the zone of influence of the mature component and 
+  only contains measured trees
+  - 0-50 which extends past the zone of influence and will contain simulated 
+  trees for all but one site, to varying extents 
 
 Start by removing residual trees from the regen datasets. 
 ```{r}
@@ -1202,11 +1203,12 @@ regen_15 <- regen_15 %>% filter(resid == "N")
 regen_50 <- regen_50 %>% filter(resid == "N")
 ```
 
-Then create an object to append results to and subset the two working 
-dataframes to just hw trees. 
+##Infection in live and dead regen Hw
+Create an object to append results to and subset the two working 
+dataframes to just Hw trees. 
 ```{r}
 #Create dataframe to append results to
-reg_infection <- site %>% 
+reg_i_all <- site %>% 
   select(site_id)
 
 #Subset two trees objects
@@ -1228,11 +1230,11 @@ reg.hw_ba_nstem_50 <- reg.hw_50 %>%
             reg.nstem_ha_hw_50 = sum(phf_site))
 
 #Join estimates to working results dataframe
-reg_infection <- left_join(reg_infection, reg.hw_ba_nstem_15, by="site_id")
-reg_infection <- left_join(reg_infection, reg.hw_ba_nstem_50, by="site_id")
+reg_i_all <- left_join(reg_i_all, reg.hw_ba_nstem_15, by="site_id")
+reg_i_all <- left_join(reg_i_all, reg.hw_ba_nstem_50, by="site_id")
 ```
 
-##How many trees were simulated?
+###How many trees were simulated?
 Calculate the proportion of all trees and Hw simulated at each site. 
 ```{r}
 #Get counts of all trees, all simulated trees, all Hw and simulated Hw
@@ -1250,42 +1252,10 @@ reg.sim <- reg.sim %>%
 
 #Join these back to the working results dataframe
 x <- reg.sim %>% select(site_id, starts_with("reg.p"))
-reg_infection <- left_join(reg_infection, x, by = "site_id")
+reg_i_all <- left_join(reg_i_all, x, by = "site_id")
 ```
 
-##Infection perimeter
-We are defining infection perimeter as the distance from the edge below which 
-90% of the infected Hw occur. Its better than using the most distant tree 
-because it uses more than just one datapoint; the exception is when there is 
-just one or two infected trees at a site. In those cases, it will be 
-disproportinately determined by those trees. Calculate it here. 
-
-General trends: 
-  - At the transect level, it ranges from 0-48.9m
-  - At the site level, the means range from 2.4 to 33.2m
-```{r}
-#plot_id == transect_id
-#Used if_else statement because if there are no infected Hw, then infection
-#perimeter is 0
-reg.infper <- regen %>% 
-  filter(spp == "Hw") %>% 
-  group_by(site_id, plot_id) %>% 
-  summarise(reg.infper = if_else(sum(hdm_pa == "Y")>0, 
-                                 quantile(dist_y_h[hdm_pa == "Y"], probs = 0.9),
-                                 0)) 
-range(reg.infper$reg.infper) #0's kept
-
-#Summarize at the site level with mean and sd
-reg.infper_s <- reg.infper %>% group_by(site_id) %>% 
-  summarise(reg.infper_mean = mean(reg.infper), 
-            reg.infper_sd = sd(reg.infper)) 
-summary(reg.infper_s)
-
-#Join these back to the results dataframe
-reg_infection <- left_join(reg_infection, reg.infper_s, by="site_id")
-```
-
-##BA and nstems infected
+###BA and nstems infected
 Calculate the basal area and # of stems infected (per ha) at each site and with
 those the percent infection by each metric. General trends:
   - Proportion infected (0-15m): mean = 0.49, range =0.01 - 0.80
@@ -1293,7 +1263,6 @@ those the percent infection by each metric. General trends:
   - Four outliers are obvious in this data: mk_3 (youngest site by far), 
   ph_1 (no clear explanation), ph_2 and ph_3 (both sites where Hw is not a 
   dominant species)
-  
 ```{r}
 reg.ba_nstem_inf_15 <- reg.hw_15 %>% 
   filter(hdm_pa =="Y") %>% 
@@ -1308,11 +1277,11 @@ reg.ba_nstem_inf_50 <- reg.hw_50 %>%
             reg.nstem_ha_hw_inf_50 = sum(phf_site))
 
 #Join these stats back to results dataframe
-reg_infection <- left_join(reg_infection, reg.ba_nstem_inf_15, by="site_id")
-reg_infection <- left_join(reg_infection, reg.ba_nstem_inf_50, by="site_id")
+reg_i_all <- left_join(reg_i_all, reg.ba_nstem_inf_15, by="site_id")
+reg_i_all <- left_join(reg_i_all, reg.ba_nstem_inf_50, by="site_id")
 
 #Calculate the proportion of Hw infected
-reg_infection <- reg_infection %>% 
+reg_i_all <- reg_i_all %>% 
   mutate(reg.p_ba_m2_inf_15 = reg.ba_m2_ha_hw_inf_15/reg.ba_m2_ha_hw_15,
          reg.p_nstem_inf_15 = reg.nstem_ha_hw_inf_15/reg.nstem_ha_hw_15,
          reg.p_ba_m2_inf_50 = reg.ba_m2_ha_hw_inf_50/reg.ba_m2_ha_hw_50,
@@ -1320,58 +1289,19 @@ reg_infection <- reg_infection %>%
 
 #Take a look
 #For 0-15m
-reg_infection %>% select(site_id, reg.ba_m2_ha_hw_15, reg.nstem_ha_hw_15,
+reg_i_all %>% select(site_id, reg.ba_m2_ha_hw_15, reg.nstem_ha_hw_15,
                          reg.p_ba_m2_inf_15, reg.p_nstem_inf_15) %>% 
   arrange(reg.p_nstem_inf_15)
-summary(reg_infection$reg.p_nstem_inf_15)
+summary(reg_i_all$reg.p_nstem_inf_15)
 
 #For 0-50m
-reg_infection %>% select(site_id, reg.ba_m2_ha_hw_50, reg.nstem_ha_hw_50,
+reg_i_all %>% select(site_id, reg.ba_m2_ha_hw_50, reg.nstem_ha_hw_50,
                          reg.p_ba_m2_inf_50, reg.p_nstem_inf_50) %>% 
   arrange(reg.p_nstem_inf_50)
-summary(reg_infection$reg.p_nstem_inf_50)
-```
-  
-##Stand DMR and DMI
-Calculate the stand DMR and DMI for 0-15m and 0-50m. Again, for reference: 
-  - Stand DMR = mean DMR of all live susceptible trees (an proxy of infection 
-  severity at a site)
-  - DMI = mean DMR of all live infected trees (a proxy of infection severity
-  where it occurs)
-  - For the regen component, I am exlcuing Ba and just including Hw in my 
-  definition of susceptible trees because its our target species. Including Ba 
-  in the mature component is fair because it contributes to the infection 
-  pressure. But in the regen component, want to retain a focus on Hw. 
-```{r}
-reg.s_dmr_dmi_15 <- reg.hw_15 %>% 
-  group_by(site_id) %>% 
-  summarise(reg.s_dmr_15 = mean(dmr[status %in% c("LS", "LL", "LF")]),
-            reg.s_dmi_15 = mean(dmr[status %in% c("LS", "LL", "LF") & 
-                                   hdm_pa == "Y"]))
-
-reg.s_dmr_dmi_50 <- reg.hw_50 %>% 
-  group_by(site_id) %>% 
-  summarise(reg.s_dmr_50 = mean(dmr[status %in% c("LS", "LL", "LF")]),
-            reg.s_dmi_50 = mean(dmr[status %in% c("LS", "LL", "LF") & 
-                                   hdm_pa == "Y"]))
-
-##Join these stats back to results table
-reg_infection <- left_join(reg_infection, reg.s_dmr_dmi_15, by="site_id")
-reg_infection <- left_join(reg_infection, reg.s_dmr_dmi_50, by="site_id")
-
-#Take a look
-#0-15m
-reg_infection %>% select(site_id, reg.s_dmr_15, reg.s_dmi_15) %>% 
-  arrange(reg.s_dmr_15)
-reg_infection %>% select(reg.s_dmr_15, reg.s_dmi_15) %>% summary()
-
-#0-50m
-reg_infection %>% select(site_id, reg.s_dmr_50, reg.s_dmi_50) %>% 
-  arrange(reg.s_dmr_50)
-reg_infection %>% select(reg.s_dmr_50, reg.s_dmi_50) %>% summary()
+summary(reg_i_all$reg.p_nstem_inf_50)
 ```
 
-##Basal area and # of stems by DMR
+###Basal area and # of stems by DMR
 Break down basal area and the number of stems (per ha) by DMR class.
 ```{r}
 #Now find the basal area and number of stems (per ha) in each dmr class
@@ -1396,16 +1326,16 @@ reg.dmr_50 <- pivot_wider(reg.dmr_50, names_from = dmr_f2,
                        values_from = c(ba_m2_ha_50, nstem_ha_50))
 
 #Add these to results dataframe
-reg_infection <- left_join(reg_infection, reg.dmr_15, by = "site_id")
-reg_infection <- left_join(reg_infection, reg.dmr_50, by = "site_id")
+reg_i_all <- left_join(reg_i_all, reg.dmr_15, by = "site_id")
+reg_i_all <- left_join(reg_i_all, reg.dmr_50, by = "site_id")
 ```
 
-###Graph this breakdown
+####Graph this breakdown
 Break down basal area and # of stems (per ha) by DMR class and distance from 
 the edge. This is a pretty close to visual to what we are trying to model. 
 
 Start by breaking distance from the edge into bin and then creating the 
-dataframe with the breakdown. 
+dataframe with the breakdown.
 ```{r}
 #Break distance from the edge into 5m bins
 reg.hw_50 <- reg.hw_50 %>% mutate(dist_y_h_bin = cut(dist_y_h, 
@@ -1526,155 +1456,41 @@ p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem_ha, fill=dmr_f2)) +
 # dev.off()
 ```
 
-##Vertical infection distribution
-We also want to summarize how infection is distributed in the tree. E.g. if its
-a DMR 1, then we want to know whether the 1 is in the bottom, middle or upper 
-crown. Lets do this, just for live Hw trees that have a DMR of >=1. The basic 
-strategy is going to be to break down each tree level DMR (possible values for 
-infected tree of 1-6) by the contributions of each crown third. 
+##Infection in live regen Hw
+When comparing to other papers, it became important to have infection metrics
+for live trees and broken down by crown class. Most other papers report 
+infection metrics for the something analagous to the live codominant layer so 
+we need this for comparison. Infection metrics for these trees are created in
+this subsection.
+
+Filter to live Hw
 ```{r}
-#Start by creating subsetting the dataframe to just DMR ratings (for the whole 
-#tree and for the crown thirds).
-reg.vpos <- reg.hw_50 %>% 
-  filter(status %in% c("LS", "LL", "LF") & dmr >= 1) %>% 
-  select(tree_id, site_id, crown_class, dmr, dmr_l, dmr_m, dmr_u)
-
-#Divide each crown third rating by the total DMR to get the crown third 
-#contribution
-reg.vpos <- reg.vpos %>% 
-  mutate(cont_l = dmr_l/dmr,
-         cont_m = dmr_m/dmr,
-         cont_u = dmr_u/dmr)
-
-#Lengthen so that crown third contributions are a single column
-reg.vpos <- reg.vpos %>% 
-  select(-c(dmr_l, dmr_m, dmr_u)) %>% 
-  pivot_longer(cols = starts_with("cont"),
-               values_to = "cont",
-               names_to = "ct",
-               names_prefix = "cont_")
-
-#Summarize this for each crown class. This creates groups for every unique
-#crown class - dmr -crown third combination. Within each group, it takes each
-#row and averages the contribution value for each crown third. 
-reg.vpos <- reg.vpos %>% 
-  group_by(crown_class, dmr, ct) %>% 
-  summarise(cont = mean(cont),
-            n_tree = n())
+regen_15_l <- regen_15 %>% 
+  filter(spp == "Hw" & status %in% live_stat & 
+           sim_tree == "N")
+regen_50_l <- regen_50 %>% 
+  filter(spp == "Hw" & status %in% live_stat)
 ```
 
-###Graph this distribution
-```{r}
-#We will use the n_tree column to label the plot with how many trees there are 
-#for each crown class-dmr combination, but right now there are three values for
-#every combination because the dataframe is also subset by crown third. We just
-#need one
-reg.vpos <- reg.vpos %>% 
-  mutate(n_tree = if_else(ct == "l", n_tree, NA))
-
-#Make crwon third a factor
-reg.vpos <- reg.vpos %>% 
-  mutate(ct = case_match(ct, 
-                         "l" ~ "lower",
-                         "m" ~ "middle",
-                         "u" ~ "upper")) %>% 
-  mutate(ct = factor(ct, levels = c("upper", "middle", "lower")))
-
-p <- ggplot(reg.vpos, aes(x = dmr, y = cont, fill = ct)) + 
-  geom_bar(stat = "identity", position = "stack") + 
-  geom_text(aes(label = n_tree), y = 1, vjust = -0.5) +
-  facet_wrap(~crown_class) +
-  theme_classic() + 
-  scale_y_continuous(limits = c(0, 1.1), breaks = c(0, 0.25, 0.5, 0.75, 1)) +
-  scale_fill_manual(values = colors_ct) + 
-  theme(legend.background = element_rect(fill = "lightgrey"),
-        legend.key = element_rect(fill = "lightgrey", color = NA),
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 16),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20),
-        strip.text = element_text(size = 16)) + 
-  labs(x = "DMR", 
-       y = "Mean crown third contribution", 
-       fill = "Crown third")
-
-#Export this plot
-# pdf(here("./figures/reg_vdist_inf.pdf"), width = 10, height = 8.5)
-# p
-# dev.off()
-```
-
-##Brooming and stem infections
-Calculate the proportion of infected stems with brooms and stem infections
-```{r}
-#0-15m
-reg.wb_si_15 <- reg.hw_15 %>% 
-  group_by(site_id) %>% 
-  summarise(reg.nstem_ha_wb_15 = sum(phf_site[broom_pa == "Y"]),
-            reg.nstem_ha_si_15 = sum(phf_site[stem_pa == "Y"])) %>% 
-  complete(site_id, 
-           fill=list(reg.nstem_ha_wb_15=0, 
-                     reg.nstem_ha_si_15=0))
-
-#0-50m
-reg.wb_si_50 <- reg.hw_50 %>% 
-  group_by(site_id) %>% 
-  summarise(reg.nstem_ha_wb_50 = sum(phf_site[broom_pa == "Y"]),
-            reg.nstem_ha_si_50 = sum(phf_site[stem_pa == "Y"])) %>% 
-    complete(site_id, 
-           fill=list(reg.nstem_ha_wb_50=0, 
-                     reg.nstem_ha_si_50=0))
-
-#Join these back to results table
-reg_infection <- left_join(reg_infection, reg.wb_si_15, by = "site_id")
-reg_infection <- left_join(reg_infection, reg.wb_si_50, by = "site_id")
-
-#Calculate proportion of trees with brooming
-reg_infection <- reg_infection %>% 
-  mutate(reg.p_nstem_inf_wb_15 = reg.nstem_ha_wb_15/reg.nstem_ha_hw_inf_15,
-         reg.p_nstem_inf_si_15 = reg.nstem_ha_si_15/reg.nstem_ha_hw_inf_15,
-         reg.p_nstem_inf_wb_50 = reg.nstem_ha_wb_50/reg.nstem_ha_hw_inf_50,
-         reg.p_nstem_inf_si_50 = reg.nstem_ha_si_50/reg.nstem_ha_hw_inf_50
-         )
-
-#Take a look
-reg_infection %>% 
-  select(contains(c("p_nstem_inf_wb", "p_nstem_inf_si"))) %>% 
-  summary()
-```
-
-##Summary table for thesis
-Create a summary table for thesis. This recreates some of the work above but 
-when comparing to other papers, it became important to have infection metrics
-broken down by crown class. The code above combines all trees across crown 
-classes. Most other papers report infection metrics for the
-something analagous to the codominant layer so need this for comparison. 
-
-Going to filter summary to live Hw trees. This will be much simpler to 
-summarize and aligns with what is in the ordinal models. 
-
+###Summary table for thesis
 Variables:
-  - Outer infected tree (m)
-  - Infection perimeter (m)
   - Proportion of trees simulated
   - Proportion of Hw stems infected
   - Average DMR
   - DMI
   - Prop Hw stems with brooms
   - Prop Hw stems with stem infections
-  
 Structure: 
   - Rows: 
     - Interval (distnace from the edge; all, 0-15m or 0-50)
     - Crown class (all, C, I, S)
   - Columns: metrics
-```{r}
-regen_15_l <- regen_15 %>% 
-  filter(spp == "Hw" & status %in% c("LS", "LL", "LF") & 
-           sim_tree == "N")
-regen_50_l <- regen_50 %>% 
-  filter(spp == "Hw" & status %in% c("LS", "LL", "LF"))
-```
+  
+For reference: 
+  - Average DMR = mean DMR of all live susceptible trees (an proxy of infection 
+  severity at a site)
+  - DMI = mean DMR of all live infected trees (a proxy of infection severity
+  where it occurs)
 
 Start with metrics that are summarized for each section x crown class 
 combination: proportion of Hw stems infected, average Hw DMR and DMI and the 
@@ -1767,21 +1583,18 @@ x1 <- x1 %>%
 #Join the two datasets
 x$sec <- "0_15"
 x1$sec <- "0_50"
-reg_inf2 <- bind_rows(x, x1) %>% 
+reg_i_live <- bind_rows(x, x1) %>% 
   relocate(sec, .before = everything())
 ```
 
-That is super. Now repeat this for the same variables but ingnoring crown 
+That is super. Now repeat this for the same variables but ignoring crown 
 class. Then append that to the working dataframe. 
 ```{r}
 #Calculate each variable at the site level
 #For 0-15m
 x <- regen_15_l %>% 
   group_by(site_id) %>% 
-  summarise(ip = if_else(sum(hdm_pa == "Y")>0,
-                      quantile(dist_y_h[hdm_pa == "Y"], probs = 0.9),
-                                 0),
-            nstem_ha_l_hw = sum(phf_site),
+  summarise(nstem_ha_l_hw = sum(phf_site),
             nstem_ha_l_hw_sim = sum(phf_site[sim_tree =="Y"]),
             nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
             s_dmr = mean(dmr),
@@ -1800,10 +1613,7 @@ x <- regen_15_l %>%
 #For 0-50m
 x1 <- regen_50_l %>% 
   group_by(site_id) %>% 
-  summarise(ip = if_else(sum(hdm_pa == "Y")>0,
-                      quantile(dist_y_h[hdm_pa == "Y"], probs = 0.9),
-                                 0),
-            nstem_ha_l_hw = sum(phf_site),
+  summarise(nstem_ha_l_hw = sum(phf_site),
             nstem_ha_l_hw_sim = sum(phf_site[sim_tree == "Y"]),
             nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
             s_dmr = mean(dmr),
@@ -1873,47 +1683,21 @@ x1 <- x1 %>%
          crown_class_2 = "all")
 
 #Bind this to the working dataframe
-reg_inf2 <- bind_rows(reg_inf2, x, x1)
-```
-
-Next calculate the the outer infected tree at teach site. 
-```{r}
-#Start by getting the outer infected tree at each site
-x <- regen %>% 
-  mutate(resid = if_else(tree_id %in% resid_rm, "Y", "N")) %>% 
-  filter(resid == "N" & spp == "Hw" & status %in% c("LS", "LL", "LF") &
-           hdm_pa == "Y") %>% 
-  group_by(site_id) %>% 
-  summarise(out_inf_dist = max(dist_y_h)) %>% 
-  ungroup() %>% 
-  summarise(mean_od = mean(out_inf_dist),
-            median_od = median(out_inf_dist),
-            min_od = min(out_inf_dist),
-            max_od = max(out_inf_dist)) %>%
-  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
-  mutate(range = paste0("[", min_od, "-", max_od, "]")) %>% 
-  select(-c(min_od), max_od)
-
-#Join this back to the working dataframe
-x <- x %>% 
-  mutate(sec = "all",
-         crown_class_2 = "all")
-reg_inf2 <- full_join(reg_inf2, x)
+reg_i_live <- bind_rows(reg_i_live, x, x1)
 ```
 
 Good, format and clean up. 
 ```{r}
-names(reg_inf2)
+names(reg_i_live)
 #Reorder columns
-reg_inf2 <- reg_inf2 %>% 
+reg_i_live <- reg_i_live %>% 
   select(sec, crown_class_2, ends_with("p_sim"), 
-         ends_with("od"), ends_with("ip"), 
          ends_with("p_l_hw_inf"), ends_with("s_dmr"),
          ends_with("s_dmi"), ends_with("p_l_hw_wb"),
          ends_with("p_l_hw_si"))
 
 #Reorder rows
-reg_inf2 <- reg_inf2 %>% 
+reg_i_live <- reg_i_live %>% 
   mutate(crown_class_2 = as.character(crown_class_2)) %>% 
   mutate(crown_class_2 = if_else(crown_class_2 == "C", 
                                  "D_C", 
@@ -1924,163 +1708,171 @@ reg_inf2 <- reg_inf2 %>%
   arrange(sec, crown_class_2)
 ```
 
-##Export
+###Distance of spread
+Use some summary metrics to capture how far HDM has spread (in live Hw).
+  - Infection perimeter = distance from the edge below which 
+  90% of the infected live Hw occur. 
+    - Its better than using the most distant tree 
+    because it uses more than just one datapoint; the exception is when there 
+    is just one or two infected trees at a site. In those cases, it will be
+    disproportinately determined by those trees.
+  - Outer infected tree = infected live Hw most distant from the mature forest
+  edge
+  
+Infection perimeter.
+```{r}
+#Calcualte at the transect level first
+#Used if_else statement because if there are no infected Hw, then infection
+#perimeter is 0
+#Note: only 32 transects are represented here because one site (ph_3) had 
+#no live Hw on one transect
+reg.infper_tran <- regen %>% 
+  mutate(resid = if_else(tree_id %in% resid_rm, "Y", "N")) %>% 
+  filter(resid == "N" & spp == "Hw" & status %in% live_stat &
+           hdm_pa == "Y") %>% 
+  group_by(site_id, plot_id) %>% 
+  summarise(infper = if_else(sum(hdm_pa == "Y")>0, 
+                                 quantile(dist_y_h[hdm_pa == "Y"], probs = 0.9),
+                                 0)) 
+range(reg.infper_tran$infper)
+
+#Average across transects to get site level estimate
+reg.infper_site <- reg.infper_tran %>% 
+  group_by(site_id) %>% 
+  summarise(infper_mean = mean(infper), 
+            infper_sd = sd(infper)) 
+
+#Take a look
+summary(reg.infper_site)
+```
+
+Outer infected tree at each site. Don't need to filter out simulated trees
+because all simulated Hw are uninfected. 
+```{r}
+#Start by getting the outer infected tree at each site
+reg.out_inf <- regen %>% 
+  mutate(resid = if_else(tree_id %in% resid_rm, "Y", "N")) %>% 
+  filter(resid == "N" & spp == "Hw" & status %in% live_stat &
+           hdm_pa == "Y") %>% 
+  group_by(site_id) %>% 
+  summarise(out_inf_dist = max(dist_y_h)) 
+
+#Take a look at this:
+summary(reg.out_inf)
+```
+
+###Vertical infection distribution
+We also want to summarize how infection is distributed in the tree. E.g. if its
+a DMR 1, then we want to know whether the 1 is in the bottom, middle or upper 
+crown. Do this for live Hw trees that have a DMR of >=1. The basic 
+strategy is going to be to break down each tree level DMR (possible values for 
+infected tree of 1-6) by the contributions of each crown third. 
+```{r}
+#Start by creating subsetting the dataframe to just DMR ratings (for the whole 
+#tree and for the crown thirds).
+reg.vpos <- regen %>% 
+  mutate(resid = if_else(tree_id %in% resid_rm, "Y", "N")) %>% 
+  filter(resid == "N" & spp == "Hw" & status %in% live_stat &
+           hdm_pa == "Y" & dmr >= 1) %>% 
+  select(tree_id, site_id, crown_class, dmr, dmr_l, dmr_m, dmr_u)
+
+#Divide each crown third rating by the total DMR to get the crown third 
+#contribution
+reg.vpos <- reg.vpos %>% 
+  mutate(cont_l = dmr_l/dmr,
+         cont_m = dmr_m/dmr,
+         cont_u = dmr_u/dmr)
+
+#Lengthen so that crown third contributions are a single column
+reg.vpos <- reg.vpos %>% 
+  select(-c(dmr_l, dmr_m, dmr_u)) %>% 
+  pivot_longer(cols = starts_with("cont"),
+               values_to = "cont",
+               names_to = "ct",
+               names_prefix = "cont_")
+
+#Summarize this for each crown class. This creates groups for every unique
+#crown class - dmr -crown third combination. Within each group, it takes each
+#row and averages the contribution value for each crown third. 
+reg.vpos <- reg.vpos %>% 
+  group_by(crown_class, dmr, ct) %>% 
+  summarise(cont = mean(cont),
+            n_tree = n())
+```
+
+Graph this distribution
+```{r}
+#We will use the n_tree column to label the plot with how many trees there are 
+#for each crown class-dmr combination, but right now there are three values for
+#every combination because the dataframe is also subset by crown third. We just
+#need one
+reg.vpos <- reg.vpos %>% 
+  mutate(n_tree = if_else(ct == "l", n_tree, NA))
+
+#Make crwon third a factor
+reg.vpos <- reg.vpos %>% 
+  mutate(ct = case_match(ct, 
+                         "l" ~ "lower",
+                         "m" ~ "middle",
+                         "u" ~ "upper")) %>% 
+  mutate(ct = factor(ct, levels = c("upper", "middle", "lower")))
+
+p <- ggplot(reg.vpos, aes(x = dmr, y = cont, fill = ct)) + 
+  geom_bar(stat = "identity", position = "stack") + 
+  geom_text(aes(label = n_tree), y = 1, vjust = -0.5) +
+  facet_wrap(~crown_class) +
+  theme_classic() + 
+  scale_y_continuous(limits = c(0, 1.1), breaks = c(0, 0.25, 0.5, 0.75, 1)) +
+  scale_fill_manual(values = colors_ct) + 
+  theme(legend.background = element_rect(fill = "lightgrey"),
+        legend.key = element_rect(fill = "lightgrey", color = NA),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 16),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 20),
+        strip.text = element_text(size = 16)) + 
+  labs(x = "DMR", 
+       y = "Mean crown third contribution", 
+       fill = "Crown third")
+
+#Export this plot
+# pdf(here("./figures/reg_vdist_inf.pdf"), width = 10, height = 8.5)
+# p
+# dev.off()
+```
+
+##Proportion of trees with growth impacts
+Growth impacts start to occur at DMR >=3. See what proportion of codominant Hw
+at each site are past that threshold. 
+```{r}
+#Within 15m calculate the number of dominant/codominant live Hw and the 
+#proportion of those with DMR>=3
+dmr3_15 <- regen_15_l %>% 
+  filter(crown_class_2 == "C") %>% 
+  group_by(site_id) %>% 
+  summarise(n_dc_hw = n(),
+            n_dc_hw_dmr3 = sum(dmr >= 3)) %>% 
+  mutate(p_dmr3 = n_dc_hw_dmr3/n_dc_hw)
+
+#Same but over 0-50m
+dmr3_50 <- regen_50_l %>% 
+  filter(crown_class_2 == "C") %>% 
+  group_by(site_id) %>% 
+  summarise(n_dc_hw = n(),
+            n_dc_hw_dmr3 = sum(dmr >= 3)) %>% 
+  mutate(p_dmr3 = n_dc_hw_dmr3/n_dc_hw)
+
+#Take a look at these
+summary(dmr3_15)
+summary(dmr3_50)
+```
+
+##Export tables
+Save the tables created in this section. 
 ```{r}
 #Table with all of the regen infection stats
-# write_csv(reg_infection, "./tables/reg_infection.csv")
+# write_csv(reg_i_all, "./tables/reg_inf_hw_all.csv")
 
 #Table with broken down by interval and crown class for thesis
-# write_csv(reg_inf2, here("./tables/reg_infection_thesis.csv"))
-```
-
-
-#Extra code
-Presence/absence of infection in 5m intervals from the edge using basal area 
-and dmr metrics.
-```{r}
-#Plot 3: basal area and number of stems infected as function of distance 
-#from the edge
-#Going to display these plots in 5m bins of distance. 
-#Only want to show complete intervals with complete data (e.g. if a transect
-#ends at 22.5m, we only want to show intervals up to 20m because the interval
-#that appears as 20-25 only has half that data).
-#Create new variable that takes the transect length and finds the nearest 
-#lowest multiple of 5
-reg.hw <- reg.hw %>% mutate(dist_cmplt_bin = floor(tr_leng_s/5)*5)
-
-#Create a subdataframe that removes observations beyond this new variable
-reg.hw.disty <- reg.hw %>% filter(dist_y_h<dist_cmplt_bin)
-
-#Break up dist_y_h into intervals.
-range(reg.hw.disty$dist_y_h)
-reg.hw.disty <- reg.hw.disty %>% 
-  mutate(dist_y_h_bin = cut(dist_y_h, 
-                            breaks = c(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 
-                                       50), 
-                            include.lowest = TRUE))
-levels(reg.hw.disty$dist_y_h_bin)
-
-#Summarize basal area and the # stems by site, presence/absence of hdm and 
-#distance from the edge (in the 5m intervals created above)
-#Only want to show complete intervals with complete data (e.g. if a transect
-#ends at 22.5m, we only want to show intervals up to 20m because the interval
-#that appears as 20-25 really only has half that data) 
-g.reg_hdmpa_dy <- reg.hw.disty %>% 
-  group_by(id_bec_age_f, hdm_pa, dist_y_h_bin) %>%
-  summarise(ba_m2 = sum(ba_m2), nstem = n()) %>%
-  complete(dist_y_h_bin, fill=list(ba_m2=0, nstem=0))
-
-##Plot nstem and basal area vs. distance from the edge, coloured by 
-#presence/absence of hdm infection
-#Check/reorder hdm_pa variable
-levels(g.reg_hdmpa_dy$hdm_pa)
-ggplot(g.reg_hdmpa_dy, aes(x=dist_y_h_bin, y=nstem, fill=hdm_pa)) +
-  theme_classic() +
-  geom_bar(position="stack", stat="identity") +
-  facet_wrap(vars(id_bec_age_f)) + 
-  scale_fill_manual(values = colors_hdm_pa) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
-        legend.position = c(0.88, 0.1),
-        legend.background = element_rect(fill = "lightgrey"),
-        legend.key = element_rect(fill = "lightgrey", color = NA)) + 
-  labs(x = "Distance from edge (m)", 
-       y = expression("Number of stems"), 
-       fill = "P/A of HDM") 
-
-ggplot(g.reg_hdmpa_dy, aes(x=dist_y_h_bin, y=ba_m2, fill=hdm_pa)) + 
-  geom_bar(position="stack", stat="identity") +
-  theme_classic() +
-  facet_wrap(vars(id_bec_age_f)) + 
-  scale_fill_manual(values = colors_hdm_pa) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
-        legend.position = c(0.88, 0.1),
-        legend.background = element_rect(fill = "lightgrey"),
-        legend.key = element_rect(fill = "lightgrey", color = NA)) + 
-  labs(x = "Distance from edge (m)", 
-       y = expression("Basal area (m"^2*")"), 
-       fill = "P/A of HDM")
-```
-
-
--Plots relating the propotion of infected stems, proportion of infected basal area and dmr distribution to distance from the edge
-  -This is plot 3
-  -The amount Hw is variable as a function of distance from the edge and the infection metrics seem to follow it (makes sense, bigger target area)
-  - There are patterns of percent infection and dmr descreasing as a function of distance from the edge at some sites (e.g. cr_1, cr_2, mk_2, mi_1)
-  - The severely infected trees (dmr 5-6) are all close to the edge (within 10m)
-
--Plots relating infection in regen to basal area of infection in mature component
-  -This is Plot 4 (which combines p.minfba_rinfba and p.minfba_rpinfba)
-  -There is a positive relationship here but only if you mentally remove the outliers (particularly mk_3 and ph_1)
-
--Plots relating infection perimeter to regen age
-  -This is Plot 5
-  -It sort of looks like there is something here but my sense is the range of age is too small and the replication is too low
-
-Dual axis plot looking at coupling of infection perimeter and basal area for 
-each site. 
-```{r}
-##Plot 1: dual axis plot looking at infection perimeter and basal area infected
-##Need to set a scale factor for second axis. Basal area about 7 times smaller 
-#than infper values. So factor = 7
-
-#Create dataframe for plotting with infection perimeter and basal area by 
-#transect
-g.reg_infper_ba <- reg.hw %>% group_by(site_id, plot_id) %>% 
-  summarise(reg.infper = if_else(sum(hdm_pa == "Y")>0, 
-                                 quantile(dist_y_h, probs = 0.9),
-                                 0),
-            reg.inf_ba_m2 = sum(ba_m2[hdm_pa == "Y"]))
-g.reg_infper_ba <- g.reg_infper_ba %>% mutate(plot_id = as.character(plot_id))
-scale <- 24
-ggplot(g.reg_infper_ba, aes(x=site_id, y=reg.infper, color=plot_id)) +
-  geom_point(aes(shape = "infection perimeter (m2)")) +
-  geom_point(aes(y=reg.inf_ba_m2*scale, shape = "basal area infected (m2)")) +
-  scale_y_continuous(sec.axis = sec_axis(~./scale, name="basal area infected (m2)"))
-
-```
-
-Basic plots of DMR distribution using number of stems and BA
-```{r}
-#Plot set 2: basic distribution of dmr by site
-#Do this for within 15m so its comparable across sites
-g.reg_dmr <- regen_15 %>% 
-  filter(spp == "Hw") %>% 
-  group_by(site_id, dmr_f2) %>% 
-  summarise(ba_m2 = sum(ba_m2), nstem =n()) %>%
-  complete(dmr_f2, fill=list(ba_m2=0, nstem=0))
-g.reg_dmr <- g.reg_dmr %>% filter(dmr_f2 != "-")
-
-#By basal area
-ggplot(g.reg_dmr, aes(x=dmr_f2, y=ba_m2, fill = dmr_f2)) + 
-  geom_bar(position="stack", stat="identity") +
-  facet_wrap(vars(site_id)) + scale_fill_manual(values = colors_dmr_f2)
-
-#By number of stems
-ggplot(g.reg_dmr, aes(x=dmr_f2, y=nstem, fill = dmr_f2)) + geom_bar(position="stack", stat="identity") +
-  facet_wrap(vars(site_id)) + scale_fill_manual(values = colors_dmr_f2)
-```
-
-A couple of plots at the site level that try to relate infection in the regen
-to infection in the mature component. Generally, there isn't enough datapoints
-to say anything meaningful here. 
-  - First plot. Basal area infected in regen vs. basal area infected in mature
-  component. 
-  - Second plot. Infection perimeter vs. site age. 
-```{r}
-##############
-#(27 Aug 2024). Commented out, not a very informative set of plots
-# #Plot set 4: basal area infected in mature component to basal area infected 
-#in the regen
-# ggplot(reg_infection, aes(x=mat.inf_ba_m2, y=reg.inf_ba_m2, 
-# color=id_bec_age_f)) +
-#   geom_point()
-# p.minfba_rpinfba <- ggplot(site, aes(x=mat.inf_ba_m2, y=reg.p_hw15_ba_inf, 
-# color=id_bec_age_f)) +
-#   geom_point()
-
-##############
-#(27 Aug 2024). Commented out, not a very informative set of plots
-# #Plot set 5: infection perimeter as a function of site age
-# ggplot(site, aes(x=age, y=reg.infper_m, color=id_bec_age_f)) +
-#   geom_point()
+# write_csv(reg_i_live, here("./tables/reg_inf_hw_live.csv"))
 ```
