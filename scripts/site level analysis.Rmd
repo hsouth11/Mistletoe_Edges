@@ -246,7 +246,7 @@ levels(trees$spp2)
 #Get names of colours
 brewer.pal(5, "Paired")
 #Define the palette so Hw is blue
-colors_spp <- c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99")
+colors_spp <- c("#A6CEE3", "#1F78B4", "burlywood", "burlywood4", "#FB9A99")
 
 #hdm_pa colours. Didn't include a colour for non-Hw trees because not creating any plots with them and this variable here. 
 levels(trees$hdm_pa)
