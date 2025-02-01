@@ -261,10 +261,14 @@ ht_hdm <- ht_hdm %>% filter(crown_class %in% c("C", "D")) %>%
 levels(ht_hdm$crown_class) #good, filtered correctly
 
 #Calculate mean height in each site component
+#Also add a sample size = how many C/D Hw have height meas at each site
 ht_hdm_sum <- ht_hdm %>% 
   group_by(site_id) %>% 
   summarise(tht_r_hdm = mean(height_m[tree_type == "regen"]),
-            tht_m_hdm = mean(height_m[tree_type == "mature"]))
+            n_ht_r_hdm = sum(tree_type == "regen"),
+            tht_m_hdm = mean(height_m[tree_type == "mature"]),
+            n_ht_m_hdm = sum(tree_type == "mature")
+            )
 summary(ht_hdm_sum)
 
 ########################################
@@ -328,9 +332,10 @@ top_ht <- top_ht %>%
          source_m_ht = if_else(!is.na(tht_m_hdm), "hdm", "vri"))
 ```
 
-Export the table of heights for future use
+Export the tables of heights for future use
 ```{r}
-#Use the long table but add a column identifying which data source to use
+#Export a long table and a wide table, both are useful
+#In long table add a column identifying which data source to use
 #Bit of a roundabout way of adding this column
 x <- top_ht %>% 
   select(site_id, contains("source")) %>% 
@@ -355,7 +360,8 @@ top_ht_g <- top_ht_g %>%
                                 "m" ~ "mature"))
 
 #Export
-# write_csv(top_ht_g, here("./data/workflow/top_ht.csv"))
+# write_csv(top_ht, here("./data/workflow/top_ht_wide.csv"))
+# write_csv(top_ht_g, here("./data/workflow/top_ht_long.csv"))
 ```
 
 ##Estimates of hts in all crown classes, all sites
