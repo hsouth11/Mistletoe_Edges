@@ -4,7 +4,7 @@ author: "Hanno Southam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-UPDATED: 31 Dec 2024
+UPDATED: 31 Jan 2025
 ##############
 READ ME
 This script compares the 11 HDM study sites to eachother. 
@@ -570,10 +570,10 @@ reg.ba_nstem_hw <- regen_15 %>%
 #Add to results dataframe
 reg_cs <- left_join(reg_cs, reg.ba_nstem_hw, by="site_id")
 
-#Calculate proportion of total basal area and stems made up of hw
+#Calculate percent of total basal area and stems made up of hw
 reg_cs <- reg_cs %>% 
-  mutate(reg.p_ba_hw = reg.ba_m2_hw/reg.ba_m2,
-         reg.p_stem_hw = reg.nstem_hw/reg.nstem)
+  mutate(reg.p_ba_hw = 100*(reg.ba_m2_hw/reg.ba_m2),
+         reg.p_stem_hw = 100*(reg.nstem_hw/reg.nstem))
 
 ##Mature
 mat.ba_nstem_hw <- mature %>% 
@@ -585,8 +585,8 @@ mat.ba_nstem_hw <- mature %>%
 ##Add to results dataframe
 mat_cs <- left_join(mat_cs, mat.ba_nstem_hw, by="site_id")
 mat_cs <- mat_cs %>% 
-  mutate(mat.p_ba_hw = mat.ba_m2_hw/mat.ba_m2,
-         mat.p_stem_hw = mat.nstem_hw/mat.nstem)
+  mutate(mat.p_ba_hw = 100*(mat.ba_m2_hw/mat.ba_m2),
+         mat.p_stem_hw = 100*(mat.nstem_hw/mat.nstem))
 
 ##Print a summary table. 
 #Hw makes up between 11 and 95% in regen and between 10% and 97% in mature 
@@ -733,7 +733,7 @@ the forest at the sites. It should contain:
 - site_id, 
 - years since harvest 
 - mature forest age estimates 
-- stem density (and proportion of Hw) 
+- stem density (and percent of Hw) 
 - basal area (and propotion of Hw)
 - mean and sd of dbh of all trees 
 - mean and sd of dbh for Hw
@@ -769,59 +769,57 @@ cs_sum <- cs_sum %>%
   relocate(mat.age_hw, .after = "yr_since_har")
 ```
 
-Height estimates of the codominant/dominant Hw at each site are in the crown
-volume dataset. Load that and calcualte the height difference. 
+Height estimates of the codominant/dominant Hw at each site are calcualted in 
+the crown volume script and are stored in a table called top_ht.csv. Load that 
+and calcualte the height difference. 
 ```{r}
-cv <- read_csv(here("./data/workflow/crown_vol.csv"))
+th <- read_csv(here("./data/workflow/top_ht_wide.csv"))
+head(th)
+str(th)
 
-#Filter to co dominant/dominant layer
-unique(cv$crown_class_2)
-ht_cd <- cv %>% 
-  filter(crown_class_2 == "C")
+#Sort by site id, order that is used throughout scripts
+th <- th %>% arrange(site_id)
 
-#Select just the relevant columns
-ht_cd <- ht_cd %>% 
-  select(site_id, tree_type, height_cv_est)
-
-#Widen so that mature and regen heights are in separate columns
-ht_cd <- pivot_wider(ht_cd, names_from = tree_type, 
-                       values_from = height_cv_est) %>% 
-  rename(reg.ht_cd_hw = regen, 
-         mat.ht_cd_hw = mature)
+#Subset to just the relevant columns
+th <- th %>% 
+  select(site_id, n_ht_r_hdm, ht_r_C, source_r_ht, n_ht_m_hdm, ht_m_C,
+         source_m_ht)
+head(th)
 
 #Calculate height difference 
-ht_cd <- ht_cd %>% 
-  mutate(ht_diff_cd_hw = mat.ht_cd_hw - reg.ht_cd_hw)
+th <- th %>% 
+  mutate(ht_diff_cd_hw = ht_m_C - ht_r_C)
+head(th$ht_diff_cd_hw)
 
 #Join this to the summary dataframe
-cs_sum <- left_join(cs_sum, ht_cd, by = "site_id")
+cs_sum <- left_join(cs_sum, th, by = "site_id")
 
-#Round the columns to one decimal
+#Round height estimates to one decimal
 cs_sum <- cs_sum %>% 
-  mutate(across(c(reg.ht_cd_hw, mat.ht_cd_hw, ht_diff_cd_hw), ~ round(., 1)))
+  mutate(across(c(ht_r_C, ht_m_C, ht_diff_cd_hw), ~ round(., 1)))
 ```
 
 To complete the job add the composition and dbh stats we created in this 
 section. 
 ```{r}
-#Add stem density and proportion of stem that are Hw
+#Add stem density and percent of stem that are Hw
 cs_sum <- cs_sum %>% 
   mutate(reg.nstem_ha = reg_cs$reg.nstem_ha,
          mat.nstem_ha = mat_cs$mat.nstem_ha,
-         reg.p_stem_hw = reg_cs$reg.p_stem_hw,
-         mat.p_stem_hw = mat_cs$mat.p_stem_hw) %>% 
+         reg.p_stem_hw = 100*reg_cs$reg.p_stem_hw,
+         mat.p_stem_hw = 100*mat_cs$mat.p_stem_hw) %>% 
   mutate(across(c(reg.nstem_ha, mat.nstem_ha), ~round(., 0)),
-         across(c(reg.p_stem_hw, mat.p_stem_hw), ~round(., 2)),
+         across(c(reg.p_stem_hw, mat.p_stem_hw), ~round(., 1)),
          )
 
 #Do the same but with basal area
 cs_sum <- cs_sum %>% 
   mutate(reg.ba_m2_ha = reg_cs$reg.ba_m2_ha,
          mat.ba_m2_ha = mat_cs$mat.ba_m2_ha,
-         reg.p_ba_hw = reg_cs$reg.p_ba_hw,
-         mat.p_ba_hw = mat_cs$mat.p_ba_hw) %>% 
+         reg.p_ba_hw = 100*reg_cs$reg.p_ba_hw,
+         mat.p_ba_hw = 100*mat_cs$mat.p_ba_hw) %>% 
   mutate(across(c(reg.ba_m2_ha, mat.ba_m2_ha), ~round(., 0)),
-         across(c(reg.p_ba_hw, mat.p_ba_hw), ~round(., 2)),
+         across(c(reg.p_ba_hw, mat.p_ba_hw), ~round(., 1)),
          )
 
 #Then add dbh stats
@@ -876,81 +874,93 @@ as metrics. Using both is useful because basal area captures biases in
 infection towards bigger or smaller trees. Generally we are trying to assess 
 whether the mature components are similar infection sources. 
 
-Amabalis fir (Ba) is another HDM host that was a significant portion of the 
-sites near Ucluelet. We will include it in the workflow here. 
+Amabalis fir (Ba) is another HDM host that was a significant portion of one site (ph_2). We are going to exclude it from the general summary stats and graphs but summarize infection in it at ph_2 to add to the text of the 
+results section. 
 
 Start by creating a dataframe to add results to and getting some basic metrics
-of Hw and Ba. 
 ```{r}
 #Create a dataframe to append results to
 mat_infection <- mat_cs %>% 
   select(site_id,  mat.nstem_ha, mat.ba_m2_ha)
 
-#Filter to just Hw and Ba trees because these are the only ones we are 
-#considering "significant hosts"
-mat.hwba <- mature %>% filter(spp %in% c("Hw", "Ba"))
+#Filter to just Hw
+mat.hw <- mature %>% filter(spp == "Hw")
 
-#Calculate basal area and number of stems made up of these spp
-mat.hwba_summary <- mat.hwba %>% 
+#Calculate Hw basal area and number of stems on per hectare basis
+mat.hw_summary <- mat.hw %>% 
   group_by(site_id) %>% 
-  summarise(mat.hwba_nstem_ha = sum(phf_site), 
-            mat.hwba_ba_m2_ha = sum (ba_m2*phf_site))
+  summarise(mat.hw_nstem_ha = sum(phf_site), 
+            mat.hw_ba_m2_ha = sum (ba_m2*phf_site))
 
 #Add summary stats back to site data
-mat_infection <- left_join(mat_infection, mat.hwba_summary, by="site_id")
+mat_infection <- left_join(mat_infection, mat.hw_summary, by="site_id")
 ```
 
 ##BA and # stems by P/A of HDM
 Start simple and calculate the basal area and number of infected trees at 
 each site. 
 ```{r}
-mat.inf <- mat.hwba %>% 
-  filter(hdm_pa =="Y") %>% 
+#Because of the site with Ba that was infected, we'll calcualte total 
+#infection with Ba and Hw and with just Hw
+mat.inf <- mature %>% 
+  mutate(ba_m2_phf = ba_m2*phf_site) %>% 
+  filter(spp %in% c("Hw", "Ba") & hdm_pa =="Y") %>% 
   group_by(site_id) %>% 
-  summarise(mat.inf_ba_m2_ha = sum(ba_m2*phf_site), 
-            mat.inf_nstem_ha = sum(phf_site)) 
+  summarise(mat.hw_inf_ba_m2_ha = sum(ba_m2_phf[spp == "Hw"]), 
+            mat.hw_inf_nstem_ha = sum(phf_site[spp == "Hw"]),
+            mat.hwba_inf_ba_m2_ha = sum(ba_m2_phf), 
+            mat.hwba_inf_nstem_ha = sum(phf_site)
+            ) 
 
 #Join variables back to working dataframe
 mat_infection <- left_join(mat_infection, mat.inf, by="site_id") 
 
-#Calculate the proportion total and Hw + Ba stems/BA infected
+#Calculate the percent of all AND of Hw stems/BA infected
 mat_infection <- mat_infection %>% 
-  mutate(mat.p_ba_inf = mat.inf_ba_m2_ha/mat.ba_m2_ha,
-         mat.p_nstem_inf = mat.inf_nstem_ha/mat.nstem_ha,
-         mat.p_hwba_ba_inf = mat.inf_ba_m2_ha/mat.hwba_ba_m2_ha,
-         mat.p_hwba_nstem_inf = mat.inf_nstem_ha/mat.hwba_nstem_ha) 
+  mutate(mat.p_ba_inf = 100*mat.hwba_inf_ba_m2_ha/mat.ba_m2_ha,
+         mat.p_nstem_inf = 100*mat.hwba_inf_nstem_ha/mat.nstem_ha,
+         mat.p_hw_ba_inf = 100*mat.hw_inf_ba_m2_ha/mat.hw_ba_m2_ha,
+         mat.p_hw_nstem_inf = 100*mat.hw_inf_nstem_ha/mat.hw_nstem_ha) 
 ```
 
 Take a look at the spread of infection across the sites by each metric. 
-  - By basal area, range is 0.37 to 1.00  of Hw/Ba but most (9/11) sites >0.8
-  - By number of stems, range is 0.31 to 1.00 of Hw/Ba but most sites 
-  (8/11) >0.75
-  - Mature components have different basal areas so its important to look at 
-  the magnitude (not just proportion) infected trees
 ```{r}
-#Summary table sorted by proportion of BA infected
-mat_infection %>% select(site_id, mat.ba_m2_ha, mat.hwba_ba_m2_ha, 
-                         mat.inf_ba_m2_ha, mat.p_ba_inf, mat.p_hwba_ba_inf) %>% 
-  arrange(mat.p_hwba_ba_inf) 
+#Summary tables sorted by percent of BA infected
+#Including Ba and Hw
+mat_infection %>% 
+  select(site_id, mat.ba_m2_ha, mat.hw_ba_m2_ha, mat.hwba_inf_ba_m2_ha, 
+         mat.p_ba_inf) %>% 
+  arrange(mat.p_ba_inf) 
+#Focus on Hw (only difference is at ph_2)
+mat_infection %>% 
+  select(site_id, mat.ba_m2_ha, mat.hw_ba_m2_ha, mat.hw_inf_ba_m2_ha, 
+         mat.p_hw_ba_inf) %>% 
+  arrange(mat.p_hw_ba_inf) 
 
-#Summary table sorted by proportion of stems infected
-mat_infection %>% select(site_id, mat.nstem_ha, mat.hwba_nstem_ha, 
-                         mat.inf_nstem_ha, mat.p_hwba_nstem_inf) %>% 
-  arrange(mat.p_hwba_nstem_inf) 
+#Summary table sorted by percent of stems infected
+#Including Ba and Hw
+mat_infection %>% select(site_id, mat.nstem_ha, mat.hw_nstem_ha, 
+                         mat.hwba_inf_nstem_ha, mat.p_nstem_inf) %>% 
+  arrange(mat.p_nstem_inf) 
+
+#Just Hw (only difference is at ph_2)
+mat_infection %>% select(site_id, mat.nstem_ha, mat.hw_nstem_ha, 
+                         mat.hw_inf_nstem_ha, mat.p_hw_nstem_inf) %>% 
+  arrange(mat.p_hw_nstem_inf) 
 ```
 
 ###Graph this breakdown
-Break down Hw/Ba BA and # of stems by site, presence/absence of HDM and dbh 
-class. This will provide a much more interpretable summary of how infection is 
+Break down Hw BA and # of stems by site, presence/absence of HDM and dbh 
+class. This will provide a much more interpretable summary of how infection is
 distributed in the mature component. 
 ```{r}
-mat.hdmpa_dbh <- mat.hwba %>% 
+mat.hdmpa_dbh <- mat.hw %>% 
   group_by(site_id, hdm_pa, dbh_bin2) %>%
   summarise(ba_m2_ha = sum(ba_m2*phf_site), nstem_ha = sum(phf_site)) %>% 
   complete(dbh_bin2, fill=list(ba_m2_ha = 0, nstem_ha = 0))
 
 #Because there are no non-host trees, the hdm_pa will now only have 
-#trees in three of the four levels
+#trees in three of the four levels (Uknown, No, Yes)
 levels(mat.hdmpa_dbh$hdm_pa)
 mat.hdmpa_dbh %>% group_by(hdm_pa) %>% summarise(n_tree = n())
 
@@ -982,28 +992,28 @@ ggplot(mat.hdmpa_dbh, aes(x=dbh_bin2, y=ba_m2_ha, fill=hdm_pa)) +
 This time, calculate the BA and number of stems on a per hectare basis in 
 each DMR class at each site. 
 ```{r}
-mat.dmr <- mat.hwba %>% 
+mat.dmr <- mat.hw %>% 
   group_by(site_id, dmr_f2) %>% 
-  summarise(ba_m2_ha = sum(ba_m2*phf_site), 
-            nstem_ha = sum(phf_site)) %>% 
+  summarise(hw_ba_m2_ha = sum(ba_m2*phf_site), 
+            hw_nstem_ha = sum(phf_site)) %>% 
   complete(dmr_f2, fill=list(ba_m2_ha = 0, nstem_ha = 0))
 
-#Filter out dmr class '-' because these are non-Hw or Ba trees
+#Filter out dmr class '-' because these are non-hosts trees
 mat.dmr <- mat.dmr %>% filter(dmr_f2 != "-")
 
 #Widen dataframe so each DMR class is a column
 mat.dmr <- pivot_wider(mat.dmr, names_from = dmr_f2, 
-                       values_from = c(ba_m2_ha, nstem_ha))
+                       values_from = c(hw_ba_m2_ha, hw_nstem_ha))
 
 #Join these back to results table
 mat_infection <- left_join(mat_infection, mat.dmr, by = "site_id")
 ```
 
 ###Graph this breakdown
-Break down Hw/Ba BA and # of stems (perha) by site, DMR and dbh  class. 
+Break down Hw BA and # of stems (perha) by site, DMR and dbh  class. 
 Then graph it. 
 ```{r}
-mat.dmr_dbh <- mat.hwba %>% 
+mat.dmr_dbh <- mat.hw %>% 
   group_by(site_id, dmr_f2, dbh_bin2) %>%
   summarise(ba_m2_ha = sum(ba_m2*phf_site), nstem_ha = sum(phf_site)) %>% 
   complete(dbh_bin2, fill=list(ba_m2_ha = 0, nstem_ha = 0))
@@ -1069,60 +1079,68 @@ data for the recently dead tree status trees but we were inconsistent about
 that in our initial data collection. The live trees were consistently measured 
 for these fields. 
 ```{r}
-x <- mat.hwba %>% 
+x <- mat.hw %>% 
   filter(status %in% c("LS", "LL", "LF")) %>% 
   group_by(site_id) %>% 
-  summarise(mat.l_hwba_nstem_ha = sum(phf_site), 
-            mat.l_hwba_nstem_wb = sum(phf_site[broom_pa == "Y"]),
-            mat.l_hwba_nstem_si = sum(phf_site[stem_pa == "Y"]))
+  summarise(mat.l_hw_nstem_ha = sum(phf_site), 
+            mat.l_hw_nstem_wb = sum(phf_site[broom_pa == "Y"]),
+            mat.l_hw_nstem_si = sum(phf_site[stem_pa == "Y"]))
   
 #Join these back to results table
 mat_infection <- left_join(mat_infection, x, by = "site_id")
 
-#Calculate proportion of live trees with brooming and stem infections
+#Calculate percent of live trees with brooming and stem infections
 mat_infection <- mat_infection %>% 
-  mutate(mat.p_l_hwba_nstem_ha_wb = mat.l_hwba_nstem_wb/mat.l_hwba_nstem_ha,
-         mat.p_l_hwba_nstem_ha_si = mat.l_hwba_nstem_si/mat.l_hwba_nstem_ha)
+  mutate(mat.p_l_hw_nstem_ha_wb = 100*mat.l_hw_nstem_wb/mat.l_hw_nstem_ha,
+         mat.p_l_hw_nstem_ha_si = 100*mat.l_hw_nstem_si/mat.l_hw_nstem_ha)
 
 #Take a look
-mat_infection %>% select(mat.p_l_hwba_nstem_ha_wb, 
-                         mat.p_l_hwba_nstem_ha_si) %>% summary()
+mat_infection %>% select(mat.p_l_hw_nstem_ha_wb, 
+                         mat.p_l_hw_nstem_ha_si) %>% summary()
 ```
 
 ##Stand DMR and DMI of each site
-  - Stand DMR = mean DMR of all live susceptible trees (an proxy of infection 
+  - Stand DMR = mean DMR of all live Hw trees (a proxy of infection 
   severity at a site)
-  - DMI = mean DMR of all live infected trees (a proxy of infection severity
-  where it occurs)
+  - DMI = mean DMR of all live trees with DMR >=1 (a proxy of infection 
+  severity where infection occurs). Note: using DMR >=1 is consistent with 
+  other literature, that didn't include the IBLC infection class. In the 
+  traditional application of the Hawksworth rating system, if a tree is
+  infected, its DMR >=1. 
 ```{r}
-mat.s_dmr_dmi <- mat.hwba %>% 
+mat.hw_s_dmr_dmi <- mat.hw %>% 
   filter(status %in% c("LS", "LL", "LF")) %>% 
   group_by(site_id) %>% 
-  summarise(mat.s_dmr = mean(dmr),
-            mat.s_dmi = mean(dmr[hdm_pa == "Y"]))
+  summarise(mat.hw_s_dmr = mean(dmr),
+            mat.hw_s_dmi = mean(dmr[dmr >= 1]))
 
 #Join these back to results table
-mat_infection <- left_join(mat_infection, mat.s_dmr_dmi, by = "site_id")
+mat_infection <- left_join(mat_infection, mat.hw_s_dmr_dmi, by = "site_id")
+
+#Inspect them
+mat_infection %>% select(site_id, mat.p_hw_nstem_inf, mat.hw_s_dmr, 
+                         mat.hw_s_dmi)
 ```
 
 ##Summary table for thesis
 Compile a summary table for thesis that summarizes site level estimates of key
 infection variables. 
   - Variables: 
-    - basal area infected (live and dead Hw and Ba)
-    - proportion live and dead Hw and Ba stems infected 
-    - average DMR (live Hw and Ba)
-    - DMI (live Hw and Ba)
-    - Proportion of live Hw and Ba stems with brooms
-    - Proportion of live Hw and Ba stems with stem infection
+    - basal area infected (live and dead Hw)
+    - percent live and dead Hw stems infected 
+    - average DMR (live Hw)
+    - DMI (live Hw dmr>=1)
+    - Percent of live Hw stems with brooms
+    - Percent of live Hw stems with stem infection
   - Structure:
     - Rows: variables
     - Columns: mean, median, range
 ```{r}
 #Pull out variables from mat_infection table
+str(mat_infection)
 mat_inf2 <- mat_infection %>% 
-  select(mat.inf_ba_m2_ha, mat.p_nstem_inf, mat.s_dmr, mat.s_dmi, 
-         mat.p_l_hwba_nstem_ha_wb, mat.p_l_hwba_nstem_ha_si)
+  select(mat.hw_inf_ba_m2_ha, mat.p_hw_nstem_inf, mat.hw_s_dmr, mat.hw_s_dmi, 
+         mat.p_l_hw_nstem_ha_wb, mat.p_l_hw_nstem_ha_si)
 
 #Summarise estimates across sites
 mat_inf2 <- mat_inf2 %>% 
@@ -1146,7 +1164,81 @@ mat_inf2 <- mat_inf2 %>%
   select(-c(min, max))
 ```
 
-##Export
+##Amabalis fir, ph2 mature
+Amabalis fir is rated as an occasional host of HDM (Mathiasen, 2021) and was 
+only present at one site (ph_2). Generate/call some summary stats to report its 
+infection at that site. Stats:
+  -Site basal area/ha
+  -Site stem density/ha
+  -Ba basal area/ha
+  -Ba stem density/ha
+  -Ba basal area/ha infected
+  -Ba stem density/ha infected
+  -Percent of site basal area made up of Ba
+  -Percent of site stems made up of Ba
+  -Percent of Ba basal area infected
+  -Percent of Ba stems infected
+  -Average Ba DMR
+  -Average Ba DMI
+Compare all these things to Hw, as a reference point. 
+
+Note: for clarity, Ba is abbreviated with af (Amabalis Fir) to avoid confusion
+with basal area. 
+```{r}
+#Filter mature dataset to just Ba
+mat.af <- mature %>% filter(spp == "Ba")
+nrow(mat.af) #18 trees
+unique(mat.af$site_id) #only at ph_2
+
+#Generate some summary stats:
+ph2.mat <- mature %>% 
+  mutate(ba_m2_phf = ba_m2*phf_site) %>% 
+  filter(site_id == "ph_2") %>% 
+  summarise(nstem_ha = sum(phf_site),
+            af_nstem_ha = sum(phf_site[spp == "Ba"]),
+            af_inf_nstem_ha = sum(phf_site[spp == "Ba" & hdm_pa == "Y"]),
+            ba_m2_ha = sum(ba_m2_phf),
+            af_ba_m2_ha = sum(ba_m2_phf[spp == "Ba"]),
+            af_inf_ba_m2_ha = sum(ba_m2_phf[spp == "Ba" & hdm_pa == "Y"]),
+            s.af_dmr = mean(dmr[status %in% live_stat & spp == "Ba"]),
+            s.af_dmi = mean(dmr[status %in% live_stat & spp == "Ba" & 
+                                  dmr >= 1])) %>% 
+  mutate(p_nstem_af = 100*af_nstem_ha/nstem_ha,
+         p_ba_af = 100*af_ba_m2_ha/ba_m2_ha,
+         p_af_nstem_inf = 100*af_inf_nstem_ha/af_nstem_ha,
+         p_af_ba_inf = 100*af_inf_ba_m2_ha/af_ba_m2_ha)
+
+#Compare with Hw at site
+##What is site total nstem_ha and ba_ha
+ph2.mat %>% select(nstem_ha, ba_m2_ha)
+
+##How much of the site nstem_ha and ba_ha are made of of Hw and Ba?
+###The two spp are pretty similar
+mat_cs %>% 
+  filter(site_id=="ph_2") %>% 
+  select(mat.p_stem_hw, mat.p_ba_hw)
+ph2.mat %>% select(p_nstem_af, p_ba_af)
+
+##How much of the Hw and Ba at each site are infected?
+###Infection rates higher in Hw
+mat_infection %>% filter(site_id == "ph_2") %>% 
+  select(mat.p_hw_nstem_inf, mat.p_hw_ba_inf)
+ph2.mat %>% select(p_af_nstem_inf, p_af_ba_inf)
+
+#What is the mean DMR and DMI of Hw and Ba?
+###Infection more severe in Hw than Ba
+mat_infection %>% filter(site_id == "ph_2") %>% 
+  select(mat.hw_s_dmr, mat.hw_s_dmi)
+ph2.mat %>% select(s.af_dmr, s.af_dmi)
+
+#There were some large cedar at this site. Take a look at a few of them to see
+#what the range of dbh is
+mature %>% 
+  filter(site_id == "ph_2" & spp == "Cw" & 
+           crown_class_2 == "C")
+```
+
+##Export tables
 ```{r}
 #Table with all infection summary metrics
 # write_csv(mat_infection, here("./tables/mat_infection.csv"))
@@ -1156,13 +1248,13 @@ mat_inf2 <- mat_inf2 %>%
 ```
 
 #SECTION 4 - Compare infection levels in regen trees
-This section focuses on Hw (because it is our target tree). Amabalis fir (Ba)
-that we considered in the mature component is only important at one site and 
-is much less affected by HDM. The ordinal modelling only considers Hw, so 
-taking this approach here aligns with that. 
+This section focuses on Hw (because it is our target tree). Again there is a 
+some code at the end that creates some summary statistics for Amabalis fir (Ba)
+at ph_2. 
 
-It is broken into two subsections. The first that looks at infections across 
-live and dead trees, while the second looks just at live trees. 
+It is broken into two major subsections. The first that looks at infections 
+across live and dead trees hemlocl, while the second looks just at live 
+hemlock. 
 
 Both subsections break summary stats down into intervals from the edge. 
   - 0-15m which is within the zone of influence of the mature component and 
@@ -1235,7 +1327,7 @@ reg_i_all <- left_join(reg_i_all, reg.hw_ba_nstem_50, by="site_id")
 ```
 
 ###How many trees were simulated?
-Calculate the proportion of all trees and Hw simulated at each site. 
+Calculate the percent of all trees and Hw simulated at each site. 
 ```{r}
 #Get counts of all trees, all simulated trees, all Hw and simulated Hw
 reg.sim <- regen_50 %>% 
@@ -1245,10 +1337,10 @@ reg.sim <- regen_50 %>%
             nstem_hw = sum(spp == "Hw"),
             nstem_hw_sim = sum (spp=="Hw" & sim_tree == "Y"))
 
-#Calculate proportions
+#Calculate percents
 reg.sim <- reg.sim %>% 
-  mutate(reg.p_sim = nstem_sim/nstem_all,
-         reg.p_hw_sim = nstem_hw_sim/nstem_hw)
+  mutate(reg.p_sim = 100*nstem_sim/nstem_all,
+         reg.p_hw_sim = 100*nstem_hw_sim/nstem_hw)
 
 #Join these back to the working results dataframe
 x <- reg.sim %>% select(site_id, starts_with("reg.p"))
@@ -1258,8 +1350,8 @@ reg_i_all <- left_join(reg_i_all, x, by = "site_id")
 ###BA and nstems infected
 Calculate the basal area and # of stems infected (per ha) at each site and with
 those the percent infection by each metric. General trends:
-  - Proportion infected (0-15m): mean = 0.49, range =0.01 - 0.80
-  - Proportion infected (0-50): mean = 0.24, range = 0 - 0.56
+  - percent infected (0-15m): mean = 0.49, range =0.01 - 0.80
+  - percent infected (0-50): mean = 0.24, range = 0 - 0.56
   - Four outliers are obvious in this data: mk_3 (youngest site by far), 
   ph_1 (no clear explanation), ph_2 and ph_3 (both sites where Hw is not a 
   dominant species)
@@ -1280,12 +1372,12 @@ reg.ba_nstem_inf_50 <- reg.hw_50 %>%
 reg_i_all <- left_join(reg_i_all, reg.ba_nstem_inf_15, by="site_id")
 reg_i_all <- left_join(reg_i_all, reg.ba_nstem_inf_50, by="site_id")
 
-#Calculate the proportion of Hw infected
+#Calculate the percent of Hw infected
 reg_i_all <- reg_i_all %>% 
-  mutate(reg.p_ba_m2_inf_15 = reg.ba_m2_ha_hw_inf_15/reg.ba_m2_ha_hw_15,
-         reg.p_nstem_inf_15 = reg.nstem_ha_hw_inf_15/reg.nstem_ha_hw_15,
-         reg.p_ba_m2_inf_50 = reg.ba_m2_ha_hw_inf_50/reg.ba_m2_ha_hw_50,
-         reg.p_nstem_inf_50 = reg.nstem_ha_hw_inf_50/reg.nstem_ha_hw_50)
+  mutate(reg.p_ba_m2_inf_15 = 100*reg.ba_m2_ha_hw_inf_15/reg.ba_m2_ha_hw_15,
+         reg.p_nstem_inf_15 = 100*reg.nstem_ha_hw_inf_15/reg.nstem_ha_hw_15,
+         reg.p_ba_m2_inf_50 = 100*reg.ba_m2_ha_hw_inf_50/reg.ba_m2_ha_hw_50,
+         reg.p_nstem_inf_50 = 100*reg.nstem_ha_hw_inf_50/reg.nstem_ha_hw_50)
 
 #Take a look
 #For 0-15m
@@ -1474,12 +1566,12 @@ regen_50_l <- regen_50 %>%
 
 ###Summary table for thesis
 Variables:
-  - Proportion of trees simulated
-  - Proportion of Hw stems infected
+  - Percent of trees simulated
+  - Percent of Hw stems infected
   - Average DMR
   - DMI
-  - Prop Hw stems with brooms
-  - Prop Hw stems with stem infections
+  - Percent Hw stems with brooms
+  - Percent Hw stems with stem infections
 Structure: 
   - Rows: 
     - Interval (distnace from the edge; all, 0-15m or 0-50)
@@ -1487,14 +1579,14 @@ Structure:
   - Columns: metrics
   
 For reference: 
-  - Average DMR = mean DMR of all live susceptible trees (an proxy of infection 
+  - Average DMR = mean DMR of all live hemlock trees (an proxy of infection 
   severity at a site)
-  - DMI = mean DMR of all live infected trees (a proxy of infection severity
-  where it occurs)
+  - DMI = mean DMR of all live hemlock trees with dmr>=1 (a proxy of infection 
+  severity where infection occurs)
 
 Start with metrics that are summarized for each section x crown class 
-combination: proportion of Hw stems infected, average Hw DMR and DMI and the 
-proportion infected Hw with brooms and stem infections. Summarize them at the
+combination: percent of Hw stems infected, average Hw DMR and DMI and the 
+percent infected Hw with brooms and stem infections. Summarize them at the
 site level first then again across sites, which is what will go in the 
 summary table. 
 ```{r}
@@ -1504,15 +1596,15 @@ x <- regen_15_l %>%
   group_by(site_id, crown_class_2) %>% 
   summarise(nstem_ha_l_hw = sum(phf_site),
             nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
-            s_dmr = mean(dmr),
-            s_dmi = if_else(length(dmr[hdm_pa == "Y"]) > 0,
-                            mean(dmr[hdm_pa == "Y"]),
+            hw_s_dmr = mean(dmr),
+            hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
+                            mean(dmr[dmr>=1]),
                             0),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
             nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
-  mutate(p_l_hw_inf = nstem_ha_l_hw_inf/nstem_ha_l_hw,
-         p_l_hw_wb = nstem_ha_l_hw_wb/nstem_ha_l_hw,
-         p_l_hw_si = nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
+  mutate(p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
+         p_l_hw_wb = 100*nstem_ha_l_hw_wb/nstem_ha_l_hw,
+         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
   select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, nstem_ha_l_hw_wb,
             nstem_ha_l_hw_si))
 
@@ -1521,15 +1613,15 @@ x1 <- regen_50_l %>%
   group_by(site_id, crown_class_2) %>% 
   summarise(nstem_ha_l_hw = sum(phf_site),
             nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
-            s_dmr = mean(dmr),
-            s_dmi = if_else(length(dmr[hdm_pa == "Y"]) > 0,
-                            mean(dmr[hdm_pa == "Y"]),
+            hw_s_dmr = mean(dmr),
+            hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
+                            mean(dmr[dmr>=1]),
                             0),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
             nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
-  mutate(p_l_hw_inf = nstem_ha_l_hw_inf/nstem_ha_l_hw,
-         p_l_hw_wb = nstem_ha_l_hw_wb/nstem_ha_l_hw,
-         p_l_hw_si = nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
+  mutate(p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
+         p_l_hw_wb = 100*nstem_ha_l_hw_wb/nstem_ha_l_hw,
+         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
   select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, nstem_ha_l_hw_wb,
             nstem_ha_l_hw_si))
 
@@ -1551,7 +1643,7 @@ x <- x %>%
   ) %>%
   pivot_wider(names_from = metric, 
               values_from = value) %>% 
-  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 1))) %>% 
   mutate(range = paste0("[", min, "-", max, "]")) %>% 
   select(-c(min, max)) %>% 
   pivot_wider(names_from = variable,
@@ -1574,7 +1666,7 @@ x1 <- x1 %>%
   ) %>%
   pivot_wider(names_from = metric, 
               values_from = value) %>% 
-  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 1))) %>% 
   mutate(range = paste0("[", min, "-", max, "]")) %>% 
   select(-c(min, max)) %>% 
   pivot_wider(names_from = variable,
@@ -1597,16 +1689,16 @@ x <- regen_15_l %>%
   summarise(nstem_ha_l_hw = sum(phf_site),
             nstem_ha_l_hw_sim = sum(phf_site[sim_tree =="Y"]),
             nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
-            s_dmr = mean(dmr),
-            s_dmi = if_else(length(dmr[hdm_pa == "Y"]) > 0,
-                            mean(dmr[hdm_pa == "Y"]),
+            hw_s_dmr = mean(dmr),
+            hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
+                            mean(dmr[dmr>=1]),
                             0),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
             nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
-  mutate(p_sim = nstem_ha_l_hw_sim/nstem_ha_l_hw, 
-         p_l_hw_inf = nstem_ha_l_hw_inf/nstem_ha_l_hw,
-         p_l_hw_wb = nstem_ha_l_hw_wb/nstem_ha_l_hw,
-         p_l_hw_si = nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
+  mutate(p_sim = 100*nstem_ha_l_hw_sim/nstem_ha_l_hw, 
+         p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
+         p_l_hw_wb = 100*nstem_ha_l_hw_wb/nstem_ha_l_hw,
+         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
   select(-c(nstem_ha_l_hw, nstem_ha_l_hw_sim, nstem_ha_l_hw_inf, 
             nstem_ha_l_hw_wb, nstem_ha_l_hw_si))
 
@@ -1616,16 +1708,16 @@ x1 <- regen_50_l %>%
   summarise(nstem_ha_l_hw = sum(phf_site),
             nstem_ha_l_hw_sim = sum(phf_site[sim_tree == "Y"]),
             nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
-            s_dmr = mean(dmr),
-            s_dmi = if_else(length(dmr[hdm_pa == "Y"]) > 0,
-                            mean(dmr[hdm_pa == "Y"]),
+            hw_s_dmr = mean(dmr),
+            hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
+                            mean(dmr[dmr>=1]),
                             0),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
             nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
-  mutate(p_sim = nstem_ha_l_hw_sim/nstem_ha_l_hw, 
-         p_l_hw_inf = nstem_ha_l_hw_inf/nstem_ha_l_hw,
-         p_l_hw_wb = nstem_ha_l_hw_wb/nstem_ha_l_hw,
-         p_l_hw_si = nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
+  mutate(p_sim = 100*nstem_ha_l_hw_sim/nstem_ha_l_hw, 
+         p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
+         p_l_hw_wb = 100*nstem_ha_l_hw_wb/nstem_ha_l_hw,
+         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
   select(-c(nstem_ha_l_hw, nstem_ha_l_hw_sim, nstem_ha_l_hw_inf, 
             nstem_ha_l_hw_wb, nstem_ha_l_hw_si))
 
@@ -1646,7 +1738,7 @@ x <- x %>%
   ) %>%
   pivot_wider(names_from = metric, 
               values_from = value) %>% 
-  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 1))) %>% 
   mutate(range = paste0("[", min, "-", max, "]")) %>% 
   select(-c(min, max)) %>% 
   pivot_wider(names_from = variable,
@@ -1668,7 +1760,7 @@ x1 <- x1 %>%
   ) %>%
   pivot_wider(names_from = metric, 
               values_from = value) %>% 
-  mutate(across(where(is.numeric), ~round(.x, 2))) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 1))) %>% 
   mutate(range = paste0("[", min, "-", max, "]")) %>% 
   select(-c(min, max)) %>% 
   pivot_wider(names_from = variable,
@@ -1841,18 +1933,18 @@ p <- ggplot(reg.vpos, aes(x = dmr, y = cont, fill = ct)) +
 # dev.off()
 ```
 
-##Proportion of trees with growth impacts
-Growth impacts start to occur at DMR >=3. See what proportion of codominant Hw
+##percent of trees with growth impacts
+Growth impacts start to occur at DMR >=3. See what percent of codominant Hw
 at each site are past that threshold. 
 ```{r}
 #Within 15m calculate the number of dominant/codominant live Hw and the 
-#proportion of those with DMR>=3
+#percent of those with DMR>=3
 dmr3_15 <- regen_15_l %>% 
   filter(crown_class_2 == "C") %>% 
   group_by(site_id) %>% 
   summarise(n_dc_hw = n(),
             n_dc_hw_dmr3 = sum(dmr >= 3)) %>% 
-  mutate(p_dmr3 = n_dc_hw_dmr3/n_dc_hw)
+  mutate(p_dmr3 = 100*n_dc_hw_dmr3/n_dc_hw)
 
 #Same but over 0-50m
 dmr3_50 <- regen_50_l %>% 
@@ -1860,7 +1952,7 @@ dmr3_50 <- regen_50_l %>%
   group_by(site_id) %>% 
   summarise(n_dc_hw = n(),
             n_dc_hw_dmr3 = sum(dmr >= 3)) %>% 
-  mutate(p_dmr3 = n_dc_hw_dmr3/n_dc_hw)
+  mutate(p_dmr3 = 100*n_dc_hw_dmr3/n_dc_hw)
 
 #Take a look at these
 summary(dmr3_15)
@@ -1875,4 +1967,92 @@ Save the tables created in this section.
 
 #Table with broken down by interval and crown class for thesis
 # write_csv(reg_i_live, here("./tables/reg_inf_hw_live.csv"))
+```
+
+##Amabalis fir, ph2 regen 0-15m
+Generate some summary stats to report on infection in Amabalis fir at the ph_2
+site, mirroring the stats created for the mature component. In thesis, chose
+to report incidence as a percent of live Hw, so do that here for Ba too for
+consistency. Use the 0-15m interval. Stats:
+  -Site basal area/ha
+  -Site stem density/ha
+  -Ba basal area/ha
+  -Ba stem density/ha
+  -Live Ba stem density/ha
+  -Ba basal area/ha infected (live and dead trees)
+  -Ba stem density/ha infected (live and dead trees)
+  -Live Ba stem density/ha infected
+  -Percent of site basal area made up of Ba
+  -Percent of site stems made up of Ba
+  -Percent of Ba basal area infected
+  -Percent of Ba stem infected (live and dead)
+  -Percent of live Ba stems infected
+  -Average Ba DMR
+  -Average Ba DMI
+Compare all these things to Hw, as a reference point. 
+
+Note: for clarity, Ba is abbreviated with af (Amabalis Fir) to avoid confusion
+with basal area. 
+```{r}
+#How many trees are we talking about
+reg.af <- regen_15 %>% filter(spp == "Ba")
+nrow(reg.af) #17 trees
+unique(reg.af$site_id) #only at ph_2
+
+#Generate some summary stats:
+ph2.reg15 <- regen_15 %>% 
+  mutate(ba_m2_phf = ba_m2*phf_site) %>% 
+  filter(site_id == "ph_2") %>% 
+  summarise(nstem_ha = sum(phf_site),
+            af_nstem_ha = sum(phf_site[spp == "Ba"]),
+            af_l_nstem_ha = sum(phf_site[spp == "Ba" & status %in% live_stat]),
+            af_inf_nstem_ha = sum(phf_site[spp == "Ba" & hdm_pa == "Y"]),
+            af_l_inf_nstem_ha = sum(phf_site[spp == "Ba" & hdm_pa == "Y" &
+                                               status %in% live_stat]),
+            ba_m2_ha = sum(ba_m2_phf),
+            af_ba_m2_ha = sum(ba_m2_phf[spp == "Ba"]),
+            af_inf_ba_m2_ha = sum(ba_m2_phf[spp == "Ba" & hdm_pa == "Y"]),
+            s.af_dmr = mean(dmr[status %in% live_stat & spp == "Ba"]),
+            s.af_dmi = mean(dmr[status %in% live_stat & spp == "Ba" & 
+                                  dmr >= 1])) %>% 
+  mutate(p_nstem_af = 100*af_nstem_ha/nstem_ha,
+         p_ba_af = 100*af_ba_m2_ha/ba_m2_ha,
+         p_af_nstem_inf = 100*af_inf_nstem_ha/af_nstem_ha,
+         p_af_ba_inf = 100*af_inf_ba_m2_ha/af_ba_m2_ha,
+         p_l_af_stem_inf = 100*af_l_inf_nstem_ha/af_l_nstem_ha)
+
+#Compare with Hw at site
+##What is site total nstem_ha and ba_ha
+ph2.reg15 %>% select(nstem_ha, ba_m2_ha)
+
+##How much of the site nstem_ha and ba_ha are made of of Hw and Ba?
+###Fairly similar
+reg_cs %>% 
+  filter(site_id=="ph_2") %>% 
+  select(reg.p_stem_hw, reg.p_ba_hw)
+ph2.reg15 %>% select(p_nstem_af, p_ba_af)
+
+##How much of the Hw and Ba (live and dead trees) are infected?
+###Infection much higher in hemlock 
+reg_i_all %>% filter(site_id == "ph_2") %>% 
+  select(reg.p_ba_m2_inf_15, reg.p_nstem_inf_15)
+ph2.reg15 %>% select(p_af_nstem_inf, p_af_ba_inf)
+
+##How much of the live Hw and Ba are infected?
+###Hemlock, much higher rates of inf
+regen_15_l %>%   
+  filter(site_id == "ph_2" & spp == "Hw") %>% 
+  summarise(hw_nstem = sum(phf_site),
+            hw_inf_nstem = sum(phf_site[hdm_pa == "Y"])) %>% 
+  mutate(p_l_hw_nstem_inf = 100*hw_inf_nstem/hw_nstem)
+ph2.reg15 %>% select(p_l_af_stem_inf)
+
+#What is the mean DMR and DMI of Hw and Ba?
+###Infection more severe in Hw than Ba
+regen_15_l %>% 
+  filter(site_id == "ph_2" &
+           spp == "Hw") %>% 
+  summarise(hw_s_dmr = mean(dmr),
+            hw_s_dmi = mean(dmr[dmr >= 1]))
+ph2.reg15 %>% select(s.af_dmr, s.af_dmi)
 ```
