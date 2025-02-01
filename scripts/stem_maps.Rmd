@@ -486,12 +486,15 @@ Define shapes and colours
 #DMR colour palette
 # https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
 levels(trees_rot$dmr_f_graph)
-color_dmr <- c("#cccccc", "#1F78B4", "#A6CEE3", 
+color_dmr <- c("bisque3", "#1F78B4", "#A6CEE3", 
                        brewer.pal(4, "Oranges"), "hotpink")
 
 #Data source
 levels(trees_rot$sim_tree_g)
 shape_sim <- c(16, 1)
+
+#Available colour palettes in tmap:
+tmaptools::palette_explorer()
 ```
 
 ##Plot 1: standard stem map
@@ -566,7 +569,7 @@ p <- tmap_mode("plot") +
     tm_lines(col="blue", lty=2) +
   #Transect start/end points, footprints and distance markers
   tm_shape(tran_lines) + 
-    tm_polygons(alpha=0.25) + 
+    tm_polygons(alpha=0) + 
   #Transect start and end points
   tm_shape(ts_pts) + 
     tm_symbols(col="blue", shape=3, size=0.1) + 
@@ -577,10 +580,9 @@ p <- tmap_mode("plot") +
   #Seed load values
   tm_shape(trees_sl) +
     tm_symbols(col = "sl_i_tot_rm", 
-               palette ="-viridis", 
-               scale = 0.75,
-               n=5,
-               alpha = 0.5,
+               palette = "Greys", n = 5, contrast = c(.1, 1),
+               scale = 1,
+               alpha = 0.6,
                style = "cont",
                border.lwd = NA,
                legend.col.is.portrait = T,
@@ -599,6 +601,7 @@ p <- tmap_mode("plot") +
                legend.size.is.portrait = T,
                title.shape = "Tree type",
                legend.shape.is.portrait = T,
+               shapes.legend.fill = "black",
                sizes.legend = c(10, 50, 100, 150)) +
   #Scale bar
   tm_scale_bar(position = c("RIGHT", "BOTTOM"), 
@@ -617,11 +620,10 @@ p <- tmap_mode("plot") +
             legend.bg.color = "white",
             legend.frame = T)
 
-
 #Save the plot
-pdf("./figures/trees_sl_4Dec2024.pdf", width=8.5, height=11)
-p
-dev.off()
+# pdf("./figures/trees_sl_1Feb2025.pdf", width=8.5, height=11)
+# p
+# dev.off()
 ```
 
 ##Plot for WIFDWC 2024
