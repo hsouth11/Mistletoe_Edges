@@ -280,7 +280,7 @@ summary(mat_inf)
 
 #Join this to the modelling dataframe
 x <- mat_inf %>% 
-  select(site_id, mat.inf_ba_m2_ha)
+  select(site_id, mat.hw_inf_ba_m2_ha)
 modelling <- left_join(modelling, x, by = "site_id")
 ```
 
@@ -607,7 +607,6 @@ ggplot(pre_d1, aes(x = seed_load, y = predicted, fill = dmr_f)) +
   geom_bar(stat = "identity", position = position_stack()) +
   scale_fill_viridis_d()
 ```
-
 
 #Exploratory data analysis
 ##Get a sense of the dataset
@@ -959,7 +958,7 @@ pair3 <- ggplot(x, aes(x = crown_class, y = dist_y_h)) +
   geom_boxplot(fill = NA, outliers = F) +
   theme_classic() + 
   labs(x = "Crown class",
-       y = "Distance from the edge(m)") +
+       y = "Distance from the edge (m)") +
   theme(axis.text = element_text(size = 16),
         axis.title = element_text(size = 16))
 pair3
@@ -998,14 +997,13 @@ pair6
 
 #Arrange the plots together
 pairs_the <- ggarrange(pair1, pair2, pair3, pair4, pair5, pair6, 
-                       ncol=2, nrow = 3,
-                       labels = "AUTO", font.label = list(size = 20))
+                       ncol=2, nrow = 3)
 pairs_the
 
 #Export
-# pdf(here("./figures/mod_vars_pairs.pdf"), width = 7, height = 10)
-# pairs_the
-# dev.off()
+pdf(here("./figures/mod_vars_pairs.pdf"), width = 7, height = 10)
+pairs_the
+dev.off()
 ```
 
 
@@ -1583,10 +1581,35 @@ tb_lr <- rbind(tb_lr, df)
 Okay, this is a good working model. We need to test the proportional odds
 assumption for each of the five variables. 
 
+The goal is to compare predictions from models where parameter estimates are 
+unique for each logit (partial proportional odds) to those where they are the 
+same for all logits (proportional odds). For reference, if there are j levels 
+in the response, j-1 logits (which are sort of like submodels) are fit in an 
+ordinal model. Each logit predicts the cumulative logit odds of P<= j. In the 
+proportional odds version, we assume the effect of each predictor is the same 
+across all logits, which is the same as saying across all j. In the partial 
+proportional odds models, a unique coefficient is fit for each logit for each 
+predictor that is allowed to vary (allowed to have nominal effects). In 
+practice, this means that the probability of transitioning between two levels 
+of j, depends on j (e.g. the coefficient that predicts the cumulative odds 
+relating DMR = 0 to DMR = IBLC-2 is significantly different from the one that
+relates DMR = IBLC-2 to DMR = 3-5). 
+
+###Statistical tests of assumption
+One predictor at a time we will fit a partial proportional odds model that 
+allows it to vary and holds the other predictors to the proportional odds 
+assumption. In the oridnal package this is called allowing the variable to have
+nominal effects. We will test the significance of the additional parameters 
+with likelihood ratio tests comparing against model 20 that restricts all of 
+the predictors to proportional odds. In our case just one more parameter is
+needed - response (DMR) has 3 levels, so 2 logits are fit in nominal effects 
+model, each with a distinct parameter estimate. 
+
 Start with the distance from the edge
 ```{r}
 #Model 21
 ##Same as Model 20 but fit with clmm2, which allows for nominal effects
+##Allows us to run likelihood ratio tests comparing to clmm2 objects
 m21 <- clmm2(dmr_f_4 ~ dist_y_h.s + dbh.s + sl_i_tot_rm.s + 
              dist_y_h.s:sl_i_tot_rm.s + sl_i_tot_rm.s:dbh.s,
              random = site_id,
@@ -1759,21 +1782,39 @@ df <- data.frame("Comparison" = comp, "dAIC" = dAIC,
 tb_lr <- rbind(tb_lr, df)
 ```
 
-###Test assumption graphically
-In those tests, only distance from the edge failed to meet the proportional 
+###Graphical tests of assumption
+In the tests, only distance from the edge failed to meet the proportional 
 odds assumption. Biljana Stojkova from the Stats group suggested also assessing
-this assumption graphically. We do this by plotting the logit(odds) of each
-of the submodels against a given predictor variable. Each submodel models the
-cumulative logit odds of P<= j and we are assuming that the effect of each 
-predictor is the same across each submodel, which is the same as saying across 
-each j. Visually this means that the distance between two logits on a graph 
-(e.g. P <= 0 and P <= IBLC-2) whould be the same across the range of a 
-predictor; or more simply, that the lines for these two logits should be 
-parrallel. 
+this assumption graphically. There is a good tutorial on the general approach
+to this from UCLA here: https://stats.oarc.ucla.edu/r/dae/ordinal-logistic-regression/
+
+That tutorial fits single variable separate logit models outside of a larger
+proportional odds model for each variable. i.e. a model is fit for P<= 0
+and for P<=IBLC-2. We will use the partial proportional odds models fit above
+which do the same thing, just wrapped up in a single model. 
+
+Plot 1
+- Plot all logits from a model with nominal effects across the range of a focal 
+predictor. Meeting the assumption means that the distance between any two 
+logits on a graph (e.g. P <= 0 and P <= IBLC-2) should be the same across the 
+range of a predictor.
+
+Plot 2
+- Plot of difference in predicted probabilities between model with nominal
+effects and one with proportional odds. This tells you something about how 
+much nominal effects (if present) affect the actual probabilities - if a 
+partial proportional odds model is significantly different from a proporitonal
+odds one, is it meaningful?
+
+POINTS TO CLARIFY
+Do the plotted logits in plot 1 need to be parallel LINEAR lines? I think yes.
 ```{r}
 #Replicate the original data
 x <- data.frame(tree_id = modelling$tree_id,
                 dmr_f_4 = factor(modelling$dmr_f_4),
+                dist_y_h = modelling$dist_y_h,
+                sl_i_tot_rm = modelling$sl_i_tot_rm,
+                dbh = modelling$dbh,
                 dist_y_h.s = modelling$dist_y_h.s,
                 sl_i_tot_rm.s = modelling$sl_i_tot_rm.s,
                 dbh.s = modelling$dbh.s,
@@ -1787,7 +1828,8 @@ x <- x %>%
 #Save the predicted probabilities for each of the models so we can crosscheck 
 #manual calculations
 x <- x %>% 
-  mutate(pred_m22 = predict(m22), 
+  mutate(pred_m21 = predict(m21),
+         pred_m22 = predict(m22), 
          pred_m23 = predict(m23),
          pred_m24 = predict(m24),
          pred_m25 = predict(m25),
@@ -1795,6 +1837,7 @@ x <- x %>%
          )
 
 #Save the model coefficients
+coef_m21 <- coefficients(m21)
 coef_m22 <- coefficients(m22)
 coef_m23 <- coefficients(m23)
 coef_m24 <- coefficients(m24)
@@ -1802,7 +1845,8 @@ coef_m25 <- coefficients(m25)
 coef_m26 <- coefficients(m26)
 
 #Extract random effects, add them to the dataframe by site_id
-ranef_nom_mod <- data.frame(ranef_m22 = m22$ranef,
+ranef_nom_mod <- data.frame(ranef_m21 =m21$ranef,
+                            ranef_m22 = m22$ranef,
                             ranef_m23 = m23$ranef,
                             ranef_m24 = m24$ranef,
                             ranef_m25 = m25$ranef,
@@ -1812,7 +1856,13 @@ x <- left_join(x, ranef_nom_mod, by = "site_id")
 
 #Calculate logit odds for P(DMR<=0) and P(DMR<= IBLC-2) for each of the models
 x <- x %>% 
-  mutate(lo_0_m22 = (coef_m22[1] + coef_m22[3]*dist_y_h.s) - 
+  mutate(lo_0_m21 = coef_m21[1] - coef_m21[3]*dist_y_h.s -
+           coef_m21[4]*dbh.s - coef_m21[5]*sl_i_tot_rm.s -
+           coef_m21[6]*int_dist_sl - coef_m21[7]*int_dbh_sl - ranef_m21,
+         lo_IBLC2_m21 = coef_m21[2] - coef_m21[3]*dist_y_h.s -
+           coef_m21[4]*dbh.s - coef_m21[5]*sl_i_tot_rm.s -
+           coef_m21[6]*int_dist_sl - coef_m21[7]*int_dbh_sl - ranef_m21,
+         lo_0_m22 = (coef_m22[1] + coef_m22[3]*dist_y_h.s) - 
            coef_m22[5]*dbh.s - coef_m22[6]*sl_i_tot_rm.s -
            coef_m22[7]*int_dist_sl - coef_m22[8]*int_dbh_sl - ranef_m22,
          lo_IBLC2_m22 = (coef_m22[2] + coef_m22[4]*dist_y_h.s) - 
@@ -1846,7 +1896,9 @@ x <- x %>%
 
 #Take the inverse logit to get cumulative probabilities
 x <- x %>% 
-  mutate(cp_0_m22 = plogis(lo_0_m22),
+  mutate(cp_0_m21 = plogis(lo_0_m21),
+         cp_IBLC2_m21 = plogis(lo_IBLC2_m21),
+         cp_0_m22 = plogis(lo_0_m22),
          cp_IBLC2_m22 = plogis(lo_IBLC2_m22),
          cp_0_m23 = plogis(lo_0_m23),
          cp_IBLC2_m23 = plogis(lo_IBLC2_m23),
@@ -1860,7 +1912,10 @@ x <- x %>%
 
 #Calculate exact probabilities of each DMR levels from cumulative probabilities
 x <- x %>% 
-  mutate(p_0_m22 = cp_0_m22,
+  mutate(p_0_m21 = cp_0_m21,
+         p_IBLC_2_m21 = cp_IBLC2_m21 - cp_0_m21,
+         p_3_5_m21 = 1 - cp_IBLC2_m21,
+         p_0_m22 = cp_0_m22,
          p_IBLC_2_m22 = cp_IBLC2_m22 - cp_0_m22,
          p_3_5_m22 = 1 - cp_IBLC2_m22,
          p_0_m23 = cp_0_m23,
@@ -1878,6 +1933,9 @@ x <- x %>%
          )
 
 #Compare a few observations to check calculations were right.
+#Model 21
+x %>% select(tree_id, dmr_f_4, pred_m21, p_0_m21:p_3_5_m21) %>% 
+  slice(c(1, 46, 100))
 #Model 22
 x %>% select(tree_id, dmr_f_4, pred_m22, p_0_m22:p_3_5_m22) %>% 
   slice(c(1, 46, 100))
@@ -1893,8 +1951,11 @@ x %>% select(tree_id, dmr_f_4, pred_m25, p_0_m25:p_3_5_m25) %>%
 #Model 26
 x %>% select(tree_id, dmr_f_4, pred_m26, p_0_m26:p_3_5_m26) %>% 
   slice(c(1, 46, 100))
+```
 
-#Plot the log odds against distance from the edge. Are the lines parallel? 
+Plot 1
+```{r}
+#Plot the logit odds against each focal predictor. Are the lines parallel? 
 #This is what the proportional odds assumption is actually testing. 
 
 #Lengthen the data for plotting
@@ -1914,7 +1975,7 @@ x1 <- x1 %>%
 x2 <- x1 %>% filter(model == "m22")
 po_m22 <- ggplot(x2, aes(x = dist_y_h.s, y = lo_val, colour = lo_level)) + 
   geom_point(alpha = 0.3) + 
-  geom_smooth(se = FALSE) + 
+  geom_smooth(se = FALSE, method = "lm") + 
   theme_classic() +
   labs(x = "Distance.s", y = "logit", color = "Logit") +
   theme(legend.background = element_rect(fill = "lightgrey"),
@@ -1931,7 +1992,7 @@ po_m22 <- po_m22 + theme(legend.position = "none")
 x2 <- x1 %>% filter(model == "m23")
 po_m23 <- ggplot(x2, aes(x = sl_i_tot_rm.s, y = lo_val, colour = lo_level)) + 
   geom_point(alpha = 0.3) + 
-  geom_smooth(se = FALSE) + 
+  geom_smooth(se = FALSE, method = "lm") + 
   theme_classic() +
   labs(x = "Seed load.s", y = "logit") +
   theme(legend.position = "none",
@@ -1941,7 +2002,7 @@ po_m23 <- ggplot(x2, aes(x = sl_i_tot_rm.s, y = lo_val, colour = lo_level)) +
 x2 <- x1 %>% filter(model == "m24")
 po_m24 <- ggplot(x2, aes(x = dbh.s, y = lo_val, colour = lo_level)) + 
   geom_point(alpha = 0.3) + 
-  geom_smooth(se = FALSE) + 
+  geom_smooth(se = FALSE, method = "lm") + 
   theme_classic() +
   labs(x = "DBH.s", y = "logit") +
   theme(legend.position = "none",
@@ -1951,7 +2012,7 @@ po_m24 <- ggplot(x2, aes(x = dbh.s, y = lo_val, colour = lo_level)) +
 x2 <- x1 %>% filter(model == "m25")
 po_m25 <- ggplot(x2, aes(x = int_dist_sl, y = lo_val, colour = lo_level)) + 
   geom_point(alpha = 0.3) + 
-  geom_smooth(se = FALSE) + 
+  geom_smooth(se = FALSE, method = "lm") + 
   theme_classic() +
   labs(x = "Distance.s x Seed load.s", y = "logit") +
   theme(legend.position = "none",
@@ -1961,7 +2022,7 @@ po_m25 <- ggplot(x2, aes(x = int_dist_sl, y = lo_val, colour = lo_level)) +
 x2 <- x1 %>% filter(model == "m26")
 po_m26 <- ggplot(x2, aes(x = int_dbh_sl, y = lo_val, colour = lo_level)) + 
   geom_point(alpha = 0.3) + 
-  geom_smooth(se = FALSE) + 
+  geom_smooth(se = FALSE, method = "lm") + 
   theme_classic() + 
   labs(x = "Seed load.s x DBH.s", y = "logit") +
   theme(legend.position = "none",
@@ -1969,12 +2030,113 @@ po_m26 <- ggplot(x2, aes(x = int_dbh_sl, y = lo_val, colour = lo_level)) +
         axis.title = element_text(size = 16))
 
 #Put them all together
-prop_odds <- ggarrange(po_m22, po_m23, po_m24, po_m25, po_m26, leg,
+prop_odds_1 <- ggarrange(po_m22, po_m23, po_m24, po_m25, po_m26, leg,
           ncol = 3, nrow = 2)
 
 #Export
-# pdf(here("./figures/prop_odds.pdf"), width = 10, height = 7)
-# prop_odds
+# pdf(here("./figures/prop_odds_1.pdf"), width = 10, height = 7)
+# prop_odds_1
+# dev.off()
+```
+
+Plot 2
+```{r}
+#Calculate the difference between the model with proportional odds (m20/21) and
+#the flexible one with nominal effects
+##Lengthen so the probability of each DMR level is in a single column
+x3 <- x %>% 
+  pivot_longer(cols = starts_with("p_"), values_to = "prob",
+                         names_to = c("DMR_lev", "model"),
+                         names_pattern = "p_(.*)_(.*)")
+
+#Focus on distance from the edge. 
+#Create two panels:
+#Panel A: probabilities of each DMR level across the range of distance from the 
+#edge for the models with and without nominal effects (m21 and m22)
+x4 <- x3 %>% 
+  filter(model %in% c("m21", "m22")) %>% 
+  mutate(model = case_match(model,
+                            "m21" ~ "PO",
+                            "m22" ~ "PPO"),
+         DMR_lev = case_match(DMR_lev,
+                              "0" ~ "0",
+                              "3_5" ~ "3-5",
+                              "IBLC_2" ~ "IBLC-2")) %>% 
+  mutate(DMR_lev = factor(DMR_lev, levels = c("0", "IBLC-2", "3-5")))
+
+prop_odds_2a <- 
+  ggplot(x4, aes(x=dist_y_h, y = prob, colour = DMR_lev, shape = model,
+                 linetype = model)) + 
+  geom_point(alpha = 0.1) +
+  geom_line(stat = "smooth", method = "gam", se = F) + 
+  theme_classic() +
+  labs(x = "Distance from edge (m)", y = "Probability", linetype = "Model",
+       shape = "Model") +
+  theme(legend.background = element_rect(fill = NA),
+        legend.key = element_rect(fill = NA, color = NA),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 20),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.position = "inside",
+        legend.position.inside = c(0.8, 0.5)) +
+  scale_colour_manual(values = col_dmr3, guide = "none") +
+  guides(shape = guide_legend(override.aes = list(alpha = 1)))
+
+
+#Panel B: difference in probability estimates between proportional odds model 
+#and partial proportional odds model across the range of distance from the 
+#edge
+x5 <- x4 %>% 
+  pivot_wider(names_from = model,
+              values_from = prob,
+              names_prefix = "prob_") %>% 
+  mutate(prob_diff = prob_PO - prob_PPO)
+
+prop_odds_2b <- 
+  ggplot(x5, aes(x=dist_y_h, y = prob_diff, colour = DMR_lev)) + 
+  geom_point(alpha = 0.6, size = 2) +
+  geom_line(stat = "smooth", method = "gam", se = F, size = 1) + 
+  theme_classic() +
+  labs(x = "Distance from edge (m)", y = "P(PO) - P(PPO)",
+       colour = "DMR") +
+  theme(legend.background = element_rect(fill = "lightgrey"),
+        legend.key = element_rect(fill = "lightgrey", color = NA),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 20),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.position = "bottom") +
+  scale_colour_manual(values = col_dmr3)
+?geom_smooth
+#Save the legend
+leg <- ggpubr::get_legend(prop_odds_2b)
+
+#Drop the legend from second panel and change the alph level of the points to
+#match the first
+prop_odds_2b <-  
+  ggplot(x5, aes(x=dist_y_h, y = prob_diff, colour = DMR_lev)) + 
+  geom_point(alpha = 0.1) +
+  geom_line(stat = "smooth", method = "gam", se = F) + 
+  theme_classic() +
+  labs(x = "Distance from edge (m)", y = "P(PO) - P(PPO)") +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16)) +
+  scale_colour_manual(values = col_dmr3, guide = "none")
+
+#Put it all together
+#Combine the two plots
+prop_odds_2 <- ggarrange(prop_odds_2a, prop_odds_2b, ncol = 2,
+                         labels = c("A", "B"), font.label = list(size = 20),
+                         label.x = 0, label.y = 1)
+#Add the DMR legend
+prop_odds_2 <- ggarrange(prop_odds_2, leg, nrow = 2, heights = c(10, 1))
+prop_odds_2
+
+#Export
+#Export the graph
+# pdf(here("./figures/prop_odds_2.pdf"), width = 11, height = 7)
+# prop_odds_2
 # dev.off()
 ```
 
@@ -2213,7 +2375,7 @@ pr1 <- pr1 %>%
     dbh_f = case_match(dbh,
       dbh_lev[1] ~ paste0("dbh = ", dbh, " (S)"),
       dbh_lev[2] ~ paste0("dbh = ", dbh, " (I)"),
-      dbh_lev[3] ~ paste0("dbh = ", dbh, " (C/D)")))
+      dbh_lev[3] ~ paste0("dbh = ", dbh, " (D/C)")))
 dbh_f_lev <- unique(pr1$dbh_f)
 pr1 <- pr1 %>% 
   mutate(dbh_f = factor(dbh_f, levels = dbh_f_lev))
@@ -2228,7 +2390,7 @@ pr1 <- pr1 %>%
 #Plot this
 g_pr1 <- 
   ggplot(pr1, aes(x = dist_y, y = predicted, color = DMR, shape = sl)) +
-  geom_line(aes(linetype = sl)) +
+  geom_line(aes(linetype = sl), linewidth = 0.5) +
   facet_wrap(~dbh_f, ncol = 3) +
   theme_classic() + 
   labs(x = "Distance from the edge (m)",
@@ -2243,8 +2405,11 @@ g_pr1 <-
         legend.text = element_text(size = 16),
         axis.text = element_text(size = 16),
         axis.title = element_text(size = 20),
-        strip.text = element_text(size = 16))
+        strip.text = element_text(size = 16),
+        panel.spacing = unit(0.05, "npc"),
+        plot.margin = unit(c(0, 0, 0.1, 0), "npc"))
 g_pr1
+?unit
 ```
 
 ###DBH predictions
@@ -2313,7 +2478,7 @@ pr2 <- pr2 %>%
 #Generate the plot
 g_pr2 <- 
   ggplot(pr2, aes(x = dbh, y = predicted, color = DMR)) + 
-  geom_line(aes(linetype = sl)) +
+  geom_line(aes(linetype = sl), linewidth = 0.5) +
   facet_wrap(~dist_f, ncol = 3) +
   theme_classic() + 
   labs(x = "DBH (cm)",
@@ -2388,7 +2553,7 @@ pr3 <- pr3 %>%
     dbh_f = case_match(dbh,
       dbh_lev[1] ~ paste0(dbh, " (S)"),
       dbh_lev[2] ~ paste0(dbh, " (I)"),
-      dbh_lev[3] ~ paste0(dbh, " (C/D)")))
+      dbh_lev[3] ~ paste0(dbh, " (D/C)")))
 dbh_f_lev <- unique(pr3$dbh_f)
 pr3 <- pr3 %>% 
   mutate(dbh_f = factor(dbh_f, levels = dbh_f_lev))
@@ -2404,7 +2569,7 @@ pr3 <- pr3 %>%
 #Generate the plot
 g_pr3 <- 
   ggplot(pr3, aes(x = sl, y = predicted, color = DMR)) + 
-  geom_line(aes(linetype = dbh_f)) +
+  geom_line(aes(linetype = dbh_f), linewidth = 0.5) +
   facet_wrap(~dist_f, ncol = 3) +
   theme_classic() + 
   labs(x = "Seed load (no units)",
@@ -2433,7 +2598,7 @@ distinct legend at the right of each plot.
 leg_dmr <- ggpubr::get_legend(
   ggplot(pr3, aes(x = sl, y = predicted, color = DMR)) +
   geom_point() + 
-  geom_line() +
+  geom_line(linewidth = 2.5) +
   theme_classic() +
   scale_color_manual(values = col_dmr3) +
   theme(legend.position = "top",
@@ -2458,8 +2623,11 @@ g_pr4 <- plot_grid(g_pr1, g_pr2, g_pr3,
           nrow = 3, ncol = 1,
           align = "hv",
           labels = "AUTO",
-          label_size = 20)
+          label_size = 20,
+          hjust = -0.8,
+          vjust = -0.5)
 g_pr4
+?plot_grid
 
 #Add the colour legend
 g_pr5 <- plot_grid(leg_dmr, g_pr4, 
@@ -2607,10 +2775,12 @@ g_re2 <- ggplot(x, aes(x = dist_y_h, y=prob)) +
         legend.background = element_blank(),
         legend.box.background = element_rect(fill = "lightgrey", colour = NA),
         legend.key = element_rect(fill = "lightgrey", color = NA),
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 24),
+        legend.text = element_text(size = 20),
         axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20)) 
+        axis.title = element_text(size = 20)) +
+  guides(colour = guide_legend(override.aes = list(size = 2)),
+         linetype = guide_legend(override.aes = list(lwd = 0.5)))
 g_re2
 ```
 
