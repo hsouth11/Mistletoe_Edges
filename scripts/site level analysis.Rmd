@@ -374,7 +374,6 @@ unique(clim_g$climvar2)
 
 #Create a plot
 p <- ggplot(clim_g, aes(x=bec, y=climval, label=site_id, color = cluster)) +
-  geom_text_repel(size = 2) +
   geom_point() +
   facet_wrap(~climvar2, scales = "free_y") +
   theme_classic() +
@@ -1907,7 +1906,8 @@ reg.vpos <- reg.vpos %>%
                          "l" ~ "lower",
                          "m" ~ "middle",
                          "u" ~ "upper")) %>% 
-  mutate(ct = factor(ct, levels = c("upper", "middle", "lower")))
+  mutate(ct = factor(ct, levels = c("upper", "middle", "lower")),
+         crown_class = factor(crown_class, c("D", "C", "I", "S")))
 
 p <- ggplot(reg.vpos, aes(x = dmr, y = cont, fill = ct)) + 
   geom_bar(stat = "identity", position = "stack") + 
@@ -1933,7 +1933,7 @@ p <- ggplot(reg.vpos, aes(x = dmr, y = cont, fill = ct)) +
 # dev.off()
 ```
 
-##percent of trees with growth impacts
+##Percent of trees with growth impacts
 Growth impacts start to occur at DMR >=3. See what percent of codominant Hw
 at each site are past that threshold. 
 ```{r}
