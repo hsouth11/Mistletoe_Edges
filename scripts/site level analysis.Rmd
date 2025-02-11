@@ -11,7 +11,9 @@ This script compares the 11 HDM study sites to eachother.
 
 Section 1 compares the different site climates, using data from Climate BC 
 (https://climatebc.ca/mapVersion) and Barrett et al. (2012) as a framework for 
-selecting and interpreting variables. 
+selecting and interpreting variables. There is a focus on precipitation 
+because the Pacific Highway sites (wettest) have relatively low rates of 
+infection. 
 
 Section 2 compares the size and composition of trees in the regen and mature 
 components between sites. 
@@ -264,8 +266,12 @@ colors_ct <- c("khaki1", "khaki3", "khaki4")
 
 #SECTION 1: Site climate comparisons
 Goal of this section is to descriptively describe differences in climate and 
-physical (slope, aspect,elevation) between sites. The cliamte variables are 
-ones with a conceptual link to HDM biology -- see Barrett et al. (2012). 
+physical variables (slope, aspect,elevation) between sites. 
+The selected climate variables have a conceptual link to HDM biology -- see 
+Barrett et al. (2012). There is a particlar focus on precipitation because
+there seems to be relationship between cliamte and HDM spread in our data - 
+the wetter (Pacific Highway sites) had relatively lower inf levels than the 
+drier Campbell River cluster. 
 ```{r}
 ####Read in climate data
 #Data downloaded from ClimateBC (https://climatebc.ca/mapVersion, 24 Jun 2024). ClimateBCv7.50. Period: Normal_1991_2020
@@ -284,11 +290,19 @@ print(x); print(y)
 #Join site_id, bec and cluster by latitude values
 climate <- left_join(climate, select(site, site_id, cluster, bec, dd_Y_r), by = c("Lat" = "dd_Y_r"))
 
-#move site_id to the front
+#Move site_id to the front
 climate <- climate %>% select(site_id, cluster, bec, everything())
 
-#Define climate variables that were in Bianca's paper
-#Descriptions of these variables and whether they are exact matches or approximiations of variables used in paper are in: /Users/hannosoutham/Library/CloudStorage/OneDrive-UBC(1)/Msc/Thesis/ch1.docx
+#Define levels of bec zone in an order that corresponds to wettest to driest
+levels(climate$bec)
+climate <- climate %>% 
+  mutate(bec = factor(bec, levels = c("CWHvm2", "CWHvm1", "CWHdm-", "CWHxm2")))
+
+#Define climate variables that were in Barrett et al. (2012)
+#Descriptions of these variables and whether they are exact matches or 
+#approximations of variables used in paper are in: 
+#/Users/hannosoutham/Library/CloudStorage/OneDrive-UBC(1)/Msc/Thesis/Ch1/
+#climate variable notes.docx
 
 #1 Growing degree days
 climate <- climate %>% rowwise() %>% mutate(DD5_gs = sum(c_across(DD5_sp:DD5_at)))
@@ -325,18 +339,20 @@ select(climate, Tmin_mj)
 climate <- climate %>% rowwise() %>% mutate(Tmin_as = min(c_across(Tmin_08:Tmin_09)))
 select(climate, Tmin_as)
 
-#Filter table to just the variables we are interested in and some others that
-#are good general descriptors (MAT, TD, MAP)
+#Super. Filter the table to:
+##Variables 1-8 defined above
+##General descriptors (MAT, TD, MAP)
+##Monthly precipitation estimates, total and as snow 
+###David R. suggested presenting precipitation over season. The link to 
+###precip is that rain or snow can pull HDM seeds off of foliage. 
 climate <- climate %>% 
   select(site_id, cluster, bec, MAT, TD, MAP, PAR, PAS, DD5_gs, Rad_gs, 
-         Tmin_all, Tmin_sd, Tmin_mj, Tmin_as) 
+         Tmin_all, Tmin_sd, Tmin_mj, Tmin_as, Prec_01:Prec_12, PAS_01:PAS_12) 
+```
 
-####Graph this
-#Define levels of bec zone in an order that corresponds to wettest to driest
-levels(climate$bec)
-climate <- climate %>% 
-  mutate(bec = factor(bec, levels = c("CWHvm2", "CWHvm1", "CWHdm-", "CWHxm2")))
-
+##Graph annual variables
+```{r}
+#Graph annual variables
 #Create a long dataframe so a variables can be plotted in one go
 clim_g <- climate %>%
   pivot_longer(MAT:Tmin_as, names_to = "climvar", values_to = "climval")
@@ -400,6 +416,94 @@ p
 # dev.off()
 ```
 
+##Explore monthly precipitation
+HDM seed dispersal happens from late Sep-early Oct and then they have to 
+overwinter. So winter precipitation is likely a key variable.  
+```{r}
+#Subset table to montly precip variables
+mo_p <- climate %>% 
+  select(site_id, cluster, bec, Prec_01:Prec_12, PAS_01:PAS_12)
+
+#Lengthen table so total precip and precip as snow are in single columns and 
+#each row represents a month
+mo_p <- mo_p %>% 
+  pivot_longer(cols = c(Prec_01:Prec_12, PAS_01:PAS_12),
+               names_to = c(".value", "Month"),
+               names_sep = "_")
+
+#Calculate precipitation as rain
+mo_p <- mo_p %>% 
+  mutate(PAR = Prec - PAS)
+
+#Graph precipitation over the year
+#Lengthen again so precipitation is represented by a single column and whether
+#it is rain or snow is identified by a second column
+mo_p2 <- mo_p %>% 
+  select(-Prec) %>% 
+  pivot_longer(cols = c(PAS, PAR),
+               names_to = "pre_type",
+               values_to = "pre_mm") %>% 
+  mutate(pre_type = case_match(pre_type,
+                               "PAR" ~ "rain",
+                               "PAS" ~ "snow")) %>% 
+  mutate(pre_type = factor(pre_type, levels = c("snow", "rain")))
+
+#Graph
+colors_precip <- c("gray87", "gray30")
+p <- ggplot(mo_p2, aes(x = Month, y = pre_mm, fill = pre_type)) +
+  geom_bar(stat = "identity", position = "stack") + 
+  facet_wrap(~site_id) +
+  theme_classic() +
+  scale_fill_manual(values = colors_precip) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
+        legend.position = c(0.88, 0.1),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        strip.text = element_text(size = 16),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 20)) + 
+  labs(x = "Month", y = "Precipitation (mm)", fill = "Type")
+
+#Export this plot
+# pdf(here("./figures/monthly_precip.pdf"), width = 11, height = 8.5)
+# p
+# dev.off()
+
+#So there are some intuitive trends. The Pacific Highway sites are the wettest
+#and it seems like the winter months contribute most to this difference
+#Explore this a bit further. Calculate the difference between precip at a site
+#and average precip across all sites for each month. Do the winter months have
+#a larger difference?
+
+#Calculate mean precip across sites for each month
+x <- mo_p %>% 
+  group_by(Month) %>% 
+  summarise(allsite_Prec = mean(Prec))
+
+#Add this back to the dataframe
+mo_p <- left_join(mo_p, x, by = "Month")
+
+#Calculate difference
+mo_p <- mo_p %>% 
+  mutate(Prec_diff = Prec - allsite_Prec)
+
+#Graph this
+p <- ggplot(mo_p, aes(x = Month, y = Prec_diff, color = site_id)) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  theme_classic() +
+  scale_color_grey () +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 20),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 20)) + 
+  labs(x = "Month", y = "Difference from mean (mm)", color = "Site")
+
+# pdf(here("./figures/precip_diff.pdf"), width = 11, height = 8.5)
+# p
+# dev.off()
+```
+
 ##Assemble output tables
 Build clean tables combining physical and climate variables. We will 
 create two: (1) a large one with site id, cluster, elevation, slope, aspect, 
@@ -408,26 +512,16 @@ analyses and to create tables I didn't think of in the future and (2) a smaller
 one for thesis that includes site_id, cluster, elevation, slope, aspect and 
 a few descriptive climate variables.
 
-Start by out climate variables described above. Also include MAT (mean annual 
-temperature), TD (temperature difference betweenmean coldest month temperature 
-and mean warmest month temperature) and MAP (mean annual precipitation) because 
-they are good descriptors
-```{r}
-climate2 <- climate %>% 
-  select(site_id, cluster, bec, MAT, TD, MAP, PAR, PAS, DD5_gs, Rad_gs, 
-         Tmin_all, Tmin_sd, Tmin_mj, Tmin_as) 
-```
-
-Then add physical variables. Slope is a bit tricky here. There are two sets of 
-slopes, slopes for the transect and slopes for the fall line. For both of those
-sets we measured slope at multiple places to capture changes in slope profile.
-For the purpose of creating a descriptive table of site characteristics for 
-writing, we will select the measurement that capture the general fall line 
-slope of the regen component. Need to reference the notes in the csv to know
-which ones to pick here. 
+Start with table of climate variables and then add physical variables. Slope is 
+a bit tricky here. There are two sets of slopes, slopes for the transect and 
+slopes for the fall line. For both of thosesets we measured slope at multiple 
+places to capture changes in slope profile. For the purpose of creating a 
+descriptive table of site characteristics for writing, we will select the 
+measurement that capture the general fall line slope of the regen component. 
+Need to reference the notes in the csv to know which ones to pick here. 
 ```{r}
 #Add elevation
-climate2$elevation <- site$elevation
+climate$elevation <- site$elevation
 
 #Subset transect data to slope variables
 slope <- tran %>% select(site_id, transect_id, starts_with("fl"))
@@ -463,19 +557,19 @@ slope <- slope %>%
             reg_sl = round(mean(reg_sl), 1))
 
 #Join these to the table
-climate2 <- left_join(climate2, slope, by = "site_id")
+climate <- left_join(climate, slope, by = "site_id")
 ```
 
 Export the tables. 
 ```{r}
 #Subset a table for thesis
-climate3 <- climate2 %>% select(site_id, cluster,
+climate2 <- climate %>% select(site_id, cluster,
                                 bec, elevation, reg_az, reg_sl,
                                 MAT, Tmin_all, MAP, PAR, PAS)
 
 #Export
-# write_csv(climate2, "./tables/site_climphys_big.csv")
-# write_csv(climate3, "./tables/site_climphys_small.csv")
+# write_csv(climate, "./tables/site_climphys_big.csv")
+# write_csv(climate2, "./tables/site_climphys_small.csv")
 ```
 
 #SECTION 2: Size class distribution and species composition
