@@ -4,7 +4,7 @@ author: "Hanno Southam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-UPDATED: 31 Jan 2025
+UPDATED: 13 Feb 2025
 ##############
 READ ME
 This script compares the 11 HDM study sites to eachother. 
@@ -832,12 +832,11 @@ the forest at the sites. It should contain:
 - mean and sd of dbh for Hw
 - height estimate of C/D Hw
 - mature-regen height difference
-- site history
 
 Start with stuff that is already in the site table. 
 ```{r}
 #Start with a skeleton table
-cs_sum <- site %>% select(site_id, age, site_history) %>% 
+cs_sum <- site %>% select(site_id, age) %>% 
   rename(yr_since_har = age)
 ```
 
@@ -926,11 +925,6 @@ cs_sum <- cs_sum %>%
          reg.dbh_sd_cd_hw = reg_cs$reg.dbh_sd_cd_hw,
          mat.dbh_sd_cd_hw = mat_cs$mat.dbh_sd_cd_hw) %>% 
   mutate(across(reg.dbh_mean_cd_all:mat.dbh_sd_cd_hw, ~round(., 1)))
-
-
-#Put site history at the end
-cs_sum <- cs_sum %>% 
-  relocate(site_history, .after = last_col())
 ```
 
 It is neater to represent standard deviation in brackets after and estimate. 
@@ -1142,7 +1136,7 @@ p <- ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=nstem_ha, fill=dmr_f2)) +
         strip.text = element_text(size = 16),
         legend.text = element_text(size = 16),
         legend.title = element_text(size = 20)) + 
-  labs(x = "DBH bin (cm)", y = "Trees per ha", fill = "Modified DMR")
+  labs(x = "DBH bin (cm)", y = "Trees per ha", fill = "Adapted DMR")
 
 #Export this plot
 # pdf(here("./figures/mat_inf_nstem_ha.pdf"), width = 11, height = 8.5)
@@ -1161,7 +1155,8 @@ ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=ba_m2_ha, fill=dmr_f2)) +
         axis.text = element_text(size = 16),
         axis.title = element_text(size = 24),
         strip.text = element_text(size = 16)) + 
-  labs(x = "DBH bin", y = expression("Basal area (m"^2*")"))
+  labs(x = "DBH bin", y = expression("Basal area (m"^2*")"), 
+       fill = "Adapted DMR")
 ```
 
 ##Brooming and stem infections
@@ -1523,11 +1518,16 @@ Start by breaking distance from the edge into bin and then creating the
 dataframe with the breakdown.
 ```{r}
 #Break distance from the edge into 5m bins
-reg.hw_50 <- reg.hw_50 %>% mutate(dist_y_h_bin = cut(dist_y_h, 
+reg.hw_50 <- reg.hw_50 %>% 
+  mutate(dist_y_h_bin = cut(dist_y_h, 
                             breaks = c(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 
                                        50), 
                             include.lowest = TRUE))
+reg.hw_50$dist_y_h_bin
 
+test <- reg.hw_50 %>% 
+  filter(site_id == "ph_2" & dist_y_h_bin == "(15,20]")
+  
 #Do the breakdown
 reg.dmr_disty <- reg.hw_50 %>% 
   group_by(site_id, dmr_f2, dist_y_h_bin) %>% 
@@ -1559,7 +1559,7 @@ x <- x %>% mutate(tr_leng_bin = cut(tr_leng_s,
                                        50), 
                             include.lowest = TRUE))
 x <- x %>% 
-  mutate(tr_end = "*")
+  mutate(tr_end = "s")
 
 #Join this to the dataframe we will use for plotting
 reg.dmr_disty <- left_join(reg.dmr_disty, select(x, site_id, tr_leng_bin, 
@@ -1567,7 +1567,7 @@ reg.dmr_disty <- left_join(reg.dmr_disty, select(x, site_id, tr_leng_bin,
                            by = c("site_id" = "site_id",
                                   "dist_y_h_bin" = "tr_leng_bin"))
 
-#Get the total bar height for a graph using number of stems and a grpah using
+#Get the total bar height for a graph using number of stems and a graph using
 #BA. We will use this to define the y - coordinate for the marker
 x2 <- reg.dmr_disty %>% 
   group_by(site_id, dist_y_h_bin) %>% 
@@ -1605,22 +1605,23 @@ p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=ba_m2_ha, fill=dmr_f2)) +
         strip.text = element_text(size = 20)) + 
   labs(x = "Distance from edge (m)", 
        y = expression("Basal area (m"^2*") per ha"), 
-       fill = "Modified DMR") + 
+       fill = "Adapted DMR") + 
   guides(fill = guide_legend(ncol = 1))
 
 #Export this plot
-# pdf(here("./figures/reg_dmr_disty_ba.pdf"), width = 11, height = 8.5)
-# p
-# dev.off()
+pdf(here("./figures/reg_dmr_disty_ba.pdf"), width = 11, height = 8.5)
+p
+dev.off()
 
 #By # of stems
 p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem_ha, fill=dmr_f2)) + 
   geom_bar(position=position_stack(reverse = TRUE), stat="identity") +
-  geom_text(aes(y = lab_pos_nstem, label = tr_end), 
-            size = 10) +
+  geom_text(aes(y = lab_pos_nstem, label = tr_end, vjust = -.5), 
+            size = 5) +
   theme_classic() +
   facet_wrap(vars(site_id)) + 
   scale_fill_manual(values = colors_dmr_f2) + 
+  ylim(0, 800) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
         legend.position = c(0.88, 0.1),
         legend.background = element_rect(fill = "lightgrey"),
@@ -1632,13 +1633,13 @@ p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem_ha, fill=dmr_f2)) +
         strip.text = element_text(size = 16)) + 
   labs(x = "Distance from edge (m)", 
        y = "Trees per ha", 
-       fill = "Modified DMR") + 
+       fill = "Adapted DMR") + 
   guides(fill = guide_legend(ncol = 2))
 
 #Export this plot
-# pdf(here("./figures/reg_dmr_disty_nstem.pdf"), width = 11, height = 8.5)
-# p
-# dev.off()
+pdf(here("./figures/reg_dmr_disty_nstem.pdf"), width = 11, height = 8.5)
+p
+dev.off()
 ```
 
 ##Infection in live regen Hw
