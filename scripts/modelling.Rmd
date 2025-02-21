@@ -688,11 +688,14 @@ sum_tb1
 ```
 
 ###Construct a table for thesis
-Going to recreate the table above but with a bit more detail. Rows will be 
-variables. Columns will be divisions of the dataset. Crown class is 
-excluded because its not in the model in thesis. 
+Going to recreate the table above but with a bit more detail. Goal is to 
+summarize the modelling dataset that went into my thesis. 
 
-Variables: 
+Rows:
+- all trees
+- DMR
+
+Columns: 
 - total sample size
 - sample size of measured trees
 - sample size of simulated trees
@@ -707,93 +710,46 @@ tb2 <- modelling %>%
             n_meas = sum(sim_tree == "N"),
             n_sim = sum(sim_tree == "Y"),
             dist_mean = mean(dist_y_h),
-            dist_sd = sd(dist_y_h),
-            dist_med = median(dist_y_h),
             dist_min = min(dist_y_h),
             dist_max = max(dist_y_h),
             sl_mean = mean(sl_i_tot_rm),
-            sl_sd = sd(sl_i_tot_rm),
-            sl_med = median(sl_i_tot_rm),
             sl_min = min(sl_i_tot_rm),
             sl_max = max(sl_i_tot_rm),
             dbh_mean = mean(dbh),
-            dbh_sd = sd(dbh),
-            dbh_med = median(dbh),
             dbh_min = min(dbh),
-            dbh_max = max(dbh)) %>% 
-  mutate(across(dist_mean:dbh_max, ~ format(round(.x, 1), nsmall=1)))
+            dbh_max = max(dbh))
 
-#Combine mean and sd into single cell, median and range into another
+#Add a column at the front specifying the group
 tb2 <- tb2 %>% 
-  mutate(dist_mean_sd = paste0(dist_mean, " (", dist_sd, 
-                            ")"),
-         dist_med_rg = paste0(dist_med, " [", dist_min, ", ",
-                              dist_max, "]"),
-         sl_mean_sd = paste0(sl_mean, " (", sl_sd, 
-                            ")"),
-         sl_med_rg = paste0(sl_med, " [", sl_min, ", ",
-                              sl_max, "]"),
-         dbh_mean_sd = paste0(dbh_mean, " (", dbh_sd, 
-                            ")"),
-         dbh_med_rg = paste0(dbh_med, " [", dbh_min, ", ",
-                              dbh_max, "]"))
-
-#Drop the raw versions
-tb2 <- tb2 %>% 
-  select(starts_with("n"), contains("mean_sd"), contains("med_rg")) %>% 
-  as.data.frame()
-
-#Assemble the dataframe in the shape of its final version
-names <- c("N", "N (measured)", "N (simulated)",
-           "distance from edge (m)", "seed load (no unit)", 
-           "DBH (cm)")
-col1 <- c(tb2[1,1], tb2[1,2], tb2[1,3], tb2[1,4], tb2[1,5], tb2[1,6])
-col2 <- c(NA, NA, NA, tb2[1,7], tb2[1,8], tb2[1,9])
-
-tb3 <- data.frame("Variables" = names, "col1" = col1, "col2" = col2)
+  mutate(group = "All")
 ```
 
 Then summarize these variables across dmr classes
 ```{r}
-tb4 <- modelling %>%
+tb3 <- modelling %>%
   select(dmr_f, sim_tree, dist_y_h, sl_i_tot_rm, dbh) %>% 
   group_by(dmr_f) %>% 
   summarise(n_tot = n(),
             n_meas = sum(sim_tree == "N"),
             n_sim = sum(sim_tree == "Y"),
             dist_mean = mean(dist_y_h),
-            dist_sd = sd(dist_y_h),
+            dist_min = min(dist_y_h),
+            dist_max = max(dist_y_h),
             sl_mean = mean(sl_i_tot_rm),
-            sl_sd = sd(sl_i_tot_rm),
+            sl_min = min(sl_i_tot_rm),
+            sl_max = max(sl_i_tot_rm),
             dbh_mean = mean(dbh),
-            dbh_sd = sd(dbh)) %>% 
-  mutate(across(dist_mean:dbh_sd, ~ format(round(.x, 1), nsmall=1)))
+            dbh_min = min(dbh),
+            dbh_max = max(dbh)) %>% 
+  rename(group = dmr_f)
 
-#Combine mean and standard deviation into single cells
-#Drop the raw versions
-tb4 <- tb4 %>% 
-  mutate(dist_mean_sd = paste0(dist_mean, " (", dist_sd, 
-                            ")"),
-         sl_mean_sd = paste0(sl_mean, " (", sl_sd, 
-                            ")"),
-         dbh_mean_sd = paste0(dbh_mean, " (", dbh_sd, 
-                            ")")) %>% 
-  select(dmr_f, starts_with("n"), contains("mean_sd"))
-
-#Transpose
-tb4 <- tb4 %>% t()
-
-#Rename columns and then remove row with column names
-colnames(tb4) <- tb4[1,]
-tb4 <- tb4[-1,]
+#Combine these tables
+tb3 <- rbind(tb2, tb3)
 ```
 
-Combine the two into a final table
+Export final table
 ```{r}
-tb5 <- bind_cols(tb3, tb4)
-
-#Export this. Can pretty it up in word
-# write_csv(tb5, here("./tables/model_dtset_sum.csv"))
+# write_csv(tb3, here("./tables/model_dtset_sum.csv"))
 ```
 
 ##Plot dmr against tree level predictors
