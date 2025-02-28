@@ -628,14 +628,14 @@ p2 <- ggplot(t_psp_m, aes(x = HEIGHT, y = HT_BRCH)) +
   guides(color = F) +
   labs(x = "Tree height (m)",
        y = "Height to live crown (m)") +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20),
+  theme(text = element_text(family = "Calibri"),
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 11),
         plot.margin = margin(t = 10, r = 10, b = 10, l = 10))
 
 #Export
-# pdf(here("./figures/htlc_ht.pdf"), width = 10, height = 7)
-# p2
-# dev.off()
+# ggsave(here("./figures/htlc_ht.svg"), plot = p2, width = 12, height = 8,
+#          units = "cm", device = "svg")
 ```
 
 ##Models
@@ -1209,7 +1209,7 @@ Variables:
   - height to crown base
   - largest crown width
   - crown volume (total and by crown third)
-Metrics: median and range
+Metrics: median, min and max
 Structure: rows: tree type - crown class (3 levels) combinations, columns = 
 variables
 ```{r}
@@ -1225,29 +1225,11 @@ tbl_cv <- cv_export %>%
     max = ~max(.)
   ), .names = "{.col}_{.fn}"))
 
-#Combine median, min and max for each variable into single columns
-tbl_cv <- tbl_cv %>%
-  pivot_longer(
-    cols = where(is.numeric), 
-    names_to = c("variable", "metric"),
-    names_pattern = "^(.*)_(median|min|max)$",
-    values_to = "value"
-  ) %>%
-  pivot_wider(names_from = metric, 
-              values_from = value) %>% 
-  mutate(across(where(is.numeric), ~ round(.x, 1))) %>% 
-  mutate(combined = paste0(median, " [", min, "-", max, "]")) %>% 
-  select(tree_type, crown_class_2, variable, combined) %>% 
-  pivot_wider(id_cols = c(tree_type, crown_class_2),
-              names_from = variable,
-              values_from = combined)
-
 #Add height factors
 ht_fac <- c(1, htr_ci_m, htr_cs_m, 1, htr_ci_r, htr_cs_r)
 tbl_cv$ht_fac <- ht_fac 
 tbl_cv <- tbl_cv %>%
-  relocate(ht_fac, .before = height_cv_est) %>% 
-  mutate(ht_fac = round(ht_fac, 2))
+  relocate(ht_fac, .before = height_cv_est_median)
 
 #Rearrange so regen component is displayed first, in keeping with how I've been
 #doing this so far
