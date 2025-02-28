@@ -491,10 +491,10 @@ color_dmr <- c("bisque3", "#1F78B4", "#A6CEE3",
 
 #Data source
 levels(trees_rot$sim_tree_g)
-shape_sim <- c(16, 1)
+shape_sim <- c(16, 15)
 
 #Available colour palettes in tmap:
-tmaptools::palette_explorer()
+# tmaptools::palette_explorer()
 ```
 
 ##Plot 1: standard stem map
@@ -547,8 +547,8 @@ p <- tmap_mode("plot") +
 ```
 
 ##Plot 2: stem map with seed load overlay
+Create a new object that is just points of trees where seed load is defined
 ```{r}
-#Subset the trees object to points where seed load is defined
 trees_sl <- trees_rot %>% 
   filter(!is.na(sl_i_tot_rm))
 
@@ -556,29 +556,84 @@ trees_sl <- trees_rot %>%
 summary(trees_sl$tree_type_2)
 summary(trees_sl$status)
 summary(trees_sl$spp)
+```
 
+
+Break up objects into two sets. One for a figure in the main text and one for 
+one to go in the supplementary material. 
+```{r}
+sites1 <- c("cr_1", "cr_3", "mi_1", "mk_2", "ph_1", "ph_2")
+sites2 <- c("cr_2", "mi_2", "mk_1", "mk_3", "ph_3")
+
+#Footprints
+adjusted_fp_rot1 <- adjusted_fp_rot %>% 
+  filter(site_id %in% sites1)
+adjusted_fp_rot2 <- adjusted_fp_rot %>% 
+  filter(site_id %in% sites2)
+
+#Edge lines
+edge_lines1 <- edge_lines %>% 
+  filter(site_id %in% sites1)
+edge_lines2 <- edge_lines %>% 
+  filter(site_id %in% sites2)
+
+#Transect footprints
+tran_lines1 <- tran_lines %>% 
+  filter(site_id %in% sites1)
+tran_lines2 <- tran_lines %>% 
+  filter(site_id %in% sites2)
+
+#Transect start and end points and distance markers
+ts_pts1 <- ts_pts %>% 
+  filter(site_id %in% sites1)
+ts_pts2 <- ts_pts %>% 
+  filter(site_id %in% sites2)
+te_pts1 <- te_pts %>% 
+  filter(site_id %in% sites1)
+te_pts2 <- te_pts %>% 
+  filter(site_id %in% sites2)
+dist_mark1 <- dist_mark %>% 
+  filter(site_id %in% sites1)
+dist_mark2 <- dist_mark %>% 
+  filter(site_id %in% sites2)
+
+#Seed load values
+trees_sl1 <- trees_sl %>% 
+  filter(site_id %in% sites1)
+trees_sl2 <- trees_sl %>% 
+  filter(site_id %in% sites2)
+
+#Trees
+trees_rot1 <- trees_rot %>% 
+  filter(site_id %in% sites1)
+trees_rot2 <- trees_rot %>% 
+  filter(site_id %in% sites2)
+```
+
+Plot first set
+```{r}
 p <- tmap_mode("plot") +
   #Define map extent using site footprints
-  tm_shape(adjusted_fp_rot, is.master = TRUE,
+  tm_shape(adjusted_fp_rot1, is.master = TRUE,
            unit = "m") +
     tm_facets(by = "site_id", free.scales = TRUE, 
               free.coords = TRUE, ncol = 2) +
     tm_polygons(col="white", border.col = NULL) +
   #Edge lines
-  tm_shape(edge_lines) + 
+  tm_shape(edge_lines1) + 
     tm_lines(col="blue", lty=2) +
-  #Transect start/end points, footprints and distance markers
-  tm_shape(tran_lines) + 
+  #Transect footprints and distance markers
+  tm_shape(tran_lines1) + 
     tm_polygons(alpha=0) + 
   #Transect start and end points
-  tm_shape(ts_pts) + 
+  tm_shape(ts_pts1) + 
     tm_symbols(col="blue", shape=3, size=0.1) + 
-  tm_shape(te_pts) + 
+  tm_shape(te_pts1) + 
     tm_symbols(col="blue", shape=3, size=0.1) +
-  tm_shape(dist_mark) + 
+  tm_shape(dist_mark1) + 
     tm_lines(lty = 3, alpha = 0.7) +
   #Seed load values
-  tm_shape(trees_sl) +
+  tm_shape(trees_sl1) +
     tm_symbols(col = "sl_i_tot_rm", 
                palette = "Greys", n = 5, contrast = c(.1, 1),
                scale = 1,
@@ -588,14 +643,14 @@ p <- tmap_mode("plot") +
                legend.col.is.portrait = T,
                title.col = "Seed load") +
   #Tree points
-  tm_shape(trees_rot) + 
+  tm_shape(trees_rot1) + 
     tm_symbols(col ="dmr_f_graph",
                palette = color_dmr,
                shape =  "sim_tree_g",
                shapes =  shape_sim, 
                size = "dbh",
                scale = 2,
-               title.col = "Adapted DMR",
+               title.col = "DMR",
                legend.col.is.portrait = T,
                title.size = "DBH (cm)",
                legend.size.is.portrait = T,
@@ -607,23 +662,98 @@ p <- tmap_mode("plot") +
   tm_scale_bar(position = c("RIGHT", "BOTTOM"), 
                lwd = 0.5,
                breaks = c(0, 25, 50),
-               text.size = 0.8) +
+               text.size = 1) +
   #Formatting
-  tm_layout(inner.margins = 0.01, panel.label.size = 2,
+  tm_layout(inner.margins = 0.01, 
+            panel.label.size = 1.3,
             panel.label.bg.color = "white",
-            legend.outside=T, 
+            legend.outside = T, 
             legend.outside.position = "right",
             legend.position=c(0.1, 0.1), 
             legend.stack="vertical",
-            legend.title.size = 2,
-            legend.text.size = 1.5,
+            legend.title.size = 1.2,
+            legend.text.size = 1,
             legend.bg.color = "white",
-            legend.frame = T)
+            legend.bg.alpha = 1,
+            legend.frame = T,
+            fontfamily = "Times New Roman")
 
 #Save the plot
-# pdf("./figures/trees_sl_1Feb2025.pdf", width=8.5, height=11)
-# p
-# dev.off()
+tmap_save(p, filename = "./figures/trees_sl_set1.svg", 
+          width = 6.5, height = 7.5, units = "in")
+```
+
+Plot the second set
+```{r}
+p <- tmap_mode("plot") +
+  #Define map extent using site footprints
+  tm_shape(adjusted_fp_rot2, is.master = TRUE,
+           unit = "m") +
+    tm_facets(by = "site_id", free.scales = TRUE, 
+              free.coords = TRUE, ncol = 2) +
+    tm_polygons(col="white", border.col = NULL) +
+  #Edge lines
+  tm_shape(edge_lines2) + 
+    tm_lines(col="blue", lty=2) +
+  #Transect footprints and distance markers
+  tm_shape(tran_lines2) + 
+    tm_polygons(alpha=0) + 
+  #Transect start and end points
+  tm_shape(ts_pts2) + 
+    tm_symbols(col="blue", shape=3, size=0.1) + 
+  tm_shape(te_pts2) + 
+    tm_symbols(col="blue", shape=3, size=0.1) +
+  tm_shape(dist_mark2) + 
+    tm_lines(lty = 3, alpha = 0.7) +
+  #Seed load values
+  tm_shape(trees_sl2) +
+    tm_symbols(col = "sl_i_tot_rm", 
+               palette = "Greys", n = 5, contrast = c(.1, 1),
+               scale = 1,
+               alpha = 0.6,
+               style = "cont",
+               border.lwd = NA,
+               legend.col.is.portrait = T,
+               title.col = "Seed load") +
+  #Tree points
+  tm_shape(trees_rot2) + 
+    tm_symbols(col ="dmr_f_graph",
+               palette = color_dmr,
+               shape =  "sim_tree_g",
+               shapes =  shape_sim, 
+               size = "dbh",
+               scale = 2,
+               title.col = "DMR",
+               legend.col.is.portrait = T,
+               title.size = "DBH (cm)",
+               legend.size.is.portrait = T,
+               title.shape = "Tree type",
+               legend.shape.is.portrait = T,
+               shapes.legend.fill = "black",
+               sizes.legend = c(10, 50, 100, 150)) +
+  #Scale bar
+  tm_scale_bar(position = c("RIGHT", "BOTTOM"), 
+               lwd = 0.5,
+               breaks = c(0, 25, 50),
+               text.size = 1) +
+  #Formatting
+  tm_layout(inner.margins = 0.01, 
+            panel.label.size = 1.3,
+            panel.label.bg.color = "white",
+            legend.outside = T, 
+            legend.outside.position = "right",
+            legend.position=c(0.1, 0.1), 
+            legend.stack="vertical",
+            legend.title.size = 1.2,
+            legend.text.size = 1,
+            legend.bg.color = "white",
+            legend.bg.alpha = 1,
+            legend.frame = T,
+            fontfamily = "Times New Roman")
+
+#Save the plot
+tmap_save(p, filename = "./figures/trees_sl_set2.svg", 
+          width = 6.5, height = 7.5, units = "in")
 ```
 
 ##Plot for WIFDWC 2024
