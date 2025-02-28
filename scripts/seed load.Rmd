@@ -49,6 +49,8 @@ library(sf)
 library(tmap)
 library(RColorBrewer)
 library(knitr)
+library(ggtext)
+library(ggpubr)
 ```
 
 Read in and format the data
@@ -296,17 +298,20 @@ p1 <- ggplot(sdisp, aes(x=dist_m_stem, y = p_seed)) +
   geom_point() + 
   geom_vline(xintercept = c(0, 3.855),
              linetype = 2, colour = "grey") + 
-  annotate("text", x = 0, y = 0.4, 
-           label = "Stem", hjust = 0, colour = "grey", size = 4) + 
-  annotate("text", x = 3.855, y = 0.4, 
-           label = "Crown edge", hjust = 0, colour = "grey", size = 4) +
+  annotate("text", x = 0.1, y = 0.5, 
+           label = "Stem", hjust = 0, colour = "grey",
+           family = "Arial") + 
+  annotate("text", x = 3.955, y = 0.45, 
+           label = "Crown edge", hjust = 0, colour = "grey",
+           family = "Arial") +
   lims(y=c(0, 0.5),
        x=c(0, 25))+
   theme_classic() +
-  labs(x = "Distance between trees (m)", 
-       y = "Proportion of seed production") + 
-  theme(axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16))
+  labs(x = expression('Distance between trees ('*italic(m)*')'), 
+       y = "Proportion SP") + 
+  theme(text = element_text(family = "Arial"), 
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12))
 p1
 ```
 
@@ -418,14 +423,18 @@ bbox <- st_as_sfc(st_bbox(test))
 p2 <- tmap_mode("plot") +
   tm_shape(mi_1) +
     tm_symbols(shape = "tree_type",
-               title.shape = "Tree type") +
+               title.shape = "Component") +
   tm_shape(bbox) +
     tm_borders(col = "blue") +
-  tm_layout(legend.position = c("left", "top"),
-            legend.title.size = 1.4,
-            legend.text.size = 1.2)
+  tm_layout(fontfamily = "Arial",
+            legend.position = c("left", "top"),
+            legend.width = 0.75,
+            legend.height = 0.75,
+            legend.title.size = 1.2,
+            legend.text.size = 1,
+            legend.bg.color = "white",
+            legend.bg.alpha = 0.5) 
 p2
-?tm_legend
 ```
 
 ###Define tree pairs
@@ -602,54 +611,84 @@ pair_fp_rr <- left_join(pair_fp_rr, x, by = c("t1_row", "t2_row"))
 Create two clean plots for seed load figure: one with lines between all pairs 
 and then one focusing on a single regen tree, with 5m wide paths plotted.  
 ```{r}
-#Define palette for seed production variable
-colour_sp <- c("#A6CEE3", brewer.pal(5, "YlOrRd"))
+#Define new attribute for trees that are Hw and those that are other spp
+test <- test %>% 
+  mutate(hw_yn = if_else(spp == "Hw", "hemlock", "other"))
+
+#Define some "layers" to plot
+x <- test %>% 
+  filter(tree_type == "regen")
+x1 <- test %>% 
+  filter(tree_type == "mature" & hw_yn == "other")
+x2 <- test %>% 
+  filter(tree_type == "mature" & hw_yn == "hemlock")
 
 #Plot with lines between pairs 
 p3 <- tmap_mode("plot") + 
-  tm_shape(pair_lines_rm) + tm_lines(lty = 1) +
-  tm_shape(test) + 
-    tm_symbols(shape = "tree_type", 
-               title.shape = "Tree type",
-               col = "sp",
-               breaks = c(0, 1, 250, 500, 750, 1000),
+  tm_shape(bbox) +
+    tm_borders(col = NULL) +
+  tm_shape(pair_lines_rm) + 
+    tm_lines(lty = 1) +
+  tm_shape(x) + 
+    tm_symbols(shape = 22) +
+  tm_shape(x1) + 
+    tm_symbols() +
+  tm_shape(x2) + 
+    tm_symbols(col = "sp",
+               breaks = c(0, 250, 500, 750, 1000),
                title.col = "Seed production",
-               palette = colour_sp,
-               legend.shape.show = F) +
-  tm_layout(legend.width = 0.5,
-            legend.title.size = 1.4,
-            legend.text.size = 1.2,
+               palette = "viridis",
+               style = "cont") +
+  tm_layout(fontfamily = "Arial",
+            legend.position = c("left", "top"),
+            legend.width = 1,
+            legend.height = 0.75,
+            legend.title.size = 1.2,
+            legend.text.size = 1,
             legend.bg.color = "white",
             legend.bg.alpha = 0.5)
 p3
 
 #Plot with one focal regen tree with paths of all mature trees
 #Create some layers
-x <- pair_fp_rm %>% filter(tree1 == "r1")
-x1 <- test %>% filter(tree_id == "r1")
-x2 <- test %>% filter(status %in% c("LS", "LL", "LF"), 
-                      tree_type == "mature") %>% 
-  mutate(crown_class_2 = as.character(crown_class_2)) %>% 
-  mutate(crown_class_2 = factor(crown_class_2, levels = c("C", "I", "S")))
+x3 <- pair_fp_rm %>% filter(tree1 == "r1")
+x4 <- test %>% filter(tree_id == "r1")
+x5 <- test %>% filter(tree_type == "mature") %>% 
+  mutate(crown_class_2 = as.character(crown_class_2)) %>%
+  mutate(crown_class_2 = case_match(crown_class_2, 
+                                  "C" ~ "D/C",
+                                  "-" ~ "dead",
+                                 .default = crown_class_2)) %>% 
+  mutate(crown_class_2 = factor(crown_class_2, 
+                                levels = c("D/C", "I", "S", "dead")))
 
 #Define a colour palette for crown class
-colour_cc2 <- c("lightgoldenrod4", "lightgoldenrod3","lightgoldenrodyellow")
-p4 <- tmap_mode("plot") + 
-  tm_shape(test) + 
-    tm_symbols(shape = "tree_type",
-               title.shape = "Tree type",
-               legend.shape.show = F) +
-  tm_shape(x2) +
+colour_cc2 <- c("lightgoldenrod4", "lightgoldenrod3","lightgoldenrodyellow",
+                "white")
+
+#Plot
+p4 <- tmap_mode("plot") +
+  tm_shape(bbox) +
+    tm_borders(col = NULL) +
+  tm_shape(x3) + 
+    tm_polygons(alpha = 0.1, col = "lightblue") +
+  tm_shape(x) + 
+    tm_symbols(shape = 22) +
+  tm_shape(x4) + 
+    tm_symbols(col = "red",
+               shape = 15)  +
+  tm_shape(x5) +
     tm_symbols(col = "crown_class_2",
                palette = colour_cc2,
                title.col = "Crown class") +
-  tm_shape(x) + 
-    tm_polygons(alpha = 0.1, col = "darkblue") +
-  tm_shape(x1) + 
-    tm_symbols(col = "red",
-               shape = 15) +
-  tm_layout(legend.title.size = 1.4,
-            legend.text.size = 1.2)
+  tm_layout(fontfamily = "Arial",
+            legend.position = c("left", "top"),
+            legend.width = 0.75,
+            legend.height = 0.75,
+            legend.title.size = 1.2,
+            legend.text.size = 1,
+            legend.bg.color = "white",
+            legend.bg.alpha = 0.5)
 p4
 ```
 
@@ -1101,7 +1140,9 @@ x <- pair_lines_sl %>%
            tree1 == "r1")
 x1 <- test %>% 
   filter(tree_id == "r1")
-p5 <- tmap_mode("plot") + 
+p5 <- tmap_mode("plot") +
+  tm_shape(bbox) +
+    tm_borders(col = NULL) +
   tm_shape(test) + 
     tm_symbols(shape = "tree_type", 
                title.shape = "Tree type",
@@ -1114,8 +1155,15 @@ p5 <- tmap_mode("plot") +
              title.lwd = "Seed load",
              scale = 2,
              legend.lwd.is.portrait = T) + 
-  tm_layout(legend.title.size = 1.4,
-            legend.text.size = 1.2)
+  tm_layout(fontfamily = "Arial",
+            legend.width = 0.5,
+            legend.height = 0.75,
+            legend.position = c("left", "top"),
+            legend.title.size = 1.2,
+            legend.text.size = 1,
+            legend.bg.color = "white",
+            legend.bg.alpha = 0.5)
+p5
 ```
 
 ###Combine panels for single thesis plot
@@ -1126,12 +1174,15 @@ p3_grob <- tmap_grob(p3)
 p4_grob <- tmap_grob(p4)
 p5_grob <- tmap_grob(p5)
 
-pdf("./figures/sl_workflow.pdf", width=11, height=15)
-ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob, 
+#Combine them
+p <- ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob,
           ncol = 2, nrow = 3, labels = "AUTO",
-          font.label = list(size = 20),
-          align = "hv")
-dev.off()
+          hjust = 0.04,
+          font.label = list(size = 16, family = "Calibri",
+                            face = "plain"))
+
+# ggsave(here("./figures/sl_workflow.svg"), plot = p,
+#        device = "svg", width = 6.5, height = 7.5)
 ```
 
 ##Interception across all sites
@@ -1941,11 +1992,18 @@ tbl_sp_sl <- tbl_sp_sl %>%
 #Reshape again so each variable is a unique row and crown classes are columns
 tbl_sp_sl <- tbl_sp_sl %>% 
   unite(tt_var, tree_type, variable, sep = ".") %>% 
-  select(tt_var, crown_class_2, combined) %>% 
+  select(tt_var, crown_class_2, median, min, max) %>% 
   pivot_wider(id_cols = tt_var, 
               names_from = crown_class_2,
-              values_from = combined) %>% 
-  filter(C != "-")
+              values_from = median:max)
+
+#Filter out seed load rows for mature component because they don't apply
+tbl_sp_sl <- tbl_sp_sl %>% 
+  filter(!is.na(median_C))
+
+#Reorganize columns by crown class
+tbl_sp_sl <- tbl_sp_sl %>% 
+  select(tt_var, contains("_C"), contains("_I"), contains("_S"))
 
 #Export
 # write_csv(tbl_sp_sl, here("./tables/sl_summary.csv"))
