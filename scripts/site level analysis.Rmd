@@ -37,7 +37,7 @@ library(tidyverse)
 library(here)
 library(RColorBrewer)
 library(ggrepel)
-library(patchwork)
+library(ggpubr)
 ```
 
 #Prep
@@ -362,63 +362,64 @@ climate <- climate %>%
 clim_g <- climate %>%
   pivot_longer(MAT:Tmin_as, names_to = "climvar", values_to = "climval")
 
-#Create a new colum with variable names and units
-unique(clim_g$climvar)
-clim_g <- clim_g %>% 
+clim_g <- clim_g %>%
   mutate(climvar2 = case_match(climvar,
-                               "MAT" ~ paste0(climvar, " (", "\u00B0", "C)"),
-                               "TD" ~ paste0(climvar, " (", "\u00B0", "C)"),
-                               "MAP" ~ paste0(climvar, " (mm)"),
-                               "PAR" ~ paste0(climvar, " (mm)"),
-                               "PAS" ~ paste0(climvar, " (mm)"),
-                               "DD5_gs" ~ paste0(climvar, " (", "\u00B0", "C)"),
-                               "Rad_gs" ~ paste0(climvar, " (MJ m", 
-                                                 "-2", " d", 
-                                                 "-1", ")"),
-                               "Tmin_all" ~ paste0(climvar, " (", "\u00B0", 
-                                                   "C)"),
-                               "Tmin_sd" ~ paste0(climvar, " (", "\u00B0", 
-                                                   "C)"),
-                               "Tmin_mj" ~ paste0(climvar, " (", "\u00B0", 
-                                                   "C)"),
-                               "Tmin_as" ~ paste0(climvar, " (", "\u00B0", 
-                                                   "C)")
-                               )) %>% 
-  mutate(climvar2 = factor(climvar2, levels = c("MAT (°C)", "TD (°C)", 
-                                                "Tmin_all (°C)", "Tmin_sd (°C)",
-                                                "Tmin_as (°C)", "Tmin_mj (°C)",
-                                                "Rad_gs (MJ m-2 d-1)",
-                                                "DD5_gs (°C)",
-                                                "MAP (mm)", "PAR (mm)", 
-                                                "PAS (mm)")))
+    "MAT" ~ "MAT~(italic(degree*C))",
+    "TD" ~ "TD~(italic(degree*C))",
+    "MAP" ~ "MAP~(italic(mm))",
+    "PAR" ~ "PAR~(italic(mm))",
+    "PAS" ~ "PAS~(italic(mm))",
+    "DD5_gs" ~ "DD[5]~(italic(degree*C))",
+    "Rad_gs" ~ "Rad[gs]~(italic(MJ~m^{-2}~d^{-1}))",
+    "Tmin_all" ~ "Tmin[all]~(italic(degree*C))",
+    "Tmin_sd" ~ "SD~Tmin~(italic(degree*C))",
+    "Tmin_mj" ~ "Tmin[mj]~(italic(degree*C))",
+    "Tmin_as" ~ "Tmin[as]~(italic(degree*C))"
+  )) %>% 
+  mutate(climvar2 = 
+           factor(climvar2, levels = c("MAT~(italic(degree*C))", 
+                                       "TD~(italic(degree*C))",
+                                       "Tmin[all]~(italic(degree*C))",
+                                       "SD~Tmin~(italic(degree*C))",
+                                       "Tmin[mj]~(italic(degree*C))",
+                                       "Tmin[as]~(italic(degree*C))",
+                                       "Rad[gs]~(italic(MJ~m^{-2}~d^{-1}))",
+                                       "DD[5]~(italic(degree*C))",
+                                       "MAP~(italic(mm))",
+                                       "PAR~(italic(mm))", 
+                                       "PAS~(italic(mm))")))
 unique(clim_g$climvar2)
 
 #Create a plot
 p <- ggplot(clim_g, aes(x=bec, y=climval, label=site_id, color = cluster)) +
   geom_point() +
-  facet_wrap(~climvar2, scales = "free_y") +
+  facet_wrap(~climvar2, scales = "free_y", labeller = label_parsed) +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90,
                                    hjust = 1, vjust = 0.5),
         legend.position = "inside",
-        legend.position.inside = c(0.88,0.05),
+        legend.position.inside = c(0.88,0),
         legend.background = element_rect(fill = "lightgrey"),
         legend.key = element_rect(fill = "lightgrey", color = NA),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16),
-        strip.text = element_text(size = 14),
-        legend.text = element_text(size = 16),
-        legend.title = element_text(size = 20)) +
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        strip.text = element_text(size = 8, family = "Times New Roman",
+                                  margin = margin(0.05, 0.05, 0.05, 0.05,
+                                                  unit = "cm")),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold")) +
   labs(x = "BEC", 
        y = "Climate variable value",
        colour = "Site cluster") +
   scale_color_manual(values = colors_clust)
 p
+?element_text
 
 #Export this plot
-# pdf(here("./figures/climate_vars.pdf"), width = 11, height = 8.5)
-# p
-# dev.off()
+# ggsave(here("./figures/climate_vars.svg"), plot = p, device = "svg",
+#        width = 6.5, height = 5, units = "in")
 ```
 
 ##Explore monthly precipitation
@@ -461,18 +462,23 @@ p <- ggplot(mo_p2, aes(x = Month, y = pre_mm, fill = pre_type)) +
   theme_classic() +
   scale_fill_manual(values = colors_precip) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
-        legend.position = c(0.88, 0.1),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16),
-        strip.text = element_text(size = 16),
-        legend.text = element_text(size = 16),
-        legend.title = element_text(size = 20)) + 
-  labs(x = "Month", y = "Precipitation (mm)", fill = "Type")
+        legend.position = "inside",
+        legend.position.inside = c(0.88, 0.1),
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        strip.text = element_text(size = 11, family = "Times New Roman",
+                                  margin = margin(0.05, 0.05, 0.05, 0.05,
+                                                  unit = "cm")),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold")) + 
+  labs(x = "Month", y = "Precipitation (mm)", 
+                                  fill = "Type")
 
 #Export this plot
-# pdf(here("./figures/monthly_precip.pdf"), width = 11, height = 8.5)
-# p
-# dev.off()
+# ggsave(here("./figures/monthly_precip.svg"), plot = p, device = "svg",
+#        width = 6.5, height = 5, units = "in")
 
 #So there are some intuitive trends. The Pacific Highway sites are the wettest
 #and it seems like the winter months contribute most to this difference
@@ -498,15 +504,19 @@ p <- ggplot(mo_p, aes(x = Month, y = Prec_diff, color = site_id)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   theme_classic() +
   scale_color_grey () +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20),
-        legend.text = element_text(size = 16),
-        legend.title = element_text(size = 20)) + 
-  labs(x = "Month", y = "Difference from mean (mm)", color = "Site")
+  theme(axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold")) + 
+  labs(x = "Month", y = "Difference from mean (mm)", 
+       color = "Site") +
+  guides(color = guide_legend(ncol = 2))
 
-# pdf(here("./figures/precip_diff.pdf"), width = 11, height = 8.5)
-# p
-# dev.off()
+#Export this plot
+# ggsave(here("./figures/precip_diff.svg"), plot = p, device = "svg",
+#        width = 5, height = 3, units = "in")
 ```
 
 ##Assemble output tables
@@ -751,21 +761,24 @@ p <- ggplot(reg.struc, aes(x=dbh_bin, y=nstem_ha, fill=spp2)) +
   scale_fill_manual(values = colors_spp) + 
   guides(fill = guide_legend(ncol = 2)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
-        legend.position = c(0.88, 0.1),
+        legend.position = c(0.88, 0.05),
         legend.background = element_rect(fill = "lightgrey"),
         legend.key = element_rect(fill = "lightgrey", color = NA),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16),
-        strip.text = element_text(size = 16),
-        legend.text = element_text(size = 16),
-        legend.title = element_text(size = 20)) + 
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        strip.text = element_text(size = 11, family = "Times New Roman",
+                                  margin = margin(0.05, 0.05, 0.05, 0.05,
+                                                  unit = "cm")),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold")) + 
   labs(x = "DBH bin (cm)", y = "Trees per ha", fill = "Species")
 p
 
 #Export this plot
-# pdf(here("./figures/reg_comp.pdf"), width = 11, height = 8.5)
-# p
-# dev.off()
+# ggsave(here("./figures/reg_comp.svg"), plot = p, device = "svg",
+#        width = 6.5, height = 5, units = "in")
 
 #PLOT. 
 ##Basal area (per ha) vs. dbh bin, coloured by species
@@ -789,7 +802,7 @@ mat.struc <- mat.struc %>% filter(ba_m2_ha>0) #Remove rows with 0 because R will
 ##Number of stems (per ha) vs. dbh bin, coloured by species
 p <- ggplot(mat.struc, aes(x=dbh_bin2, y=nstem_ha, fill=spp2)) + 
   geom_bar(position="stack", stat="identity") +
-  facet_wrap(vars(site_id)) + 
+  facet_wrap(vars(site_id), scales = "free_x") + 
   theme_classic() +
   scale_fill_manual(values = colors_spp) +  
   guides(fill = guide_legend(ncol = 2)) +
@@ -797,18 +810,21 @@ p <- ggplot(mat.struc, aes(x=dbh_bin2, y=nstem_ha, fill=spp2)) +
         legend.position = c(0.88, 0.1),
         legend.background = element_rect(fill = "lightgrey"),
         legend.key = element_rect(fill = "lightgrey", color = NA),
-        axis.text = element_text(size = 13),
-        axis.title = element_text(size = 16),
-        strip.text = element_text(size = 16),
-        legend.text = element_text(size = 16),
-        legend.title = element_text(size = 20)) + 
+        axis.text = element_text(size = 10, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        strip.text = element_text(size = 11, family = "Times New Roman",
+                                  margin = margin(0.05, 0.05, 0.05, 0.05,
+                                                  unit = "cm")),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold")) + 
   labs(x = "DBH bin (cm)", y = "Trees per ha", fill = "Species")  
 p
 
 #Export this plot
-# pdf(here("./figures/mat_comp.pdf"), width = 11, height = 8.5)
-# p
-# dev.off()
+# ggsave(here("./figures/mat_comp.svg"), plot = p, device = "svg",
+#        width = 6.5, height = 8, units = "in")
 
 #PLOT. 
 ##Basal area (per ha) vs. dbh bin, coloured by species
@@ -854,6 +870,8 @@ mat_cs_the <- site %>% select(site_id)
 Get age estimates. Mature forest age estimates ar in the vri dataframe. 
 Load that. At some sitesmultiple vri polygons overlap the mature component. In 
 those instances, use the average age estimate. 
+Note: age estimates in cleaned vri dataset are corrected to account for 
+difference between the year vri is projected to and when the site was measured
 ```{r}
 vri <- read_csv(here("./data/cleaned/vri_c.csv"))
 
@@ -936,54 +954,61 @@ writing.
 ```
 
 #SECTION 3: Compare infection levels in mature trees
-We will do this using number of stems and basal area on a per hectare basis 
-as metrics. Using both is useful because basal area captures biases in 
-infection towards bigger or smaller trees. Generally we are trying to assess 
-whether the mature components are similar infection sources. 
+We will do this in two sections. The first section considers live and dead 
+trees and creates some exploratory graphs. The second section focuses on live
+trees and breaks infection down by crown class. 
 
-Amabalis fir (Ba) is another HDM host that was a significant portion of one site (ph_2). We are going to exclude it from the general summary stats and graphs but summarize infection in it at ph_2 to add to the text of the 
-results section. 
+Amabalis fir (Ba) is another HDM host that was a significant portion of one 
+site (ph_2). We are going to exclude it from the general summary stats and 
+graphs but summarize infection in it at ph_2 to add to the text of the 
+results section.
+
+##3.1 Infection in live and dead Hw
+We will use the number of stems and basal area on a per hectare basis 
+as metrics. Using both is useful because basal area captures biases in 
+infection towards bigger or smaller trees. Generall speaking with these 
+exploratory analyses, we are trying to assess whether the mature components are 
+similar infection sources. 
 
 Start by creating a dataframe to add results to and getting some basic metrics
 ```{r}
 #Create a dataframe to append results to
-mat_infection <- mat_cs %>% 
+m_i_ld_hw <- mat_cs %>% 
   select(site_id,  mat.nstem_ha, mat.ba_m2_ha)
 
 #Filter to just Hw
 mat.hw <- mature %>% filter(spp == "Hw")
 
 #Calculate Hw basal area and number of stems on per hectare basis
-mat.hw_summary <- mat.hw %>% 
+x <- mat.hw %>% 
   group_by(site_id) %>% 
   summarise(mat.hw_nstem_ha = sum(phf_site), 
             mat.hw_ba_m2_ha = sum (ba_m2*phf_site))
 
 #Add summary stats back to site data
-mat_infection <- left_join(mat_infection, mat.hw_summary, by="site_id")
+m_i_ld_hw <- left_join(m_i_ld_hw, x, by="site_id")
 ```
 
-##BA and # stems by P/A of HDM
+###BA and # stems by P/A of HDM
 Start simple and calculate the basal area and number of infected trees at 
 each site. 
 ```{r}
 #Because of the site with Ba that was infected, we'll calcualte total 
 #infection with Ba and Hw and with just Hw
-mat.inf <- mature %>% 
-  mutate(ba_m2_phf = ba_m2*phf_site) %>% 
+x <- mature %>% 
   filter(spp %in% c("Hw", "Ba") & hdm_pa =="Y") %>% 
   group_by(site_id) %>% 
-  summarise(mat.hw_inf_ba_m2_ha = sum(ba_m2_phf[spp == "Hw"]), 
+  summarise(mat.hw_inf_ba_m2_ha = sum(ba_m2_ph[spp == "Hw"]), 
             mat.hw_inf_nstem_ha = sum(phf_site[spp == "Hw"]),
-            mat.hwba_inf_ba_m2_ha = sum(ba_m2_phf), 
+            mat.hwba_inf_ba_m2_ha = sum(ba_m2_ph), 
             mat.hwba_inf_nstem_ha = sum(phf_site)
             ) 
 
 #Join variables back to working dataframe
-mat_infection <- left_join(mat_infection, mat.inf, by="site_id") 
+m_i_ld_hw <- left_join(m_i_ld_hw, x, by="site_id") 
 
 #Calculate the percent of all AND of Hw stems/BA infected
-mat_infection <- mat_infection %>% 
+m_i_ld_hw <- m_i_ld_hw %>% 
   mutate(mat.p_ba_inf = 100*mat.hwba_inf_ba_m2_ha/mat.ba_m2_ha,
          mat.p_nstem_inf = 100*mat.hwba_inf_nstem_ha/mat.nstem_ha,
          mat.p_hw_ba_inf = 100*mat.hw_inf_ba_m2_ha/mat.hw_ba_m2_ha,
@@ -994,32 +1019,32 @@ Take a look at the spread of infection across the sites by each metric.
 ```{r}
 #Summary tables sorted by percent of BA infected
 #Including Ba and Hw
-mat_infection %>% 
+mat_i_ld_hw %>% 
   select(site_id, mat.ba_m2_ha, mat.hw_ba_m2_ha, mat.hwba_inf_ba_m2_ha, 
          mat.p_ba_inf) %>% 
   arrange(mat.p_ba_inf) 
+
 #Focus on Hw (only difference is at ph_2)
-mat_infection %>% 
+mat_i_ld_hw %>% 
   select(site_id, mat.ba_m2_ha, mat.hw_ba_m2_ha, mat.hw_inf_ba_m2_ha, 
          mat.p_hw_ba_inf) %>% 
   arrange(mat.p_hw_ba_inf) 
 
 #Summary table sorted by percent of stems infected
 #Including Ba and Hw
-mat_infection %>% select(site_id, mat.nstem_ha, mat.hw_nstem_ha, 
+mat_i_ld_hw %>% select(site_id, mat.nstem_ha, mat.hw_nstem_ha, 
                          mat.hwba_inf_nstem_ha, mat.p_nstem_inf) %>% 
   arrange(mat.p_nstem_inf) 
 
 #Just Hw (only difference is at ph_2)
-mat_infection %>% select(site_id, mat.nstem_ha, mat.hw_nstem_ha, 
+mat_i_ld_hw %>% select(site_id, mat.nstem_ha, mat.hw_nstem_ha, 
                          mat.hw_inf_nstem_ha, mat.p_hw_nstem_inf) %>% 
   arrange(mat.p_hw_nstem_inf) 
 ```
 
-###Graph this breakdown
-Break down Hw BA and # of stems by site, presence/absence of HDM and dbh 
-class. This will provide a much more interpretable summary of how infection is
-distributed in the mature component. 
+Graph this breakdown. Break down Hw BA and # of stems by site, presence/absence 
+of HDM and dbhclass. This will provide a much more interpretable summary of how 
+infection is distributed in the mature component. 
 ```{r}
 mat.hdmpa_dbh <- mat.hw %>% 
   group_by(site_id, hdm_pa, dbh_bin2) %>%
@@ -1055,7 +1080,7 @@ ggplot(mat.hdmpa_dbh, aes(x=dbh_bin2, y=ba_m2_ha, fill=hdm_pa)) +
   scale_fill_manual(values = colors_hdm_pa, breaks = c("Y", "U", "N")) 
 ```
 
-##BA and # stems by DMR
+###BA and # stems by DMR
 This time, calculate the BA and number of stems on a per hectare basis in 
 each DMR class at each site. 
 ```{r}
@@ -1073,12 +1098,12 @@ mat.dmr <- pivot_wider(mat.dmr, names_from = dmr_f2,
                        values_from = c(hw_ba_m2_ha, hw_nstem_ha))
 
 #Join these back to results table
-mat_infection <- left_join(mat_infection, mat.dmr, by = "site_id")
+mat_i_ld_hw <- left_join(mat_i_ld_hw, mat.dmr, by = "site_id")
 ```
 
-###Graph this breakdown
-Break down Hw BA and # of stems (perha) by site, DMR and dbh  class. 
-Then graph it. 
+Graph this breakdown
+Break down Hw BA and # of stems (perha) by site, DMR and dbh  class. Then graph 
+it. 
 ```{r}
 mat.dmr_dbh <- mat.hw %>% 
   group_by(site_id, dmr_f2, dbh_bin2) %>%
@@ -1108,20 +1133,23 @@ p <- ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=nstem_ha, fill=dmr_f2)) +
   scale_fill_manual(values = colors_dmr_f2) + 
   guides(fill = guide_legend(ncol = 2)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
-        legend.position = c(0.88, 0.1),
+        legend.position = c(0.88, 0.02),
         legend.background = element_rect(fill = "lightgrey"),
         legend.key = element_rect(fill = "lightgrey", color = NA),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20),
-        strip.text = element_text(size = 16),
-        legend.text = element_text(size = 16),
-        legend.title = element_text(size = 20)) + 
-  labs(x = "DBH bin (cm)", y = "Trees per ha", fill = "Adapted DMR")
+        axis.text = element_text(size = 10, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        strip.text = element_text(size = 11, family = "Times New Roman",
+                                  margin = margin(0.05, 0.05, 0.05, 0.05,
+                                                  unit = "cm")),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold")) + 
+  labs(x = "DBH bin (cm)", y = "Trees per ha", fill = "HDM infection")
 
 #Export this plot
-# pdf(here("./figures/mat_inf_nstem_ha.pdf"), width = 11, height = 8.5)
-# p
-# dev.off()
+# ggsave(here("./figures/mat_inf_nstem_ha.svg"), plot = p, device = "svg",
+#        width = 6.5, height = 5.0)
 
 #By basal area
 levels(mat.dmr_dbh$dmr_f2)
@@ -1139,97 +1167,116 @@ ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=ba_m2_ha, fill=dmr_f2)) +
        fill = "Adapted DMR")
 ```
 
-##Brooming and stem infections
-Calculate the number of stems (per ha) with brooms and stem infections. 
-Restrict this to live trees because that is what we did in the regenerating 
-component. In the revised survey protocol, we would have broom/stem infection 
-data for the recently dead tree status trees but we were inconsistent about 
-that in our initial data collection. The live trees were consistently measured 
-for these fields. 
+##3.2 Infection in live Hw
+Here we will use a set of standard infection metrics to describe HDM infection
+in live Hw trees, broken down by crown class. 
+
 ```{r}
-x <- mat.hw %>% 
-  filter(status %in% c("LS", "LL", "LF")) %>% 
+#Subset dataset to live Hw
+mat.l_hw <- mat.hw %>% 
+  filter(status %in% live_stat)
+
+#Calculate infection metrics by crown class
+x <- mat.l_hw %>% 
+  group_by(site_id, crown_class_2) %>% 
+  summarise(nstem_ha_l_hw = sum(phf_site),
+            nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
+            hw_s_dmr = mean(dmr),
+            hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
+                            mean(dmr[dmr>=1]),
+                            0),
+            nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
+            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
+            nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
+  mutate(p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
+         p_l_hw_wb = 100*nstem_ha_l_hw_wb/nstem_ha_l_hw,
+         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw,
+         p_l_hw_dmr3= 100*nstem_ha_l_hw_dmr3/nstem_ha_l_hw) %>% 
+  select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, nstem_ha_l_hw_wb,
+            nstem_ha_l_hw_si, nstem_ha_l_hw_dmr3))
+
+#Repeat but ingnoring crown class
+x1 <- mat.l_hw %>% 
   group_by(site_id) %>% 
-  summarise(mat.l_hw_nstem_ha = sum(phf_site), 
-            mat.l_hw_nstem_wb = sum(phf_site[broom_pa == "Y"]),
-            mat.l_hw_nstem_si = sum(phf_site[stem_pa == "Y"]))
-  
-#Join these back to results table
-mat_infection <- left_join(mat_infection, x, by = "site_id")
+  summarise(nstem_ha_l_hw = sum(phf_site),
+            nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
+            hw_s_dmr = mean(dmr),
+            hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
+                            mean(dmr[dmr>=1]),
+                            0),
+            nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
+            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
+            nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
+  mutate(p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
+         p_l_hw_wb = 100*nstem_ha_l_hw_wb/nstem_ha_l_hw,
+         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw,
+         p_l_hw_dmr3= 100*nstem_ha_l_hw_dmr3/nstem_ha_l_hw) %>% 
+  select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, nstem_ha_l_hw_wb,
+            nstem_ha_l_hw_si, nstem_ha_l_hw_dmr3)) %>% 
+  mutate(crown_class_2 = "all")
 
-#Calculate percent of live trees with brooming and stem infections
-mat_infection <- mat_infection %>% 
-  mutate(mat.p_l_hw_nstem_ha_wb = 100*mat.l_hw_nstem_wb/mat.l_hw_nstem_ha,
-         mat.p_l_hw_nstem_ha_si = 100*mat.l_hw_nstem_si/mat.l_hw_nstem_ha)
-
-#Take a look
-mat_infection %>% select(mat.p_l_hw_nstem_ha_wb, 
-                         mat.p_l_hw_nstem_ha_si) %>% summary()
+#Combine
+mat_i_l_hw <- rbind(x, x1)
 ```
 
-##Stand DMR and DMI of each site
-  - Stand DMR = mean DMR of all live Hw trees (a proxy of infection 
-  severity at a site)
-  - DMI = mean DMR of all live trees with DMR >=1 (a proxy of infection 
-  severity where infection occurs). Note: using DMR >=1 is consistent with 
-  other literature, that didn't include the IBLC infection class. In the 
-  traditional application of the Hawksworth rating system, if a tree is
-  infected, its DMR >=1. 
+Plot these metrics. Here we will focus just on the codominant/dominant tree
+layer. 
 ```{r}
-mat.hw_s_dmr_dmi <- mat.hw %>% 
-  filter(status %in% c("LS", "LL", "LF")) %>% 
-  group_by(site_id) %>% 
-  summarise(mat.hw_s_dmr = mean(dmr),
-            mat.hw_s_dmi = mean(dmr[dmr >= 1]))
+#Lengthen the dataset
+x <- mat_i_l_hw %>%
+  filter(crown_class_2 == "C") %>% 
+  pivot_longer(cols = where(is.numeric),
+               names_to = "metric",
+               values_to = "value") %>% 
+  mutate(metric_group = if_else(str_detect(metric, "p"), "Incidence (%)", 
+                                "DMR"))
 
-#Join these back to results table
-mat_infection <- left_join(mat_infection, mat.hw_s_dmr_dmi, by = "site_id")
-
-#Inspect them
-mat_infection %>% select(site_id, mat.p_hw_nstem_inf, mat.hw_s_dmr, 
-                         mat.hw_s_dmi)
+#Plot
+ggplot(x, aes(x = metric, y = value)) + 
+  facet_wrap(~metric_group, scales = "free") +
+  expand_limits(y = c(0,6)) +
+  geom_jitter(width = 0.1,
+              height = 0) + 
+  geom_boxplot(outliers = F, fill = NA) +
+  theme_classic() 
 ```
 
 ##Summary table for thesis
-Compile a summary table for thesis that summarizes site level estimates of key
-infection variables. 
+Compile a summary table for thesis with infection metrics in live Hw by crown
+class. 
   - Variables: 
-    - basal area infected (live and dead Hw)
-    - percent live and dead Hw stems infected 
-    - average DMR (live Hw)
+    - Percent live Hw trees infected 
+    - Percent live Hw with DMR >= 3
+    - Percent of live Hw trees with brooms
+    - Percent of live Hw trees with stem infection
+    - Average DMR (live Hw)
     - DMI (live Hw dmr>=1)
-    - Percent of live Hw stems with brooms
-    - Percent of live Hw stems with stem infection
   - Structure:
-    - Rows: variables
-    - Columns: mean, median, range
+    - Rows: variables (mean, median, min, max)
+    - Columns: crown class
 ```{r}
-#Pull out variables from mat_infection table
-str(mat_infection)
-mat_inf2 <- mat_infection %>% 
-  select(mat.hw_inf_ba_m2_ha, mat.p_hw_nstem_inf, mat.hw_s_dmr, mat.hw_s_dmi, 
-         mat.p_l_hw_nstem_ha_wb, mat.p_l_hw_nstem_ha_si)
-
-#Summarise estimates across sites
-mat_inf2 <- mat_inf2 %>% 
-  summarise(across(everything(), list(
+mat_i_l_hw_sum <- mat_i_l_hw %>% 
+  group_by(crown_class_2) %>% 
+  summarise(across(where(is.numeric), list(
     mean = ~mean(.),
     median = ~median(.),
     min = ~min(.),
     max = ~max(.)
-  ), .names = "{.col}_{.fn}")) %>%
-  pivot_longer(
-    cols = everything(),
-    names_to = c("Variable", "Stat"),
-    names_pattern = "(.+)_(.+)"
-  ) %>%
-  pivot_wider(
-    names_from = Stat,
-    values_from = value
-  ) %>% 
-  mutate(across(where(is.numeric), ~ round(., 2))) %>% 
-  mutate(range = paste0("[", min, "-", max, "]")) %>% 
-  select(-c(min, max))
+  ), .names = "{.col}_{.fn}"))
+
+#Reorder columns
+names(mat_i_l_hw_sum)
+mat_i_l_hw_sum <- mat_i_l_hw_sum %>% 
+   mutate(crown_class_2 = if_else(crown_class_2 == "all", "All",
+                                 crown_class_2)) %>% 
+  arrange(crown_class_2) %>% 
+  select(crown_class_2, starts_with("p_l_hw_inf"),
+         starts_with("p_l_hw_dmr3"),
+         starts_with("p_l_hw_wb"), starts_with("p_l_hw_si"),
+         starts_with("hw_s_dmr"), starts_with("hw_s_dmi"))
+
+#Export
+# write_csv(mat_i_l_hw_sum, here("./tables/mat_inf_l_hw.csv"))
 ```
 
 ##Amabalis fir, ph2 mature
@@ -1237,21 +1284,18 @@ Amabalis fir is rated as an occasional host of HDM (Mathiasen, 2021) and was
 only present at one site (ph_2). Generate/call some summary stats to report its 
 infection at that site. Stats:
   -Site basal area/ha
-  -Site stem density/ha
-  -Ba basal area/ha
-  -Ba stem density/ha
-  -Ba basal area/ha infected
-  -Ba stem density/ha infected
-  -Percent of site basal area made up of Ba
-  -Percent of site stems made up of Ba
-  -Percent of Ba basal area infected
-  -Percent of Ba stems infected
-  -Average Ba DMR
-  -Average Ba DMI
-Compare all these things to Hw, as a reference point. 
+  -Site trees/ha
+  -Af/Hw basal area/ha
+  -Af/Hw trees/ha
+  -Percent of site basal area made up of Af/Hw
+  -Percent of site stems made up of Af/Hw
+  -Incidence of infection in live Af/Hw trees
+  -Af/Hw average DMR
+  -Af/Hw DMI
 
-Note: for clarity, Ba is abbreviated with af (Amabalis Fir) to avoid confusion
-with basal area. 
+Note: for clarity, Amabilis fir two letter code is Ba. But to avoid confusion 
+with basal area, it is abbreviated with af (except when 
+the code is calling the species code in the data). 
 ```{r}
 #Filter mature dataset to just Ba
 mat.af <- mature %>% filter(spp == "Ba")
@@ -1260,21 +1304,31 @@ unique(mat.af$site_id) #only at ph_2
 
 #Generate some summary stats:
 ph2.mat <- mature %>% 
-  mutate(ba_m2_phf = ba_m2*phf_site) %>% 
   filter(site_id == "ph_2") %>% 
   summarise(nstem_ha = sum(phf_site),
             af_nstem_ha = sum(phf_site[spp == "Ba"]),
-            af_inf_nstem_ha = sum(phf_site[spp == "Ba" & hdm_pa == "Y"]),
-            ba_m2_ha = sum(ba_m2_phf),
-            af_ba_m2_ha = sum(ba_m2_phf[spp == "Ba"]),
-            af_inf_ba_m2_ha = sum(ba_m2_phf[spp == "Ba" & hdm_pa == "Y"]),
+            hw_nstem_ha = sum(phf_site[spp == "Hw"]),
+            ba_m2_ha = sum(ba_m2_ph),
+            af_ba_m2_ha = sum(ba_m2_ph[spp == "Ba"]),
+            hw_ba_m2_ha = sum(ba_m2_ph[spp == "Hw"]),
+            l_af_nstem_ha = sum(phf_site[status %in% live_stat & spp == "Ba"]),
+            l_hw_nstem_ha = sum(phf_site[status %in% live_stat & spp == "Hw"]),
+            li_af_nstem_ha = sum(phf_site[status %in% live_stat &
+                                            spp == "Ba" & hdm_pa == "Y"]),
+            li_hw_nstem_ha = sum(phf_site[status %in% live_stat & 
+                                            spp == "Hw" & hdm_pa == "Y"]),
             s.af_dmr = mean(dmr[status %in% live_stat & spp == "Ba"]),
+            s.hw_dmr = mean(dmr[status %in% live_stat & spp == "Hw"]),
             s.af_dmi = mean(dmr[status %in% live_stat & spp == "Ba" & 
+                                  dmr >= 1]),
+            s.hw_dmi = mean(dmr[status %in% live_stat & spp == "Hw" & 
                                   dmr >= 1])) %>% 
   mutate(p_nstem_af = 100*af_nstem_ha/nstem_ha,
+         p_nstem_hw = 100*hw_nstem_ha/nstem_ha,
          p_ba_af = 100*af_ba_m2_ha/ba_m2_ha,
-         p_af_nstem_inf = 100*af_inf_nstem_ha/af_nstem_ha,
-         p_af_ba_inf = 100*af_inf_ba_m2_ha/af_ba_m2_ha)
+         p_ba_hw = 100*hw_ba_m2_ha/ba_m2_ha,
+         p_l_af_nstem_inf = 100*li_af_nstem_ha/l_af_nstem_ha,
+         p_l_hw_nstem_inf = 100*li_hw_nstem_ha/l_hw_nstem_ha)
 
 #Compare with Hw at site
 ##What is site total nstem_ha and ba_ha
@@ -1282,37 +1336,21 @@ ph2.mat %>% select(nstem_ha, ba_m2_ha)
 
 ##How much of the site nstem_ha and ba_ha are made of of Hw and Ba?
 ###The two spp are pretty similar
-mat_cs %>% 
-  filter(site_id=="ph_2") %>% 
-  select(mat.p_stem_hw, mat.p_ba_hw)
-ph2.mat %>% select(p_nstem_af, p_ba_af)
+ph2.mat %>% select(p_nstem_af, p_nstem_hw, p_ba_af, p_ba_hw)
 
-##How much of the Hw and Ba at each site are infected?
+##What % of live Hw and Ba at each site are infected?
 ###Infection rates higher in Hw
-mat_infection %>% filter(site_id == "ph_2") %>% 
-  select(mat.p_hw_nstem_inf, mat.p_hw_ba_inf)
-ph2.mat %>% select(p_af_nstem_inf, p_af_ba_inf)
+ph2.mat %>% select(p_l_af_nstem_inf, p_l_hw_nstem_inf)
 
 #What is the mean DMR and DMI of Hw and Ba?
 ###Infection more severe in Hw than Ba
-mat_infection %>% filter(site_id == "ph_2") %>% 
-  select(mat.hw_s_dmr, mat.hw_s_dmi)
-ph2.mat %>% select(s.af_dmr, s.af_dmi)
+ph2.mat %>% select(s.af_dmr, s.hw_dmr, s.af_dmi, s.hw_dmi)
 
 #There were some large cedar at this site. Take a look at a few of them to see
 #what the range of dbh is
 mature %>% 
   filter(site_id == "ph_2" & spp == "Cw" & 
-           crown_class_2 == "C")
-```
-
-##Export tables
-```{r}
-#Table with all infection summary metrics
-# write_csv(mat_infection, here("./tables/mat_infection.csv"))
-
-#Table for subset to report in thesis
-# write_csv(mat_inf2, here("./tables/mat_infection_thesis.csv"))
+           crown_class_2 == "C") %>% head()
 ```
 
 #SECTION 4 - Compare infection levels in regen trees
@@ -1321,7 +1359,7 @@ some code at the end that creates some summary statistics for Amabalis fir (Ba)
 at ph_2. 
 
 It is broken into two major subsections. The first that looks at infections 
-across live and dead trees hemlocl, while the second looks just at live 
+across live and dead trees hemlock, while the second looks just at live 
 hemlock. 
 
 Both subsections break summary stats down into intervals from the edge. 
@@ -1363,7 +1401,7 @@ regen_15 <- regen_15 %>% filter(resid == "N")
 regen_50 <- regen_50 %>% filter(resid == "N")
 ```
 
-##Infection in live and dead regen Hw
+##4.1 Infection in live and dead regen Hw
 Create an object to append results to and subset the two working 
 dataframes to just Hw trees. 
 ```{r}
@@ -1589,40 +1627,43 @@ p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=ba_m2_ha, fill=dmr_f2)) +
   guides(fill = guide_legend(ncol = 1))
 
 #Export this plot
-pdf(here("./figures/reg_dmr_disty_ba.pdf"), width = 11, height = 8.5)
-p
-dev.off()
+# pdf(here("./figures/reg_dmr_disty_ba.pdf"), width = 11, height = 8.5)
+# p
+# dev.off()
 
 #By # of stems
 p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem_ha, fill=dmr_f2)) + 
   geom_bar(position=position_stack(reverse = TRUE), stat="identity") +
   geom_text(aes(y = lab_pos_nstem, label = tr_end, vjust = -.5), 
-            size = 5) +
+            size = 4, family = "Times New Roman") +
   theme_classic() +
   facet_wrap(vars(site_id)) + 
   scale_fill_manual(values = colors_dmr_f2) + 
   ylim(0, 800) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
-        legend.position = c(0.88, 0.1),
+        legend.position = c(0.88, 0.05),
         legend.background = element_rect(fill = "lightgrey"),
         legend.key = element_rect(fill = "lightgrey", color = NA),
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 16),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20),
-        strip.text = element_text(size = 16)) + 
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                    face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        axis.text = element_text(size = 10, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        strip.text = element_text(size = 11, family = "Times New Roman",
+                                  margin = margin(0.05, 0.05, 
+                                                  0.05, 0.05, "cm"))) + 
   labs(x = "Distance from edge (m)", 
        y = "Trees per ha", 
-       fill = "Adapted DMR") + 
+       fill = "HDM infection") + 
   guides(fill = guide_legend(ncol = 2))
 
 #Export this plot
-pdf(here("./figures/reg_dmr_disty_nstem.pdf"), width = 11, height = 8.5)
-p
-dev.off()
+ggsave(here("./figures/reg_dmr_disty_nstem.svg"), plot = p, device = "svg",
+       width = 6.5, height = 5, units = "in")
 ```
 
-##Infection in live regen Hw
+##4.2 Infection in live regen Hw
 When comparing to other papers, it became important to have infection metrics
 for live trees and broken down by crown class. Most other papers report 
 infection metrics for the something analagous to the live codominant layer so 
@@ -1638,33 +1679,9 @@ regen_50_l <- regen_50 %>%
   filter(spp == "Hw" & status %in% live_stat)
 ```
 
-###Summary table for thesis
-Variables:
-  - Percent of trees simulated
-  - Percent of Hw stems infected
-  - Average DMR
-  - DMI
-  - Percent Hw stems with brooms
-  - Percent Hw stems with stem infections
-Structure: 
-  - Rows: 
-    - Interval (distnace from the edge; all, 0-15m or 0-50)
-    - Crown class (all, C, I, S)
-  - Columns: metrics
-  
-For reference: 
-  - Average DMR = mean DMR of all live hemlock trees (an proxy of infection 
-  severity at a site)
-  - DMI = mean DMR of all live hemlock trees with dmr>=1 (a proxy of infection 
-  severity where infection occurs)
-
-Start with metrics that are summarized for each section x crown class 
-combination: percent of Hw stems infected, average Hw DMR and DMI and the 
-percent infected Hw with brooms and stem infections. Summarize them at the
-site level first then again across sites, which is what will go in the 
-summary table. 
+Summarize infection at the site level
 ```{r}
-#Calcualte summary metrics at the site level
+#Calcualte summary metrics at the site level broken down by crown class
 #For 0 - 15m
 x <- regen_15_l %>% 
   group_by(site_id, crown_class_2) %>% 
@@ -1675,12 +1692,15 @@ x <- regen_15_l %>%
                             mean(dmr[dmr>=1]),
                             0),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
-            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
+            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
+            nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
   mutate(p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
          p_l_hw_wb = 100*nstem_ha_l_hw_wb/nstem_ha_l_hw,
-         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
+         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw,
+         p_l_hw_dmr3= 100*nstem_ha_l_hw_dmr3/nstem_ha_l_hw) %>% 
   select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, nstem_ha_l_hw_wb,
-            nstem_ha_l_hw_si))
+            nstem_ha_l_hw_si, nstem_ha_l_hw_dmr3)) %>% 
+  mutate(sec = "0_15")
 
 #For 0-50m 
 x1 <- regen_50_l %>% 
@@ -1692,186 +1712,232 @@ x1 <- regen_50_l %>%
                             mean(dmr[dmr>=1]),
                             0),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
-            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
+            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
+            nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
   mutate(p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
          p_l_hw_wb = 100*nstem_ha_l_hw_wb/nstem_ha_l_hw,
-         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
+         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw,
+         p_l_hw_dmr3= 100*nstem_ha_l_hw_dmr3/nstem_ha_l_hw) %>% 
   select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, nstem_ha_l_hw_wb,
-            nstem_ha_l_hw_si))
+            nstem_ha_l_hw_si, nstem_ha_l_hw_dmr3)) %>% 
+  mutate(sec = "0_50")
 
-#Summarize each variable across sites
-#For 0-15m
-x <- x %>% 
-  group_by(crown_class_2) %>% 
-  summarise(across(where(is.numeric), list(
-    mean = ~mean(.),
-    median = ~median(.),
-    min = ~min(.),
-    max = ~max(.)
-  ), .names = "{.col}_{.fn}")) %>% 
-  pivot_longer(
-    cols = where(is.numeric), 
-    names_to = c("variable", "metric"),
-    names_pattern = "^(.*)_(mean|median|min|max)$",
-    values_to = "value"
-  ) %>%
-  pivot_wider(names_from = metric, 
-              values_from = value) %>% 
-  mutate(across(where(is.numeric), ~round(.x, 1))) %>% 
-  mutate(range = paste0("[", min, "-", max, "]")) %>% 
-  select(-c(min, max)) %>% 
-  pivot_wider(names_from = variable,
-              values_from = c(mean, median, range))
-
-#For 0-50m
-x1 <- x1 %>% 
-  group_by(crown_class_2) %>% 
-  summarise(across(where(is.numeric), list(
-    mean = ~mean(.),
-    median = ~median(.),
-    min = ~min(.),
-    max = ~max(.)
-  ), .names = "{.col}_{.fn}")) %>% 
-  pivot_longer(
-    cols = where(is.numeric), 
-    names_to = c("variable", "metric"),
-    names_pattern = "^(.*)_(mean|median|min|max)$",
-    values_to = "value"
-  ) %>%
-  pivot_wider(names_from = metric, 
-              values_from = value) %>% 
-  mutate(across(where(is.numeric), ~round(.x, 1))) %>% 
-  mutate(range = paste0("[", min, "-", max, "]")) %>% 
-  select(-c(min, max)) %>% 
-  pivot_wider(names_from = variable,
-              values_from = c(mean, median, range))
-
-#Join the two datasets
-x$sec <- "0_15"
-x1$sec <- "0_50"
-reg_i_live <- bind_rows(x, x1) %>% 
-  relocate(sec, .before = everything())
-```
-
-That is super. Now repeat this for the same variables but ignoring crown 
-class. Then append that to the working dataframe. 
-```{r}
+#Do the same thing but ignoring crown class
 #Calculate each variable at the site level
 #For 0-15m
-x <- regen_15_l %>% 
+x2 <- regen_15_l %>% 
   group_by(site_id) %>% 
   summarise(nstem_ha_l_hw = sum(phf_site),
-            nstem_ha_l_hw_sim = sum(phf_site[sim_tree =="Y"]),
             nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
             hw_s_dmr = mean(dmr),
             hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
                             mean(dmr[dmr>=1]),
                             0),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
-            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
-  mutate(p_sim = 100*nstem_ha_l_hw_sim/nstem_ha_l_hw, 
-         p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
+            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
+            nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
+  mutate(p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
          p_l_hw_wb = 100*nstem_ha_l_hw_wb/nstem_ha_l_hw,
-         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
-  select(-c(nstem_ha_l_hw, nstem_ha_l_hw_sim, nstem_ha_l_hw_inf, 
-            nstem_ha_l_hw_wb, nstem_ha_l_hw_si))
+         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw,
+         p_l_hw_dmr3= 100*nstem_ha_l_hw_dmr3/nstem_ha_l_hw) %>% 
+  select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, 
+            nstem_ha_l_hw_wb, nstem_ha_l_hw_si, nstem_ha_l_hw_dmr3)) %>% 
+  mutate(crown_class_2 = "all", sec = "0_15")
+  
 
 #For 0-50m
-x1 <- regen_50_l %>% 
+x3 <- regen_50_l %>% 
   group_by(site_id) %>% 
   summarise(nstem_ha_l_hw = sum(phf_site),
-            nstem_ha_l_hw_sim = sum(phf_site[sim_tree == "Y"]),
             nstem_ha_l_hw_inf = sum(phf_site[hdm_pa=="Y"]),
             hw_s_dmr = mean(dmr),
             hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
                             mean(dmr[dmr>=1]),
                             0),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
-            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"])) %>% 
-  mutate(p_sim = 100*nstem_ha_l_hw_sim/nstem_ha_l_hw, 
-         p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
+            nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
+            nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
+  mutate(p_l_hw_inf = 100*nstem_ha_l_hw_inf/nstem_ha_l_hw,
          p_l_hw_wb = 100*nstem_ha_l_hw_wb/nstem_ha_l_hw,
-         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw) %>% 
-  select(-c(nstem_ha_l_hw, nstem_ha_l_hw_sim, nstem_ha_l_hw_inf, 
-            nstem_ha_l_hw_wb, nstem_ha_l_hw_si))
+         p_l_hw_si = 100*nstem_ha_l_hw_si/nstem_ha_l_hw,
+         p_l_hw_dmr3= 100*nstem_ha_l_hw_dmr3/nstem_ha_l_hw) %>% 
+  select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, 
+            nstem_ha_l_hw_wb, nstem_ha_l_hw_si, nstem_ha_l_hw_dmr3)) %>% 
+  mutate(crown_class_2 = "all", sec = "0_50")
 
-#Summarize variables across sites
-#For 0-15m
-x <- x %>% 
-  summarise(across(where(is.numeric), list(
-    mean = ~mean(.),
-    median = ~median(.),
-    min = ~min(.),
-    max = ~max(.)
-  ), .names = "{.col}_{.fn}")) %>%
-  pivot_longer(
-    cols = where(is.numeric), 
-    names_to = c("variable", "metric"),
-    names_pattern = "^(.*)_(mean|median|min|max)$",
-    values_to = "value"
-  ) %>%
-  pivot_wider(names_from = metric, 
-              values_from = value) %>% 
-  mutate(across(where(is.numeric), ~round(.x, 1))) %>% 
-  mutate(range = paste0("[", min, "-", max, "]")) %>% 
-  select(-c(min, max)) %>% 
-  pivot_wider(names_from = variable,
-              values_from = c(mean, median, range))
-
-#For 0-50m
-x1 <- x1 %>% 
-  summarise(across(where(is.numeric), list(
-    mean = ~mean(.),
-    median = ~median(.),
-    min = ~min(.),
-    max = ~max(.)
-  ), .names = "{.col}_{.fn}")) %>%
-  pivot_longer(
-    cols = where(is.numeric), 
-    names_to = c("variable", "metric"),
-    names_pattern = "^(.*)_(mean|median|min|max)$",
-    values_to = "value"
-  ) %>%
-  pivot_wider(names_from = metric, 
-              values_from = value) %>% 
-  mutate(across(where(is.numeric), ~round(.x, 1))) %>% 
-  mutate(range = paste0("[", min, "-", max, "]")) %>% 
-  select(-c(min, max)) %>% 
-  pivot_wider(names_from = variable,
-              values_from = c(mean, median, range))
-
-#Add a columns identifying section and crown class
-x <- x %>% 
-  mutate(sec = "0_15", 
-         crown_class_2 = "all")
-x1 <- x1 %>% 
-  mutate(sec = "0_50", 
-         crown_class_2 = "all")
-
-#Bind this to the working dataframe
-reg_i_live <- bind_rows(reg_i_live, x, x1)
+#Join the three dataframes
+ri_l_hw <- rbind(x, x1, x2, x3)
 ```
 
-Good, format and clean up. 
+###Plot for thesis
+Here we will combine the summary metrics for the mature component and the ones
+for the regenertaing component into one plot. 
 ```{r}
-names(reg_i_live)
-#Reorder columns
-reg_i_live <- reg_i_live %>% 
-  select(sec, crown_class_2, ends_with("p_sim"), 
-         ends_with("p_l_hw_inf"), ends_with("s_dmr"),
-         ends_with("s_dmi"), ends_with("p_l_hw_wb"),
-         ends_with("p_l_hw_si"))
+#Compare tables in mature and regen component to figure out what we need to 
+#do to align them
+#Regen table has an extra column called "sec". Need to make a variable 
+#identifying three groups: mature, regen from 0-15m and regen from 0-50m
+head(mat_i_l_hw)
+head(ri_l_hw)
 
-#Reorder rows
-reg_i_live <- reg_i_live %>% 
-  mutate(crown_class_2 = as.character(crown_class_2)) %>% 
-  mutate(crown_class_2 = if_else(crown_class_2 == "C", 
-                                 "D_C", 
+#Combine the tables
+x <- ri_l_hw %>% 
+  mutate(tree_group =paste0("regen_", sec)) %>% 
+  select(-sec) %>% 
+  mutate(tree_group = case_match(tree_group,
+                                 "regen_0_15" ~ "Regen 0-15 m",
+                                 "regen_0_50" ~ "Regen 0-50 m"))
+x1 <- mat_i_l_hw %>% 
+  mutate(tree_group = "Mature")
+x2 <- rbind(x, x1)
+
+#Filter the table above to the co-dominant tree layer
+x2 <- x2 %>% 
+  filter(crown_class_2 == "C")
+
+#Create a variable grouping the infection metrics by their measurement scale
+#Two scales: metrics based on incidence (%) and those based on DMR
+#Lengthen the dataset
+x2 <- x2 %>% 
+  pivot_longer(cols = where(is.numeric),
+               names_to = "metric",
+               values_to = "value") %>% 
+  mutate(metric_group = if_else(str_detect(metric, "p"), "Incidence (%)", 
+                                "DMR"))
+
+#Rename and order variables so they are legible and display in specific order
+#in the plot
+unique(x2$metric)
+x2 <- x2 %>% 
+  mutate(metric = case_match(metric,
+                             "hw_s_dmr" ~ "Average DMR",
+                             "hw_s_dmi" ~ "DMI",
+                             "p_l_hw_inf" ~ "% trees infected",
+                             "p_l_hw_wb" ~ "% brooming",
+                             "p_l_hw_si" ~ "% stem infections",
+                             "p_l_hw_dmr3" ~ "% trees DMR ≥ 3")) %>% 
+  mutate(metric = factor(metric, levels = c("% trees infected", 
+                                            "% trees DMR ≥ 3",
+                                            "% brooming",
+                                            "% stem infections", 
+                                            "Average DMR",
+                                            "DMI")),
+         metric_group = factor(metric_group, levels = c("Incidence (%)",
+                                                        "DMR")))
+
+#Subset dataframe to metrics that are incidence based and dmr based
+x3 <- x2 %>% 
+  filter(metric_group == "Incidence (%)")
+x4 <- x2 %>% 
+  filter(metric_group == "DMR")
+
+
+#Plot
+p1 <- ggplot(x3, aes(x = metric, y = value, shape = tree_group)) + 
+  geom_point(position = position_dodge(width = 0.75),
+             alpha = 0.5) + 
+  geom_boxplot(outliers = F, fill = NA,
+               show.legend = F) +
+  theme_classic() +
+  labs(x = NULL,
+       y = "Incidence (%)",
+       shape = "Tree group") +
+  theme(axis.text.x = element_text(angle = 35, hjust=1, size = 11, 
+                                   family = "Times New Roman",
+                                   colour = "black"),
+        axis.text.y = element_text(size = 11, 
+                                   family = "Times New Roman",
+                                   colour = "black"),
+        strip.text = element_text(size = 11, family = "Times New Roman"), 
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                    face = "bold"),
+        legend.position = "bottom")
+
+p2 <-ggplot(x4, aes(x = metric, y = value, shape = tree_group)) + 
+  geom_point(position = position_dodge(width = 0.75),
+             alpha = 0.5) + 
+  geom_boxplot(outliers = F, fill = NA,
+               show.legend = F) +
+  lims(y = c(0, 6)) +
+  theme_classic() +
+  labs(x = NULL,
+       y = "DMR",
+       shape = "Tree group") +
+  theme(axis.text.x = element_text(angle = 35, hjust=1, size = 11, 
+                                   family = "Times New Roman",
+                                   colour = "black"),
+        axis.text.y = element_text(size = 11, 
+                                   family = "Times New Roman"),
+        strip.text = element_text(size = 11, family = "Times New Roman"), 
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                    face = "bold"),
+        legend.position = "bottom")
+
+p3 <- ggarrange(p1, p2, ncol = 2, common.legend = T, align = "h",
+                widths = c(1.5, 1), labels = "AUTO", vjust = 1.2, 
+                hjust = -0.1, font.label = list(size = 13, 
+                                                family = "Times New Roman",
+                                                face = "bold"),
+                legend = "bottom")
+
+#Save
+# ggsave(here("./figures/inf_metrics.svg"), plot = p3, device = "svg",
+#        width = 6.5, height = 4, units = "in")
+```
+
+###Summary table for thesis
+For the table,
+Variables:
+  - Percent of Hw stems infected
+  - Percent Hw trees DMR ≥ 3 (where growth impacts occur)
+  - Percent Hw stems with brooms
+  - Percent Hw stems with stem infections
+  - Average DMR
+  - DMI
+Structure: 
+  - Rows: 
+    - Interval (distnace from the edge; all, 0-15m or 0-50)
+    - Crown class (all, C, I, S)
+  - Columns: variables (mean, median, min, max)
+  
+For reference: 
+  - Average DMR = mean DMR of all live hemlock trees (an proxy of infection 
+  severity at a site)
+  - DMI = mean DMR of all live hemlock trees with dmr>=1 (a proxy of infection 
+  severity where infection occurs)
+```{r}
+#Summarize across sites, grouping by interval and crown class
+ri_l_hw_sum <- ri_l_hw %>% 
+  group_by(sec, crown_class_2) %>% 
+  summarise(across(where(is.numeric), list(
+    mean = ~mean(.),
+    median = ~median(.),
+    min = ~min(.),
+    max = ~max(.)
+  ), .names = "{.col}_{.fn}")) %>% 
+  mutate(crown_class_2 = if_else(crown_class_2 == "all", "All",
                                  crown_class_2)) %>% 
-  mutate(sec = factor(sec, levels = c("all", "0_15", "0_50")),
-         crown_class_2 = factor(crown_class_2, 
-                                levels = c("all", "D_C", "I", "S"))) %>% 
   arrange(sec, crown_class_2)
+
+#Sort rows and columns
+names(ri_l_hw_sum)
+ri_l_hw_sum <- ri_l_hw_sum %>% 
+   mutate(crown_class_2 = if_else(crown_class_2 == "all", "All",
+                                 crown_class_2)) %>% 
+  arrange(sec, crown_class_2) %>% 
+  select(sec, crown_class_2, starts_with("p_l_hw_inf"), 
+         starts_with("p_l_hw_dmr3"),
+         starts_with("p_l_hw_wb"), starts_with("p_l_hw_si"),
+         starts_with("hw_s_dmr"), starts_with("hw_s_dmi"))
+
+#Export
+# write_csv(ri_l_hw_sum, here("./tables/reg_inf_hw_live.csv"))
 ```
 
 ###Distance of spread
@@ -1940,7 +2006,7 @@ reg.vpos <- regen %>%
   mutate(resid = if_else(tree_id %in% resid_rm, "Y", "N")) %>% 
   filter(resid == "N" & spp == "Hw" & status %in% live_stat &
            hdm_pa == "Y" & dmr >= 1) %>% 
-  select(tree_id, site_id, crown_class, dmr, dmr_l, dmr_m, dmr_u)
+  select(tree_id, site_id, crown_class_2, dmr, dmr_l, dmr_m, dmr_u)
 
 #Divide each crown third rating by the total DMR to get the crown third 
 #contribution
@@ -1961,7 +2027,7 @@ reg.vpos <- reg.vpos %>%
 #crown class - dmr -crown third combination. Within each group, it takes each
 #row and averages the contribution value for each crown third. 
 reg.vpos <- reg.vpos %>% 
-  group_by(crown_class, dmr, ct) %>% 
+  group_by(crown_class_2, dmr, ct) %>% 
   summarise(cont = mean(cont),
             n_tree = n())
 ```
@@ -1975,63 +2041,48 @@ Graph this distribution
 reg.vpos <- reg.vpos %>% 
   mutate(n_tree = if_else(ct == "l", n_tree, NA))
 
-#Make crwon third a factor
+#Reorder crown third and crown class as factors for plotting
 reg.vpos <- reg.vpos %>% 
   mutate(ct = case_match(ct, 
                          "l" ~ "lower",
                          "m" ~ "middle",
-                         "u" ~ "upper")) %>% 
+                         "u" ~ "upper"),
+         crown_class_2= case_match(crown_class_2,
+                                   "C" ~ "Dominant/codominant",
+                                   "I" ~ "Intermediate",
+                                   "S" ~ "Suppressed")) %>% 
   mutate(ct = factor(ct, levels = c("upper", "middle", "lower")),
-         crown_class = factor(crown_class, c("D", "C", "I", "S")))
+         crown_class_2 = factor(crown_class_2, c("Dominant/codominant", 
+                                             "Intermediate", 
+                                             "Suppressed")))
 
 p <- ggplot(reg.vpos, aes(x = dmr, y = cont, fill = ct)) + 
   geom_bar(stat = "identity", position = "stack") + 
-  geom_text(aes(label = n_tree), y = 1, vjust = -0.5) +
-  facet_wrap(~crown_class) +
+  geom_text(aes(label = n_tree), y = 1, vjust = -0.5,
+            family = "Times New Roman") +
+  facet_wrap(~crown_class_2, ncol = 3) +
   theme_classic() + 
   scale_y_continuous(limits = c(0, 1.1), breaks = c(0, 0.25, 0.5, 0.75, 1)) +
   scale_fill_manual(values = colors_ct) + 
-  theme(legend.background = element_rect(fill = "lightgrey"),
+  theme(legend.position = "right",
+        legend.background = element_rect(fill = "lightgrey"),
         legend.key = element_rect(fill = "lightgrey", color = NA),
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 16),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20),
-        strip.text = element_text(size = 16)) + 
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                    face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        axis.text = element_text(size = 10, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        strip.text = element_text(size = 11, family = "Times New Roman",
+                                  margin = margin(0.05, 0.05, 
+                                                  0.05, 0.05, "cm"))) + 
   labs(x = "DMR", 
        y = "Mean crown third contribution", 
        fill = "Crown third")
-
+p
 #Export this plot
-# pdf(here("./figures/reg_vdist_inf.pdf"), width = 10, height = 8.5)
-# p
-# dev.off()
-```
-
-##Percent of trees with growth impacts
-Growth impacts start to occur at DMR >=3. See what percent of codominant Hw
-at each site are past that threshold. 
-```{r}
-#Within 15m calculate the number of dominant/codominant live Hw and the 
-#percent of those with DMR>=3
-dmr3_15 <- regen_15_l %>% 
-  filter(crown_class_2 == "C") %>% 
-  group_by(site_id) %>% 
-  summarise(n_dc_hw = n(),
-            n_dc_hw_dmr3 = sum(dmr >= 3)) %>% 
-  mutate(p_dmr3 = 100*n_dc_hw_dmr3/n_dc_hw)
-
-#Same but over 0-50m
-dmr3_50 <- regen_50_l %>% 
-  filter(crown_class_2 == "C") %>% 
-  group_by(site_id) %>% 
-  summarise(n_dc_hw = n(),
-            n_dc_hw_dmr3 = sum(dmr >= 3)) %>% 
-  mutate(p_dmr3 = 100*n_dc_hw_dmr3/n_dc_hw)
-
-#Take a look at these
-summary(dmr3_15)
-summary(dmr3_50)
+# ggsave(here("./figures/reg_vdist_inf.svg"), plot = p, device = "svg",
+#        width = 6.5, height = 4, units = "in")
 ```
 
 ##Export tables
@@ -2046,28 +2097,23 @@ Save the tables created in this section.
 
 ##Amabalis fir, ph2 regen 0-15m
 Generate some summary stats to report on infection in Amabalis fir at the ph_2
-site, mirroring the stats created for the mature component. In thesis, chose
-to report incidence as a percent of live Hw, so do that here for Ba too for
-consistency. Use the 0-15m interval. Stats:
-  -Site basal area/ha
-  -Site stem density/ha
-  -Ba basal area/ha
-  -Ba stem density/ha
-  -Live Ba stem density/ha
-  -Ba basal area/ha infected (live and dead trees)
-  -Ba stem density/ha infected (live and dead trees)
-  -Live Ba stem density/ha infected
-  -Percent of site basal area made up of Ba
-  -Percent of site stems made up of Ba
-  -Percent of Ba basal area infected
-  -Percent of Ba stem infected (live and dead)
-  -Percent of live Ba stems infected
-  -Average Ba DMR
-  -Average Ba DMI
-Compare all these things to Hw, as a reference point. 
+site, mirroring the stats created for the mature component. Use the 0-15m 
+interval. 
 
-Note: for clarity, Ba is abbreviated with af (Amabalis Fir) to avoid confusion
-with basal area. 
+Stats:
+  -Site basal area/ha
+  -Site trees/ha
+  -Af/Hw basal area/ha
+  -Af/Hw trees/ha
+  -Percent of site basal area made up of Af/Hw
+  -Percent of site stems made up of Af/Hw
+  -Incidence of infection in live Af/Hw trees
+  -Af/Hw average DMR
+  -Af/Hw DMI
+
+Note: for clarity, Amabilis fir two letter code is Ba. But to avoid confusion 
+with basal area, it is abbreviated with af (except when 
+the code is calling the species code in the data). 
 ```{r}
 #How many trees are we talking about
 reg.af <- regen_15 %>% filter(spp == "Ba")
@@ -2076,58 +2122,45 @@ unique(reg.af$site_id) #only at ph_2
 
 #Generate some summary stats:
 ph2.reg15 <- regen_15 %>% 
-  mutate(ba_m2_phf = ba_m2*phf_site) %>% 
   filter(site_id == "ph_2") %>% 
   summarise(nstem_ha = sum(phf_site),
             af_nstem_ha = sum(phf_site[spp == "Ba"]),
-            af_l_nstem_ha = sum(phf_site[spp == "Ba" & status %in% live_stat]),
-            af_inf_nstem_ha = sum(phf_site[spp == "Ba" & hdm_pa == "Y"]),
-            af_l_inf_nstem_ha = sum(phf_site[spp == "Ba" & hdm_pa == "Y" &
-                                               status %in% live_stat]),
-            ba_m2_ha = sum(ba_m2_phf),
-            af_ba_m2_ha = sum(ba_m2_phf[spp == "Ba"]),
-            af_inf_ba_m2_ha = sum(ba_m2_phf[spp == "Ba" & hdm_pa == "Y"]),
+            hw_nstem_ha = sum(phf_site[spp == "Hw"]),
+            ba_m2_ha = sum(ba_m2_ph),
+            af_ba_m2_ha = sum(ba_m2_ph[spp == "Ba"]),
+            hw_ba_m2_ha = sum(ba_m2_ph[spp == "Hw"]),
+            l_af_nstem_ha = sum(phf_site[status %in% live_stat & spp == "Ba"]),
+            l_hw_nstem_ha = sum(phf_site[status %in% live_stat & spp == "Hw"]),
+            li_af_nstem_ha = sum(phf_site[status %in% live_stat &
+                                            spp == "Ba" & hdm_pa == "Y"]),
+            li_hw_nstem_ha = sum(phf_site[status %in% live_stat & 
+                                            spp == "Hw" & hdm_pa == "Y"]),
             s.af_dmr = mean(dmr[status %in% live_stat & spp == "Ba"]),
+            s.hw_dmr = mean(dmr[status %in% live_stat & spp == "Hw"]),
             s.af_dmi = mean(dmr[status %in% live_stat & spp == "Ba" & 
+                                  dmr >= 1]),
+            s.hw_dmi = mean(dmr[status %in% live_stat & spp == "Hw" & 
                                   dmr >= 1])) %>% 
   mutate(p_nstem_af = 100*af_nstem_ha/nstem_ha,
+         p_nstem_hw = 100*hw_nstem_ha/nstem_ha,
          p_ba_af = 100*af_ba_m2_ha/ba_m2_ha,
-         p_af_nstem_inf = 100*af_inf_nstem_ha/af_nstem_ha,
-         p_af_ba_inf = 100*af_inf_ba_m2_ha/af_ba_m2_ha,
-         p_l_af_stem_inf = 100*af_l_inf_nstem_ha/af_l_nstem_ha)
+         p_ba_hw = 100*hw_ba_m2_ha/ba_m2_ha,
+         p_l_af_nstem_inf = 100*li_af_nstem_ha/l_af_nstem_ha,
+         p_l_hw_nstem_inf = 100*li_hw_nstem_ha/l_hw_nstem_ha)
 
 #Compare with Hw at site
 ##What is site total nstem_ha and ba_ha
 ph2.reg15 %>% select(nstem_ha, ba_m2_ha)
 
 ##How much of the site nstem_ha and ba_ha are made of of Hw and Ba?
-###Fairly similar
-reg_cs %>% 
-  filter(site_id=="ph_2") %>% 
-  select(reg.p_stem_hw, reg.p_ba_hw)
-ph2.reg15 %>% select(p_nstem_af, p_ba_af)
+###The two spp are pretty similar
+ph2.reg15 %>% select(p_nstem_af, p_nstem_hw, p_ba_af, p_ba_hw)
 
-##How much of the Hw and Ba (live and dead trees) are infected?
-###Infection much higher in hemlock 
-reg_i_all %>% filter(site_id == "ph_2") %>% 
-  select(reg.p_ba_m2_inf_15, reg.p_nstem_inf_15)
-ph2.reg15 %>% select(p_af_nstem_inf, p_af_ba_inf)
-
-##How much of the live Hw and Ba are infected?
-###Hemlock, much higher rates of inf
-regen_15_l %>%   
-  filter(site_id == "ph_2" & spp == "Hw") %>% 
-  summarise(hw_nstem = sum(phf_site),
-            hw_inf_nstem = sum(phf_site[hdm_pa == "Y"])) %>% 
-  mutate(p_l_hw_nstem_inf = 100*hw_inf_nstem/hw_nstem)
-ph2.reg15 %>% select(p_l_af_stem_inf)
+##What % of live Hw and Ba at each site are infected?
+###Infection rates higher in Hw
+ph2.reg15 %>% select(p_l_af_nstem_inf, p_l_hw_nstem_inf)
 
 #What is the mean DMR and DMI of Hw and Ba?
 ###Infection more severe in Hw than Ba
-regen_15_l %>% 
-  filter(site_id == "ph_2" &
-           spp == "Hw") %>% 
-  summarise(hw_s_dmr = mean(dmr),
-            hw_s_dmi = mean(dmr[dmr >= 1]))
-ph2.reg15 %>% select(s.af_dmr, s.af_dmi)
+ph2.reg15 %>% select(s.af_dmr, s.hw_dmr, s.af_dmi, s.hw_dmi)
 ```
