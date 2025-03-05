@@ -38,6 +38,7 @@ library(tidyverse)
 library(gt)
 library(ggpubr)
 library(cowplot)
+library(RColorBrewer)
 ```
 
 #Generate modelling dataset
@@ -64,7 +65,9 @@ site <- read_csv(here("./data/workflow/site_metrics.csv"))
 reg_cs <- read_csv(here("./tables/reg_comp_size.csv"))
 
 #Dataset 5: mature component infection summary
-mat_inf <- read_csv(here("./tables/mat_infection.csv"))
+##NOTE: this table not longer exists. When you clean up this script dead with
+##this
+# mat_inf <- read_csv(here("./tables/mat_infection.csv"))
 
 #Dataset 6: crown volume estimates
 #These contain height estimates for the codominant mature and regen trees in
@@ -274,14 +277,15 @@ head(sp_s)
 #Join this to the modelling dataframe
 modelling <- left_join(modelling, sp_s, by = "site_id")
 
+##BROKEN
 #Pull basal area of infected mature trees from the dataframe summarizing 
 #mature tree infection
-summary(mat_inf)
-
-#Join this to the modelling dataframe
-x <- mat_inf %>% 
-  select(site_id, mat.hw_inf_ba_m2_ha)
-modelling <- left_join(modelling, x, by = "site_id")
+# summary(mat_inf)
+# 
+# #Join this to the modelling dataframe
+# x <- mat_inf %>% 
+#   select(site_id, mat.hw_inf_ba_m2_ha)
+# modelling <- left_join(modelling, x, by = "site_id")
 ```
 
 Calculate height difference between mature and regen components. These 
@@ -445,8 +449,7 @@ modelling <- modelling %>%
 ```{r}
 #DMR 7 levels
 levels(modelling$dmr_f)
-col_dmr_7 <- c("#A6CEE3", "hotpink", "#FEEDDE", "#FDBE85", "#FD8D3C", 
-                "#E6550D", "#A63603")
+col_dmr_7 <- c("#A6CEE3", brewer.pal(n = 6, name = "Oranges"))
 
 #DMR 3 levels
 levels(modelling$dmr_f_4)
@@ -519,18 +522,18 @@ Start with a simple one to explore what these models look like
 ##Model specification
 Standard model specification.
 ```{r}
-#Centre seed load and refit model
-modelling <- modelling %>% 
-  mutate(sl_c = sl_i_tot_rm - (mean(sl_i_tot_rm)))
-summary(modelling$sl_c)
-
-#Model: dmr ~ seed load (including interception)
-d1 <- clm(dmr_f_2 ~ sl_c, data=modelling, link = "logit")
-
-#Model: dmr ~ seed load (including interception) with site random effect
-d2 <- clmm(dmr_f_2 ~ sl_i_tot_rm + (1|site_id), 
-           data = modelling,
-           link = "logit")
+# #Centre seed load and refit model
+# modelling <- modelling %>% 
+#   mutate(sl_c = sl_i_tot_rm - (mean(sl_i_tot_rm)))
+# summary(modelling$sl_c)
+# 
+# #Model: dmr ~ seed load (including interception)
+# d1 <- clm(dmr_f_2 ~ sl_c, data=modelling, link = "logit")
+# 
+# #Model: dmr ~ seed load (including interception) with site random effect
+# d2 <- clmm(dmr_f_2 ~ sl_i_tot_rm + (1|site_id), 
+#            data = modelling,
+#            link = "logit")
 ```
 
 ##What is in the summary output?
@@ -550,62 +553,62 @@ how much do the odds of level j vs levels j-1 change for a 1 unit increase
 in the predictors), in terms of odds ratios (e.g. how much do the odds of a 
 a given level change between x1 and x2) and in terms of probabilities. 
 ```{r}
-#Model: dmr ~ seed load (including interception)
-summary(d1)
-
-#Model: dmr ~ seed load (including interception) with site random effect
-summary(d2)
-
-#Check convergence:
-convergence(d1)
-
-#Example: look at odds of dmr_f = 0 vs IBLC, 1, 2, 3, 4, 5 for seed load
-#values of 100, 200 and 300
-#Decreases, which makes sense. dmr_f = 0 most likely at low seed load value
-o_100 <- exp(d1$alpha[1] - d1$beta[1]*100)
-o_200 <- exp(d1$alpha[1] - d1$beta[1]*200)
-o_300 <- exp(d1$alpha[1] - d1$beta[1]*300)
-o_100; o_200; o_300
-
-#Express these as probabilities. plogis function does the conversion of the
-#log odds to probabilities.
-lo_100 <- d1$alpha[1] - d1$beta[1]*100
-lo_200 <- d1$alpha[1] - d1$beta[1]*200
-lo_300 <- d1$alpha[1] - d1$beta[1]*300
-plogis(lo_100) 
-plogis(lo_200)
-plogis(lo_300)
-
-#Use the ggeffects package to get predictions for many more variables
-##This generates a dataframe with levels of a predictor (in this case 
-##seed load, broken into intervals of 50) and the probability of each dmr_f
-##level. 
-##Each predictor-response level is its own row 
-##The "terms" term specifies which variables you are intersted in predicted
-##values for 
-##The margin term specifies how to treat variables that aren't of interest 
-##(i.e. not identified in the "terms" term). In this case, it  "mean_mode" 
-##uses the mean (for numeric values) and the mode (= most frequnt value 
-##for factor and character values). 
-
-#Generate the predictions
-pre_d1 <- predict_response(d1, terms = "sl_i_tot_rm", margin = "mean_mode")
-
-#response.level identifies dmr_f but its values correspond to the levels of
-#the factor, not the values that correspond to those levels. Reset those
-levels_dmr_f <- c("0", "IBLC", "1", "2", "3", "4", "5")
-pre_d1$response.level <- factor(pre_d1$response.level)
-levels(pre_d1$response.level) <- levels_dmr_f
-
-#Rename the variables
-pre_d1 <- pre_d1 %>% 
-  rename(seed_load = x,
-         dmr_f = response.level)
-
-#Plot
-ggplot(pre_d1, aes(x = seed_load, y = predicted, fill = dmr_f)) + 
-  geom_bar(stat = "identity", position = position_stack()) +
-  scale_fill_viridis_d()
+# #Model: dmr ~ seed load (including interception)
+# summary(d1)
+# 
+# #Model: dmr ~ seed load (including interception) with site random effect
+# summary(d2)
+# 
+# #Check convergence:
+# convergence(d1)
+# 
+# #Example: look at odds of dmr_f = 0 vs IBLC, 1, 2, 3, 4, 5 for seed load
+# #values of 100, 200 and 300
+# #Decreases, which makes sense. dmr_f = 0 most likely at low seed load value
+# o_100 <- exp(d1$alpha[1] - d1$beta[1]*100)
+# o_200 <- exp(d1$alpha[1] - d1$beta[1]*200)
+# o_300 <- exp(d1$alpha[1] - d1$beta[1]*300)
+# o_100; o_200; o_300
+# 
+# #Express these as probabilities. plogis function does the conversion of the
+# #log odds to probabilities.
+# lo_100 <- d1$alpha[1] - d1$beta[1]*100
+# lo_200 <- d1$alpha[1] - d1$beta[1]*200
+# lo_300 <- d1$alpha[1] - d1$beta[1]*300
+# plogis(lo_100) 
+# plogis(lo_200)
+# plogis(lo_300)
+# 
+# #Use the ggeffects package to get predictions for many more variables
+# ##This generates a dataframe with levels of a predictor (in this case 
+# ##seed load, broken into intervals of 50) and the probability of each dmr_f
+# ##level. 
+# ##Each predictor-response level is its own row 
+# ##The "terms" term specifies which variables you are intersted in predicted
+# ##values for 
+# ##The margin term specifies how to treat variables that aren't of interest 
+# ##(i.e. not identified in the "terms" term). In this case, it  "mean_mode" 
+# ##uses the mean (for numeric values) and the mode (= most frequnt value 
+# ##for factor and character values). 
+# 
+# #Generate the predictions
+# pre_d1 <- predict_response(d1, terms = "sl_i_tot_rm", margin = "mean_mode")
+# 
+# #response.level identifies dmr_f but its values correspond to the levels of
+# #the factor, not the values that correspond to those levels. Reset those
+# levels_dmr_f <- c("0", "IBLC", "1", "2", "3", "4", "5")
+# pre_d1$response.level <- factor(pre_d1$response.level)
+# levels(pre_d1$response.level) <- levels_dmr_f
+# 
+# #Rename the variables
+# pre_d1 <- pre_d1 %>% 
+#   rename(seed_load = x,
+#          dmr_f = response.level)
+# 
+# #Plot
+# ggplot(pre_d1, aes(x = seed_load, y = predicted, fill = dmr_f)) + 
+#   geom_bar(stat = "identity", position = position_stack()) +
+#   scale_fill_viridis_d()
 ```
 
 #Exploratory data analysis
@@ -759,36 +762,39 @@ Start witth plotting it against continuous predictors
 #Boxplot comparing dmr to distance from the edge
 dmr_pred1 <- ggplot(modelling, aes(x = dist_y_h, 
                       y = dmr_f)) + 
-  geom_jitter(height = 0.2) +
+  geom_jitter(height = 0.2, colour = "grey", alpha = 0.5) +
   geom_boxplot(fill = NA, outliers = FALSE) +
-  labs(y = "Adapted DMR", x = "Distance from edge (m)") +
+  labs(y = "DMR", x = "Distance from edge (m)") +
   theme_classic() +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+  theme(axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 dmr_pred1
-
+      
 #SEED LOAD
 #Boxplot comparing dmr_f to seed load
 dmr_pred2 <- ggplot(modelling, aes(x = sl_i_tot_rm, 
                       y = dmr_f)) + 
-  geom_jitter(height = 0.2) +
+  geom_jitter(height = 0.2, colour = "grey", alpha = 0.5) +
   geom_boxplot(fill = NA, outliers = FALSE) +
-  labs(y = "Adapted DMR", x = "Seed load (no units)") +
+  labs(y = "DMR", x = "Seed load (no units)") +
   theme_classic() +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+  theme(axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 dmr_pred2
 
 #DBH
 #Boxplot comparing dmr to tree dbh
 dmr_pred3 <- ggplot(modelling, aes(x = dbh, 
                       y = dmr_f)) + 
-  geom_jitter(height = 0.2) +
+  geom_jitter(height = 0.2, colour = "grey", alpha = 0.5) +
   geom_boxplot(fill = NA, outliers = FALSE) +
-  labs(y = "Adapted DMR", x = "DBH (cm)") +
+  labs(y = "DMR", x = "DBH (cm)") +
   theme_classic() +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+  theme(axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 dmr_pred3
 ```
 
@@ -804,39 +810,42 @@ x1 <- modelling %>%
   group_by(crown_class) %>% 
   summarise(tot_trees = n())
 
-#Join these tables, then calculate the proportion of trees in each dmr class 
+#Join these tables, then calculate the percent of trees in each dmr class 
 #within each crown class
 x <- left_join(x, x1, by = "crown_class")
 x <- x %>% 
-  mutate(prop_trees = n_trees/tot_trees)
+  mutate(p_trees = 100*n_trees/tot_trees)
 
-#Check these sum to 1
-x %>% group_by(crown_class) %>% summarise(sum(prop_trees))
+#Check these sum to 100
+x %>% group_by(crown_class) %>% summarise(sum(p_trees))
 
 #Add fake values to the x1 dataframe so it can be added to the plot to show the
 #total sample size in each crown class
 x1 <- x1 %>% 
-  mutate(prop_trees = 1.05,
+  mutate(p_trees = 105,
          dmr_f = NA)
 
 #Plot this: 
-dmr_pred4 <- ggplot(x, aes(x = crown_class, y = prop_trees, fill = dmr_f)) + 
+dmr_pred4 <- ggplot(x, aes(x = crown_class, y = p_trees, fill = dmr_f)) + 
   geom_bar(position = position_stack(reverse =  TRUE), stat = "identity") +
   scale_fill_manual(values = col_dmr_7, 
                     na.translate = FALSE, 
                     guide = guide_legend(reverse = TRUE)) + 
   geom_text(data = x1, aes(x=crown_class, 
-                           y = prop_trees, 
+                           y = p_trees, 
                            label = tot_trees),
+            family = "Times New Roman",
             show.legend = FALSE) + 
-  labs(x = "Crown class", y = "Proportion of trees", fill = "Adapted DMR") + 
+  labs(x = "Crown class", y = "Percent of trees (%)", fill = "DMR") + 
   theme_classic() +
   theme(legend.background = element_rect(fill = "lightgrey"),
         legend.key = element_rect(fill = "lightgrey", color = NA),
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 16),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                    face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 dmr_pred4
 ```
 
@@ -844,13 +853,13 @@ dmr_pred4
 ```{r}
 dmr_pred <- ggarrange(dmr_pred1, dmr_pred2, dmr_pred3, dmr_pred4,
                       nrow = 2, ncol = 2, labels = "AUTO",
-                      font.label = list(size = 20))
+                      font.label = list(size = 13, family = "Times New Roman",
+                                        face = "bold"))
 dmr_pred
 
 #Export
-# pdf(here("./figures/dmr_t_pred.pdf"), width = 10, height = 7)
-# dmr_pred
-# dev.off()
+# ggsave(here("./figures/dmr_t_pred.svg"), plot = dmr_pred, device = "svg",
+#        width = 6.5, height = 5, units = "in")
 ```
 
 ##Pairs plot
@@ -890,65 +899,71 @@ x <- modelling %>%
 #Make each plot individually
 #Distance vs seed load
 pair1 <- ggplot(x, aes(x = dist_y_h, y = sl_i_tot_rm)) + 
-  geom_point() + 
+  geom_point(color = "grey") + 
   theme_classic() + 
   labs(x = "Distance from the edge (m)",
        y = "Seed load (no units)") +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+  theme(axis.text = element_text(size = 10, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 pair1
 
 #Distance vs dbh
 pair2 <- ggplot(x, aes(x = dist_y_h, y = dbh)) + 
-  geom_point() + 
+  geom_point(color = "grey") + 
   theme_classic() + 
   labs(x = "Distance from the edge (m)",
        y = "DBH (cm)") +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+  theme(axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 pair2
 
 #Distance vs crown class
 pair3 <- ggplot(x, aes(x = crown_class, y = dist_y_h)) + 
-  geom_point() + 
+  geom_jitter(width = 0.1, height = 0, color = "grey", alpha = 0.5) + 
   geom_boxplot(fill = NA, outliers = F) +
   theme_classic() + 
   labs(x = "Crown class",
        y = "Distance from the edge (m)") +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+  theme(axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 pair3
 
 #DBH vs seed load
 pair4 <- ggplot(x, aes(x = dbh, y = sl_i_tot_rm)) + 
-  geom_point() +
+  geom_point(color = "grey") +
   theme_classic() + 
   labs(x = "DBH (cm)",
        y = "Seed load (no units)") +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+  theme(axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 pair4
 
 #Crown class vs seed load
 pair5 <- ggplot(x, aes(x = crown_class, y = sl_i_tot_rm)) + 
-  geom_point() + 
+  geom_jitter(width = 0.1, height = 0, color = "grey", alpha = 0.5) + 
   geom_boxplot(fill = NA, outliers = F) +
   theme_classic() + 
   labs(x = "Crown class",
        y = "Seed load (no units)") +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+  theme(axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 pair5
 
 #Crown class vs dbh
 pair6 <- ggplot(x, aes(x = crown_class, y = dbh)) + 
-  geom_point() + 
+  geom_jitter(width = 0.1, height = 0, color = "grey", alpha = 0.5) + 
   geom_boxplot(fill = NA, outliers = F) +
   theme_classic() + 
   labs(x = "Crown class",
        y = "DBH (cm)") +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+  theme(axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 pair6
 
 #Arrange the plots together
@@ -957,9 +972,8 @@ pairs_the <- ggarrange(pair1, pair2, pair3, pair4, pair5, pair6,
 pairs_the
 
 #Export
-pdf(here("./figures/mod_vars_pairs.pdf"), width = 7, height = 10)
-pairs_the
-dev.off()
+# ggsave(here("./figures/mod_vars_pairs.svg"), plot = pairs_the, device = "svg",
+#        width = 6.5, height = 8, units = "in")
 ```
 
 
@@ -1922,10 +1936,10 @@ x1 <- x %>% pivot_longer(cols = starts_with("lo"), values_to = "lo_val",
 #Set values for the lo_level variable that are meaningful for plotting
 x1 <- x1 %>% 
   mutate(lo_level = case_match(lo_level,
-                               "0" ~ "logit(P<=0)",
-                               "IBLC2" ~ "logit(P<=IBLC-2)")) %>% 
+                               "0" ~ "logit(P ≤ 0)",
+                               "IBLC2" ~ "logit(P ≤ IBLC-2)")) %>% 
   mutate(lo_level = factor(lo_level, 
-                           levels = c("logit(P<=IBLC-2)", "logit(P<=0)")))
+                           levels = c("logit(P ≤ IBLC-2)", "logit(P ≤ 0)")))
 
 #Plot the logit odds of each model
 x2 <- x1 %>% filter(model == "m22")
@@ -1933,13 +1947,15 @@ po_m22 <- ggplot(x2, aes(x = dist_y_h.s, y = lo_val, colour = lo_level)) +
   geom_point(alpha = 0.3) + 
   geom_smooth(se = FALSE, method = "lm") + 
   theme_classic() +
-  labs(x = "Distance.s", y = "logit", color = "Logit") +
+  labs(x = "Distance.s", y = "Logit", color = "Logit") +
   theme(legend.background = element_rect(fill = "lightgrey"),
         legend.key = element_rect(fill = "lightgrey", color = NA),
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 16),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 #Save the legend
 leg <- get_legend(po_m22)
 #Drop the legend from the plot
@@ -1950,49 +1966,52 @@ po_m23 <- ggplot(x2, aes(x = sl_i_tot_rm.s, y = lo_val, colour = lo_level)) +
   geom_point(alpha = 0.3) + 
   geom_smooth(se = FALSE, method = "lm") + 
   theme_classic() +
-  labs(x = "Seed load.s", y = "logit") +
+  labs(x = "Seed load.s", y = "Logit") +
   theme(legend.position = "none",
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 
 x2 <- x1 %>% filter(model == "m24")
 po_m24 <- ggplot(x2, aes(x = dbh.s, y = lo_val, colour = lo_level)) + 
   geom_point(alpha = 0.3) + 
   geom_smooth(se = FALSE, method = "lm") + 
   theme_classic() +
-  labs(x = "DBH.s", y = "logit") +
+  labs(x = "DBH.s", y = "Logit") +
   theme(legend.position = "none",
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 
 x2 <- x1 %>% filter(model == "m25")
 po_m25 <- ggplot(x2, aes(x = int_dist_sl, y = lo_val, colour = lo_level)) + 
   geom_point(alpha = 0.3) + 
   geom_smooth(se = FALSE, method = "lm") + 
   theme_classic() +
-  labs(x = "Distance.s x Seed load.s", y = "logit") +
+  labs(x = "Distance.s x Seed load.s", y = "Logit") +
   theme(legend.position = "none",
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 
 x2 <- x1 %>% filter(model == "m26")
 po_m26 <- ggplot(x2, aes(x = int_dbh_sl, y = lo_val, colour = lo_level)) + 
   geom_point(alpha = 0.3) + 
   geom_smooth(se = FALSE, method = "lm") + 
   theme_classic() + 
-  labs(x = "Seed load.s x DBH.s", y = "logit") +
+  labs(x = "Seed load.s x DBH.s", y = "Logit") +
   theme(legend.position = "none",
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16))
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
 
 #Put them all together
 prop_odds_1 <- ggarrange(po_m22, po_m23, po_m24, po_m25, po_m26, leg,
           ncol = 3, nrow = 2)
 
 #Export
-# pdf(here("./figures/prop_odds_1.pdf"), width = 10, height = 7)
-# prop_odds_1
-# dev.off()
+# ggsave(here("./figures/prop_odds_1.svg"), plot = prop_odds_1, device = "svg",
+#        width = 6.5, height = 5, units = "in")
 ```
 
 Plot 2
@@ -2030,10 +2049,11 @@ prop_odds_2a <-
        shape = "Model") +
   theme(legend.background = element_rect(fill = NA),
         legend.key = element_rect(fill = NA, color = NA),
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 20),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
         legend.position = "inside",
         legend.position.inside = c(0.8, 0.5)) +
   scale_colour_manual(values = col_dmr3, guide = "none") +
@@ -2051,39 +2071,49 @@ x5 <- x4 %>%
 
 prop_odds_2b <- 
   ggplot(x5, aes(x=dist_y_h, y = prob_diff, colour = DMR_lev)) + 
-  geom_point(alpha = 0.6, size = 2) +
+  geom_point(alpha = 0.1) +
   geom_line(stat = "smooth", method = "gam", se = F, size = 1) + 
   theme_classic() +
-  labs(x = "Distance from edge (m)", y = "P(PO) - P(PPO)",
+  labs(x = "Distance from edge (m)", y = expression(Prob[PO]~-~Prob[PPO]),
        colour = "DMR") +
   theme(legend.background = element_rect(fill = "lightgrey"),
         legend.key = element_rect(fill = "lightgrey", color = NA),
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 20),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
         legend.position = "bottom") +
-  scale_colour_manual(values = col_dmr3)
-?geom_smooth
+  scale_colour_manual(values = col_dmr3) +
+  guides(color = guide_legend(override.aes = list(alpha = 1)))
+
 #Save the legend
 leg <- ggpubr::get_legend(prop_odds_2b)
 
-#Drop the legend from second panel and change the alph level of the points to
-#match the first
-prop_odds_2b <-  
+#Drop the legend from second panel
+prop_odds_2b <- 
   ggplot(x5, aes(x=dist_y_h, y = prob_diff, colour = DMR_lev)) + 
   geom_point(alpha = 0.1) +
-  geom_line(stat = "smooth", method = "gam", se = F) + 
+  geom_line(stat = "smooth", method = "gam", se = F, size = 1) + 
   theme_classic() +
-  labs(x = "Distance from edge (m)", y = "P(PO) - P(PPO)") +
-  theme(axis.text = element_text(size = 16),
-        axis.title = element_text(size = 16)) +
-  scale_colour_manual(values = col_dmr3, guide = "none")
+  labs(x = "Distance from edge (m)", y = expression(Prob[PO]~-~Prob[PPO]),
+       colour = "DMR") +
+  theme(legend.position = "none",
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold")) +
+  scale_colour_manual(values = col_dmr3) +
+  guides(color = guide_legend(override.aes = list(alpha = 1)))
 
 #Put it all together
 #Combine the two plots
 prop_odds_2 <- ggarrange(prop_odds_2a, prop_odds_2b, ncol = 2,
-                         labels = c("A", "B"), font.label = list(size = 20),
+                         labels = c("A", "B"), 
+                         font.label = list(size = 13, 
+                                           family = "Times New Roman",
+                                           face = "bold"),
                          label.x = 0, label.y = 1)
 #Add the DMR legend
 prop_odds_2 <- ggarrange(prop_odds_2, leg, nrow = 2, heights = c(10, 1))
@@ -2091,9 +2121,8 @@ prop_odds_2
 
 #Export
 #Export the graph
-# pdf(here("./figures/prop_odds_2.pdf"), width = 11, height = 7)
-# prop_odds_2
-# dev.off()
+# ggsave(here("./figures/prop_odds_2.svg"), plot = prop_odds_2, device = "svg",
+#        width = 6.5, height = 4, units = "in")
 ```
 
 ##Format and export model fit and LR stats
@@ -2151,7 +2180,28 @@ yet and that is required for the {ggeffects} options that allow summaries of
 random effects; so the effect of random effects is done manually, following 
 the tutorial on the {ordinal} package webpage. 
 
-##Select meaningful values of predictors
+Four plots are created:
+(1) The first one shows all variable combinations. It is complicated and got 
+rejected as not that useful for a reader in the feedback from my committee. 
+I've kept it here because it is a true representation of the model behaviour  
+across all the variable combinations represented in the data. 
+
+(2) The second uses  a single DBH value (the mean of dominant/codominant 
+trees). These are the future crop trees and the goal of the figure is to show 
+how the probability of infection changes with distance from the edge in a 
+seed-load dependent way. 
+
+(3) The third focuses on the effect of DBH. Two panels are created. One at a 
+fixed distance (7.5 m from the edge), where DBH and seed load interact. The
+second shows predicted probabilities from 20-50 m where, seed load = 0, for 
+different DBH values; the goals of the second panel is to compare the effects
+of DBH and distance. 
+
+(4) Shows the magnitude of the random site effect. It generates probabilities 
+for an average tree in an average, high infection and low infection site. 
+
+##Plot 1
+###Select meaningful values of predictors
 The first step is to choose what values of each predictor we want to get 
 predictions of the response at. These should be meaningful values, representing
 the range, or some low, medium, high like scale. Also, only combinations of 
@@ -2168,8 +2218,7 @@ the scaled scale.
 
 Different options choosing and specifying values in {ggeffects} are described 
 in this vignette: https://strengejacke.github.io/ggeffects/articles/introduction_effectsatvalues.html 
-
-###Distance from the edge values
+####Distance from the edge values
 Distance from the edge is easy. For its set as a focal predictor, do 5m 
 intervals. For its sets a secondary predictor do: 5, 25 and 45m for the dbh
 plots and 2.5, 7.5 and 12.5m for the seed load plots
@@ -2193,7 +2242,7 @@ val_d3
 range(modelling$dist_y_h.s)
 ```
 
-###Seed load values
+####Seed load values
 Seed load is trickier. Its own frequency distribution is severely left skewed 
 because it has so many zeros. And it is structurally related to distance from
 the edge. It is only > 0 for distances < 20m. The model will generate estimates
@@ -2244,7 +2293,7 @@ val_sl2
 range(modelling$sl_i_tot_rm.s)
 ```
 
-###DBH values
+####DBH values
 DBH has a fairly standard distribution. For its focal value set, can use one 
 of the defaults in {ggeffects} which selects its min, max and quartiles. For 
 when its a non-focal predictor, use the mean value of suppressed, 
@@ -2271,7 +2320,7 @@ val_dbh2
 range(modelling$dbh.s)
 ```
 
-##Generate predictions
+###Generate predictions
 Predictions are the probability of each DMR class at each unique combination of 
 predictors. For each focal variable, we will get predictions across its full 
 value range across each combination of the two non-focal predictors. In 
@@ -2281,7 +2330,7 @@ capture the different levels in the other non-focal predictor. Colour will
 differentiate the different DMR levels. All of these predictions are for the 
 population average (i.e. assume random effect is 0).
 
-###Distance from the edge predictions
+####Distance from the edge predictions
 Distance from the edge shows up in two places in the model - on its own and in
 interaction with seed load. Because it doesn't interact with dbh, the pattern
 should be the same across the three panels of dbh. But, dbh will change the 
@@ -2365,10 +2414,9 @@ g_pr1 <-
         panel.spacing = unit(0.05, "npc"),
         plot.margin = unit(c(0, 0, 0.1, 0), "npc"))
 g_pr1
-?unit
 ```
 
-###DBH predictions
+####DBH predictions
 DBH is similar to distance from the edge. It exists on its own and in an 
 interaction with seed load in the model. Its pattern shouldn't change across 
 panels of distance from the edge, but distance from the edge will change where 
@@ -2453,7 +2501,7 @@ g_pr2 <-
 g_pr2
 ```
 
-###Seed load
+####Seed load
 Seed load is the hardest predictor to interpret. It appears in the model on its
 own and in interactions with distance from the edge and dbh. Seed load is only
 non-zero for distances < 25m so its only relevant to plot it for predictor 
@@ -2596,7 +2644,289 @@ g_pr5
 # dev.off()
 ```
 
-##Random effects
+##Plot 2
+Select some representative values for predictors
+```{r}
+#For distance from the edge go from 0-50m in 1m steps
+#Generate vectors of distances
+val_d4 <- seq(from = 0, to = 50, by = 1)
+#Scale these values using mean and sd of distance from modelling dataset
+val_d4 <- (val_d4 - dist_mean)/dist_sd
+
+#For seed load, use the three values selected above, representing 0, low and
+#high seed load
+val_sl2 <- (val_sl2 - sl_mean)/sl_sd
+
+#For dbh, use mean of dominant/codominant trees
+val_dbh3 <- val_dbh2[3]
+```
+
+Generate predictions, then reformat the data frame for plotting
+```{r}
+#Generate predictions
+pr5 <- predict_response(m20, 
+                        terms = c("dist_y_h.s [val_d4]", 
+                                  "sl_i_tot_rm.s[val_sl2]",
+                                  "dbh.s [val_dbh3]"),
+                        margin = "mean_mode")
+
+#Rename variables and transform them back to their original scale
+x <- pr5 %>% 
+  as_tibble() %>% 
+  mutate(sl = as.character(group)) %>% 
+  mutate(sl = as.numeric(sl),
+         DMR = case_match(response.level,
+                          "1" ~ "0",
+                          "2" ~ "IBLC-2",
+                          "3" ~ "3-5")) %>% 
+  mutate(dist_m = x*dist_sd + dist_mean,
+         sl = round(sl*sl_sd + sl_mean, 1),
+         DMR = factor(DMR, levels = c("0", "IBLC-2", "3-5"))) %>%
+  mutate(sl = factor(sl))
+
+levels(x$sl)
+#Remove combinations of variables that aren't represented in the data
+x <- x %>% 
+  mutate(var_comb_real = case_when(
+    sl %in% c("100", "300") & dist_m > 20 ~ "N",
+    .default = "Y")) %>% 
+  filter(var_comb_real == "Y")
+```
+
+Plot it all
+```{r}
+#Plot
+p1 <- ggplot(x, aes(x = dist_m, y = predicted, color = DMR, 
+                linetype = sl)) + 
+  geom_line() +
+  theme_classic() +
+  scale_color_manual(values = col_dmr3) +
+  scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  labs(x = "Distance from edge (m)", y = "Predicited probability",
+       linetype = "Seed load") +
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.8, 0.5),
+        legend.background = element_rect(fill = "lightgrey", colour = NA),
+        legend.box.background = element_rect(fill = "lightgrey", 
+                                             colour = NA), 
+        legend.spacing.y = unit(0, "cm"),
+        legend.key.height = unit(0.3, "cm"),
+        legend.key.width = unit(1, "cm"),
+        legend.key = element_rect(fill = "lightgrey"),
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
+
+#Generate a second plot of seed load x distance from the edge to show
+#why we only display data up to 20m from edge
+x1 <- modelling %>% 
+  filter(crown_class_2 == "C")
+
+p2 <- ggplot(x1, aes(x = dist_y_h, y = sl_i_tot_rm)) +
+  geom_point(color = "grey") +
+  theme_classic() +
+  labs(x = "Distance from edge (m)", y = "Seed load (unitless)") +
+  theme(axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
+
+p3 <- ggarrange(p1, p2, nrow = 2, align = "v", 
+                labels = "AUTO", font.label = list(size = 13, 
+                                          family = "Times New Roman",
+                                          face = "bold"))
+
+#Export this
+# ggsave(here("./figures/var_eff_dist.svg"), plot = p3, device = "svg",
+#        width = 5, height = 5, units = "in")
+```
+
+##Plot 3: DBH focus
+Vision: two panel plot
+Panel 1: x = DBH (across range), y = Probabilities, colour = DMR class,
+linetype = seed load. All of this located at 7.5m from edge. 
+Panel 2: x = distance from edge (from 20-50m), y = Probabilities, colour = 
+DMR class, linetype = DBH. All of this at seed load = 0. 
+
+Select some representative values for predictors
+```{r}
+#For distance from the edge: panel 1 = 7.5 m, panel 2 = 20-50 m in 1 m 
+#intervals
+val_d5 <- 7.5
+val_d6 <- seq(from = 20, to = 50, by = 1)
+#Scale these values using mean and sd of distance from modelling dataset
+val_d5 <- (val_d5 - dist_mean)/dist_sd
+val_d6 <- (val_d6 - dist_mean)/dist_sd
+
+#For seed load: panel 1 = three values representing 0, low and high seed load; 
+#panel 2 = 0
+val_sl2 <- c(0, 100, 300)
+val_sl3 <- c(0)
+#Scale these values
+val_sl2 <- (val_sl2 - sl_mean)/sl_sd
+val_sl3 <- (val_sl3 - sl_mean)/sl_sd
+
+#For dbh: panel 1 = ; for 
+#panel 2 = values corresponding to mean of each crown class
+range(modelling$dbh)
+val_dbh4 <- seq(from = 4, to = 40, by = 1)
+val_dbh2_orig <- modelling %>% 
+  group_by(crown_class_2) %>% 
+  summarise(mean_dbh = mean(dbh)) %>% 
+  pull(mean_dbh)
+#Scale these
+val_dbh4 <- (val_dbh4 - dbh_mean)/dbh_sd
+val_dbh2 <- (val_dbh2_orig - dbh_mean)/dbh_sd
+```
+
+Generate predictions, then reformat the data frame for plotting
+```{r}
+#Generate predictions
+#Panel 1
+pr6 <- predict_response(m20, 
+                        terms = c("dbh.s [val_dbh4]", 
+                                  "sl_i_tot_rm.s [val_sl2]",
+                                  "dist_y_h.s [val_d5]"),
+                        margin = "mean_mode")
+
+#Panel 2
+pr7 <- predict_response(m20, 
+                        terms = c("dist_y_h.s [val_d6]", 
+                                  "dbh.s [val_dbh2]",
+                                  "sl_i_tot_rm.s [val_sl3]"),
+                        margin = "mean_mode")
+
+#Rename variables and transform them back to their original scale
+#Panel 1
+x <- pr6 %>% 
+  as_tibble() %>% 
+  mutate(sl = as.character(group)) %>% 
+  mutate(sl = as.numeric(sl),
+         DMR = case_match(response.level,
+                          "1" ~ "0",
+                          "2" ~ "IBLC-2",
+                          "3" ~ "3-5")) %>% 
+  mutate(dbh = x*dbh_sd + dbh_mean,
+         sl = round(sl*sl_sd + sl_mean, 1),
+         DMR = factor(DMR, levels = c("0", "IBLC-2", "3-5"))) %>%
+  mutate(sl = factor(sl))
+
+#Panel 2
+dbh_lev <- levels(pr7$group)
+x1 <- pr7 %>% 
+  as_tibble() %>% 
+  mutate(DMR = case_match(response.level,
+                          "1" ~ "0",
+                          "2" ~ "IBLC-2",
+                          "3" ~ "3-5"),
+         dbh_f = case_match(group,
+                            dbh_lev[1] ~ paste0(round(val_dbh2_orig[1], 1), 
+                                                " (S)"),
+                            dbh_lev[2] ~ paste0("11.0", " (I)"),
+                            dbh_lev[3] ~ paste0(round(val_dbh2_orig[3], 1), 
+                                                " (D/C)"))) %>% 
+  mutate(dist_m = x*dist_sd + dist_mean,
+         DMR = factor(DMR, levels = c("0", "IBLC-2", "3-5")))
+dbh_lev <- unique(x1$dbh_f)
+x1 <- x1 %>% 
+  mutate(dbh_f = factor(dbh_f, levels = dbh_lev))
+```
+
+Plot it all
+```{r}
+#Panel 1
+p1 <- ggplot(x, aes(x = dbh, y = predicted, color = DMR, 
+                linetype = sl)) + 
+  geom_line() +
+  theme_classic() +
+  scale_color_manual(values = col_dmr3) +
+  scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  labs(x = "DBH (cm)", y = "Predicited probability",
+       linetype = "Seed load") +
+  theme(legend.position = "top",
+        legend.position.inside = c(0.9, 0.5),
+        legend.background = element_rect(fill = "lightgrey", colour = NA),
+        legend.box.background = element_rect(fill = "lightgrey", 
+                                             colour = NA),
+        legend.key.width = unit(0.75, "cm"),
+        legend.margin = margin(r = 5, l = 5, unit = "pt"),
+        legend.key = element_rect(fill = "lightgrey"),
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 8, family = "Times New Roman"),
+        legend.title = element_text(size = 8, family = "Times New Roman",
+                                  face = "bold")) +
+  guides(color = "none")
+
+#Panel 2
+p2 <- ggplot(x1, aes(x = dist_m, y = predicted, color = DMR, 
+                linetype = dbh_f)) + 
+  geom_line() +
+  theme_classic() +
+  scale_color_manual(values = col_dmr3) +
+  scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  labs(x = "Distance from the edge (m)", y = "Predicited probability",
+       linetype = "DBH") +
+  theme(legend.position = "top",
+        legend.position.inside = c(0.9, 0.5),
+        legend.background = element_rect(fill = "lightgrey", colour = NA),
+        legend.box.background = element_rect(fill = "lightgrey", 
+                                             colour = NA),
+        legend.key.width = unit(0.75, "cm"),
+        legend.spacing = unit(0.3, "cm"),
+        legend.margin = margin(r = 5, l = 5, unit = "pt"),
+        legend.key = element_rect(fill = "lightgrey"),
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 8, family = "Times New Roman"),
+        legend.title = element_text(size = 8, family = "Times New Roman",
+                                  face = "bold")) +
+  guides(colour = "none")
+
+#Generate a plot with a colour legend for DMR and save that
+p3 <- ggplot(x, aes(x = dbh, y = predicted, color = DMR)) + 
+  geom_line(size = 2) +
+  theme_classic() +
+  scale_color_manual(values = col_dmr3) +
+  labs(x = "DBH (cm)", y = "Predicited probability") +
+  theme(legend.position = "right",
+        legend.position.inside = c(0.9, 0.5),
+        legend.background = element_rect(fill = "lightgrey", colour = NA),
+        legend.box.background = element_rect(fill = "lightgrey", 
+                                             colour = NA),
+        legend.key = element_rect(fill = "lightgrey"),
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"))
+
+leg_dmr <- ggpubr::get_legend(p3, position = "right")
+
+#Put to panels together
+p4 <- ggarrange(p1, p2, nrow = 2, align = "v", 
+                labels = "AUTO", font.label = list(size = 13, 
+                                          family = "Times New Roman",
+                                          face = "bold"))
+
+#Add the DMR legend
+p5 <- plot_grid(p4, leg_dmr, 
+          nrow = 1, ncol = 2, rel_widths = c(15, 3))
+
+#Export
+# ggsave(here("./figures/var_eff_dbh.svg"), plot = p5, device = "svg",
+#        width = 5, height = 6, units = "in")
+```
+
+##Plot 4: Random effects
 Variation between sites is large in this dataset. Going to quantify it here by
 estimating site effects and then plotting how the distance from edge effect 
 changes with different site effects. I am roughly following this tutorial on 
@@ -2630,18 +2960,34 @@ re_5p <- qnorm(0.95)*-1*1.986
 re_95p <- qnorm(0.95)*1*1.986
 
 g_re1 <- ggplot(ran_ef, aes(x = site, y = ranef)) + 
-  geom_point() + 
-  geom_linerange(aes(ymin = ci[, 1], ymax = ci[, 2])) + 
+  geom_point(color = "grey") + 
+  geom_linerange(aes(ymin = ci[, 1], ymax = ci[, 2]), color = "grey") + 
   geom_hline(yintercept = 0, color = "grey", linetype = 1) +
   geom_hline(yintercept = re_5p, color = "grey", linetype = 3) +
   geom_hline(yintercept = re_95p, color = "grey", linetype = 2) +
+  annotate("text", x = 12, y = re_5p + 0.3, label = "High infection site",
+           family = "Times New Roman", size = 3) +
+  annotate("text", x = 12, y = re_95p + 0.3 , label = "Low infection site",
+           family = "Times New Roman", size = 3) +
+  annotate("text", x = 12, y = 0.3, label = "Average site",
+           family = "Times New Roman", size = 3) +
   theme_classic() + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20)) +
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        plot.margin = unit(c(.5, 2, .5, .5), "cm"),) +
   labs(x = "Site",
-       y = "Random effect estimate")
+       y = "Random effect estimate") +
+  coord_cartesian(clip = "off")
 g_re1
+
+#Save this plot
+# ggsave(here("./figures/ran_effect_est.svg"), plot = g_re1, device = "svg",
+#         width = 5, height = 3, units = "in")
 ```
 
 The next step is more complex because {ggeffects} and {ordinal} don't work 
@@ -2678,11 +3024,11 @@ re <- qnorm(0.95)*c(-1, 1)*1.986
 #Also add a factor version describing the random effect for plotting
 ran_ef2 <- ran_ef2 %>% 
   mutate(ranef = c(rep(0, 11), rep(re[1], 11), rep(re[2], 11)),
-         ranef_f = factor(c(rep("av site", 11), rep("5th perc site", 11), 
-                     rep("95th perc site", 11)), 
-                     levels = c("5th perc site", 
-                                "av site", 
-                                "95th perc site"))) 
+         ranef_f = factor(c(rep("Average", 11), rep("Low infection", 11), 
+                     rep("High infection", 11)), 
+                     levels = c("Low infection", 
+                                "Average", 
+                                "High infection"))) 
 
 #Calculate logit odds for P(DMR<=0) and P(DMR<= IBLC-2) 
 coef_m20 <- coef(m20)
@@ -2717,39 +3063,35 @@ x <- ran_ef2 %>%
                           "IBLC_2" ~ "IBLC-2")) %>% 
   mutate(DMR = factor(DMR, levels = c("0", "IBLC-2", "3-5")))
 
-g_re2 <- ggplot(x, aes(x = dist_y_h, y=prob)) + 
-  geom_point(data = filter(x, ranef_f == "av site"), 
-             aes(x = dist_y_h, y = prob, colour = DMR)) +
+g_re2 <- ggplot(x, aes(x = dist_y_h, y=prob)) +
   geom_line(aes(color = DMR, linetype = ranef_f)) + 
   theme_classic() +
   scale_linetype_manual(values = c(3, 1, 2)) +
   scale_color_manual(values = col_dmr3) +
   labs(x = "Distance from the edge (m)",
        y = "Probability",
-       linetype = "Random effect") +
-  theme(legend.position = "right",
-        legend.background = element_blank(),
-        legend.box.background = element_rect(fill = "lightgrey", colour = NA),
-        legend.key = element_rect(fill = "lightgrey", color = NA),
-        legend.title = element_text(size = 24),
-        legend.text = element_text(size = 20),
-        axis.text = element_text(size = 16),
-        axis.title = element_text(size = 20)) +
-  guides(colour = guide_legend(override.aes = list(size = 2)),
-         linetype = guide_legend(override.aes = list(lwd = 0.5)))
+       linetype = "Site type") +
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.99, 0.5),
+        legend.background = element_rect(fill = "lightgrey", colour = NA),
+        legend.box.background = element_rect(fill = "lightgrey", 
+                                             colour = NA),
+        legend.key = element_rect(fill = "lightgrey"),
+        legend.key.height = unit(0.1, "cm"),
+        axis.text = element_text(size = 11, family = "Times New Roman"),
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        plot.margin = unit(c(0.5, 2, 0.5, 0.5), "cm")) +
+  guides(colour = guide_legend(order = 1, override.aes = list(size = 2)),
+         linetype = guide_legend(order = 2, override.aes = list(lwd = 0.5)))
 g_re2
-```
-
-###Combine random effect plots
-```{r}
-g_re3 <- ggarrange(g_re1, g_re2, ncol = 2, widths = c(1,2.5),
-          labels = c("A", "B"), font.label = list(size = 20))
-g_re3
 
 #Export the graph
-# pdf(here("./figures/ran_effects.pdf"), width = 11, height = 7)
-# g_re3
-# dev.off()
+# ggsave(here("./figures/ran_effect_dmr.svg"), plot = g_re2, device = "svg",
+#         width = 6, height = 4, units = "in")
 ```
 
 #Extra code chunks
