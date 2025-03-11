@@ -2994,15 +2994,20 @@ The next step is more complex because {ggeffects} and {ordinal} don't work
 together yet to get predictions under differ random effects. So need to 
 calculate predictions manually. Use the distance from the edge effect as the 
 example because that is most intuitive. The general steps were: create a
-dataset where distance from the edge varies (0-50) and seed load and dbh are at
-their means; scale so they match the model inputs; estimate the average (random
-effect = 0) and extreme (random effect = 95% CI limits) random effects; 
-manually calcualte probabilities of each response; then plot. 
+dataset where distance from the edge varies (0-50), seed load is set at its
+mean and dbh is set at the mean for dominant/codominant trees; scale so they 
+match the model inputs; estimate the average (random effect = 0) and extreme 
+(random effect = 95% CI limits) random effects; manually calcualte 
+probabilities of each response; then plot. 
 ```{r}
 #Generate a data set with the three predictors
 ##Distance from the edge varies, seed load and dbh are at their mean
+dbh_cd <- modelling %>% 
+  filter(crown_class_2 == "C") %>% 
+  summarise(dbh = mean(dbh)) %>% 
+  pull(dbh)
 ran_ef2 <- data.frame(dist_y_h = rep(seq(0, 50, 5), 3),
-                      dbh = rep(dbh_mean, 33),
+                      dbh = rep(dbh_cd, 33),
                       sl_i_tot_rm = rep(sl_mean, 33))
 
 #Scale the predictors
@@ -3071,8 +3076,7 @@ g_re2 <- ggplot(x, aes(x = dist_y_h, y=prob)) +
   labs(x = "Distance from the edge (m)",
        y = "Probability",
        linetype = "Site type") +
-  theme(legend.position = "inside",
-        legend.position.inside = c(0.99, 0.5),
+  theme(legend.position = "right",
         legend.background = element_rect(fill = "lightgrey", colour = NA),
         legend.box.background = element_rect(fill = "lightgrey", 
                                              colour = NA),
@@ -3083,15 +3087,14 @@ g_re2 <- ggplot(x, aes(x = dist_y_h, y=prob)) +
                                   face = "bold"),
         legend.text = element_text(size = 11, family = "Times New Roman"),
         legend.title = element_text(size = 11, family = "Times New Roman",
-                                  face = "bold"),
-        plot.margin = unit(c(0.5, 2, 0.5, 0.5), "cm")) +
+                                  face = "bold")) +
   guides(colour = guide_legend(order = 1, override.aes = list(size = 2)),
          linetype = guide_legend(order = 2, override.aes = list(lwd = 0.5)))
 g_re2
 
 #Export the graph
 # ggsave(here("./figures/ran_effect_dmr.svg"), plot = g_re2, device = "svg",
-#         width = 6, height = 4, units = "in")
+#         width = 6.5, height = 4, units = "in")
 ```
 
 #Extra code chunks
