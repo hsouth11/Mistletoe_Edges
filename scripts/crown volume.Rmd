@@ -626,16 +626,15 @@ p2 <- ggplot(t_psp_m, aes(x = HEIGHT, y = HT_BRCH)) +
   scale_color_viridis(discrete = T,
                       alpha = 0.5) +
   guides(color = F) +
-  labs(x = expression('Tree height ('*italic(m)*')'),
-       y = expression('Height to live crown ('*italic(m)*')')) +
-  theme(text = element_text(family = "Arial"),
+  labs(x = "Tree height (m)",
+       y = "Height to live crown (m)") +
+  theme(text = element_text(family = "Times New Roman"),
         axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12),
-        plot.margin = margin(t = 10, r = 10, b = 10, l = 10))
+        axis.title = element_text(size = 12, face = "bold"))
 
 #Export
-# ggsave(here("./figures/htlc_ht.svg"), plot = p2, width = 12, height = 8,
-#          units = "cm", device = "svg")
+# ggsave(here("./figures/htlc_ht.svg"), plot = p2, width = 5, height = 3.5,
+#          units = "in", device = "svg")
 ```
 
 ##Models
