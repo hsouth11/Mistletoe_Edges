@@ -300,18 +300,18 @@ p1 <- ggplot(sdisp, aes(x=dist_m_stem, y = p_seed)) +
              linetype = 2, colour = "grey") + 
   annotate("text", x = 0.1, y = 0.5, 
            label = "Stem", hjust = 0, colour = "grey",
-           family = "Arial") + 
+           family = "Times New Roman") + 
   annotate("text", x = 3.955, y = 0.45, 
            label = "Crown edge", hjust = 0, colour = "grey",
-           family = "Arial") +
+           family = "Times New Roman") +
   lims(y=c(0, 0.5),
        x=c(0, 25))+
   theme_classic() +
-  labs(x = expression('Distance between trees ('*italic(m)*')'), 
+  labs(x = "Distance between trees (m)", 
        y = "Proportion SP") + 
-  theme(text = element_text(family = "Arial"), 
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12))
+  theme(text = element_text(family = "Times New Roman"), 
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 11, face = "bold"))
 p1
 ```
 
@@ -409,6 +409,32 @@ tmap_mode("plot") + tm_shape(test) +
 tmap_mode("plot") + tm_shape(test) + 
   tm_symbols(col = "crown_class_2", shape = "tree_type") + 
   tm_text("tree_id") + tm_grid()
+
+#SOME CODE FOR CREATING A LEGEND BACKGROUND IF I GET TO IT FROM CHATGPT
+# #Create some rectangles for legends
+# #For p2
+# xmin <- 500000  # Left boundary (Easting)
+# xmax <- 501000  # Right boundary (Easting)
+# ymin <- 4500000 # Bottom boundary (Northing)
+# ymax <- 4501000 # Top boundary (Northing)
+# 
+# # Create the polygon
+# rectangle <- st_sfc(st_polygon(list(matrix(
+#   c(xmin, ymin,
+#     xmax, ymin,
+#     xmax, ymax,
+#     xmin, ymax,
+#     xmin, ymin), 
+#   ncol = 2, byrow = TRUE))), 
+#   crs = 32633)  # Set your UTM zone CRS (example: UTM zone 33N)
+# 
+# # Convert to sf object
+# rectangle_sf <- st_sf(geometry = rectangle)
+# 
+# # Plot in tmap
+# tm_shape(rectangle_sf) + 
+#   tm_fill(col = "lightgrey") +   # Change background color
+#   tm_borders(col = "black")    
 ```
 
 ####Panel for thesis plot
@@ -426,12 +452,12 @@ p2 <- tmap_mode("plot") +
                title.shape = "Component") +
   tm_shape(bbox) +
     tm_borders(col = "blue") +
-  tm_layout(fontfamily = "Arial",
+  tm_layout(scale = 1,
+            fontfamily = "Times New Roman",
             legend.position = c("left", "top"),
-            legend.width = 0.75,
-            legend.height = 0.75,
-            legend.title.size = 1.2,
-            legend.text.size = 1,
+            legend.width = 1,
+            legend.height = 1,
+            legend.title.fontface = "bold",
             legend.bg.color = "white",
             legend.bg.alpha = 0.5) 
 p2
@@ -639,12 +665,10 @@ p3 <- tmap_mode("plot") +
                title.col = "Seed production",
                palette = "viridis",
                style = "cont") +
-  tm_layout(fontfamily = "Arial",
+  tm_layout(scale = 1,
+            fontfamily = "Times New Roman",
             legend.position = c("left", "top"),
-            legend.width = 1,
-            legend.height = 0.75,
-            legend.title.size = 1.2,
-            legend.text.size = 1,
+            legend.title.fontface = "bold",
             legend.bg.color = "white",
             legend.bg.alpha = 0.5)
 p3
@@ -681,12 +705,9 @@ p4 <- tmap_mode("plot") +
     tm_symbols(col = "crown_class_2",
                palette = colour_cc2,
                title.col = "Crown class") +
-  tm_layout(fontfamily = "Arial",
+  tm_layout(fontfamily = "Times New Roman",
             legend.position = c("left", "top"),
-            legend.width = 0.75,
-            legend.height = 0.75,
-            legend.title.size = 1.2,
-            legend.text.size = 1,
+            legend.title.fontface = "bold",
             legend.bg.color = "white",
             legend.bg.alpha = 0.5)
 p4
@@ -1155,12 +1176,10 @@ p5 <- tmap_mode("plot") +
              title.lwd = "Seed load",
              scale = 2,
              legend.lwd.is.portrait = T) + 
-  tm_layout(fontfamily = "Arial",
-            legend.width = 0.5,
-            legend.height = 0.75,
+  tm_layout(asp= 1,
+            fontfamily = "Times New Roman",
             legend.position = c("left", "top"),
-            legend.title.size = 1.2,
-            legend.text.size = 1,
+            legend.title.fontface = "bold",
             legend.bg.color = "white",
             legend.bg.alpha = 0.5)
 p5
@@ -1175,14 +1194,14 @@ p4_grob <- tmap_grob(p4)
 p5_grob <- tmap_grob(p5)
 
 #Combine them
-p <- ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob,
-          ncol = 2, nrow = 3, labels = "AUTO",
+p <- ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob, 
+          align = "hv", ncol = 2, nrow = 3, labels = "AUTO",
           hjust = 0.04,
-          font.label = list(size = 16, family = "Calibri",
-                            face = "plain"))
+          font.label = list(size = 13, family = "Times New Roman",
+                            face = "bold"))
 
-# ggsave(here("./figures/sl_workflow.svg"), plot = p,
-#        device = "svg", width = 6.5, height = 7.5)
+ggsave(here("./figures/sl_workflow.svg"), plot = p,
+       device = "svg", width = 6.5, height = 8, units = "in")
 ```
 
 ##Interception across all sites
