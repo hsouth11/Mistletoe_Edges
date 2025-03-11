@@ -1701,7 +1701,7 @@ x <- regen_15_l %>%
   select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, nstem_ha_l_hw_wb,
             nstem_ha_l_hw_si, nstem_ha_l_hw_dmr3)) %>% 
   mutate(sec = "0_15")
-
+y <- x1 %>% filter(crown_class_2 == "C") %>% arrange(p_l_hw_dmr3)
 #For 0-50m 
 x1 <- regen_50_l %>% 
   group_by(site_id, crown_class_2) %>% 
@@ -1767,6 +1767,27 @@ x3 <- regen_50_l %>%
 
 #Join the three dataframes
 ri_l_hw <- rbind(x, x1, x2, x3)
+```
+
+Generate some summary stats with a bit more detail about the trees where growth
+impacts are occruing in dominant/codominant trees. 
+```{r}
+#How many are there? 
+#All within 15m
+regen_hw_dmr3 <- regen %>% 
+  filter(spp == "Hw" & status %in% live_stat & dmr >= 3 & crown_class_2 == "C")
+dim(regen_hw_dmr3) #41
+
+#Where are these trees relative to the edge? 
+#All within 15m 
+summary(regen_hw_dmr3$dist_y_h)
+
+#Which sites have them? 
+unique(regen_hw_dmr3$site_id)
+
+#What is there typical incidence?
+x %>% filter(crown_class_2 == "C") %>% 
+  select(p_l_hw_dmr3) %>% summary()
 ```
 
 ###Plot for thesis
