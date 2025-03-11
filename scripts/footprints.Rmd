@@ -1,0 +1,71 @@
+---
+title: "Export site footprints"
+author: "Hanno Southam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+#Setup
+```{r}
+rm(list=ls(all=TRUE))
+
+library(tidyverse)
+library(here)
+library(sp)
+library(sf)
+library(tmap)
+library(RColorBrewer)
+
+trees <- read_csv("./data/workflow/trees_sl.csv")
+site <- read_csv('./data/cleaned/site data.csv')
+```
+
+Covert trees object to sf object
+```{r}
+#Convert to a sf, point feature object
+trees <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+
+class(trees)
+summary(trees)
+
+#Check CRS, should be BC Albers NAD83 
+st_crs(trees) #check CRS, should be BC Albers NAD83 = 3005
+
+#Sort by site_id
+trees <- trees %>% arrange(site_id)
+```
+
+Plot to check its working
+```{r}
+tmap_mode("plot") +
+  tm_shape(trees) +
+    tm_facets(by = "site_id")+
+    tm_symbols()
+```
+
+#Generate footprints
+```{r}
+#With help from ChatGPT
+fp <- trees %>%
+  group_by(site_id) %>%
+  summarise(geometry = st_as_sfc(st_bbox(geometry)), .groups = "drop")
+
+#Plot to check 
+tmap_mode("plot") +
+  tm_shape(trees) +
+    tm_facets(by = "site_id")+
+    tm_symbols() +
+  tm_shape(site_bboxes)+
+    tm_borders()
+```
+
+#Save
+```{r}
+#Save just the sites from 2024
+sites_2024 <- c("ph_2", "ph_1", "ph_2")
+fp_2024 <- fp %>% filter(site_id %in% sites_2024)
+
+#Save
+# st_write(fp, here('./data/mof_footprints/hdm_fp_all.shp'),
+#          append = FALSE)
+```
+
