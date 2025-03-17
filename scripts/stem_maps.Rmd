@@ -461,13 +461,13 @@ trees_rot <- left_join(trees_rot,
 #Make new version of dmr_f for graphing that simplifies some of the ratings
 levels(trees_rot$dmr_f)
 trees_rot <- trees_rot %>% 
-  mutate(dmr_f_graph = case_when(dmr_f == "-" ~ "non Hw", 
+  mutate(dmr_f_graph = case_when(dmr_f == "-" ~ "non-hemlock", 
                                  dmr_f %in% c("1", "2") ~ "1-2", 
                                  dmr_f %in% c("3", "4") ~ "3-4", 
                                  dmr_f %in% c("5", "6") ~ "5-6",
                                  .default = dmr_f)) %>% 
   mutate(dmr_f_graph = factor(dmr_f_graph, 
-                              levels = c("non Hw", "DU", "0", 
+                              levels = c("non-hemlock", "DU", "0", 
                                          "IBLC", "1-2", 
                                          "3-4", "5-6", "DI")))
 ```
@@ -486,7 +486,7 @@ Define shapes and colours
 #DMR colour palette
 # https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
 levels(trees_rot$dmr_f_graph)
-color_dmr <- c("bisque3", "#1F78B4", "#A6CEE3", 
+color_dmr <- c("black", "#1F78B4", "#A6CEE3", 
                        brewer.pal(4, "Oranges"), "hotpink")
 
 #Data source
@@ -679,8 +679,8 @@ p <- tmap_mode("plot") +
             fontfamily = "Times New Roman")
 
 #Save the plot
-tmap_save(p, filename = "./figures/trees_sl_set1.svg", 
-          width = 6.5, height = 7.5, units = "in")
+# tmap_save(p, filename = "./figures/trees_sl_set1.svg", 
+#           width = 6.5, height = 7.5, units = "in")
 ```
 
 Plot the second set
@@ -752,8 +752,8 @@ p <- tmap_mode("plot") +
             fontfamily = "Times New Roman")
 
 #Save the plot
-tmap_save(p, filename = "./figures/trees_sl_set2.svg", 
-          width = 6.5, height = 7.5, units = "in")
+# tmap_save(p, filename = "./figures/trees_sl_set2.svg", 
+#           width = 6.5, height = 7.5, units = "in")
 ```
 
 ##Plot for WIFDWC 2024
