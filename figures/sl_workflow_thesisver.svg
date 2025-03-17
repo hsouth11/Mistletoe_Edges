@@ -1,0 +1,4448 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   class="svglite"
+   width="468.00pt"
+   height="576.00pt"
+   viewBox="0 0 468.00 576.00"
+   version="1.1"
+   id="svg667"
+   sodipodi:docname="sl_workflow.svg"
+   inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview667"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="pt"
+     showgrid="false"
+     inkscape:zoom="1.185758"
+     inkscape:cx="261.01447"
+     inkscape:cy="151.80163"
+     inkscape:window-width="1472"
+     inkscape:window-height="821"
+     inkscape:window-x="0"
+     inkscape:window-y="38"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg667" />
+  <defs
+     id="defs1">
+    <style
+       type="text/css"
+       id="style1"><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+  ]]></style>
+  </defs>
+  <rect
+     width="100%"
+     height="100%"
+     style="stroke: none; fill: none;"
+     id="rect1" />
+  <defs
+     id="defs2">
+    <clipPath
+       id="cpMC4wMHw0NjguMDB8MC4wMHw1NzYuMDA=">
+      <rect
+         x="0.00"
+         y="0.00"
+         width="468.00"
+         height="576.00"
+         id="rect2" />
+    </clipPath>
+  </defs>
+  <g
+     clip-path="url(#cpMC4wMHw0NjguMDB8MC4wMHw1NzYuMDA=)"
+     id="g2" />
+  <defs
+     id="defs3">
+    <clipPath
+       id="cpMC4wMHwyMzQuMDB8MC4wMHwxOTIuMDA=">
+      <rect
+         x="0.00"
+         y="0.00"
+         width="234.00"
+         height="192.00"
+         id="rect3" />
+    </clipPath>
+  </defs>
+  <g
+     clip-path="url(#cpMC4wMHwyMzQuMDB8MC4wMHwxOTIuMDA=)"
+     id="g4">
+    <rect
+       x="0.00"
+       y="0.00"
+       width="234.00"
+       height="192.00"
+       style="stroke-width: 1.07; stroke: #FFFFFF; fill: #FFFFFF;"
+       id="rect4" />
+  </g>
+  <g
+     clip-path="url(#cpMC4wMHw0NjguMDB8MC4wMHw1NzYuMDA=)"
+     id="g5" />
+  <defs
+     id="defs5">
+    <clipPath
+       id="cpMzYuOTR8MjI4LjUyfDUuNDh8MTYxLjg4">
+      <rect
+         x="36.94"
+         y="5.48"
+         width="191.58"
+         height="156.40"
+         id="rect5" />
+    </clipPath>
+  </defs>
+  <g
+     clip-path="url(#cpMzYuOTR8MjI4LjUyfDUuNDh8MTYxLjg4)"
+     id="g27">
+    <rect
+       x="36.94"
+       y="5.48"
+       width="191.58"
+       height="156.40"
+       style="stroke-width: 1.07; stroke: none; fill: #FFFFFF;"
+       id="rect6" />
+    <polyline
+       points="45.65,47.42 49.13,47.42 52.61,47.42 56.10,47.42 59.58,47.42 63.06,47.42 66.55,47.42 70.03,47.42 73.51,51.24 77.00,63.41 80.48,74.14 83.96,83.62 87.45,91.98 90.93,99.36 94.41,105.87 97.90,111.61 101.38,116.69 104.86,121.16 108.35,125.11 111.83,128.60 115.31,131.67 118.80,134.39 122.28,136.78 125.76,138.90 129.25,140.76 132.73,142.41 136.21,143.86 139.70,145.14 143.18,146.28 146.66,147.27 150.15,148.16 153.63,148.93 157.11,149.62 160.60,150.22 164.08,150.76 167.56,151.23 171.05,151.65 174.53,152.01 178.01,152.34 181.50,152.62 184.98,152.88 188.46,153.10 191.95,153.30 195.43,153.47 198.91,153.62 202.40,153.76 205.88,153.88 209.36,153.98 "
+       style="stroke-width: 1.07; stroke: #FF0000; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;"
+       id="polyline6" />
+    <circle
+       cx="60.72"
+       cy="26.89"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle6" />
+    <circle
+       cx="60.72"
+       cy="67.95"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle7" />
+    <circle
+       cx="79.20"
+       cy="79.55"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle8" />
+    <circle
+       cx="79.20"
+       cy="79.81"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle9" />
+    <circle
+       cx="90.66"
+       cy="113.43"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle10" />
+    <circle
+       cx="90.66"
+       cy="110.40"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle11" />
+    <circle
+       cx="99.79"
+       cy="126.98"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle12" />
+    <circle
+       cx="99.79"
+       cy="123.41"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle13" />
+    <circle
+       cx="107.65"
+       cy="148.07"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle14" />
+    <circle
+       cx="107.65"
+       cy="130.58"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle15" />
+    <circle
+       cx="120.82"
+       cy="149.36"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle16" />
+    <circle
+       cx="120.82"
+       cy="144.89"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle17" />
+    <circle
+       cx="126.55"
+       cy="154.77"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle18" />
+    <circle
+       cx="126.55"
+       cy="149.12"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle19" />
+    <circle
+       cx="136.95"
+       cy="154.77"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle20" />
+    <circle
+       cx="136.95"
+       cy="152.52"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle21" />
+    <circle
+       cx="141.20"
+       cy="154.77"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle22" />
+    <circle
+       cx="141.20"
+       cy="151.63"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle23" />
+    <circle
+       cx="150.76"
+       cy="154.77"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle24" />
+    <circle
+       cx="150.76"
+       cy="153.05"
+       r="1.95"
+       style="stroke-width: 0.71; fill: #000000;"
+       id="circle25" />
+    <line
+       x1="45.65"
+       y1="161.88"
+       x2="45.65"
+       y2="5.48"
+       style="stroke-width: 1.07; stroke: #BEBEBE; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;"
+       id="line25" />
+    <line
+       x1="72.50"
+       y1="161.88"
+       x2="72.50"
+       y2="5.48"
+       style="stroke-width: 1.07; stroke: #BEBEBE; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;"
+       id="line26" />
+    <text
+       x="46.34"
+       y="16.24"
+       style="font-size:11.04px;font-family:'Times New Roman';fill:#bebebe"
+       textLength="22.68"
+       lengthAdjust="spacingAndGlyphs"
+       id="text26"
+       transform="matrix(0.9084361,0,0,0.9084361,4.30621,0.8023931)">Stem</text>
+    <text
+       x="73.199997"
+       y="30.459999"
+       style="font-size:11.04px;font-family:'Times New Roman';fill:#bebebe"
+       textLength="53.599998"
+       lengthAdjust="spacingAndGlyphs"
+       id="text27"
+       transform="matrix(0.91041858,0,0,0.91041858,6.593059,2.0419665)">Crown edge</text>
+  </g>
+  <g
+     clip-path="url(#cpMC4wMHw0NjguMDB8MC4wMHw1NzYuMDA=)"
+     id="g53">
+    <polyline
+       points="36.94,161.88 36.94,5.48 "
+       style="stroke-width: 1.07; stroke-linecap: butt;"
+       id="polyline27" />
+    <text
+       x="32.01"
+       y="158.42"
+       text-anchor="end"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="13.75px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text28">0.0</text>
+    <text
+       x="32.01"
+       y="129.98"
+       text-anchor="end"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="13.75px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text29">0.1</text>
+    <text
+       x="32.01"
+       y="101.54"
+       text-anchor="end"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="13.75px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text30">0.2</text>
+    <text
+       x="32.01"
+       y="73.11"
+       text-anchor="end"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="13.75px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text31">0.3</text>
+    <text
+       x="32.01"
+       y="44.67"
+       text-anchor="end"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="13.75px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text32">0.4</text>
+    <text
+       x="32.01"
+       y="16.23"
+       text-anchor="end"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="13.75px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text33">0.5</text>
+    <polyline
+       points="34.20,154.77 36.94,154.77 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline33" />
+    <polyline
+       points="34.20,126.34 36.94,126.34 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline34" />
+    <polyline
+       points="34.20,97.90 36.94,97.90 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline35" />
+    <polyline
+       points="34.20,69.46 36.94,69.46 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline36" />
+    <polyline
+       points="34.20,41.03 36.94,41.03 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline37" />
+    <polyline
+       points="34.20,12.59 36.94,12.59 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline38" />
+    <polyline
+       points="36.94,161.88 228.52,161.88 "
+       style="stroke-width: 1.07; stroke-linecap: butt;"
+       id="polyline39" />
+    <polyline
+       points="45.65,164.62 45.65,161.88 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline40" />
+    <polyline
+       points="80.48,164.62 80.48,161.88 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline41" />
+    <polyline
+       points="115.31,164.62 115.31,161.88 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline42" />
+    <polyline
+       points="150.15,164.62 150.15,161.88 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline43" />
+    <polyline
+       points="184.98,164.62 184.98,161.88 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline44" />
+    <polyline
+       points="219.81,164.62 219.81,161.88 "
+       style="stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;"
+       id="polyline45" />
+    <text
+       x="45.65"
+       y="174.10"
+       text-anchor="middle"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="5.50px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text45">0</text>
+    <text
+       x="80.48"
+       y="174.10"
+       text-anchor="middle"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="5.50px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text46">5</text>
+    <text
+       x="115.31"
+       y="174.10"
+       text-anchor="middle"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="11.00px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text47">10</text>
+    <text
+       x="150.15"
+       y="174.10"
+       text-anchor="middle"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="11.00px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text48">15</text>
+    <text
+       x="184.98"
+       y="174.10"
+       text-anchor="middle"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="11.00px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text49">20</text>
+    <text
+       x="219.81"
+       y="174.10"
+       text-anchor="middle"
+       style="font-size: 11.00px;fill: #4D4D4D; font-family: &quot;Times New Roman&quot;;"
+       textLength="11.00px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text50">25</text>
+    <text
+       x="132.73"
+       y="186.52"
+       text-anchor="middle"
+       style="font-size: 11.00px; font-weight: bold; font-family: &quot;Times New Roman&quot;;"
+       textLength="125.96px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text51">Distance between trees (m)</text>
+    <text
+       transform="translate(12.77,83.68) rotate(-90)"
+       text-anchor="middle"
+       style="font-size: 11.00px; font-weight: bold; font-family: &quot;Times New Roman&quot;;"
+       textLength="67.33px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text52">Proportion SP</text>
+    <text
+       x="4.69"
+       y="12.92"
+       style="font-size: 13.00px; font-weight: bold; font-family: &quot;Times New Roman&quot;;"
+       textLength="9.39px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text53">A</text>
+  </g>
+  <defs
+     id="defs53">
+    <clipPath
+       id="cpMjcxLjc5fDQzMC4yMXwzLjg0fDE4OC4xNg==">
+      <rect
+         x="271.79"
+         y="3.84"
+         width="158.42"
+         height="184.32"
+         id="rect53" />
+    </clipPath>
+  </defs>
+  <g
+     clip-path="url(#cpMjcxLjc5fDQzMC4yMXwzLjg0fDE4OC4xNg==)"
+     id="g220">
+    <rect
+       x="271.79"
+       y="3.84"
+       width="158.42"
+       height="184.32"
+       style="stroke-width: 0.75; stroke: none; fill: #FFFFFF;"
+       id="rect54" />
+    <rect
+       x="308.78"
+       y="81.32"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect55" />
+    <rect
+       x="309.59"
+       y="83.39"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect56" />
+    <rect
+       x="305.52"
+       y="85.27"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect57" />
+    <rect
+       x="305.59"
+       y="85.80"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect58" />
+    <rect
+       x="310.33"
+       y="86.69"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect59" />
+    <rect
+       x="312.64"
+       y="83.09"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect60" />
+    <rect
+       x="317.04"
+       y="87.41"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect61" />
+    <rect
+       x="313.71"
+       y="91.70"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect62" />
+    <rect
+       x="316.95"
+       y="98.26"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect63" />
+    <rect
+       x="318.17"
+       y="98.31"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect64" />
+    <rect
+       x="319.39"
+       y="98.36"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect65" />
+    <rect
+       x="316.67"
+       y="104.86"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect66" />
+    <rect
+       x="323.04"
+       y="102.89"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect67" />
+    <rect
+       x="322.43"
+       y="105.06"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect68" />
+    <rect
+       x="320.32"
+       y="105.89"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect69" />
+    <rect
+       x="317.88"
+       y="107.54"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect70" />
+    <rect
+       x="328.05"
+       y="53.76"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect71" />
+    <rect
+       x="329.40"
+       y="54.88"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect72" />
+    <rect
+       x="333.06"
+       y="55.03"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect73" />
+    <rect
+       x="338.20"
+       y="53.88"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect74" />
+    <rect
+       x="340.43"
+       y="55.86"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect75" />
+    <rect
+       x="336.95"
+       y="64.31"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect76" />
+    <rect
+       x="346.22"
+       y="63.57"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect77" />
+    <rect
+       x="345.26"
+       y="66.54"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect78" />
+    <rect
+       x="346.21"
+       y="67.06"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect79" />
+    <rect
+       x="341.66"
+       y="71.29"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect80" />
+    <rect
+       x="342.33"
+       y="71.42"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect81" />
+    <rect
+       x="348.23"
+       y="70.06"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect82" />
+    <rect
+       x="352.74"
+       y="76.30"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect83" />
+    <rect
+       x="349.88"
+       y="79.97"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect84" />
+    <rect
+       x="349.12"
+       y="84.55"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect85" />
+    <rect
+       x="353.59"
+       y="85.03"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect86" />
+    <rect
+       x="356.09"
+       y="85.66"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect87" />
+    <rect
+       x="361.44"
+       y="85.25"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect88" />
+    <rect
+       x="363.12"
+       y="87.31"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect89" />
+    <rect
+       x="360.39"
+       y="93.80"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect90" />
+    <rect
+       x="363.07"
+       y="38.01"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect91" />
+    <rect
+       x="365.51"
+       y="37.24"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect92" />
+    <rect
+       x="360.95"
+       y="43.21"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect93" />
+    <rect
+       x="361.75"
+       y="47.03"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect94" />
+    <rect
+       x="369.89"
+       y="42.41"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect95" />
+    <rect
+       x="369.89"
+       y="42.41"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect96" />
+    <rect
+       x="369.89"
+       y="42.41"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect97" />
+    <rect
+       x="369.89"
+       y="42.41"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect98" />
+    <rect
+       x="371.37"
+       y="44.60"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect99" />
+    <rect
+       x="363.90"
+       y="50.22"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect100" />
+    <rect
+       x="363.90"
+       y="50.22"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect101" />
+    <rect
+       x="367.75"
+       y="51.97"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect102" />
+    <rect
+       x="369.78"
+       y="50.60"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect103" />
+    <rect
+       x="375.28"
+       y="46.89"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect104" />
+    <rect
+       x="373.85"
+       y="48.72"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect105" />
+    <rect
+       x="373.58"
+       y="49.20"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect106" />
+    <rect
+       x="369.50"
+       y="52.82"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect107" />
+    <rect
+       x="370.72"
+       y="53.74"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect108" />
+    <rect
+       x="374.89"
+       y="59.05"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect109" />
+    <rect
+       x="372.91"
+       y="64.45"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect110" />
+    <rect
+       x="376.61"
+       y="67.75"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect111" />
+    <rect
+       x="381.70"
+       y="64.31"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect112" />
+    <rect
+       x="379.86"
+       y="68.17"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect113" />
+    <rect
+       x="379.86"
+       y="68.17"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect114" />
+    <rect
+       x="382.69"
+       y="71.48"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect115" />
+    <circle
+       cx="289.06"
+       cy="116.82"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle115" />
+    <circle
+       cx="287.32"
+       cy="115.27"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle116" />
+    <circle
+       cx="292.71"
+       cy="110.63"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle117" />
+    <circle
+       cx="279.00"
+       cy="112.30"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle118" />
+    <circle
+       cx="277.77"
+       cy="108.36"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle119" />
+    <circle
+       cx="274.96"
+       cy="105.80"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle120" />
+    <circle
+       cx="275.97"
+       cy="103.58"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle121" />
+    <circle
+       cx="281.09"
+       cy="96.43"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle122" />
+    <circle
+       cx="284.32"
+       cy="91.75"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle123" />
+    <circle
+       cx="284.14"
+       cy="87.77"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle124" />
+    <circle
+       cx="293.41"
+       cy="92.16"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle125" />
+    <circle
+       cx="298.04"
+       cy="98.98"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle126" />
+    <circle
+       cx="295.67"
+       cy="100.04"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle127" />
+    <circle
+       cx="292.78"
+       cy="102.95"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle128" />
+    <circle
+       cx="295.47"
+       cy="83.64"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle129" />
+    <circle
+       cx="288.81"
+       cy="86.36"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle130" />
+    <circle
+       cx="286.53"
+       cy="78.90"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle131" />
+    <circle
+       cx="283.41"
+       cy="78.29"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle132" />
+    <circle
+       cx="291.49"
+       cy="61.66"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle133" />
+    <circle
+       cx="296.08"
+       cy="64.02"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle134" />
+    <circle
+       cx="308.60"
+       cy="58.43"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle135" />
+    <circle
+       cx="306.56"
+       cy="63.47"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle136" />
+    <circle
+       cx="309.38"
+       cy="67.98"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle137" />
+    <circle
+       cx="314.18"
+       cy="64.19"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle138" />
+    <circle
+       cx="316.15"
+       cy="63.93"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle139" />
+    <circle
+       cx="318.60"
+       cy="64.69"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle140" />
+    <circle
+       cx="305.90"
+       cy="72.22"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle141" />
+    <circle
+       cx="313.51"
+       cy="46.61"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle142" />
+    <circle
+       cx="334.86"
+       cy="52.59"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle143" />
+    <circle
+       cx="329.45"
+       cy="51.21"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle144" />
+    <circle
+       cx="325.34"
+       cy="52.89"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle145" />
+    <circle
+       cx="320.75"
+       cy="52.30"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle146" />
+    <circle
+       cx="319.87"
+       cy="45.04"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle147" />
+    <circle
+       cx="326.23"
+       cy="40.13"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle148" />
+    <circle
+       cx="326.39"
+       cy="36.00"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle149" />
+    <circle
+       cx="329.98"
+       cy="31.22"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle150" />
+    <circle
+       cx="333.01"
+       cy="41.81"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle151" />
+    <circle
+       cx="347.87"
+       cy="42.82"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle152" />
+    <circle
+       cx="342.73"
+       cy="47.77"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle153" />
+    <circle
+       cx="341.89"
+       cy="18.83"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle154" />
+    <circle
+       cx="343.53"
+       cy="17.60"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle155" />
+    <circle
+       cx="350.23"
+       cy="7.53"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle156" />
+    <circle
+       cx="364.87"
+       cy="9.81"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle157" />
+    <circle
+       cx="365.62"
+       cy="12.55"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle158" />
+    <circle
+       cx="369.84"
+       cy="16.94"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle159" />
+    <circle
+       cx="368.60"
+       cy="18.87"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle160" />
+    <circle
+       cx="357.37"
+       cy="26.59"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle161" />
+    <circle
+       cx="362.97"
+       cy="14.78"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle162" />
+    <rect
+       x="333.52"
+       y="124.58"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect162" />
+    <rect
+       x="364.37"
+       y="172.50"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect163" />
+    <rect
+       x="366.28"
+       y="160.85"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect164" />
+    <rect
+       x="366.21"
+       y="161.19"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect165" />
+    <rect
+       x="363.02"
+       y="163.93"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect166" />
+    <rect
+       x="354.88"
+       y="143.95"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect167" />
+    <rect
+       x="341.04"
+       y="141.43"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect168" />
+    <rect
+       x="376.90"
+       y="114.76"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect169" />
+    <rect
+       x="397.96"
+       y="142.91"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect170" />
+    <rect
+       x="368.98"
+       y="99.06"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect171" />
+    <rect
+       x="397.09"
+       y="145.57"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect172" />
+    <rect
+       x="401.95"
+       y="149.70"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect173" />
+    <rect
+       x="390.74"
+       y="130.89"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect174" />
+    <rect
+       x="385.75"
+       y="140.18"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect175" />
+    <rect
+       x="397.75"
+       y="83.28"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect176" />
+    <rect
+       x="422.14"
+       y="120.74"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect177" />
+    <rect
+       x="411.54"
+       y="100.64"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect178" />
+    <rect
+       x="396.66"
+       y="83.42"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect179" />
+    <rect
+       x="406.15"
+       y="111.98"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect180" />
+    <rect
+       x="401.12"
+       y="88.71"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect181" />
+    <rect
+       x="394.71"
+       y="87.11"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect182" />
+    <rect
+       x="357.35"
+       y="159.46"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect183" />
+    <rect
+       x="334.11"
+       y="131.59"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect184" />
+    <rect
+       x="355.28"
+       y="154.64"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect185" />
+    <rect
+       x="343.83"
+       y="141.62"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect186" />
+    <rect
+       x="365.17"
+       y="169.30"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect187" />
+    <rect
+       x="338.53"
+       y="131.57"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect188" />
+    <rect
+       x="331.88"
+       y="123.91"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect189" />
+    <rect
+       x="364.16"
+       y="171.76"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect190" />
+    <rect
+       x="371.28"
+       y="179.69"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect191" />
+    <rect
+       x="346.14"
+       y="139.77"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect192" />
+    <rect
+       x="348.73"
+       y="140.98"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect193" />
+    <rect
+       x="370.70"
+       y="171.79"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect194" />
+    <rect
+       x="366.08"
+       y="104.87"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect195" />
+    <rect
+       x="365.43"
+       y="110.93"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect196" />
+    <rect
+       x="383.09"
+       y="125.69"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect197" />
+    <rect
+       x="391.51"
+       y="134.23"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect198" />
+    <rect
+       x="391.53"
+       y="150.50"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect199" />
+    <rect
+       x="373.80"
+       y="121.58"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect200" />
+    <rect
+       x="365.45"
+       y="100.85"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect201" />
+    <rect
+       x="402.54"
+       y="145.75"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect202" />
+    <rect
+       x="392.15"
+       y="150.98"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect203" />
+    <rect
+       x="393.68"
+       y="144.02"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect204" />
+    <rect
+       x="373.07"
+       y="112.60"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect205" />
+    <rect
+       x="383.98"
+       y="127.45"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect206" />
+    <rect
+       x="391.52"
+       y="88.96"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect207" />
+    <rect
+       x="393.84"
+       y="89.77"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect208" />
+    <rect
+       x="390.55"
+       y="73.92"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect209" />
+    <rect
+       x="414.00"
+       y="116.16"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect210" />
+    <rect
+       x="399.36"
+       y="90.49"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect211" />
+    <rect
+       x="415.96"
+       y="125.21"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect212" />
+    <rect
+       x="410.11"
+       y="101.60"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect213" />
+    <rect
+       x="403.14"
+       y="110.15"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect214" />
+    <rect
+       x="395.84"
+       y="94.93"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect215" />
+    <rect
+       x="403.05"
+       y="105.18"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect216" />
+    <rect
+       x="420.91"
+       y="121.57"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect217" />
+    <rect
+       x="422.25"
+       y="130.14"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect218" />
+    <path
+       d="M 274.96 116.82 L 327.83 116.82 L 327.83 63.47 L 274.96 63.47 L 274.96 116.82 Z"
+       style="fill-rule: evenodd; stroke-width: 0.75; stroke: #FF0000;"
+       id="path218" />
+    <path
+       d="M 272.55 38.09 L 346.23 38.09 L 346.23 1.25 L 272.55 1.25 L 272.55 38.09 Z"
+       style="fill-rule: evenodd; fill: #FFFFFF; fill-opacity: 0.50; stroke-width: 0.75; stroke: none;"
+       id="path219" />
+    <rect
+       x="271.79"
+       y="3.84"
+       width="158.42"
+       height="184.32"
+       style="stroke-width: 0.75; stroke-linecap: square;"
+       id="rect219" />
+    <rect
+       x="275.27"
+       y="7.32"
+       width="28.50"
+       height="18.54"
+       style="stroke-width: 0.75; stroke: none;"
+       id="rect220" />
+  </g>
+  <defs
+     id="defs221" />
+  <text
+     x="275.98999"
+     y="14.54"
+     style="font-weight:bold;font-size:11px;font-family:'Times New Roman'"
+     textLength="54.939999"
+     lengthAdjust="spacingAndGlyphs"
+     id="text221"
+     transform="matrix(0.91081158,0,0,0.91081158,24.653869,0.63878844)">Component</text>
+  <g
+     clip-path="url(#cpMjcxLjc5fDQzMC4yMXwzLjg0fDE4OC4xNg==)"
+     id="g222" />
+  <defs
+     id="defs222" />
+  <circle
+     cx="279.92401"
+     cy="20.971031"
+     r="3.23"
+     style="fill:#999999;stroke:#666666;stroke-width:0.75"
+     id="circle222" />
+  <rect
+     x="277.06406"
+     y="29.089848"
+     width="5.7199998"
+     height="5.7199998"
+     style="fill:#999999;stroke:#666666;stroke-width:0.75"
+     id="rect223" />
+  <text
+     x="280.45999"
+     y="20.67"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="23.290001"
+     lengthAdjust="spacingAndGlyphs"
+     id="text223"
+     transform="matrix(1.1957438,0,0,1.1957438,-49.776962,0.01207757)">mature</text>
+  <text
+     x="280.45999"
+     y="25.219999"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="18.629999"
+     lengthAdjust="spacingAndGlyphs"
+     id="text224"
+     transform="matrix(1.1935408,0,0,1.1935408,-48.128679,4.5978571)">regen</text>
+  <g
+     clip-path="url(#cpMjcxLjc5fDQzMC4yMXwzLjg0fDE4OC4xNg==)"
+     id="g225" />
+  <g
+     clip-path="url(#cpMC4wMHw0NjguMDB8MC4wMHw1NzYuMDA=)"
+     id="g226">
+    <text
+       x="238.34"
+       y="12.92"
+       style="font-size: 13.00px; font-weight: bold; font-family: &quot;Times New Roman&quot;;"
+       textLength="8.68px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text225">B</text>
+  </g>
+  <defs
+     id="defs226">
+    <clipPath
+       id="cpMjUuNjd8MjA4LjMzfDE5NS44NHwzODAuMTY=">
+      <rect
+         x="25.67"
+         y="195.84"
+         width="182.66"
+         height="184.32"
+         id="rect226" />
+    </clipPath>
+  </defs>
+  <g
+     clip-path="url(#cpMjUuNjd8MjA4LjMzfDE5NS44NHwzODAuMTY=)"
+     id="g371">
+    <rect
+       x="25.67"
+       y="195.84"
+       width="182.66"
+       height="184.32"
+       style="stroke-width: 0.75; stroke: none; fill: #FFFFFF;"
+       id="rect227" />
+    <path
+       d="M 29.32 376.47 L 204.68 376.47 L 204.68 199.53 L 29.32 199.53 L 29.32 376.47 Z"
+       style="fill-rule: evenodd; stroke-width: 0.75; stroke: none;"
+       id="path227" />
+    <polyline
+       points="157.38,274.59 76.09,376.47 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline227" />
+    <polyline
+       points="146.57,287.69 76.09,376.47 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline228" />
+    <polyline
+       points="162.52,292.40 76.09,376.47 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline229" />
+    <polyline
+       points="170.19,280.46 76.09,376.47 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline230" />
+    <polyline
+       points="184.77,294.80 76.09,376.47 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline231" />
+    <polyline
+       points="204.68,346.16 76.09,376.47 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline232" />
+    <polyline
+       points="187.56,361.58 76.09,376.47 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline233" />
+    <polyline
+       points="157.38,274.59 70.32,371.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline234" />
+    <polyline
+       points="146.57,287.69 70.32,371.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline235" />
+    <polyline
+       points="162.52,292.40 70.32,371.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline236" />
+    <polyline
+       points="170.19,280.46 70.32,371.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline237" />
+    <polyline
+       points="184.77,294.80 70.32,371.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline238" />
+    <polyline
+       points="204.68,346.16 70.32,371.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline239" />
+    <polyline
+       points="187.56,361.58 70.32,371.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline240" />
+    <polyline
+       points="157.38,274.59 88.18,355.95 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline241" />
+    <polyline
+       points="146.57,287.69 88.18,355.95 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline242" />
+    <polyline
+       points="162.52,292.40 88.18,355.95 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline243" />
+    <polyline
+       points="170.19,280.46 88.18,355.95 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline244" />
+    <polyline
+       points="184.77,294.80 88.18,355.95 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline245" />
+    <polyline
+       points="204.68,346.16 88.18,355.95 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline246" />
+    <polyline
+       points="187.56,361.58 88.18,355.95 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline247" />
+    <polyline
+       points="157.38,274.59 32.67,332.55 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline248" />
+    <polyline
+       points="146.57,287.69 32.67,332.55 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline249" />
+    <polyline
+       points="162.52,292.40 32.67,332.55 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline250" />
+    <polyline
+       points="170.19,280.46 32.67,332.55 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline251" />
+    <polyline
+       points="184.77,294.80 32.67,332.55 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline252" />
+    <polyline
+       points="204.68,346.16 32.67,332.55 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline253" />
+    <polyline
+       points="187.56,361.58 32.67,332.55 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline254" />
+    <polyline
+       points="157.38,274.59 49.66,308.85 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline255" />
+    <polyline
+       points="146.57,287.69 49.66,308.85 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline256" />
+    <polyline
+       points="162.52,292.40 49.66,308.85 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline257" />
+    <polyline
+       points="170.19,280.46 49.66,308.85 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline258" />
+    <polyline
+       points="184.77,294.80 49.66,308.85 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline259" />
+    <polyline
+       points="204.68,346.16 49.66,308.85 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline260" />
+    <polyline
+       points="187.56,361.58 49.66,308.85 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline261" />
+    <polyline
+       points="157.38,274.59 60.38,293.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline262" />
+    <polyline
+       points="146.57,287.69 60.38,293.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline263" />
+    <polyline
+       points="162.52,292.40 60.38,293.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline264" />
+    <polyline
+       points="170.19,280.46 60.38,293.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline265" />
+    <polyline
+       points="184.77,294.80 60.38,293.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline266" />
+    <polyline
+       points="204.68,346.16 60.38,293.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline267" />
+    <polyline
+       points="187.56,361.58 60.38,293.33 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline268" />
+    <polyline
+       points="157.38,274.59 90.53,294.69 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline269" />
+    <polyline
+       points="146.57,287.69 90.53,294.69 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline270" />
+    <polyline
+       points="162.52,292.40 90.53,294.69 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline271" />
+    <polyline
+       points="170.19,280.46 90.53,294.69 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline272" />
+    <polyline
+       points="184.77,294.80 90.53,294.69 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline273" />
+    <polyline
+       points="204.68,346.16 90.53,294.69 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline274" />
+    <polyline
+       points="187.56,361.58 90.53,294.69 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline275" />
+    <polyline
+       points="157.38,274.59 105.86,317.31 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline276" />
+    <polyline
+       points="146.57,287.69 105.86,317.31 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline277" />
+    <polyline
+       points="162.52,292.40 105.86,317.31 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline278" />
+    <polyline
+       points="170.19,280.46 105.86,317.31 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline279" />
+    <polyline
+       points="184.77,294.80 105.86,317.31 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline280" />
+    <polyline
+       points="204.68,346.16 105.86,317.31 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline281" />
+    <polyline
+       points="187.56,361.58 105.86,317.31 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline282" />
+    <polyline
+       points="157.38,274.59 98.02,320.83 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline283" />
+    <polyline
+       points="146.57,287.69 98.02,320.83 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline284" />
+    <polyline
+       points="162.52,292.40 98.02,320.83 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline285" />
+    <polyline
+       points="170.19,280.46 98.02,320.83 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline286" />
+    <polyline
+       points="184.77,294.80 98.02,320.83 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline287" />
+    <polyline
+       points="204.68,346.16 98.02,320.83 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline288" />
+    <polyline
+       points="187.56,361.58 98.02,320.83 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline289" />
+    <polyline
+       points="157.38,274.59 97.35,266.42 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline290" />
+    <polyline
+       points="146.57,287.69 97.35,266.42 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline291" />
+    <polyline
+       points="162.52,292.40 97.35,266.42 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline292" />
+    <polyline
+       points="170.19,280.46 97.35,266.42 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline293" />
+    <polyline
+       points="184.77,294.80 97.35,266.42 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline294" />
+    <polyline
+       points="204.68,346.16 97.35,266.42 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline295" />
+    <polyline
+       points="187.56,361.58 97.35,266.42 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline296" />
+    <polyline
+       points="157.38,274.59 75.27,275.43 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline297" />
+    <polyline
+       points="146.57,287.69 75.27,275.43 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline298" />
+    <polyline
+       points="162.52,292.40 75.27,275.43 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline299" />
+    <polyline
+       points="170.19,280.46 75.27,275.43 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline300" />
+    <polyline
+       points="184.77,294.80 75.27,275.43 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline301" />
+    <polyline
+       points="204.68,346.16 75.27,275.43 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline302" />
+    <polyline
+       points="187.56,361.58 75.27,275.43 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline303" />
+    <polyline
+       points="157.38,274.59 57.34,248.67 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline304" />
+    <polyline
+       points="146.57,287.69 57.34,248.67 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline305" />
+    <polyline
+       points="162.52,292.40 57.34,248.67 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline306" />
+    <polyline
+       points="170.19,280.46 57.34,248.67 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline307" />
+    <polyline
+       points="184.77,294.80 57.34,248.67 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline308" />
+    <polyline
+       points="204.68,346.16 57.34,248.67 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline309" />
+    <polyline
+       points="187.56,361.58 57.34,248.67 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline310" />
+    <polyline
+       points="157.38,274.59 134.14,199.53 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline311" />
+    <polyline
+       points="146.57,287.69 134.14,199.53 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline312" />
+    <polyline
+       points="162.52,292.40 134.14,199.53 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline313" />
+    <polyline
+       points="170.19,280.46 134.14,199.53 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline314" />
+    <polyline
+       points="184.77,294.80 134.14,199.53 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline315" />
+    <polyline
+       points="204.68,346.16 134.14,199.53 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline316" />
+    <polyline
+       points="187.56,361.58 134.14,199.53 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline317" />
+    <polyline
+       points="157.38,274.59 174.06,203.58 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline318" />
+    <polyline
+       points="146.57,287.69 174.06,203.58 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline319" />
+    <polyline
+       points="162.52,292.40 174.06,203.58 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline320" />
+    <polyline
+       points="170.19,280.46 174.06,203.58 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline321" />
+    <polyline
+       points="184.77,294.80 174.06,203.58 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline322" />
+    <polyline
+       points="204.68,346.16 174.06,203.58 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline323" />
+    <polyline
+       points="187.56,361.58 174.06,203.58 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline324" />
+    <polyline
+       points="157.38,274.59 131.94,228.56 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline325" />
+    <polyline
+       points="146.57,287.69 131.94,228.56 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline326" />
+    <polyline
+       points="162.52,292.40 131.94,228.56 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline327" />
+    <polyline
+       points="170.19,280.46 131.94,228.56 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline328" />
+    <polyline
+       points="184.77,294.80 131.94,228.56 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline329" />
+    <polyline
+       points="204.68,346.16 131.94,228.56 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline330" />
+    <polyline
+       points="187.56,361.58 131.94,228.56 "
+       style="stroke-width: 0.75; stroke-linecap: butt;"
+       id="polyline331" />
+    <rect
+       x="152.60"
+       y="269.80"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect331" />
+    <rect
+       x="155.28"
+       y="276.70"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect332" />
+    <rect
+       x="141.78"
+       y="282.90"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect333" />
+    <rect
+       x="142.00"
+       y="284.69"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect334" />
+    <rect
+       x="157.73"
+       y="287.62"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect335" />
+    <rect
+       x="165.40"
+       y="275.67"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect336" />
+    <rect
+       x="179.98"
+       y="290.01"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect337" />
+    <rect
+       x="168.94"
+       y="304.23"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect338" />
+    <rect
+       x="179.69"
+       y="325.99"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect339" />
+    <rect
+       x="183.74"
+       y="326.17"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect340" />
+    <rect
+       x="187.78"
+       y="326.34"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect341" />
+    <rect
+       x="178.75"
+       y="347.90"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect342" />
+    <rect
+       x="199.89"
+       y="341.38"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect343" />
+    <rect
+       x="197.85"
+       y="348.55"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect344" />
+    <rect
+       x="190.88"
+       y="351.32"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect345" />
+    <rect
+       x="182.78"
+       y="356.79"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect346" />
+    <circle
+       cx="42.71"
+       cy="361.49"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle346" />
+    <circle
+       cx="59.76"
+       cy="280.11"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle347" />
+    <circle
+       cx="76.09"
+       cy="376.47"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #AEDC30;"
+       id="circle348" />
+    <circle
+       cx="70.32"
+       cy="371.33"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #AEDC30;"
+       id="circle349" />
+    <circle
+       cx="88.18"
+       cy="355.95"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #450558;"
+       id="circle350" />
+    <circle
+       cx="38.64"
+       cy="348.42"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #440154;"
+       id="circle351" />
+    <circle
+       cx="29.32"
+       cy="339.94"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #440154;"
+       id="circle352" />
+    <circle
+       cx="32.67"
+       cy="332.55"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #297B8E;"
+       id="circle353" />
+    <circle
+       cx="49.66"
+       cy="308.85"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #470C5F;"
+       id="circle354" />
+    <circle
+       cx="60.38"
+       cy="293.33"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #23898E;"
+       id="circle355" />
+    <circle
+       cx="90.53"
+       cy="294.69"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #29AF7F;"
+       id="circle356" />
+    <circle
+       cx="105.86"
+       cy="317.31"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #93D741;"
+       id="circle357" />
+    <circle
+       cx="98.02"
+       cy="320.83"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #29AF7F;"
+       id="circle358" />
+    <circle
+       cx="88.43"
+       cy="330.46"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #440154;"
+       id="circle359" />
+    <circle
+       cx="97.35"
+       cy="266.42"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #450558;"
+       id="circle360" />
+    <circle
+       cx="75.27"
+       cy="275.43"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #470C5F;"
+       id="circle361" />
+    <circle
+       cx="67.70"
+       cy="250.72"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #440154;"
+       id="circle362" />
+    <circle
+       cx="57.34"
+       cy="248.67"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #3ABA76;"
+       id="circle363" />
+    <circle
+       cx="99.37"
+       cy="201.34"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #440154;"
+       id="circle364" />
+    <circle
+       cx="134.14"
+       cy="199.53"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #471063;"
+       id="circle365" />
+    <circle
+       cx="143.48"
+       cy="214.49"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #440154;"
+       id="circle366" />
+    <circle
+       cx="159.41"
+       cy="201.91"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #440154;"
+       id="circle367" />
+    <circle
+       cx="165.93"
+       cy="201.04"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #440154;"
+       id="circle368" />
+    <circle
+       cx="174.06"
+       cy="203.58"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #46085C;"
+       id="circle369" />
+    <circle
+       cx="131.94"
+       cy="228.56"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #AEDC30;"
+       id="circle370" />
+    <path
+       d="m 21.34,253.81 h 86.08155 V 188.64 H 21.34 Z"
+       style="fill:#ffffff;fill-opacity:0.5;fill-rule:evenodd;stroke:none;stroke-width:0.770982"
+       id="path370" />
+    <rect
+       x="25.67"
+       y="195.84"
+       width="182.66"
+       height="184.32"
+       style="stroke-width: 0.75; stroke-linecap: square;"
+       id="rect370" />
+    <rect
+       x="29.15"
+       y="199.32"
+       width="39.01"
+       height="32.20"
+       style="stroke-width: 0.75; stroke: none;"
+       id="rect371" />
+  </g>
+  <defs
+     id="defs372" />
+  <text
+     x="29.860001"
+     y="206.53999"
+     style="font-weight:bold;font-size:11px;font-family:'Times New Roman'"
+     textLength="76.519997"
+     lengthAdjust="spacingAndGlyphs"
+     id="text372"
+     transform="matrix(0.91846983,0,0,0.91846983,2.4809174,16.231426)">Seed production</text>
+  <g
+     clip-path="url(#cpMjUuNjd8MjA4LjMzfDE5NS44NHwzODAuMTY=)"
+     id="g373" />
+  <defs
+     id="defs373" />
+  <rect
+     x="31.573765"
+     y="217.36659"
+     width="4.5500002"
+     height="0.46000001"
+     style="stroke:none;stroke-width:0.75"
+     id="rect374" />
+  <rect
+     x="31.573765"
+     y="217.8266"
+     width="4.5500002"
+     height="0.46000001"
+     style="stroke:none;stroke-width:0.75"
+     id="rect375" />
+  <rect
+     x="31.573765"
+     y="218.2766"
+     width="4.5500002"
+     height="0.46000001"
+     style="stroke:none;stroke-width:0.75"
+     id="rect376" />
+  <rect
+     x="31.573765"
+     y="218.73659"
+     width="4.5500002"
+     height="0.46000001"
+     style="stroke:none;stroke-width:0.75"
+     id="rect377" />
+  <rect
+     x="31.060259"
+     y="211.99751"
+     width="4.5500002"
+     height="0.85284328"
+     style="stroke:none;stroke-width:1.02121"
+     id="rect378" />
+  <rect
+     x="31.060259"
+     y="212.85034"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#440154;stroke:none;stroke-width:1.02121"
+     id="rect379" />
+  <rect
+     x="31.060259"
+     y="213.70325"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#46085c;stroke:none;stroke-width:1.02121"
+     id="rect380" />
+  <rect
+     x="31.060259"
+     y="214.53743"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#481467;stroke:none;stroke-width:1.02121"
+     id="rect381" />
+  <rect
+     x="31.060259"
+     y="215.39032"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#481b6d;stroke:none;stroke-width:1.02121"
+     id="rect382" />
+  <rect
+     x="31.060259"
+     y="216.22472"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#482576;stroke:none;stroke-width:1.02121"
+     id="rect383" />
+  <rect
+     x="31.060259"
+     y="217.07753"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#472b7a;stroke:none;stroke-width:1.02121"
+     id="rect384" />
+  <rect
+     x="31.060259"
+     y="217.91162"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#46317e;stroke:none;stroke-width:1.02121"
+     id="rect385" />
+  <rect
+     x="31.060259"
+     y="218.76462"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#443a83;stroke:none;stroke-width:1.02121"
+     id="rect386" />
+  <rect
+     x="31.060259"
+     y="219.599"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#424086;stroke:none;stroke-width:1.02121"
+     id="rect387" />
+  <rect
+     x="31.060259"
+     y="220.4519"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#3e4989;stroke:none;stroke-width:1.02121"
+     id="rect388" />
+  <rect
+     x="31.060259"
+     y="221.286"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#3c4f8a;stroke:none;stroke-width:1.02121"
+     id="rect389" />
+  <rect
+     x="31.060259"
+     y="222.13881"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#3a548c;stroke:none;stroke-width:1.02121"
+     id="rect390" />
+  <rect
+     x="31.060259"
+     y="222.97321"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#365d8d;stroke:none;stroke-width:1.02121"
+     id="rect391" />
+  <rect
+     x="31.060259"
+     y="223.8261"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#33628d;stroke:none;stroke-width:1.02121"
+     id="rect392" />
+  <rect
+     x="31.060259"
+     y="224.67909"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#306a8e;stroke:none;stroke-width:1.02121"
+     id="rect393" />
+  <rect
+     x="31.060259"
+     y="225.51318"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#2d718e;stroke:none;stroke-width:1.02121"
+     id="rect394" />
+  <rect
+     x="31.060259"
+     y="226.366"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#2b758e;stroke:none;stroke-width:1.02121"
+     id="rect395" />
+  <rect
+     x="31.060259"
+     y="227.20039"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#287d8e;stroke:none;stroke-width:1.02121"
+     id="rect396" />
+  <rect
+     x="31.060259"
+     y="228.05328"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#26828e;stroke:none;stroke-width:1.02121"
+     id="rect397" />
+  <rect
+     x="31.060259"
+     y="228.88747"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#23898e;stroke:none;stroke-width:1.02121"
+     id="rect398" />
+  <rect
+     x="31.060259"
+     y="229.74037"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#218e8d;stroke:none;stroke-width:1.02121"
+     id="rect399" />
+  <rect
+     x="31.060259"
+     y="230.57475"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#1f958b;stroke:none;stroke-width:1.02121"
+     id="rect400" />
+  <rect
+     x="31.060259"
+     y="231.42758"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#1e9c89;stroke:none;stroke-width:1.02121"
+     id="rect401" />
+  <rect
+     x="31.060259"
+     y="232.26196"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#1fa188;stroke:none;stroke-width:1.02121"
+     id="rect402" />
+  <rect
+     x="31.060259"
+     y="233.11467"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#22a884;stroke:none;stroke-width:1.02121"
+     id="rect403" />
+  <rect
+     x="31.060259"
+     y="233.94896"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#29af7f;stroke:none;stroke-width:1.02121"
+     id="rect404" />
+  <rect
+     x="31.060259"
+     y="234.80186"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#2fb47c;stroke:none;stroke-width:1.02121"
+     id="rect405" />
+  <rect
+     x="31.060259"
+     y="235.65477"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#3aba76;stroke:none;stroke-width:1.02121"
+     id="rect406" />
+  <rect
+     x="31.060259"
+     y="236.48886"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#43bf71;stroke:none;stroke-width:1.02121"
+     id="rect407" />
+  <rect
+     x="31.060259"
+     y="237.34169"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#52c569;stroke:none;stroke-width:1.02121"
+     id="rect408" />
+  <rect
+     x="31.060259"
+     y="238.17607"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#5dc863;stroke:none;stroke-width:1.02121"
+     id="rect409" />
+  <rect
+     x="31.060259"
+     y="239.02896"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#68cc5c;stroke:none;stroke-width:1.02121"
+     id="rect410" />
+  <rect
+     x="31.060259"
+     y="239.86316"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#7ad151;stroke:none;stroke-width:1.02121"
+     id="rect411" />
+  <rect
+     x="31.060259"
+     y="240.71605"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#86d549;stroke:none;stroke-width:1.02121"
+     id="rect412" />
+  <rect
+     x="31.060259"
+     y="241.55043"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#9ad93c;stroke:none;stroke-width:1.02121"
+     id="rect413" />
+  <rect
+     x="31.060259"
+     y="242.40326"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#aedc30;stroke:none;stroke-width:1.02121"
+     id="rect414" />
+  <rect
+     x="31.060259"
+     y="243.23764"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#bbdf27;stroke:none;stroke-width:1.02121"
+     id="rect415" />
+  <rect
+     x="31.060259"
+     y="244.09035"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#d0e11c;stroke:none;stroke-width:1.02121"
+     id="rect416" />
+  <rect
+     x="31.060259"
+     y="244.92464"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#dee318;stroke:none;stroke-width:1.02121"
+     id="rect417" />
+  <rect
+     x="31.060259"
+     y="245.77762"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#f1e51d;stroke:none;stroke-width:1.02121"
+     id="rect418" />
+  <rect
+     x="31.060259"
+     y="246.63045"
+     width="4.5500002"
+     height="0.85284328"
+     style="fill:#fde725;stroke:none;stroke-width:1.02121"
+     id="rect419" />
+  <rect
+     x="31.060259"
+     y="247.46454"
+     width="4.5500002"
+     height="0.85284328"
+     style="stroke:none;stroke-width:1.02121"
+     id="rect420" />
+  <rect
+     x="31.060259"
+     y="248.31744"
+     width="4.5500002"
+     height="0.85284328"
+     style="stroke:none;stroke-width:1.02121"
+     id="rect421" />
+  <rect
+     x="31.060259"
+     y="249.15181"
+     width="4.5500002"
+     height="0.85284328"
+     style="stroke:none;stroke-width:1.02121"
+     id="rect422" />
+  <rect
+     x="31.060259"
+     y="250.00465"
+     width="4.5500002"
+     height="0.85284328"
+     style="stroke:none;stroke-width:1.02121"
+     id="rect423" />
+  <text
+     x="35.98"
+     y="212.67"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="4.1999998"
+     lengthAdjust="spacingAndGlyphs"
+     id="text423"
+     transform="matrix(1.1937813,0,0,1.1937813,-5.2099264,-37.030425)">0</text>
+  <text
+     x="35.98"
+     y="221.77"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="12.59"
+     lengthAdjust="spacingAndGlyphs"
+     id="text425"
+     transform="matrix(1.1937813,0,0,1.1937813,-5.9801842,-31.63862)">500</text>
+  <text
+     x="35.98"
+     y="230.88"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="18.889999"
+     lengthAdjust="spacingAndGlyphs"
+     id="text427"
+     transform="matrix(1.1937813,0,0,1.1937813,-7.2639473,-25.733309)">1,000</text>
+  <g
+     clip-path="url(#cpMjUuNjd8MjA4LjMzfDE5NS44NHwzODAuMTY=)"
+     id="g428" />
+  <g
+     clip-path="url(#cpMC4wMHw0NjguMDB8MC4wMHw1NzYuMDA=)"
+     id="g429">
+    <text
+       x="4.69"
+       y="204.92"
+       style="font-size: 13.00px; font-weight: bold; font-family: &quot;Times New Roman&quot;;"
+       textLength="9.39px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text428">C</text>
+  </g>
+  <defs
+     id="defs429">
+    <clipPath
+       id="cpMjU5LjY3fDQ0Mi4zM3wxOTUuODR8MzgwLjE2">
+      <rect
+         x="259.67"
+         y="195.84"
+         width="182.66"
+         height="184.32"
+         id="rect429" />
+    </clipPath>
+  </defs>
+  <g
+     clip-path="url(#cpMjU5LjY3fDQ0Mi4zM3wxOTUuODR8MzgwLjE2)"
+     id="g485">
+    <rect
+       x="259.67"
+       y="195.84"
+       width="182.66"
+       height="184.32"
+       style="stroke-width: 0.75; stroke: none; fill: #FFFFFF;"
+       id="rect430" />
+    <path
+       d="M 263.32 376.47 L 438.68 376.47 L 438.68 199.53 L 263.32 199.53 L 263.32 376.47 Z"
+       style="fill-rule: evenodd; stroke-width: 0.75; stroke: none;"
+       id="path430" />
+    <path
+       d="M 326.01 389.17 L 294.17 363.77 L 375.46 261.89 L 407.30 287.29 L 326.01 389.17 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path431" />
+    <path
+       d="M 319.45 384.95 L 289.18 357.70 L 376.25 260.97 L 406.52 288.21 L 319.45 384.95 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path432" />
+    <path
+       d="M 337.70 369.15 L 306.67 342.76 L 375.87 261.40 L 406.90 287.78 L 337.70 369.15 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path433" />
+    <path
+       d="M 275.26 351.02 L 258.09 314.08 L 382.80 256.12 L 399.97 293.06 L 275.26 351.02 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path434" />
+    <path
+       d="M 289.84 328.25 L 277.49 289.44 L 385.21 255.18 L 397.55 294.00 L 289.84 328.25 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path435" />
+    <path
+       d="M 298.24 313.32 L 290.52 273.33 L 387.52 254.59 L 395.25 294.58 L 298.24 313.32 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path436" />
+    <path
+       d="M 330.40 314.20 L 318.67 275.19 L 385.52 255.09 L 397.25 294.09 L 330.40 314.20 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path437" />
+    <path
+       d="M 352.86 332.99 L 326.86 301.64 L 378.38 258.91 L 404.38 290.27 L 352.86 332.99 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path438" />
+    <path
+       d="M 344.54 336.89 L 319.51 304.76 L 378.87 258.52 L 403.90 290.66 L 344.54 336.89 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path439" />
+    <path
+       d="M 328.60 286.60 L 334.10 246.24 L 394.13 254.41 L 388.64 294.77 L 328.60 286.60 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path440" />
+    <path
+       d="M 309.48 295.80 L 309.06 255.07 L 391.17 254.23 L 391.59 294.95 L 309.48 295.80 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path441" />
+    <path
+       d="M 286.23 268.38 L 296.44 228.96 L 396.49 254.88 L 386.28 294.30 L 286.23 268.38 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path442" />
+    <path
+       d="M 348.69 205.55 L 387.60 193.50 L 410.84 268.57 L 371.93 280.61 L 348.69 205.55 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path443" />
+    <path
+       d="M 388.23 198.93 L 427.88 208.24 L 411.21 279.25 L 371.56 269.93 L 388.23 198.93 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path444" />
+    <path
+       d="M 348.12 238.41 L 383.77 218.71 L 409.21 264.74 L 373.56 284.44 L 348.12 238.41 Z"
+       style="fill-rule: evenodd; fill: #ADD8E6; fill-opacity: 0.098; stroke-width: 0.75; stroke: #666666;"
+       id="path445" />
+    <rect
+       x="386.60"
+       y="269.80"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect445" />
+    <rect
+       x="389.28"
+       y="276.70"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect446" />
+    <rect
+       x="375.78"
+       y="282.90"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect447" />
+    <rect
+       x="376.00"
+       y="284.69"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect448" />
+    <rect
+       x="391.73"
+       y="287.62"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect449" />
+    <rect
+       x="399.40"
+       y="275.67"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect450" />
+    <rect
+       x="413.98"
+       y="290.01"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect451" />
+    <rect
+       x="402.94"
+       y="304.23"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect452" />
+    <rect
+       x="413.69"
+       y="325.99"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect453" />
+    <rect
+       x="417.74"
+       y="326.17"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect454" />
+    <rect
+       x="421.78"
+       y="326.34"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect455" />
+    <rect
+       x="412.75"
+       y="347.90"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect456" />
+    <rect
+       x="433.89"
+       y="341.38"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect457" />
+    <rect
+       x="431.85"
+       y="348.55"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect458" />
+    <rect
+       x="424.88"
+       y="351.32"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect459" />
+    <rect
+       x="416.78"
+       y="356.79"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect460" />
+    <polygon
+       points="385.98,279.99 396.78,279.99 396.78,269.19 385.98,269.19 "
+       style="stroke-width: 0.75; stroke: none; fill: #FF0000;"
+       id="polygon460" />
+    <circle
+       cx="310.09"
+       cy="376.47"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #238443;"
+       id="circle460" />
+    <circle
+       cx="304.32"
+       cy="371.33"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #238443;"
+       id="circle461" />
+    <circle
+       cx="322.18"
+       cy="355.95"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #C2E699;"
+       id="circle462" />
+    <circle
+       cx="276.71"
+       cy="361.49"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #FFFFFF;"
+       id="circle463" />
+    <circle
+       cx="272.64"
+       cy="348.42"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #C2E699;"
+       id="circle464" />
+    <circle
+       cx="263.32"
+       cy="339.94"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #C2E699;"
+       id="circle465" />
+    <circle
+       cx="266.67"
+       cy="332.55"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #238443;"
+       id="circle466" />
+    <circle
+       cx="283.66"
+       cy="308.85"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #78C679;"
+       id="circle467" />
+    <circle
+       cx="294.38"
+       cy="293.33"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #238443;"
+       id="circle468" />
+    <circle
+       cx="293.76"
+       cy="280.11"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #78C679;"
+       id="circle469" />
+    <circle
+       cx="324.53"
+       cy="294.69"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #238443;"
+       id="circle470" />
+    <circle
+       cx="339.86"
+       cy="317.31"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #238443;"
+       id="circle471" />
+    <circle
+       cx="332.02"
+       cy="320.83"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #238443;"
+       id="circle472" />
+    <circle
+       cx="322.43"
+       cy="330.46"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #C2E699;"
+       id="circle473" />
+    <circle
+       cx="331.35"
+       cy="266.42"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #C2E699;"
+       id="circle474" />
+    <circle
+       cx="309.27"
+       cy="275.43"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #C2E699;"
+       id="circle475" />
+    <circle
+       cx="301.70"
+       cy="250.72"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #C2E699;"
+       id="circle476" />
+    <circle
+       cx="291.34"
+       cy="248.67"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #238443;"
+       id="circle477" />
+    <circle
+       cx="333.37"
+       cy="201.34"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #FFFFFF;"
+       id="circle478" />
+    <circle
+       cx="368.14"
+       cy="199.53"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #C2E699;"
+       id="circle479" />
+    <circle
+       cx="377.48"
+       cy="214.49"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #FFFFFF;"
+       id="circle480" />
+    <circle
+       cx="393.41"
+       cy="201.91"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #FFFFFF;"
+       id="circle481" />
+    <circle
+       cx="399.93"
+       cy="201.04"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #C2E699;"
+       id="circle482" />
+    <circle
+       cx="408.06"
+       cy="203.58"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #C2E699;"
+       id="circle483" />
+    <circle
+       cx="365.94"
+       cy="228.56"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #238443;"
+       id="circle484" />
+    <path
+       d="M 255.34 253.81 L 336.80 253.81 L 336.80 188.64 L 255.34 188.64 L 255.34 253.81 Z"
+       style="fill-rule: evenodd; fill: #FFFFFF; fill-opacity: 0.50; stroke-width: 0.75; stroke: none;"
+       id="path484" />
+    <rect
+       x="259.67"
+       y="195.84"
+       width="182.66"
+       height="184.32"
+       style="stroke-width: 0.75; stroke-linecap: square;"
+       id="rect484" />
+    <rect
+       x="263.15"
+       y="199.32"
+       width="29.87"
+       height="27.65"
+       style="stroke-width: 0.75; stroke: none;"
+       id="rect485" />
+  </g>
+  <defs
+     id="defs486" />
+  <text
+     x="263.85999"
+     y="206.53999"
+     style="font-weight:bold;font-size:11px;font-family:'Times New Roman'"
+     textLength="56.869999"
+     lengthAdjust="spacingAndGlyphs"
+     id="text486"
+     transform="matrix(0.92119298,0,0,0.92119298,20.828262,15.689711)">Crown class</text>
+  <g
+     clip-path="url(#cpMjU5LjY3fDQ0Mi4zM3wxOTUuODR8MzgwLjE2)"
+     id="g487" />
+  <defs
+     id="defs487" />
+  <circle
+     cx="267.79401"
+     cy="213.2278"
+     r="3.23"
+     style="fill:#238443;stroke:#666666;stroke-width:0.75"
+     id="circle487" />
+  <circle
+     cx="267.79404"
+     cy="223.42635"
+     style="fill:#78c679;stroke:#666666;stroke-width:0.75"
+     id="circle488"
+     r="3.23"
+     inkscape:transform-center-x="0.25675262"
+     inkscape:transform-center-y="-1.0270105" />
+  <circle
+     cx="267.79401"
+     cy="233.89165"
+     r="3.23"
+     style="fill:#c2e699;stroke:#666666;stroke-width:0.75"
+     id="circle489" />
+  <circle
+     cx="267.79401"
+     cy="244.09019"
+     r="3.23"
+     style="fill:#ffffff;stroke:#666666;stroke-width:0.75"
+     id="circle490" />
+  <text
+     x="268.34"
+     y="212.67"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="13.98"
+     lengthAdjust="spacingAndGlyphs"
+     id="text490"
+     transform="matrix(1.1908637,0,0,1.1908637,-45.595149,-37.423752)">D/C</text>
+  <text
+     x="268.34"
+     y="217.22"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="2.79"
+     lengthAdjust="spacingAndGlyphs"
+     id="text491"
+     transform="matrix(1.1908637,0,0,1.1908637,-45.240385,-32.202421)">I</text>
+  <text
+     x="268.34"
+     y="221.77"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="4.6700001"
+     lengthAdjust="spacingAndGlyphs"
+     id="text492"
+     transform="matrix(1.1908637,0,0,1.1908637,-46.071376,-26.920354)">S</text>
+  <text
+     x="268.34"
+     y="226.33"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="15.84"
+     lengthAdjust="spacingAndGlyphs"
+     id="text493"
+     transform="matrix(1.1908637,0,0,1.1908637,-46.365406,-22.775038)">dead</text>
+  <g
+     clip-path="url(#cpMjU5LjY3fDQ0Mi4zM3wxOTUuODR8MzgwLjE2)"
+     id="g494" />
+  <g
+     clip-path="url(#cpMC4wMHw0NjguMDB8MC4wMHw1NzYuMDA=)"
+     id="g495">
+    <text
+       x="238.69"
+       y="204.92"
+       style="font-size: 13.00px; font-weight: bold; font-family: &quot;Times New Roman&quot;;"
+       textLength="9.39px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text494">D</text>
+  </g>
+  <defs
+     id="defs495">
+    <clipPath
+       id="cpMjUuNjd8MjA4LjMzfDM4Ny44NHw1NzIuMTY=">
+      <rect
+         x="25.67"
+         y="387.84"
+         width="182.66"
+         height="184.32"
+         id="rect495" />
+    </clipPath>
+  </defs>
+  <g
+     clip-path="url(#cpMjUuNjd8MjA4LjMzfDM4Ny44NHw1NzIuMTY=)"
+     id="g551">
+    <rect
+       x="25.67"
+       y="387.84"
+       width="182.66"
+       height="184.32"
+       style="stroke-width: 0.75; stroke: none; fill: #FFFFFF;"
+       id="rect496" />
+    <path
+       d="M 29.32 568.47 L 204.68 568.47 L 204.68 391.53 L 29.32 391.53 L 29.32 568.47 Z"
+       style="fill-rule: evenodd; stroke-width: 0.75; stroke: none;"
+       id="path496" />
+    <rect
+       x="152.60"
+       y="461.80"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect497" />
+    <rect
+       x="155.28"
+       y="468.70"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect498" />
+    <rect
+       x="141.78"
+       y="474.90"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect499" />
+    <rect
+       x="142.00"
+       y="476.69"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect500" />
+    <rect
+       x="157.73"
+       y="479.62"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect501" />
+    <rect
+       x="165.40"
+       y="467.67"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect502" />
+    <rect
+       x="179.98"
+       y="482.01"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect503" />
+    <rect
+       x="168.94"
+       y="496.23"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect504" />
+    <rect
+       x="179.69"
+       y="517.99"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect505" />
+    <rect
+       x="183.74"
+       y="518.17"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect506" />
+    <rect
+       x="187.78"
+       y="518.34"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect507" />
+    <rect
+       x="178.75"
+       y="539.90"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect508" />
+    <rect
+       x="199.89"
+       y="533.38"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect509" />
+    <rect
+       x="197.85"
+       y="540.55"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect510" />
+    <rect
+       x="190.88"
+       y="543.32"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect511" />
+    <rect
+       x="182.78"
+       y="548.79"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect512" />
+    <circle
+       cx="76.09"
+       cy="568.47"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle512" />
+    <circle
+       cx="70.32"
+       cy="563.33"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle513" />
+    <circle
+       cx="88.18"
+       cy="547.95"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle514" />
+    <circle
+       cx="42.71"
+       cy="553.49"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle515" />
+    <circle
+       cx="38.64"
+       cy="540.42"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle516" />
+    <circle
+       cx="29.32"
+       cy="531.94"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle517" />
+    <circle
+       cx="32.67"
+       cy="524.55"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle518" />
+    <circle
+       cx="49.66"
+       cy="500.85"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle519" />
+    <circle
+       cx="60.38"
+       cy="485.33"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle520" />
+    <circle
+       cx="59.76"
+       cy="472.11"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle521" />
+    <circle
+       cx="90.53"
+       cy="486.69"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle522" />
+    <circle
+       cx="105.86"
+       cy="509.31"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle523" />
+    <circle
+       cx="98.02"
+       cy="512.83"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle524" />
+    <circle
+       cx="88.43"
+       cy="522.46"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle525" />
+    <circle
+       cx="97.35"
+       cy="458.42"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle526" />
+    <circle
+       cx="75.27"
+       cy="467.43"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle527" />
+    <circle
+       cx="67.70"
+       cy="442.72"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle528" />
+    <circle
+       cx="57.34"
+       cy="440.67"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle529" />
+    <circle
+       cx="99.37"
+       cy="393.34"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle530" />
+    <circle
+       cx="134.14"
+       cy="391.53"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle531" />
+    <circle
+       cx="143.48"
+       cy="406.49"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle532" />
+    <circle
+       cx="159.41"
+       cy="393.91"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle533" />
+    <circle
+       cx="165.93"
+       cy="393.04"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle534" />
+    <circle
+       cx="174.06"
+       cy="395.58"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle535" />
+    <circle
+       cx="131.94"
+       cy="420.56"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle536" />
+    <polygon
+       points="151.98,471.99 162.78,471.99 162.78,461.19 151.98,461.19 "
+       style="stroke-width: 0.75; stroke: none; fill: #FF0000;"
+       id="polygon536" />
+    <polyline
+       points="157.38,466.59 76.09,568.47 "
+       style="stroke-width: 0.00; stroke-linecap: butt;"
+       id="polyline536" />
+    <polyline
+       points="157.38,466.59 70.32,563.33 "
+       style="stroke-width: 0.00; stroke-linecap: butt;"
+       id="polyline537" />
+    <polyline
+       points="157.38,466.59 88.18,547.95 "
+       style="stroke-width: 0.00019; stroke-linecap: butt;"
+       id="polyline538" />
+    <polyline
+       points="157.38,466.59 32.67,524.55 "
+       style="stroke-width: 0.00; stroke-linecap: butt;"
+       id="polyline539" />
+    <polyline
+       points="157.38,466.59 49.66,500.85 "
+       style="stroke-width: 0.00; stroke-linecap: butt;"
+       id="polyline540" />
+    <polyline
+       points="157.38,466.59 60.38,485.33 "
+       style="stroke-width: 0.00; stroke-linecap: butt;"
+       id="polyline541" />
+    <polyline
+       points="157.38,466.59 90.53,486.69 "
+       style="stroke-width: 0.63; stroke-linecap: butt;"
+       id="polyline542" />
+    <polyline
+       points="157.38,466.59 105.86,509.31 "
+       style="stroke-width: 0.91; stroke-linecap: butt;"
+       id="polyline543" />
+    <polyline
+       points="157.38,466.59 98.02,512.83 "
+       style="stroke-width: 0.054; stroke-linecap: butt;"
+       id="polyline544" />
+    <polyline
+       points="157.38,466.59 97.35,458.42 "
+       style="stroke-width: 0.0077; stroke-linecap: butt;"
+       id="polyline545" />
+    <polyline
+       points="157.38,466.59 75.27,467.43 "
+       style="stroke-width: 0.0013; stroke-linecap: butt;"
+       id="polyline546" />
+    <polyline
+       points="157.38,466.59 57.34,440.67 "
+       style="stroke-width: 0.24; stroke-linecap: butt;"
+       id="polyline547" />
+    <polyline
+       points="157.38,466.59 134.14,391.53 "
+       style="stroke-width: 0.019; stroke-linecap: butt;"
+       id="polyline548" />
+    <polyline
+       points="157.38,466.59 174.06,395.58 "
+       style="stroke-width: 0.011; stroke-linecap: butt;"
+       id="polyline549" />
+    <polyline
+       points="157.38,466.59 131.94,420.56 "
+       style="stroke-width: 1.50; stroke-linecap: butt;"
+       id="polyline550" />
+    <path
+       d="M 21.34 445.81 L 102.80 445.81 L 102.80 380.64 L 21.34 380.64 L 21.34 445.81 Z"
+       style="fill-rule: evenodd; fill: #FFFFFF; fill-opacity: 0.50; stroke-width: 0.75; stroke: none;"
+       id="path550" />
+    <rect
+       x="25.67"
+       y="387.84"
+       width="182.66"
+       height="184.32"
+       style="stroke-width: 0.75; stroke-linecap: square;"
+       id="rect550" />
+    <rect
+       x="29.15"
+       y="391.32"
+       width="25.19"
+       height="27.65"
+       style="stroke-width: 0.75; stroke: none;"
+       id="rect551" />
+  </g>
+  <defs
+     id="defs552" />
+  <text
+     x="29.860001"
+     y="398.54001"
+     style="font-weight:bold;font-size:11px;font-family:'Times New Roman'"
+     textLength="44.880001"
+     lengthAdjust="spacingAndGlyphs"
+     id="text552"
+     transform="matrix(0.92133103,0,0,0.92133103,2.393801,30.766672)">Seed load</text>
+  <g
+     clip-path="url(#cpMjUuNjd8MjA4LjMzfDM4Ny44NHw1NzIuMTY=)"
+     id="g553" />
+  <defs
+     id="defs553" />
+  <polyline
+     points="30.29,401.89 34.84,401.89 "
+     style="stroke-width:0.38;stroke-linecap:butt"
+     id="polyline553"
+     transform="matrix(1.4175824,0,0,0.98828827,-11.364807,10.130645)" />
+  <polyline
+     points="30.29,406.44 34.84,406.44 "
+     style="stroke-width:0.76;stroke-linecap:butt"
+     id="polyline554"
+     transform="matrix(1.4175824,0,0,0.98828827,-11.364807,14.752192)" />
+  <polyline
+     points="30.29,411.00 34.84,411.00 "
+     style="stroke-width:1.14;stroke-linecap:butt"
+     id="polyline555"
+     transform="matrix(1.4175824,0,0,0.98828827,-11.62156,19.630492)" />
+  <polyline
+     points="30.29,415.55 34.84,415.55 "
+     style="stroke-width:1.52;stroke-linecap:butt"
+     id="polyline556"
+     transform="matrix(1.4175824,0,0,0.98828827,-11.878312,25.535802)" />
+  <text
+     x="35.98"
+     y="404.67001"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="8.3999996"
+     lengthAdjust="spacingAndGlyphs"
+     id="text556"
+     transform="matrix(1.1955252,0,0,1.1955252,-1.9352056,-73.905265)">50</text>
+  <text
+     x="35.98"
+     y="409.22"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="12.59"
+     lengthAdjust="spacingAndGlyphs"
+     id="text557"
+     transform="matrix(1.1955252,0,0,1.1955252,-3.2189687,-69.797223)">100</text>
+  <text
+     x="35.98"
+     y="413.76999"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="12.59"
+     lengthAdjust="spacingAndGlyphs"
+     id="text558"
+     transform="matrix(1.1955252,0,0,1.1955252,-3.2189687,-64.918924)">150</text>
+  <text
+     x="35.98"
+     y="418.32999"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="12.59"
+     lengthAdjust="spacingAndGlyphs"
+     id="text559"
+     transform="matrix(1.1955252,0,0,1.1955252,-2.9622161,-60.810882)">200</text>
+  <g
+     clip-path="url(#cpMjUuNjd8MjA4LjMzfDM4Ny44NHw1NzIuMTY=)"
+     id="g560" />
+  <g
+     clip-path="url(#cpMC4wMHw0NjguMDB8MC4wMHw1NzYuMDA=)"
+     id="g561">
+    <text
+       x="4.34"
+       y="396.92"
+       style="font-size: 13.00px; font-weight: bold; font-family: &quot;Times New Roman&quot;;"
+       textLength="8.68px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text560">E</text>
+  </g>
+  <defs
+     id="defs561">
+    <clipPath
+       id="cpMjU5LjY3fDQ0Mi4zM3wzODcuODR8NTcyLjE2">
+      <rect
+         x="259.67"
+         y="387.84"
+         width="182.66"
+         height="184.32"
+         id="rect561" />
+    </clipPath>
+  </defs>
+  <g
+     clip-path="url(#cpMjU5LjY3fDQ0Mi4zM3wzODcuODR8NTcyLjE2)"
+     id="g609">
+    <rect
+       x="259.67"
+       y="387.84"
+       width="182.66"
+       height="184.32"
+       style="stroke-width: 0.75; stroke: none; fill: #FFFFFF;"
+       id="rect562" />
+    <path
+       d="M 263.32 568.47 L 438.68 568.47 L 438.68 391.53 L 263.32 391.53 L 263.32 568.47 Z"
+       style="fill-rule: evenodd; stroke-width: 0.75; stroke: none;"
+       id="path562" />
+    <rect
+       x="386.60"
+       y="461.80"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect563" />
+    <rect
+       x="389.28"
+       y="468.70"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect564" />
+    <rect
+       x="375.78"
+       y="474.90"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect565" />
+    <rect
+       x="376.00"
+       y="476.69"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect566" />
+    <rect
+       x="391.73"
+       y="479.62"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect567" />
+    <rect
+       x="399.40"
+       y="467.67"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect568" />
+    <rect
+       x="413.98"
+       y="482.01"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect569" />
+    <rect
+       x="402.94"
+       y="496.23"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect570" />
+    <rect
+       x="413.69"
+       y="517.99"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect571" />
+    <rect
+       x="417.74"
+       y="518.17"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect572" />
+    <rect
+       x="421.78"
+       y="518.34"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect573" />
+    <rect
+       x="412.75"
+       y="539.90"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect574" />
+    <rect
+       x="433.89"
+       y="533.38"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect575" />
+    <rect
+       x="431.85"
+       y="540.55"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect576" />
+    <rect
+       x="424.88"
+       y="543.32"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect577" />
+    <rect
+       x="416.78"
+       y="548.79"
+       width="9.57"
+       height="9.57"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="rect578" />
+    <circle
+       cx="310.09"
+       cy="568.47"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle578" />
+    <circle
+       cx="304.32"
+       cy="563.33"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle579" />
+    <circle
+       cx="322.18"
+       cy="547.95"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle580" />
+    <circle
+       cx="276.71"
+       cy="553.49"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle581" />
+    <circle
+       cx="272.64"
+       cy="540.42"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle582" />
+    <circle
+       cx="263.32"
+       cy="531.94"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle583" />
+    <circle
+       cx="266.67"
+       cy="524.55"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle584" />
+    <circle
+       cx="283.66"
+       cy="500.85"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle585" />
+    <circle
+       cx="294.38"
+       cy="485.33"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle586" />
+    <circle
+       cx="293.76"
+       cy="472.11"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle587" />
+    <circle
+       cx="324.53"
+       cy="486.69"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle588" />
+    <circle
+       cx="339.86"
+       cy="509.31"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle589" />
+    <circle
+       cx="332.02"
+       cy="512.83"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle590" />
+    <circle
+       cx="322.43"
+       cy="522.46"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle591" />
+    <circle
+       cx="331.35"
+       cy="458.42"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle592" />
+    <circle
+       cx="309.27"
+       cy="467.43"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle593" />
+    <circle
+       cx="301.70"
+       cy="442.72"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle594" />
+    <circle
+       cx="291.34"
+       cy="440.67"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle595" />
+    <circle
+       cx="333.37"
+       cy="393.34"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle596" />
+    <circle
+       cx="368.14"
+       cy="391.53"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle597" />
+    <circle
+       cx="377.48"
+       cy="406.49"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle598" />
+    <circle
+       cx="393.41"
+       cy="393.91"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle599" />
+    <circle
+       cx="399.93"
+       cy="393.04"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle600" />
+    <circle
+       cx="408.06"
+       cy="395.58"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle601" />
+    <circle
+       cx="365.94"
+       cy="420.56"
+       r="5.40"
+       style="stroke-width: 0.75; stroke: #666666; fill: #999999;"
+       id="circle602" />
+    <polygon
+       points="385.98,471.99 396.78,471.99 396.78,461.19 385.98,461.19 "
+       style="stroke-width: 0.75; stroke: none; fill: #5DC863;"
+       id="polygon602" />
+    <polygon
+       points="375.17,485.09 385.97,485.09 385.97,474.29 375.17,474.29 "
+       style="stroke-width: 0.75; stroke: none; fill: #B5DE2B;"
+       id="polygon603" />
+    <polygon
+       points="391.12,489.80 401.92,489.80 401.92,479.00 391.12,479.00 "
+       style="stroke-width: 0.75; stroke: none; fill: #33B67A;"
+       id="polygon604" />
+    <polygon
+       points="398.79,477.86 409.59,477.86 409.59,467.06 398.79,467.06 "
+       style="stroke-width: 0.75; stroke: none; fill: #1E9C89;"
+       id="polygon605" />
+    <polygon
+       points="413.37,492.20 424.17,492.20 424.17,481.40 413.37,481.40 "
+       style="stroke-width: 0.75; stroke: none; fill: #2D718E;"
+       id="polygon606" />
+    <polygon
+       points="433.28,543.56 444.08,543.56 444.08,532.76 433.28,532.76 "
+       style="stroke-width: 0.75; stroke: none; fill: #472B7A;"
+       id="polygon607" />
+    <polygon
+       points="416.16,558.98 426.96,558.98 426.96,548.18 416.16,548.18 "
+       style="stroke-width: 0.75; stroke: none; fill: #433E85;"
+       id="polygon608" />
+    <path
+       d="M 255.34 445.81 L 336.80 445.81 L 336.80 380.64 L 255.34 380.64 L 255.34 445.81 Z"
+       style="fill-rule: evenodd; fill: #FFFFFF; fill-opacity: 0.50; stroke-width: 0.75; stroke: none;"
+       id="path608" />
+    <rect
+       x="259.67"
+       y="387.84"
+       width="182.66"
+       height="184.32"
+       style="stroke-width: 0.75; stroke-linecap: square;"
+       id="rect608" />
+    <rect
+       x="263.15"
+       y="391.32"
+       width="25.19"
+       height="32.20"
+       style="stroke-width: 0.75; stroke: none;"
+       id="rect609" />
+  </g>
+  <defs
+     id="defs610" />
+  <text
+     x="263.85999"
+     y="398.54001"
+     style="font-weight:bold;font-size:11px;font-family:'Times New Roman'"
+     textLength="44.939999"
+     lengthAdjust="spacingAndGlyphs"
+     id="text610"
+     transform="matrix(0.92133102,0,0,0.92133102,20.802402,30.766675)">Seed load</text>
+  <g
+     clip-path="url(#cpMjU5LjY3fDQ0Mi4zM3wzODcuODR8NTcyLjE2)"
+     id="g611" />
+  <defs
+     id="defs611" />
+  <rect
+     x="266.60077"
+     y="401.92075"
+     width="4.5500002"
+     height="0.46000001"
+     style="stroke:none;stroke-width:0.75"
+     id="rect612" />
+  <rect
+     x="266.60077"
+     y="402.38077"
+     width="4.5500002"
+     height="0.46000001"
+     style="stroke:none;stroke-width:0.75"
+     id="rect613" />
+  <rect
+     x="266.60077"
+     y="402.83075"
+     width="4.5500002"
+     height="0.46000001"
+     style="stroke:none;stroke-width:0.75"
+     id="rect614" />
+  <rect
+     x="266.60077"
+     y="403.29077"
+     width="4.5500002"
+     height="0.46000001"
+     style="stroke:none;stroke-width:0.75"
+     id="rect615" />
+  <rect
+     x="265.57376"
+     y="402.71375"
+     width="4.5500002"
+     height="0.94834107"
+     style="stroke:none;stroke-width:1.07687"
+     id="rect616" />
+  <rect
+     x="265.57376"
+     y="403.66211"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#440154;stroke:none;stroke-width:1.07687"
+     id="rect617" />
+  <rect
+     x="265.57376"
+     y="404.61044"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#46085c;stroke:none;stroke-width:1.07687"
+     id="rect618" />
+  <rect
+     x="265.57376"
+     y="405.53815"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#481467;stroke:none;stroke-width:1.07687"
+     id="rect619" />
+  <rect
+     x="265.57376"
+     y="406.48651"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#481b6d;stroke:none;stroke-width:1.07687"
+     id="rect620" />
+  <rect
+     x="265.57376"
+     y="407.41422"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#482576;stroke:none;stroke-width:1.07687"
+     id="rect621" />
+  <rect
+     x="265.57376"
+     y="408.36261"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#472b7a;stroke:none;stroke-width:1.07687"
+     id="rect622" />
+  <rect
+     x="265.57376"
+     y="409.29028"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#46317e;stroke:none;stroke-width:1.07687"
+     id="rect623" />
+  <rect
+     x="265.57376"
+     y="410.23859"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#443a83;stroke:none;stroke-width:1.07687"
+     id="rect624" />
+  <rect
+     x="265.57376"
+     y="411.16635"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#424086;stroke:none;stroke-width:1.07687"
+     id="rect625" />
+  <rect
+     x="265.57376"
+     y="412.11469"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#3e4989;stroke:none;stroke-width:1.07687"
+     id="rect626" />
+  <rect
+     x="265.57376"
+     y="413.04242"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#3c4f8a;stroke:none;stroke-width:1.07687"
+     id="rect627" />
+  <rect
+     x="265.57376"
+     y="413.99075"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#3a548c;stroke:none;stroke-width:1.07687"
+     id="rect628" />
+  <rect
+     x="265.57376"
+     y="414.91849"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#365d8d;stroke:none;stroke-width:1.07687"
+     id="rect629" />
+  <rect
+     x="265.57376"
+     y="415.86682"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#33628d;stroke:none;stroke-width:1.07687"
+     id="rect630" />
+  <rect
+     x="265.57376"
+     y="416.81516"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#306a8e;stroke:none;stroke-width:1.07687"
+     id="rect631" />
+  <rect
+     x="265.57376"
+     y="417.74289"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#2d718e;stroke:none;stroke-width:1.07687"
+     id="rect632" />
+  <rect
+     x="265.57376"
+     y="418.69122"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#2b758e;stroke:none;stroke-width:1.07687"
+     id="rect633" />
+  <rect
+     x="265.57376"
+     y="419.61899"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#287d8e;stroke:none;stroke-width:1.07687"
+     id="rect634" />
+  <rect
+     x="265.57376"
+     y="420.56729"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#26828e;stroke:none;stroke-width:1.07687"
+     id="rect635" />
+  <rect
+     x="265.57376"
+     y="421.49503"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#23898e;stroke:none;stroke-width:1.07687"
+     id="rect636" />
+  <rect
+     x="265.57376"
+     y="422.44336"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#218e8d;stroke:none;stroke-width:1.07687"
+     id="rect637" />
+  <rect
+     x="265.57376"
+     y="423.37112"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#1f958b;stroke:none;stroke-width:1.07687"
+     id="rect638" />
+  <rect
+     x="265.57376"
+     y="424.31943"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#1e9c89;stroke:none;stroke-width:1.07687"
+     id="rect639" />
+  <rect
+     x="265.57376"
+     y="425.24713"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#1fa188;stroke:none;stroke-width:1.07687"
+     id="rect640" />
+  <rect
+     x="265.57376"
+     y="426.19553"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#22a884;stroke:none;stroke-width:1.07687"
+     id="rect641" />
+  <rect
+     x="265.57376"
+     y="427.1232"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#29af7f;stroke:none;stroke-width:1.07687"
+     id="rect642" />
+  <rect
+     x="265.57376"
+     y="428.07156"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#2fb47c;stroke:none;stroke-width:1.07687"
+     id="rect643" />
+  <rect
+     x="265.57376"
+     y="429.01993"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#3aba76;stroke:none;stroke-width:1.07687"
+     id="rect644" />
+  <rect
+     x="265.57376"
+     y="429.94766"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#43bf71;stroke:none;stroke-width:1.07687"
+     id="rect645" />
+  <rect
+     x="265.57376"
+     y="430.89597"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#52c569;stroke:none;stroke-width:1.07687"
+     id="rect646" />
+  <rect
+     x="265.57376"
+     y="431.82367"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#5dc863;stroke:none;stroke-width:1.07687"
+     id="rect647" />
+  <rect
+     x="265.57376"
+     y="432.77206"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#68cc5c;stroke:none;stroke-width:1.07687"
+     id="rect648" />
+  <rect
+     x="265.57376"
+     y="433.69974"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#7ad151;stroke:none;stroke-width:1.07687"
+     id="rect649" />
+  <rect
+     x="265.57376"
+     y="434.64816"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#86d549;stroke:none;stroke-width:1.07687"
+     id="rect650" />
+  <rect
+     x="265.57376"
+     y="435.57584"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#9ad93c;stroke:none;stroke-width:1.07687"
+     id="rect651" />
+  <rect
+     x="265.57376"
+     y="436.52414"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#aedc30;stroke:none;stroke-width:1.07687"
+     id="rect652" />
+  <rect
+     x="265.57376"
+     y="437.4519"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#bbdf27;stroke:none;stroke-width:1.07687"
+     id="rect653" />
+  <rect
+     x="265.57376"
+     y="438.40024"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#d0e11c;stroke:none;stroke-width:1.07687"
+     id="rect654" />
+  <rect
+     x="265.57376"
+     y="439.32797"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#dee318;stroke:none;stroke-width:1.07687"
+     id="rect655" />
+  <rect
+     x="265.57376"
+     y="440.27631"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#f1e51d;stroke:none;stroke-width:1.07687"
+     id="rect656" />
+  <rect
+     x="265.57376"
+     y="441.22461"
+     width="4.5500002"
+     height="0.94834107"
+     style="fill:#fde725;stroke:none;stroke-width:1.07687"
+     id="rect657" />
+  <rect
+     x="265.57376"
+     y="442.15237"
+     width="4.5500002"
+     height="0.94834107"
+     style="stroke:none;stroke-width:1.07687"
+     id="rect658" />
+  <rect
+     x="263.263"
+     y="438.33679"
+     width="4.5500002"
+     height="0.94834107"
+     style="stroke:none;stroke-width:1.07687"
+     id="rect659" />
+  <rect
+     x="263.263"
+     y="439.26456"
+     width="4.5500002"
+     height="0.94834107"
+     style="stroke:none;stroke-width:1.07687"
+     id="rect660" />
+  <rect
+     x="263.263"
+     y="440.21286"
+     width="4.5500002"
+     height="0.94834107"
+     style="stroke:none;stroke-width:1.07687"
+     id="rect661" />
+  <text
+     x="269.98001"
+     y="404.67001"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="4.1999998"
+     lengthAdjust="spacingAndGlyphs"
+     id="text661"
+     transform="matrix(1.1974001,0,0,1.1974001,-48.698529,-76.964236)">0</text>
+  <text
+     x="269.98001"
+     y="413.76999"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="12.59"
+     lengthAdjust="spacingAndGlyphs"
+     id="text663"
+     transform="matrix(1.1974001,0,0,1.1974001,-49.72554,-69.775163)">300</text>
+  <text
+     x="269.98001"
+     y="422.88"
+     style="font-size:8.4px;font-family:'Times New Roman'"
+     textLength="12.59"
+     lengthAdjust="spacingAndGlyphs"
+     id="text665"
+     transform="matrix(1.1974001,0,0,1.1974001,-49.72554,-62.072585)">600</text>
+  <g
+     clip-path="url(#cpMjU5LjY3fDQ0Mi4zM3wzODcuODR8NTcyLjE2)"
+     id="g666" />
+  <g
+     clip-path="url(#cpMC4wMHw0NjguMDB8MC4wMHw1NzYuMDA=)"
+     id="g667">
+    <text
+       x="237.97"
+       y="396.92"
+       style="font-size: 13.00px; font-weight: bold; font-family: &quot;Times New Roman&quot;;"
+       textLength="7.94px"
+       lengthAdjust="spacingAndGlyphs"
+       id="text666">F</text>
+  </g>
+</svg>

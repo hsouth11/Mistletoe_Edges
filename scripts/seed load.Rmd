@@ -295,7 +295,8 @@ sdisp <- sdisp %>%
 
 #Plot
 p1 <- ggplot(sdisp, aes(x=dist_m_stem, y = p_seed)) + 
-  geom_point() + 
+  geom_line(linetype = "dashed", color = "red") +
+  geom_point(data = smith, aes(x = dist_m, y = p_seed)) +
   geom_vline(xintercept = c(0, 3.855),
              linetype = 2, colour = "grey") + 
   annotate("text", x = 0.1, y = 0.5, 
@@ -411,30 +412,63 @@ tmap_mode("plot") + tm_shape(test) +
   tm_text("tree_id") + tm_grid()
 
 #SOME CODE FOR CREATING A LEGEND BACKGROUND IF I GET TO IT FROM CHATGPT
-# #Create some rectangles for legends
-# #For p2
-# xmin <- 500000  # Left boundary (Easting)
-# xmax <- 501000  # Right boundary (Easting)
-# ymin <- 4500000 # Bottom boundary (Northing)
-# ymax <- 4501000 # Top boundary (Northing)
-# 
-# # Create the polygon
-# rectangle <- st_sfc(st_polygon(list(matrix(
-#   c(xmin, ymin,
-#     xmax, ymin,
-#     xmax, ymax,
-#     xmin, ymax,
-#     xmin, ymin), 
-#   ncol = 2, byrow = TRUE))), 
-#   crs = 32633)  # Set your UTM zone CRS (example: UTM zone 33N)
-# 
-# # Convert to sf object
-# rectangle_sf <- st_sf(geometry = rectangle)
-# 
-# # Plot in tmap
-# tm_shape(rectangle_sf) + 
-#   tm_fill(col = "lightgrey") +   # Change background color
-#   tm_borders(col = "black")    
+#Create some rectangles for legends
+
+#For plot that shows whole site, with test area used in rest of figure (p2)
+xmin <- 1264030  # Left boundary (Easting)
+xmax <- 1264060  # Right boundary (Easting)
+ymin <- 476910 # Bottom boundary (Northing)
+ymax <- 476925 # Top boundary (Northing)
+
+# Create the polygon
+p2_leg_bg <- st_sfc(st_polygon(list(matrix(
+  c(xmin, ymin,
+    xmax, ymin,
+    xmax, ymax,
+    xmin, ymax,
+    xmin, ymin),
+  ncol = 2, byrow = TRUE))),
+  crs = 3005)  # Set your UTM zone CRS (example: UTM zone 33N)
+
+# Convert to sf object
+p2_leg_bg <- st_sf(geometry = p2_leg_bg)
+
+# Plot in tmap
+tmap_mode("plot") + 
+  tm_shape(mi_1) + 
+    tm_symbols() + 
+    tm_text("tree_id") + 
+    tm_grid() +
+  tm_shape(p2_leg_bg)+
+   tm_fill(col = "white", alpha = 0.5)
+
+#For plots that shows test area
+xmin <- 1264030  # Left boundary (Easting)
+xmax <- 1264040  # Right boundary (Easting)
+ymin <- 476893 # Bottom boundary (Northing)
+ymax <- 476901 # Top boundary (Northing)
+
+# Create the polygon
+ptest_leg_bg <- st_sfc(st_polygon(list(matrix(
+  c(xmin, ymin,
+    xmax, ymin,
+    xmax, ymax,
+    xmin, ymax,
+    xmin, ymin),
+  ncol = 2, byrow = TRUE))),
+  crs = 3005)  # Set your UTM zone CRS (example: UTM zone 33N)
+
+# Convert to sf object
+ptest_leg_bg <- st_sf(geometry = ptest_leg_bg)
+
+# Plot in tmap
+tmap_mode("plot") + 
+  tm_shape(test) + 
+    tm_symbols(col = "crown_class_2", shape = "tree_type") + 
+    tm_text("tree_id") + 
+    tm_grid() +
+  tm_shape(ptest_leg_bg) +
+   tm_fill(col = "white", alpha = 0.5)
 ```
 
 ####Panel for thesis plot
@@ -451,15 +485,14 @@ p2 <- tmap_mode("plot") +
     tm_symbols(shape = "tree_type",
                title.shape = "Component") +
   tm_shape(bbox) +
-    tm_borders(col = "blue") +
-  tm_layout(scale = 1,
-            fontfamily = "Times New Roman",
+    tm_borders(col = "red") +
+  tm_shape(p2_leg_bg) +
+   tm_fill(col = "white", alpha = 0.5) +
+  tm_layout(fontfamily = "Times New Roman",
             legend.position = c("left", "top"),
             legend.width = 1,
             legend.height = 1,
-            legend.title.fontface = "bold",
-            legend.bg.color = "white",
-            legend.bg.alpha = 0.5) 
+            legend.title.fontface = "bold") 
 p2
 ```
 
@@ -665,12 +698,13 @@ p3 <- tmap_mode("plot") +
                title.col = "Seed production",
                palette = "viridis",
                style = "cont") +
-  tm_layout(scale = 1,
-            fontfamily = "Times New Roman",
+  tm_shape(ptest_leg_bg) +
+   tm_fill(col = "white", alpha = 0.5) +
+  tm_layout(fontfamily = "Times New Roman",
             legend.position = c("left", "top"),
             legend.title.fontface = "bold",
-            legend.bg.color = "white",
-            legend.bg.alpha = 0.5)
+            legend.width = 0.7,
+            legend.height = 1)
 p3
 
 #Plot with one focal regen tree with paths of all mature trees
@@ -687,7 +721,8 @@ x5 <- test %>% filter(tree_type == "mature") %>%
                                 levels = c("D/C", "I", "S", "dead")))
 
 #Define a colour palette for crown class
-colour_cc2 <- c("lightgoldenrod4", "lightgoldenrod3","lightgoldenrodyellow",
+display.brewer.all(colorblindFriendly=TRUE)
+colour_cc2 <- c("#238443", "#78c679","#c2e699",
                 "white")
 
 #Plot
@@ -705,11 +740,12 @@ p4 <- tmap_mode("plot") +
     tm_symbols(col = "crown_class_2",
                palette = colour_cc2,
                title.col = "Crown class") +
+  tm_shape(ptest_leg_bg) +
+   tm_fill(col = "white", alpha = 0.5) +
   tm_layout(fontfamily = "Times New Roman",
             legend.position = c("left", "top"),
             legend.title.fontface = "bold",
-            legend.bg.color = "white",
-            legend.bg.alpha = 0.5)
+            legend.height = 1)
 p4
 ```
 
@@ -1152,7 +1188,7 @@ pairs <- pairs %>%
 pairs %>% select(icpt_frac) %>% summary()
 ```
 
-####Panel for thesis plot
+####Panels for thesis plot
 ```{r}
 #Subset some objects
 x <- pair_lines_sl %>% 
@@ -1176,13 +1212,39 @@ p5 <- tmap_mode("plot") +
              title.lwd = "Seed load",
              scale = 2,
              legend.lwd.is.portrait = T) + 
-  tm_layout(asp= 1,
-            fontfamily = "Times New Roman",
+  tm_shape(ptest_leg_bg) +
+   tm_fill(col = "white", alpha = 0.5) +
+  tm_layout(fontfamily = "Times New Roman",
             legend.position = c("left", "top"),
             legend.title.fontface = "bold",
-            legend.bg.color = "white",
-            legend.bg.alpha = 0.5)
+            legend.height = 1)
 p5
+
+#Subset some objects
+x <- test %>% 
+  filter(tree_type == "regen" & 
+           !is.na(sl_i_tot_rm))
+
+p6 <- tmap_mode("plot") +
+  tm_shape(bbox) +
+    tm_borders(col = NULL) +
+  tm_shape(test) + 
+    tm_symbols(shape = "tree_type",
+               legend.shape.show = F)+
+  tm_shape(x) + 
+    tm_symbols(col = "sl_i_tot_rm",
+               breaks = c(0, 150, 300, 450, 600),
+               title.col = "Seed load",
+               palette = "viridis",
+               style = "cont",
+               shape = 15) +
+  tm_shape(ptest_leg_bg) +
+    tm_fill(col = "white", alpha = 0.5) +
+  tm_layout(fontfamily = "Times New Roman",
+            legend.position = c("left", "top"),
+            legend.title.fontface = "bold",
+            legend.height = 1)
+p6
 ```
 
 ###Combine panels for single thesis plot
@@ -1192,16 +1254,16 @@ p2_grob <- tmap_grob(p2)
 p3_grob <- tmap_grob(p3)
 p4_grob <- tmap_grob(p4)
 p5_grob <- tmap_grob(p5)
+p6_grob <- tmap_grob(p6)
 
 #Combine them
-p <- ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob, 
+p <- ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob, p6_grob, 
           align = "hv", ncol = 2, nrow = 3, labels = "AUTO",
-          hjust = 0.04,
           font.label = list(size = 13, family = "Times New Roman",
                             face = "bold"))
 
-ggsave(here("./figures/sl_workflow.svg"), plot = p,
-       device = "svg", width = 6.5, height = 8, units = "in")
+# ggsave(here("./figures/sl_workflow.svg"), plot = p,
+#        device = "svg", width = 6.5, height = 8, units = "in")
 ```
 
 ##Interception across all sites
