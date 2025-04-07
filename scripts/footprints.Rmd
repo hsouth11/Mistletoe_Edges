@@ -5,65 +5,143 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 #Setup
+Load packages
 ```{r}
-rm(list=ls(all=TRUE))
-
 library(tidyverse)
 library(here)
 library(sp)
 library(sf)
 library(tmap)
 library(RColorBrewer)
-
-trees <- read_csv("./data/workflow/trees_sl.csv")
-site <- read_csv('./data/cleaned/site data.csv')
 ```
 
-Covert trees object to sf object
+Read in data
+```{r}
+rm(list=ls(all=TRUE))
+
+#Site level data (including site centrepoints)
+site <- read_csv('./data/cleaned/site data.csv')
+
+#Transect info
+tran <- read_csv('./data/cleaned/transect data_c.csv')
+
+#Tree points
+trees <- read_csv("data/workflow/trees_sl.csv")
+```
+
+Plot both the trees object and site centrepoints to ensure they look good
 ```{r}
 #Convert to a sf, point feature object
-trees <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+site_sf <- st_as_sf(site, coords = c("utm_E", "utm_N"), crs = 3005)
+trees_sf <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
 
-class(trees)
-summary(trees)
-
-#Check CRS, should be BC Albers NAD83 
-st_crs(trees) #check CRS, should be BC Albers NAD83 = 3005
-
-#Sort by site_id
-trees <- trees %>% arrange(site_id)
+#Plot
+tmap_mode("plot") +
+  tm_shape(trees_sf) +
+    tm_facets(by = "site_id")+
+    tm_symbols() +
+  tm_shape(site_sf) +
+    tm_symbols(col = "red")
 ```
 
-Plot to check its working
+#Define function to generate footprints
 ```{r}
-tmap_mode("plot") +
-  tm_shape(trees) +
-    tm_facets(by = "site_id")+
-    tm_symbols()
+f_fp <- function(tran_azimuth,
+                 xcenter,
+                 ycenter,
+                 buffer,
+                 shape_file = TRUE,
+                 crs) {
+  
+  #Convert transect azimuth to radians
+  angle = tran_azimuth * pi/180
+  #Convert radians to mathematical notation (measured counterclockwise from
+  #x axis (East bearing))
+  angle = 2*pi - (angle - pi/2)
+  
+  #Define new points
+  #fp1
+  fp1_d = (((27.5 + buffer)^2) + ((10.0 + buffer)^2))^0.5
+  fp1_az = angle + pi/2 + atan((10.0 + buffer)/(27.5 + buffer))
+  fp1_x = xcenter + fp1_d * cos(fp1_az)
+  fp1_y = ycenter + fp1_d * sin(fp1_az)
+  
+  #fp2
+  fp2_d = (((27.5 + buffer)^2) + ((55.0 + buffer)^2))^0.5
+  fp2_az = angle + (pi/2 -atan((55.0 + buffer)/(27.5 + buffer)))
+  fp2_x = xcenter + fp2_d * cos(fp2_az)
+  fp2_y = ycenter + fp2_d * sin(fp2_az)
+  
+  #fp3
+  fp3_d = (((27.5 + buffer)^2) + ((55.0 + buffer)^2))^0.5
+  fp3_az = angle - (pi/2 - atan((55.0 + buffer)/(27.5 + buffer)))
+  fp3_x = xcenter + fp3_d * cos(fp3_az)
+  fp3_y = ycenter + fp3_d * sin(fp3_az)
+  
+  #fp4
+  fp4_d = (((27.5 + buffer)^2) + ((10.0 + buffer)^2))^0.5
+  fp4_az = angle - pi/2 - atan((10 + buffer)/(27.5 + buffer))
+  fp4_x = xcenter + fp4_d * cos(fp4_az)
+  fp4_y = ycenter + fp4_d * sin(fp4_az)
+  
+  #Define polygon coordinates (must close the loop by repeating fp1)
+  polygon_coords <- rbind(
+  c(fp1_x, fp1_y),
+  c(fp2_x, fp2_y),
+  c(fp3_x, fp3_y),
+  c(fp4_x, fp4_y),
+  c(fp1_x, fp1_y)  # Ensure closure
+  )
+
+
+ # Create polygon
+  polygon <- sf::st_sfc(sf::st_polygon(list(polygon_coords)), crs = 
+                          st_crs(crs))
+
+  if (shape_file) {
+    print(paste("Creating spatial polygon layer. CRS is:", crs))
+    return(polygon)
+  } else {
+    return(as.data.frame(polygon_coords))  # Return coordinates as a dataframe if not saving as shapefile
+  }
+}
 ```
 
 #Generate footprints
 ```{r}
-#With help from ChatGPT
-fp <- trees %>%
-  group_by(site_id) %>%
-  summarise(geometry = st_as_sfc(st_bbox(geometry)), .groups = "drop")
+#Join transect azimuth to site df
+x <- tran %>% 
+  select(site_id, tr_az) %>% 
+  distinct(site_id, .keep_all = TRUE)
+site <- left_join(site, x, by = "site_id")
 
-#Plot to check 
+fp <- site %>%
+  mutate(polygon = pmap(list(tr_az, utm_E, utm_N), 
+                        ~ f_fp(..1, ..2, ..3, 
+                               buffer = 10, 
+                               shape_file = TRUE, 
+                               crs = 3005)))  %>% 
+  mutate(polygon = st_sfc(unlist(polygon, recursive = FALSE), crs = 3005)) %>%  # Convert to sfc column
+  st_as_sf() 
+
+#Plot to make sure it looks good:
 tmap_mode("plot") +
-  tm_shape(trees) +
-    tm_facets(by = "site_id")+
-    tm_symbols() +
-  tm_shape(site_bboxes)+
-    tm_borders()
+    tm_shape(fp) +
+    tm_facets(by = "site_id") +
+    tm_borders() +
+  tm_shape(trees_sf) +
+    tm_symbols()
+
+#Check they are all the same area
+st_area(fp)
+
+#Filter to just site_ids
+fp <- fp %>% select(site_id, EP_name, date_surveyed,
+                    yr_surveyed)
 ```
 
 #Save
 ```{r}
-#Save just the sites from 2024
-sites_2024 <- c("ph_2", "ph_1", "ph_2")
-fp_2024 <- fp %>% filter(site_id %in% sites_2024)
-
 #Save
 # st_write(fp, here('./data/mof_footprints/hdm_fp_all.shp'),
 #          append = FALSE)
