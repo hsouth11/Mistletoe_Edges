@@ -1019,25 +1019,25 @@ Take a look at the spread of infection across the sites by each metric.
 ```{r}
 #Summary tables sorted by percent of BA infected
 #Including Ba and Hw
-mat_i_ld_hw %>% 
+m_i_ld_hw %>% 
   select(site_id, mat.ba_m2_ha, mat.hw_ba_m2_ha, mat.hwba_inf_ba_m2_ha, 
          mat.p_ba_inf) %>% 
   arrange(mat.p_ba_inf) 
 
 #Focus on Hw (only difference is at ph_2)
-mat_i_ld_hw %>% 
+m_i_ld_hw %>% 
   select(site_id, mat.ba_m2_ha, mat.hw_ba_m2_ha, mat.hw_inf_ba_m2_ha, 
          mat.p_hw_ba_inf) %>% 
   arrange(mat.p_hw_ba_inf) 
 
 #Summary table sorted by percent of stems infected
 #Including Ba and Hw
-mat_i_ld_hw %>% select(site_id, mat.nstem_ha, mat.hw_nstem_ha, 
+m_i_ld_hw %>% select(site_id, mat.nstem_ha, mat.hw_nstem_ha, 
                          mat.hwba_inf_nstem_ha, mat.p_nstem_inf) %>% 
   arrange(mat.p_nstem_inf) 
 
 #Just Hw (only difference is at ph_2)
-mat_i_ld_hw %>% select(site_id, mat.nstem_ha, mat.hw_nstem_ha, 
+m_i_ld_hw %>% select(site_id, mat.nstem_ha, mat.hw_nstem_ha, 
                          mat.hw_inf_nstem_ha, mat.p_hw_nstem_inf) %>% 
   arrange(mat.p_hw_nstem_inf) 
 ```
@@ -1098,7 +1098,7 @@ mat.dmr <- pivot_wider(mat.dmr, names_from = dmr_f2,
                        values_from = c(hw_ba_m2_ha, hw_nstem_ha))
 
 #Join these back to results table
-mat_i_ld_hw <- left_join(mat_i_ld_hw, mat.dmr, by = "site_id")
+m_i_ld_hw <- left_join(m_i_ld_hw, mat.dmr, by = "site_id")
 ```
 
 Graph this breakdown
@@ -1184,7 +1184,7 @@ x <- mat.l_hw %>%
             hw_s_dmr = mean(dmr),
             hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
                             mean(dmr[dmr>=1]),
-                            0),
+                            NA),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
             nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
             nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
@@ -1203,7 +1203,7 @@ x1 <- mat.l_hw %>%
             hw_s_dmr = mean(dmr),
             hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
                             mean(dmr[dmr>=1]),
-                            0),
+                            NA),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
             nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
             nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
@@ -1255,6 +1255,8 @@ class.
     - Rows: variables (mean, median, min, max)
     - Columns: crown class
 ```{r}
+mat_i_l_hw %>% filter(crown_class_2 == "C") %>% summary()
+
 mat_i_l_hw_sum <- mat_i_l_hw %>% 
   group_by(crown_class_2) %>% 
   summarise(across(where(is.numeric), list(
@@ -1542,9 +1544,6 @@ reg.hw_50 <- reg.hw_50 %>%
                                        50), 
                             include.lowest = TRUE))
 reg.hw_50$dist_y_h_bin
-
-test <- reg.hw_50 %>% 
-  filter(site_id == "ph_2" & dist_y_h_bin == "(15,20]")
   
 #Do the breakdown
 reg.dmr_disty <- reg.hw_50 %>% 
@@ -1559,41 +1558,30 @@ site. To do that, we need to find the last interval with measured data. We can
 add a label to the plot that indicates that's where measurements stopped. A few
 sites had different length transects, when we extended a transect to cover some 
 landscape feature (like a blowdown patch). We will just put a marker at the 
-last interval that has measured data for ALL transects at a site. This means 
-there will be some measured data passed that point at those sites with multiple
-transect lengths, but it is also a true representation of where simulated data
-begins. 
+last interval that has some measured data at a site. This is somewhat 
+unrepresentative because at the sites with varied transect length, there will 
+be some data between the marker and 0 that is simualted. But it was creating
+confusion when people reviewed the thesis. The proportion of simulated 
+data are reported in other places and I don't think this choice changes the 
+interpretation of the data. 
 ```{r}
-#This is not an elegant solution
-#tr_leng_s identifies the common transect length across ALL three transects
-#at a site (i.e. the minimum transect length of the three transects)
-#Create a simple dataframe with site_id, the distance bin that contains 
-#tr_leng_s and a column containing "*" which will be our marker
-x <- tran %>% group_by(site_id) %>% 
-  summarise(tr_leng_s = min(tr_leng_s)) %>% 
-  mutate(tr_leng_s = if_else(tr_leng_s > 50, 50, tr_leng_s))
-x <- x %>% mutate(tr_leng_bin = cut(tr_leng_s, 
-                            breaks = c(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 
-                                       50), 
-                            include.lowest = TRUE))
-x <- x %>% 
-  mutate(tr_end = "s")
-
-#Join this to the dataframe we will use for plotting
-reg.dmr_disty <- left_join(reg.dmr_disty, select(x, site_id, tr_leng_bin, 
-                                                 tr_end),
-                           by = c("site_id" = "site_id",
-                                  "dist_y_h_bin" = "tr_leng_bin"))
+#Create data identifying the last interval with measured data at each site
+#With help from ChatGPT
+sim_lab <- reg.hw_50 %>%
+  filter(tree_type_2 == "meas regen") %>%  # Keep only "meas regen" trees
+  group_by(site_id) %>%  # Group by site
+  slice_max(dist_y_h, n = 1, with_ties = FALSE) %>%  # Get the row with max dist_y_h per site
+  select(site_id, dist_y_h_bin)  # Select relevant columns
 
 #Get the total bar height for a graph using number of stems and a graph using
 #BA. We will use this to define the y - coordinate for the marker
-x2 <- reg.dmr_disty %>% 
+x <- reg.dmr_disty %>% 
   group_by(site_id, dist_y_h_bin) %>% 
   summarise(lab_pos_ba = sum(ba_m2_ha),
             lab_pos_nstem = sum(nstem_ha))
 
 #Join this to the plotting dataframe
-reg.dmr_disty <- left_join(reg.dmr_disty, x2,
+sim_lab <- left_join(sim_lab, x,
                            by = c("site_id", "dist_y_h_bin"))
 ```
 
@@ -1602,7 +1590,8 @@ Then graph.
 #By BA
 p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=ba_m2_ha, fill=dmr_f2)) + 
   geom_bar(position=position_stack(reverse = TRUE), stat="identity") +
-  geom_text(aes(y = lab_pos_ba, label = tr_end, vjust = 0.1)) +
+  geom_text(data = sim_lab, aes(y = lab_pos_ba, label = "s", vjust = 0.1,
+                                fill = NULL)) +
   theme_classic() +
   facet_wrap(vars(site_id)) + 
   scale_fill_manual(values = colors_dmr_f2, 
@@ -1634,7 +1623,8 @@ p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=ba_m2_ha, fill=dmr_f2)) +
 #By # of stems
 p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem_ha, fill=dmr_f2)) + 
   geom_bar(position=position_stack(reverse = TRUE), stat="identity") +
-  geom_text(aes(y = lab_pos_nstem, label = tr_end, vjust = -.5), 
+  geom_text(data = sim_lab, aes(y = lab_pos_nstem, label = "s", 
+                                vjust = -.5, fill = NULL), 
             size = 4, family = "Times New Roman") +
   theme_classic() +
   facet_wrap(vars(site_id)) + 
@@ -1659,8 +1649,8 @@ p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem_ha, fill=dmr_f2)) +
   guides(fill = guide_legend(ncol = 2))
 
 #Export this plot
-ggsave(here("./figures/reg_dmr_disty_nstem.svg"), plot = p, device = "svg",
-       width = 6.5, height = 5, units = "in")
+# ggsave(here("./figures/reg_dmr_disty_nstem.svg"), plot = p, device = "svg",
+#        width = 6.5, height = 5, units = "in")
 ```
 
 ##4.2 Infection in live regen Hw
@@ -1690,7 +1680,7 @@ x <- regen_15_l %>%
             hw_s_dmr = mean(dmr),
             hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
                             mean(dmr[dmr>=1]),
-                            0),
+                            NA),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
             nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
             nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
@@ -1701,7 +1691,8 @@ x <- regen_15_l %>%
   select(-c(nstem_ha_l_hw, nstem_ha_l_hw_inf, nstem_ha_l_hw_wb,
             nstem_ha_l_hw_si, nstem_ha_l_hw_dmr3)) %>% 
   mutate(sec = "0_15")
-y <- x1 %>% filter(crown_class_2 == "C") %>% arrange(p_l_hw_dmr3)
+
+
 #For 0-50m 
 x1 <- regen_50_l %>% 
   group_by(site_id, crown_class_2) %>% 
@@ -1710,7 +1701,7 @@ x1 <- regen_50_l %>%
             hw_s_dmr = mean(dmr),
             hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
                             mean(dmr[dmr>=1]),
-                            0),
+                            NA),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
             nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
             nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
@@ -1732,7 +1723,7 @@ x2 <- regen_15_l %>%
             hw_s_dmr = mean(dmr),
             hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
                             mean(dmr[dmr>=1]),
-                            0),
+                            NA),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
             nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
             nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
@@ -1753,7 +1744,7 @@ x3 <- regen_50_l %>%
             hw_s_dmr = mean(dmr),
             hw_s_dmi = if_else(length(dmr[dmr>=1]) > 0,
                             mean(dmr[dmr>=1]),
-                            0),
+                            NA),
             nstem_ha_l_hw_wb = sum(phf_site[broom_pa == "Y"]),
             nstem_ha_l_hw_si = sum(phf_site[stem_pa == "Y"]),
             nstem_ha_l_hw_dmr3 = sum(phf_site[dmr >= 3])) %>% 
@@ -1767,6 +1758,10 @@ x3 <- regen_50_l %>%
 
 #Join the three dataframes
 ri_l_hw <- rbind(x, x1, x2, x3)
+
+#Get some summary stats
+ri_l_hw %>% filter(sec == "0_15" & crown_class_2 == "C") %>% summary()
+ri_l_hw %>% filter(sec == "0_50" & crown_class_2 == "C") %>% summary()
 ```
 
 Generate some summary stats with a bit more detail about the trees where growth
@@ -1833,14 +1828,14 @@ x2 <- x2 %>%
   mutate(metric = case_match(metric,
                              "hw_s_dmr" ~ "Average DMR",
                              "hw_s_dmi" ~ "DMI",
-                             "p_l_hw_inf" ~ "% trees infected",
-                             "p_l_hw_wb" ~ "% brooming",
-                             "p_l_hw_si" ~ "% stem infections",
-                             "p_l_hw_dmr3" ~ "% trees DMR ≥ 3")) %>% 
-  mutate(metric = factor(metric, levels = c("% trees infected", 
-                                            "% trees DMR ≥ 3",
-                                            "% brooming",
-                                            "% stem infections", 
+                             "p_l_hw_inf" ~ "Incidence",
+                             "p_l_hw_wb" ~ "Brooming incidence",
+                             "p_l_hw_si" ~ "Stem infection incidence",
+                             "p_l_hw_dmr3" ~ "DMR ≥3 incidence")) %>% 
+  mutate(metric = factor(metric, levels = c("Incidence", 
+                                            "DMR ≥3 incidence",
+                                            "Brooming incidence",
+                                            "Stem infection incidence", 
                                             "Average DMR",
                                             "DMI")),
          metric_group = factor(metric_group, levels = c("Incidence (%)",
@@ -1852,17 +1847,21 @@ x3 <- x2 %>%
 x4 <- x2 %>% 
   filter(metric_group == "DMR")
 
+#Define some colours
+colors_tree_group <- c("#a6611a", "#018571", "#80cdc1")
 
 #Plot
-p1 <- ggplot(x3, aes(x = metric, y = value, shape = tree_group)) + 
-  geom_point(position = position_dodge(width = 0.75),
-             alpha = 0.5) + 
+p1 <- ggplot(x3, aes(x = metric, y = value, shape = tree_group, 
+                     colour = tree_group)) + 
+  geom_point(position = position_dodge(width = 0.75)) + 
   geom_boxplot(outliers = F, fill = NA,
                show.legend = F) +
   theme_classic() +
-  labs(x = NULL,
-       y = "Incidence (%)",
-       shape = "Tree group") +
+  scale_color_manual(values = colors_tree_group) +
+  labs(x = "Infection metric",
+       y = "%",
+       shape = "Tree group",
+       color = "Tree group") +
   theme(axis.text.x = element_text(angle = 35, hjust=1, size = 11, 
                                    family = "Times New Roman",
                                    colour = "black"),
@@ -1875,18 +1874,21 @@ p1 <- ggplot(x3, aes(x = metric, y = value, shape = tree_group)) +
         legend.text = element_text(size = 11, family = "Times New Roman"),
         legend.title = element_text(size = 11, family = "Times New Roman",
                                     face = "bold"),
-        legend.position = "bottom")
-
-p2 <-ggplot(x4, aes(x = metric, y = value, shape = tree_group)) + 
-  geom_point(position = position_dodge(width = 0.75),
-             alpha = 0.5) + 
+        legend.position = "bottom",
+        plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+?geom_boxplot
+p2 <- ggplot(x4, aes(x = metric, y = value, shape = tree_group,
+               colour = tree_group)) + 
+  geom_point(position = position_dodge(width = 0.75)) + 
   geom_boxplot(outliers = F, fill = NA,
                show.legend = F) +
   lims(y = c(0, 6)) +
   theme_classic() +
+  scale_color_manual(values = colors_tree_group) +
   labs(x = NULL,
-       y = "DMR",
-       shape = "Tree group") +
+       y = "DMR scale",
+       shape = "Tree group",
+       color = "Tree group") +
   theme(axis.text.x = element_text(angle = 35, hjust=1, size = 11, 
                                    family = "Times New Roman",
                                    colour = "black"),
@@ -1898,14 +1900,15 @@ p2 <-ggplot(x4, aes(x = metric, y = value, shape = tree_group)) +
         legend.text = element_text(size = 11, family = "Times New Roman"),
         legend.title = element_text(size = 11, family = "Times New Roman",
                                     face = "bold"),
-        legend.position = "bottom")
+        legend.position = "bottom",
+        plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
 
 p3 <- ggarrange(p1, p2, ncol = 2, common.legend = T, align = "h",
-                widths = c(1.5, 1), labels = "AUTO", vjust = 1.2, 
+                widths = c(1.7, 1), labels = "AUTO", vjust = 1.2, 
                 hjust = -0.1, font.label = list(size = 13, 
                                                 family = "Times New Roman",
                                                 face = "bold"),
-                legend = "bottom")
+                legend = "top")
 
 #Save
 # ggsave(here("./figures/inf_metrics.svg"), plot = p3, device = "svg",
@@ -1937,14 +1940,15 @@ For reference:
 ri_l_hw_sum <- ri_l_hw %>% 
   group_by(sec, crown_class_2) %>% 
   summarise(across(where(is.numeric), list(
-    mean = ~mean(.),
-    median = ~median(.),
-    min = ~min(.),
-    max = ~max(.)
+    mean = ~mean(., na.rm = T),
+    median = ~median(., na.rm = T),
+    min = ~min(., na.rm = T),
+    max = ~max(., na.rm = T)
   ), .names = "{.col}_{.fn}")) %>% 
   mutate(crown_class_2 = if_else(crown_class_2 == "all", "All",
                                  crown_class_2)) %>% 
   arrange(sec, crown_class_2)
+
 
 #Sort rows and columns
 names(ri_l_hw_sum)
