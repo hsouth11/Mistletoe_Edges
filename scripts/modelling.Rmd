@@ -3097,6 +3097,128 @@ g_re2
 #         width = 6.5, height = 4, units = "in")
 ```
 
+#Checking classification accuracy
+Started sketching out this code even though the model selection process above
+has an inferential (not predictive) objective. Show what statistics are 
+available to test classification accuracy. 
+
+Start by getting predicted probabilities of each DMR level for each 
+observation
+```{r}
+summary(m20)
+
+#Replicate the original data
+pred <- modelling %>% 
+  select(tree_id, site_id, dmr_f_4, dist_y_h.s, dbh.s, sl_i_tot_rm.s)
+
+#Calculate raw intercation terms
+pred <- pred %>%   
+  mutate(int_dist_sl = dist_y_h.s*sl_i_tot_rm.s,
+         int_dbh_sl = dbh.s*sl_i_tot_rm.s)
+
+#Extract the random effects, add them to the dataframe by site_id
+ranef_m20 <- data.frame(ranef = m20$ranef, site_id = unique(modelling$site_id))
+pred <- left_join(pred, ranef_m20, by = "site_id")
+
+#Save the model coefficients
+coef_m20 <- coefficients(m20)
+coef_m20
+
+#Calcualte the logit odds for each level
+pred <- pred %>% 
+  mutate(lo_0 = coef_m20[1] - coef_m20[3]*dist_y_h.s - 
+           coef_m20[4]*dbh.s - coef_m20[5]*sl_i_tot_rm.s -
+           coef_m20[6]*int_dist_sl - coef_m20[7]*int_dbh_sl - ranef,
+         lo_IBLC2 = coef_m20[2] - coef_m20[3]*dist_y_h.s - 
+           coef_m20[4]*dbh.s - coef_m20[5]*sl_i_tot_rm.s -
+           coef_m20[6]*int_dist_sl - coef_m20[7]*int_dbh_sl - ranef)
+
+#Take the inverse logit to get cumulative probabilities
+pred <- pred %>% 
+  mutate(cp_0 = plogis(lo_0),
+         cp_IBLC2 = plogis(lo_IBLC2))
+
+#Calculate exact probabilities of each DMR levels from cumulative probabilities
+pred <- pred %>% 
+  mutate(p_0 = cp_0,
+         p_IBLC_2 = cp_IBLC2 - cp_0,
+         p_3_5 = 1 - cp_IBLC2)
+
+#Lengthen to show the different probabilities
+pred_long <- pred %>% 
+  pivot_longer(cols = starts_with("p_"),
+               values_to = "prob",
+               names_to = "pred_dmr_f_4",
+               names_prefix = "p_") %>% 
+  mutate(pred_dmr_f_4 = case_match(pred_dmr_f_4,
+                          "0" ~ "0",
+                          "3_5" ~ "3-5",
+                          "IBLC_2" ~ "IBLC-2")) %>% 
+  mutate(pred_dmr_f_4 = factor(pred_dmr_f_4, levels = c("0", "IBLC-2", "3-5")))
+```
+
+Create with plots with the set up: 
+- j-1 panels (j = levels of the response)
+- y = predicted probabilities
+- x = j levels
+Gives you a visual idea of whether each DMR level is well separated by 
+predicted probabilities. 
+```{r}
+ggplot(pred_long, aes(x = pred_dmr_f_4, y = prob)) +
+  facet_wrap(~dmr_f_4) +
+  geom_point() +
+  geom_boxplot(outliers = F,
+               fill = NA) +
+  theme_classic()
+```
+
+Then create classification tables (aka confusion matrices)
+```{r}
+#Create a function to evaluate which response level has the highest 
+#probability, then save that level. 
+f_pred_dmr_high <- function(pred_prob_df, dmr_lev) {
+  #Apply function to each row to find the column index of the max probability
+  max_index <- apply(pred_prob_df, 1, which.max)
+  
+  # Use the index to select the corresponding level
+  pred_dmr <- dmr_lev[max_index]
+  
+  # Return as a factor with specified levels
+  return(factor(pred_dmr, levels = dmr_lev))
+}
+
+#Save levels of dmr
+dmr_lev <- levels(modelling$dmr_f_4)
+
+#Subset dataframe to just columns that have probabilities of each level
+x <- pred %>% 
+  select(starts_with("p_"))
+
+#Apply function to get predicted dmr
+pred <- pred %>% 
+  mutate(pred_dmr_maxp = f_pred_dmr_high(x, dmr_lev))
+
+#Generate a confusion matrix. Used the conf_mat() function in the {yardstick}
+#package. 
+cm <- conf_mat(pred, truth = dmr_f_4, estimate = pred_dmr_maxp)
+cm
+
+#Calculate accuracy (i.e. the proportion of observations that were correctly 
+#classified)
+accuracy(pred, truth = dmr_f_4, estimate = pred_dmr_maxp)
+
+#Calculate kappa (i.e. the proportion of correct classifications normalized 
+#by what you would expect based on chance alone). Weighted kappa is a version 
+#of kappa that gives more value to close disagreements (than far ones). You can
+#weight it in two ways: (1) quadratic, which weights values as a exponentially
+#declining function as you move away from an observation and (2) linear, which
+#weights values as a linear declining function as you move away from an 
+#observation
+kap(pred, truth = dmr_f_4, estimate = pred_dmr_maxp)
+kap(pred, truth = dmr_f_4, estimate = pred_dmr_maxp, weighting = "quadratic")
+kap(pred, truth = dmr_f_4, estimate = pred_dmr_maxp, weighting = "linear")
+```
+
 #Extra code chunks
 ##Goodness of fit tests
 ```{r}
@@ -3552,7 +3674,6 @@ x <- x %>%
 ggplot(x, aes(x = site_id, y = p_trees, colour = dmr_ver)) + 
   geom_jitter(width = 0.2) + 
   facet_wrap(~dmr_val)
-?geom_jitter
 
 #Compare the accuracy of the two dmr assignment methods
 x2 <- x %>% select(-c(n_trees, tot_trees)) %>% 
