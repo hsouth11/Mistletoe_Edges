@@ -415,7 +415,6 @@ p <- ggplot(clim_g, aes(x=bec, y=climval, label=site_id, color = cluster)) +
        colour = "Site cluster") +
   scale_color_manual(values = colors_clust)
 p
-?element_text
 
 #Export this plot
 # ggsave(here("./figures/climate_vars.svg"), plot = p, device = "svg",
@@ -1170,7 +1169,6 @@ ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=ba_m2_ha, fill=dmr_f2)) +
 ##3.2 Infection in live Hw
 Here we will use a set of standard infection metrics to describe HDM infection
 in live Hw trees, broken down by crown class. 
-
 ```{r}
 #Subset dataset to live Hw
 mat.l_hw <- mat.hw %>% 
@@ -1219,6 +1217,7 @@ x1 <- mat.l_hw %>%
 mat_i_l_hw <- rbind(x, x1)
 ```
 
+##Infection metric plots
 Plot these metrics. Here we will focus just on the codominant/dominant tree
 layer. 
 ```{r}
@@ -1239,6 +1238,77 @@ ggplot(x, aes(x = metric, y = value)) +
               height = 0) + 
   geom_boxplot(outliers = F, fill = NA) +
   theme_classic() 
+
+#Create plot for defence presentation that omits incidence of brooming and 
+#stem infections
+x1 <- x %>% 
+  filter(!metric %in% c("p_l_hw_wb", "p_l_hw_si")) %>% 
+  mutate(metric = case_match(metric,
+                             "p_l_hw_inf" ~ "Incidence",
+                             "p_l_hw_dmr3" ~ "DMR ≥3 incidence",
+                             "hw_s_dmr" ~ "Average DMR",
+                             "hw_s_dmi" ~ "DMI")) %>% 
+  mutate(metric = factor(metric, levels = c("Incidence", "DMR ≥3 incidence",
+                                            "Average DMR", "DMI")))
+
+#Subset dataframe to metrics that are incidence based and dmr based
+x2 <- x1 %>% 
+  filter(metric_group == "Incidence (%)")
+x3 <- x1 %>% 
+  filter(metric_group == "DMR")
+
+#This is the colour scheme used in thesis for plot that shows both mature and 
+#regen summary stats. We will just use orange colour here. 
+c("#a6611a", "#018571", "#80cdc1")
+
+#Plot incidence based metrics
+p1 <- ggplot(x2, aes(x = metric, y = value)) + 
+  geom_point(position = position_dodge(width = 0.75), color = "#a6611a") + 
+  geom_boxplot(outliers = F, fill = NA, color = "#a6611a") +
+  lims(y = c(0, 100)) +
+  theme_classic() +
+  labs(x = "Infection metric",
+       y = "%") +
+  theme(axis.text.x = element_text(angle = 35, hjust=1, size = 11, 
+                                   family = "Times New Roman",
+                                   colour = "black"),
+        axis.text.y = element_text(size = 11, 
+                                   family = "Times New Roman",
+                                   colour = "black"), 
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+
+#Plot metrics on DMR scale
+p2 <- ggplot(x3, aes(x = metric, y = value)) + 
+  geom_point(position = position_dodge(width = 0.75), color = "#a6611a") + 
+  geom_boxplot(outliers = F, fill = NA, color = "#a6611a") +
+  lims(y = c(0, 6)) +
+  theme_classic() +
+  labs(x = NULL,
+       y = "DMR scale") +
+  theme(axis.text.x = element_text(angle = 35, hjust=1, size = 11, 
+                                   family = "Times New Roman",
+                                   colour = "black"),
+        axis.text.y = element_text(size = 11, 
+                                   family = "Times New Roman",
+                                   colour = "black"), 
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+
+#Combine
+p3 <- ggarrange(p1, p2, ncol = 2, align = "h",
+                widths = c(1, 1), labels = "AUTO", vjust = 1.2, 
+                hjust = -0.1, font.label = list(size = 13, 
+                                                family = "Times New Roman",
+                                                face = "bold"))
+
+p3
+
+#Save
+# ggsave(here("./figures/mat_inf_met_def.svg"), plot = p3, device = "svg",
+#        width = 20, height = 15, units = "cm")
 ```
 
 ##Summary table for thesis
@@ -1876,7 +1946,7 @@ p1 <- ggplot(x3, aes(x = metric, y = value, shape = tree_group,
                                     face = "bold"),
         legend.position = "bottom",
         plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
-?geom_boxplot
+
 p2 <- ggplot(x4, aes(x = metric, y = value, shape = tree_group,
                colour = tree_group)) + 
   geom_point(position = position_dodge(width = 0.75)) + 
@@ -1913,6 +1983,128 @@ p3 <- ggarrange(p1, p2, ncol = 2, common.legend = T, align = "h",
 #Save
 # ggsave(here("./figures/inf_metrics.svg"), plot = p3, device = "svg",
 #        width = 6.5, height = 4, units = "in")
+```
+
+###Plot for defence
+Similar to above but filtered to just the regenerating component and omitting 
+incidence of brooming and stem infections. 
+```{r}
+#Rename two intervals in regenerating component for legend
+#Filter to dominant/codominant crown class
+x <- ri_l_hw %>% 
+  mutate(sec = case_match(sec,
+                          "0_15" ~ "Regen 0-15 m",
+                          "0_50" ~ "Regen 0-50 m")) %>% 
+  filter(crown_class_2 == "C")
+
+#Create a variable grouping the infection metrics by their measurement scale
+#Two scales: metrics based on incidence (%) and those based on DMR
+#Lengthen the dataset
+x <- x %>% 
+  pivot_longer(cols = where(is.numeric),
+               names_to = "metric",
+               values_to = "value") %>% 
+  mutate(metric_group = if_else(str_detect(metric, "p"), "Incidence (%)", 
+                                "DMR"))
+
+#Rename and order variables so they are legible and display in specific order
+#in the plot
+unique(x$metric)
+x <- x %>% 
+  mutate(metric = case_match(metric,
+                             "hw_s_dmr" ~ "Average DMR",
+                             "hw_s_dmi" ~ "DMI",
+                             "p_l_hw_inf" ~ "Incidence",
+                             "p_l_hw_wb" ~ "Brooming incidence",
+                             "p_l_hw_si" ~ "Stem infection incidence",
+                             "p_l_hw_dmr3" ~ "DMR ≥3 incidence")) %>% 
+  mutate(metric = factor(metric, levels = c("Incidence", 
+                                            "DMR ≥3 incidence",
+                                            "Brooming incidence",
+                                            "Stem infection incidence", 
+                                            "Average DMR",
+                                            "DMI")),
+         metric_group = factor(metric_group, levels = c("Incidence (%)",
+                                                        "DMR")))
+
+
+#Subset dataframe to metrics that are incidence based and dmr based
+#Filter out incidence of brooming and stem infections
+x1 <- x %>% 
+  filter(metric_group == "Incidence (%)" & metric %in% c("Incidence", 
+                                                         "DMR ≥3 incidence"))
+x2 <- x %>% 
+  filter(metric_group == "DMR")
+
+#These are the colours used for full plot with mature, regen 0-15 m and regen
+#0-50 m plot. We will just use two blue colours here
+c("#a6611a", "#018571", "#80cdc1")
+colors_reg_sec <- c("#018571", "#80cdc1")
+
+#Plot
+p1 <- ggplot(x1, aes(x = metric, y = value, shape = sec, 
+                     colour = sec)) + 
+  geom_point(position = position_dodge(width = 0.75)) + 
+  geom_boxplot(outliers = F, fill = NA,
+               show.legend = F) +
+  theme_classic() +
+  scale_color_manual(values = colors_reg_sec) +
+  labs(x = "Infection metric",
+       y = "%",
+       shape = "Tree group",
+       color = "Tree group") +
+  theme(axis.text.x = element_text(angle = 35, hjust=1, size = 11, 
+                                   family = "Times New Roman",
+                                   colour = "black"),
+        axis.text.y = element_text(size = 11, 
+                                   family = "Times New Roman",
+                                   colour = "black"),
+        strip.text = element_text(size = 11, family = "Times New Roman"), 
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                    face = "bold"),
+        legend.position = "top",
+        plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+
+p2 <- ggplot(x2, aes(x = metric, y = value, shape = sec,
+               colour = sec)) + 
+  geom_point(position = position_dodge(width = 0.75)) + 
+  geom_boxplot(outliers = F, fill = NA,
+               show.legend = F) +
+  lims(y = c(0, 6)) +
+  theme_classic() +
+  scale_color_manual(values = colors_reg_sec) +
+  labs(x = NULL,
+       y = "DMR scale",
+       shape = "Tree group",
+       color = "Tree group") +
+  theme(axis.text.x = element_text(angle = 35, hjust=1, size = 11, 
+                                   family = "Times New Roman",
+                                   colour = "black"),
+        axis.text.y = element_text(size = 11, 
+                                   family = "Times New Roman"),
+        strip.text = element_text(size = 11, family = "Times New Roman"), 
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                    face = "bold"),
+        legend.position = "top",
+        plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+
+p3 <- ggarrange(p1, p2, ncol = 2, common.legend = T, align = "h",
+                widths = c(1, 1), labels = "AUTO", vjust = 1.2, 
+                hjust = -0.1, font.label = list(size = 13, 
+                                                family = "Times New Roman",
+                                                face = "bold"),
+                legend = "top")
+p3
+
+#Save
+# ggsave(here("./figures/reg_inf_met_def.svg"), plot = p3, device = "svg",
+#        width = 20, height = 15, units = "cm")
 ```
 
 ###Summary table for thesis
@@ -1976,17 +2168,15 @@ Use some summary metrics to capture how far HDM has spread (in live Hw).
   - Outer infected tree = infected live Hw most distant from the mature forest
   edge
   
-Infection perimeter.
+Infection perimeter
 ```{r}
 #Calcualte at the transect level first
 #Used if_else statement because if there are no infected Hw, then infection
 #perimeter is 0
-#Note: only 32 transects are represented here because one site (ph_3) had 
-#no live Hw on one transect
 reg.infper_tran <- regen %>% 
   mutate(resid = if_else(tree_id %in% resid_rm, "Y", "N")) %>% 
-  filter(resid == "N" & spp == "Hw" & status %in% live_stat &
-           hdm_pa == "Y") %>% 
+  filter(resid == "N" & tree_type_2 == "meas regen" & 
+           spp == "Hw" & status %in% live_stat) %>% 
   group_by(site_id, plot_id) %>% 
   summarise(infper = if_else(sum(hdm_pa == "Y")>0, 
                                  quantile(dist_y_h[hdm_pa == "Y"], probs = 0.9),
@@ -2003,10 +2193,59 @@ reg.infper_site <- reg.infper_tran %>%
 summary(reg.infper_site)
 ```
 
-Outer infected tree at each site. Don't need to filter out simulated trees
-because all simulated Hw are uninfected. 
+Make a plot showing transect and site level estimates of infection perimeter.
 ```{r}
-#Start by getting the outer infected tree at each site
+#Create a variable in each df that identifies whether its a site or transect
+#level estimate
+reg.infper_tran$meas_lev <- "Transect estimate"
+reg.infper_site$meas_lev <- "Site mean"
+
+#Join them
+head(reg.infper_tran); head(reg.infper_site)
+x <- reg.infper_tran %>% 
+  select(site_id, infper, meas_lev)
+x1 <- reg.infper_site %>% 
+  select(site_id, infper_mean, meas_lev) %>% 
+  rename(infper = infper_mean)
+x2 <- rbind(x, x1)
+
+#Set order of measurment level variable
+x2 <- x2 %>% 
+  mutate(meas_lev = factor(meas_lev, levels = c("Transect estimate", "Site mean")))
+
+#Colours
+colors_infper <- c("#FD8D3C", "darkred")
+
+#Plot
+p <- ggplot(x2, aes(x = infper, y = site_id, colour = meas_lev,
+                    shape = meas_lev)) +
+  geom_point() +
+  theme_classic() +
+  scale_color_manual(values = colors_infper) +
+  labs(x = "Infection perimeter (m)",
+       y = "Site",
+       color = "Measurement level",
+       shape = "Measurement level") +
+  theme(axis.text = element_text(size = 11, 
+                                   family = "Times New Roman"),
+        strip.text = element_text(size = 11, family = "Times New Roman"), 
+        axis.title = element_text(size = 11, family = "Times New Roman",
+                                  face = "bold"),
+        legend.text = element_text(size = 11, family = "Times New Roman"),
+        legend.title = element_text(size = 11, family = "Times New Roman",
+                                    face = "bold"),
+        legend.position = "top")
+p
+
+#Export
+# ggsave(here("./figures/reg_inf_per.svg"), plot = p, device = "svg",
+#        width = 20, height = 15, units = "cm")
+```
+
+Outer live infected tree at each site. 
+```{r}
+#Don't need to filter out simulated trees because all simulated Hw are 
+#uninfected.
 reg.out_inf <- regen %>% 
   mutate(resid = if_else(tree_id %in% resid_rm, "Y", "N")) %>% 
   filter(resid == "N" & spp == "Hw" & status %in% live_stat &
@@ -2014,7 +2253,7 @@ reg.out_inf <- regen %>%
   group_by(site_id) %>% 
   summarise(out_inf_dist = max(dist_y_h)) 
 
-#Take a look at this:
+#Take a look
 summary(reg.out_inf)
 ```
 
