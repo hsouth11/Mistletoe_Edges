@@ -558,7 +558,6 @@ summary(trees_sl$status)
 summary(trees_sl$spp)
 ```
 
-
 Break up objects into two sets. One for a figure in the main text and one for 
 one to go in the supplementary material. 
 ```{r}
@@ -610,6 +609,7 @@ trees_rot2 <- trees_rot %>%
   filter(site_id %in% sites2)
 ```
 
+##Thesis set 1
 Plot first set
 ```{r}
 p <- tmap_mode("plot") +
@@ -683,6 +683,7 @@ p <- tmap_mode("plot") +
 #           width = 6.5, height = 7.5, units = "in")
 ```
 
+##Thesis set 2
 Plot the second set
 ```{r}
 p <- tmap_mode("plot") +
@@ -754,6 +755,133 @@ p <- tmap_mode("plot") +
 #Save the plot
 # tmap_save(p, filename = "./figures/trees_sl_set2.svg", 
 #           width = 6.5, height = 7.5, units = "in")
+```
+
+##Defence presentation plot
+Plot three representative sites—a "high infection" (cr_3), "low infection" 
+(ph_1) and average site (mi_1). 
+
+Filter all plotting objects to these sites. 
+```{r}
+sites3 <- c("cr_3", "mi_1", "ph_1")
+
+#Footprints
+adjusted_fp_rot3 <- adjusted_fp_rot %>% 
+  filter(site_id %in% sites3)
+
+#Edge lines
+edge_lines3 <- edge_lines %>% 
+  filter(site_id %in% sites3)
+
+#Transect footprints
+tran_lines3 <- tran_lines %>% 
+  filter(site_id %in% sites3)
+
+#Transect start and end points and distance markers
+ts_pts3 <- ts_pts %>% 
+  filter(site_id %in% sites3)
+te_pts3 <- te_pts %>% 
+  filter(site_id %in% sites3)
+dist_mark3 <- dist_mark %>% 
+  filter(site_id %in% sites3)
+
+#Seed load values
+trees_sl3 <- trees_sl %>% 
+  filter(site_id %in% sites3)
+
+#Trees
+trees_rot3 <- trees_rot %>% 
+  filter(site_id %in% sites3)
+```
+
+Plot it
+```{r}
+#Rename site id by some text labels that are easier to interpret
+adjusted_fp_rot3 <- adjusted_fp_rot3 %>% 
+  mutate(site_id = case_match(site_id,
+                              "cr_3" ~ "High infection",
+                              "mi_1" ~ "Average infection",
+                              "ph_1" ~ "Low infection")) %>% 
+  mutate(site_id = factor(site_id, levels = c("High infection", 
+                                              "Average infection",
+                                              "Low infection")))
+
+p <- tmap_mode("plot") +
+  #Define map extent using site footprints
+  tm_shape(adjusted_fp_rot3, is.master = TRUE,
+           unit = "m") +
+    tm_facets(by = "site_id", free.scales = TRUE, 
+              free.coords = TRUE, ncol = 3) +
+    tm_polygons(col="white", border.col = NULL) +
+  #Edge lines
+  tm_shape(edge_lines3) + 
+    tm_lines(col="blue", lty=2) +
+  #Transect footprints and distance markers
+  tm_shape(tran_lines3) + 
+    tm_polygons(alpha=0) + 
+  #Transect start and end points
+  tm_shape(ts_pts3) + 
+    tm_symbols(col="blue", shape=3, size=0.1) + 
+  tm_shape(te_pts3) + 
+    tm_symbols(col="blue", shape=3, size=0.1) +
+  tm_shape(dist_mark3) + 
+    tm_lines(lty = 3, alpha = 0.7) +
+  #Seed load values
+  tm_shape(trees_sl3) +
+    tm_symbols(col = "sl_i_tot_rm", 
+               palette = "Greys", n = 5, contrast = c(.1, 1),
+               scale = 1,
+               alpha = 0.6,
+               style = "cont",
+               border.lwd = NA,
+               legend.col.is.portrait = T,
+               title.col = "Seed load") +
+  #Tree points
+  tm_shape(trees_rot3) + 
+    tm_symbols(col ="dmr_f_graph",
+               palette = color_dmr,
+               shape =  "sim_tree_g",
+               shapes =  shape_sim, 
+               size = "dbh",
+               scale = 2,
+               title.col = "HDM infection",
+               legend.col.is.portrait = T,
+               title.size = "DBH (cm)",
+               legend.size.is.portrait = T,
+               title.shape = "Tree type",
+               legend.shape.is.portrait = T,
+               shapes.legend.fill = "black",
+               sizes.legend = c(10, 50, 100)) +
+  #Scale bar
+  tm_scale_bar(position = c("RIGHT", "BOTTOM"), 
+               lwd = 0.5,
+               breaks = c(0, 25, 50),
+               text.size = 1) +
+  #Formatting
+  tm_layout(inner.margins = 0.01, 
+            panel.label.size = 1.3,
+            panel.label.bg.color = "white",
+            legend.outside = T, 
+            legend.outside.position = "right",
+            legend.position=c(0.1, 0.1), 
+            legend.stack="vertical",
+            legend.title.size = 1.2,
+            legend.text.size = 1,
+            legend.bg.color = "white",
+            legend.bg.alpha = 1,
+            legend.frame = T,
+            legend.outside.size = 0.3,
+            fontfamily = "Times New Roman")
+
+#Save the plot
+##I was struggling to get the legend to behave in this plot. 
+##Ended up exporting one that has the panels in a dimensions I liked and 
+##another with the legend in appropriate dimensions. Because they are .svgs, 
+##I could scale them. 
+# tmap_save(p, filename = "./figures/trees_sl_defence_panels.svg",
+#           width = 30, height = 8, units = "cm")
+# tmap_save(p, filename = "./figures/trees_sl_defence_legend.svg",
+#           width = 30, height = 8, units = "cm")
 ```
 
 ##Plot for WIFDWC 2024
