@@ -298,11 +298,9 @@ trees %>% filter(!is.na(height_m), site_id == "cr_3", tree_type == "regen") %>%
   select(tree_type, crown_class, height_m, ht_corr) 
 trees %>% filter(!is.na(height_m), site_id == "cr_3", tree_type == "mature") %>% 
   select(tree_type, crown_class, height_m, ht_corr) 
+
 ############################################
 ########## Export data ##########
-# As an R object
-saveRDS(trees, "./data/cleaned/trees.RDS")
-
 # As a CSV
 write_csv(trees, "./data/cleaned/trees.csv")
 
