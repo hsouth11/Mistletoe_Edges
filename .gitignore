@@ -13,3 +13,6 @@ figures/**
 #Big datasets
 psp_tree.csv
 psp_tree_cwh.csv
+
+#Cheatsheets for packages
+cheatsheets
