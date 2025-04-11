@@ -1,5 +1,12 @@
+#Unecessary and sensitive R info
 .Rproj.user
 .DS_Store
 .Rhistory
+
+#Figures and tables created in the scripts
+tables/**
+figures/**
+
+#Big datasets
 psp_tree.csv
 psp_tree_cwh.csv
