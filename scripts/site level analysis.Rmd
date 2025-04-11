@@ -1986,16 +1986,13 @@ p3 <- ggarrange(p1, p2, ncol = 2, common.legend = T, align = "h",
 ```
 
 ###Plot for defence
-Similar to above but filtered to just the regenerating component and omitting 
-incidence of brooming and stem infections. 
+Pulls out regenerating trees from 0-15 m and omits the incidence of brooming 
+and stem infections. 
 ```{r}
 #Rename two intervals in regenerating component for legend
-#Filter to dominant/codominant crown class
+#Filter to dominant/codominant crown class and trees within 15 m of the edge
 x <- ri_l_hw %>% 
-  mutate(sec = case_match(sec,
-                          "0_15" ~ "Regen 0-15 m",
-                          "0_50" ~ "Regen 0-50 m")) %>% 
-  filter(crown_class_2 == "C")
+  filter(crown_class_2 == "C" & sec == "0_15")
 
 #Create a variable grouping the infection metrics by their measurement scale
 #Two scales: metrics based on incidence (%) and those based on DMR
@@ -2037,62 +2034,43 @@ x2 <- x %>%
   filter(metric_group == "DMR")
 
 #These are the colours used for full plot with mature, regen 0-15 m and regen
-#0-50 m plot. We will just use two blue colours here
+#0-50 m plot. We will just use the dark blue colour
 c("#a6611a", "#018571", "#80cdc1")
-colors_reg_sec <- c("#018571", "#80cdc1")
 
 #Plot
-p1 <- ggplot(x1, aes(x = metric, y = value, shape = sec, 
-                     colour = sec)) + 
-  geom_point(position = position_dodge(width = 0.75)) + 
-  geom_boxplot(outliers = F, fill = NA,
-               show.legend = F) +
+p1 <- ggplot(x1, aes(x = metric, y = value)) + 
+  geom_point(colour = "#018571") + 
+  geom_boxplot(outliers = F, fill = NA, colour = "#018571") +
   theme_classic() +
-  scale_color_manual(values = colors_reg_sec) +
   labs(x = "Infection metric",
-       y = "%",
-       shape = "Tree group",
-       color = "Tree group") +
+       y = "%") +
+  lims(y = c(0, 100)) +
   theme(axis.text.x = element_text(angle = 35, hjust=1, size = 11, 
                                    family = "Times New Roman",
                                    colour = "black"),
         axis.text.y = element_text(size = 11, 
                                    family = "Times New Roman",
-                                   colour = "black"),
-        strip.text = element_text(size = 11, family = "Times New Roman"), 
+                                   colour = "black"), 
         axis.title = element_text(size = 11, family = "Times New Roman",
-                                  face = "bold"),
-        legend.text = element_text(size = 11, family = "Times New Roman"),
-        legend.title = element_text(size = 11, family = "Times New Roman",
-                                    face = "bold"),
-        legend.position = "top",
-        plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+                                  face = "bold"))
 
-p2 <- ggplot(x2, aes(x = metric, y = value, shape = sec,
-               colour = sec)) + 
-  geom_point(position = position_dodge(width = 0.75)) + 
+p2 <- ggplot(x2, aes(x = metric, y = value)) + 
+  geom_point(position = position_dodge(width = 0.75),
+             colour = "#018571") + 
   geom_boxplot(outliers = F, fill = NA,
-               show.legend = F) +
-  lims(y = c(0, 6)) +
+               show.legend = F, colour = "#018571") +
   theme_classic() +
-  scale_color_manual(values = colors_reg_sec) +
   labs(x = NULL,
-       y = "DMR scale",
-       shape = "Tree group",
-       color = "Tree group") +
+       y = "DMR scale") +
+  lims(y = c(0, 6)) +
   theme(axis.text.x = element_text(angle = 35, hjust=1, size = 11, 
                                    family = "Times New Roman",
                                    colour = "black"),
         axis.text.y = element_text(size = 11, 
-                                   family = "Times New Roman"),
-        strip.text = element_text(size = 11, family = "Times New Roman"), 
+                                   family = "Times New Roman",
+                                   colour = "black"), 
         axis.title = element_text(size = 11, family = "Times New Roman",
-                                  face = "bold"),
-        legend.text = element_text(size = 11, family = "Times New Roman"),
-        legend.title = element_text(size = 11, family = "Times New Roman",
-                                    face = "bold"),
-        legend.position = "top",
-        plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+                                  face = "bold"))
 
 p3 <- ggarrange(p1, p2, ncol = 2, common.legend = T, align = "h",
                 widths = c(1, 1), labels = "AUTO", vjust = 1.2, 
