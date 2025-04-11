@@ -1,4 +1,4 @@
-# R_MSc
+# Hemlock Dwarf Mistletoe Edge Spread
 
 R project with all analyses for project: Edge spread of hemlock dwarf mistletoe and implications for the group retention silvicultural system
 :) :) :)
