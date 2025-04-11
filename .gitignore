@@ -6,6 +6,9 @@
 #Figures and tables created in the scripts
 tables/**
 figures/**
+#But keep placeholder files to retain file structure
+!tables/.keep
+!figures/.keep
 
 #Big datasets
 psp_tree.csv
