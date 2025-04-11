@@ -1,3 +1,0 @@
-Term,Estimate,SE,DF,t.value,p.value
-(Intercept),1.7591,1.0492,336, 1.6766,0.0946
-HEIGHT,0.4120,0.0151,336,27.2871,<0.0001

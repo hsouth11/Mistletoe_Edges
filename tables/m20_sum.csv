@@ -1,8 +1,0 @@
-term,estimate,std.error,statistic,p.value,coef.type
-0|IBLC-2, 2.0355,0.6544, 3.1104,0.0019,intercept
-IBLC-2|3-5, 6.2073,0.7322, 8.4777,<0.0001,intercept
-dist_y_h.s,-1.9593,0.2790,-7.0234,<0.0001,location
-dbh.s, 0.8887,0.1263, 7.0363,<0.0001,location
-sl_i_tot_rm.s, 2.8700,0.5431, 5.2840,<0.0001,location
-dist_y_h.s:sl_i_tot_rm.s, 1.7286,0.3775, 4.5792,<0.0001,location
-dbh.s:sl_i_tot_rm.s, 0.4761,0.1184, 4.0202,0.0001,location
