@@ -22,4 +22,4 @@ scripts/transect_level_analysis.Rmd
 #Cheatsheets and tutorials for packages
 cheatsheets
 scripts/sf and stars intro.R
-ordinal reg tutorial.Rmd
+scripts/ordinal reg tutorial.Rmd
