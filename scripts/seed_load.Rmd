@@ -79,7 +79,7 @@ trees <- trees %>% mutate(across(
 str(trees) #check
 
 #Dataset 2: seed dispersal data from Smith (1966)
-smith <- read_csv(here("./data/raw/seed dispersal_smith1966.csv"))
+smith <- read_csv(here("./data/raw/seed_disp_smith1966.csv"))
 str(smith)
 ```
 
@@ -1987,7 +1987,7 @@ trees <- trees %>%
          sl_i_nh_all = sl_i_nh_rm + sl_i_nh_rr)
 
 #Done. Export this version of the trees object
-# write_csv(trees, here("./data/workflow/trees_sl.csv"))
+write_csv(trees, here("./data/workflow/trees_sl.csv"))
 ```
 
 ##Exploratory plots relating seed load to regen tree infection
