@@ -48,7 +48,7 @@ rm(list=ls(all=TRUE))
 
 ####Dataset 1: hdm site data 
 #This contains variables at the site level
-site <- read_csv(here("./data/cleaned/site data.csv"))
+site <- read_csv(here("./data/cleaned/site_data.csv"))
 str(site)
 summary(site)
 
@@ -68,7 +68,7 @@ site <- site %>% mutate(yr_sur = year(date_sur))
 site <- site %>% mutate(age = yr_sur - yr_har)
 
 ####Dataset 2: transect data
-transect <- read_csv('./data/cleaned/transect data_c.csv')
+transect <- read_csv(here('./data/cleaned/transect_data_c.csv'))
 str(transect)
 
 ####Dataset 3: main tree dataset
@@ -508,7 +508,7 @@ polar_to_XY <- function(azimuth,
 Do the mapping
 ```{r}
 #Read in the trimble points that have the transect start points in them
-trimb <- read_csv(here('./data/workflow/trimb_radjusted.csv'))
+trimb <- read_csv(here('./data/workflow/trimb_r_adjusted.csv'))
 
 #Subset to just the points used for stem mapping and then to transect start points
 trimb <- trimb %>% 
@@ -657,5 +657,5 @@ tmap_mode("plot") +
 #Export
 Everything looks good. Export object as a csv. 
 ```{r}
-# write_csv(trees, here("./data/workflow/trees_sim.csv"))
+write_csv(trees, here("./data/workflow/trees_sim.csv"))
 ```
