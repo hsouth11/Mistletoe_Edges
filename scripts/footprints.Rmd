@@ -20,10 +20,10 @@ Read in data
 rm(list=ls(all=TRUE))
 
 #Site level data (including site centrepoints)
-site <- read_csv('./data/cleaned/site data.csv')
+site <- read_csv('./data/cleaned/site_data.csv')
 
 #Transect info
-tran <- read_csv('./data/cleaned/transect data_c.csv')
+tran <- read_csv('./data/cleaned/transect_data_c.csv')
 
 #Tree points
 trees <- read_csv("data/workflow/trees_sl.csv")
