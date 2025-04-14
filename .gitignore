@@ -18,6 +18,8 @@ psp_tree_cwh.csv
 #project folder locally
 scripts/Liam_convert_dist_az_to_point
 scripts/transect_level_analysis.Rmd
+scripts/height psp.Rmd
+scripts/psp selection notes.xlsx
 
 #Cheatsheets and tutorials for packages
 cheatsheets
