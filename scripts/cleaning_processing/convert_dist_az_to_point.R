@@ -10,6 +10,7 @@ library(sf)
 library(dplyr)
 library(tidyverse)
 library(tmap)
+library(here)
 
 #### PART 1: Define function to create XY coordinates from distance and azimuth 
 #### reading from trimble point
@@ -56,7 +57,7 @@ crs <- 3005
 ##############################################################
 #### PART 2: Prepare Trimble Points
 #Read in trimble gps points (Trimble Locations)
-trimb <- read_csv('./data/cleaned/hdm_trimbpoints.csv')
+trimb <- read_csv(here('./data/cleaned/hdm_trimb_points.csv'))
 summary(trimb)
 
 #Make site_id and pt_type factors
@@ -110,7 +111,7 @@ trimb <- trimb %>%
 
 #TASK 1: Define transect start points based on transect end points
 #Read in transect data
-transect <- read_csv('./data/cleaned/transect data_c.csv')
+transect <- read_csv(here('./data/cleaned/transect_data_c.csv'))
 summary(transect)
 
 #Extract transect start points and transect end points
@@ -235,7 +236,7 @@ trimb <- rbind(trimb, ts, te_101_250, ed.2.mi2)
 #FINAL TRIMB POINTS
 
 #Export this:
-write_csv(trimb, "./data/workflow/trimb_radjusted.csv")
+write_csv(trimb, here("./data/workflow/trimb_r_adjusted.csv"))
 
 #Create a subset to use to generate tree locations
 trimb_sm <- trimb %>% filter(stem_map == "Y") %>% 
@@ -276,12 +277,12 @@ tm_shape(trimb_grf, is.master = TRUE) + tm_symbols(col="origin") +
 ##############################################################
 ##############################################################
 ###### PART 3: GENERATE TREE LOCATIONS
-trees <- readRDS("./data/cleaned/trees.RDS")
+trees <- read_csv(here("./data/cleaned/trees.csv"))
 # note: plot_id is a single variable here. It refer to transect_id for regen trees and stem mapping plot id for mature trees
 
 #### MATURE COMPONENT
 # Azimuth readings are magnetic and need to be declination corrected. Read in datasheet with declination correction by site. Then join it to stem mapping sheet.
-site_data <- read_csv('./data/cleaned/site data.csv')
+site_data <- read_csv(here('./data/cleaned/site data.csv'))
 site_data <- site_data %>% select(site_id, Dec)
 
 # Join declination corrections dataset by site
@@ -300,7 +301,7 @@ trees <- trees %>%
 #### REGEN COMPONENT
 # Each tree in regen component has an x,y distance on a transect. Need to transform these to dist, az data. 
 # First step, adjust for transects slopes. Read in transect data: 
-transect <- read_csv('./data/cleaned/transect data_c.csv') #should also have been loaded above
+transect <- read_csv(here('./data/cleaned/transect_data_c.csv')) #should also have been loaded above
 summary(transect)
 
 # Important variables in transect data are: tr_dist (specifies the transect section the slope applies to) and tr_sl (the slope for that transect section). Some transects had a uniform slope and so just one distance and slope. Others had a slope change and are measured in two segments (from 0 to tr_dist1, than from tr_dist1 to tr_dist2). Distances in the transect data are horizontal distances (measured with rangefinder). Slope is in degrees. 
@@ -390,8 +391,6 @@ tmap_mode("plot")
 tm_shape(mi_2, is.master = TRUE) + tm_symbols(col = "tree_type")
 
 # Write your spatial features as a geojson file and a regular csv 
-st_write(stem_mapped_XY, './data/workflow/trees_mapped.geojson', append = FALSE)
-st_write(stem_mapped_XY, "./data/workflow/trees_mapped.csv", 
+st_write(stem_mapped_XY, here('./data/workflow/trees_mapped.geojson'), append = FALSE)
+st_write(stem_mapped_XY, here("./data/workflow/trees_mapped.csv"), 
          layer_options = "GEOMETRY=AS_XY", append=FALSE)
-?st_write
-
