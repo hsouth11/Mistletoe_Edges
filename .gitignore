@@ -14,5 +14,12 @@ figures/**
 psp_tree.csv
 psp_tree_cwh.csv
 
-#Cheatsheets for packages
+#Scripts that don't contribute to final analyses but are worth keeping in the
+#project folder locally
+scripts/Liam_covert_dist_az_to_point
+scripts/transect_level_analysis.Rmd
+
+#Cheatsheets and tutorials for packages
 cheatsheets
+scripts/sf and stars intro.R
+ordinal reg tutorial.Rmd
