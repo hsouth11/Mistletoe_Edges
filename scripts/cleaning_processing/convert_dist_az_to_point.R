@@ -2,7 +2,7 @@
 #Original: September 14, 2023 - Liam Irwin (liamakirwin@gmail.com)
 #Adapted by: Hanno Southam (hannosoutham@gmail.com) 
 #Last updated: 21 Aug 2024
-#Last ran: 21 Aug 2024
+#Last ran: 14 April 2025
 
 rm(list=ls(all=TRUE))
 
@@ -282,7 +282,7 @@ trees <- read_csv(here("./data/cleaned/trees.csv"))
 
 #### MATURE COMPONENT
 # Azimuth readings are magnetic and need to be declination corrected. Read in datasheet with declination correction by site. Then join it to stem mapping sheet.
-site_data <- read_csv(here('./data/cleaned/site data.csv'))
+site_data <- read_csv(here('./data/cleaned/site_data.csv'))
 site_data <- site_data %>% select(site_id, Dec)
 
 # Join declination corrections dataset by site

@@ -26,7 +26,7 @@ vri <- read_csv(here("./data/raw/vri_hdm_sites.csv"))
 dim(vri)
 
 #Read in site data
-site <- read_csv(here("./data/cleaned/site data.csv"))
+site <- read_csv(here("./data/cleaned/site_data.csv"))
 ```
 
 Pull out relevant variables. We want: a vri id column, site_id (of associated
@@ -91,6 +91,6 @@ vri <- vri %>%
                              PROJ_HEIGHT_2))
 
 #Has everything we need to start modelling. Export this: 
-# write_csv(vri, here("./data/cleaned/vri_c.csv"))
+write_csv(vri, here("./data/cleaned/vri_c.csv"))
 ```
 

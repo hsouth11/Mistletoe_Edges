@@ -1,7 +1,7 @@
 # Regen and Mature Tree Data Cleaning
 # Author: Hanno Southam
 # Date updated: 21 Aug 2024
-# Date last ran: 21 Aug 2024
+# Date last ran: 14 April 2025
 rm(list=ls(all=TRUE))
 
 # Load packages

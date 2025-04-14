@@ -7,9 +7,10 @@ rm(list=ls(all=TRUE))
 
 #Load package
 library(tidyverse)
+library(here)
 
 #Read in extra height data
-ht_hdm_extra <- read_csv(here("./data/raw/regen extra heights.csv"))
+ht_hdm_extra <- read_csv(here("./data/raw/regen_comp_extra_heights.csv"))
 summary(ht_hdm_extra)
 
 #Problem 1: a whole bunch of NA rows, remove these
@@ -39,4 +40,4 @@ ht_hdm_extra <- ht_hdm_extra %>%
 
 
 #Export this csv as a clean dataset
-# write_csv(ht_hdm_extra, "./data/cleaned/regen_extra_ht_c.csv")
+write_csv(ht_hdm_extra, "./data/cleaned/regen_extra_ht_c.csv")
