@@ -70,7 +70,7 @@ rm(list=ls(all=TRUE))
 
 ####Dataset 1: hdm site data 
 #This contains variables at the site level
-site <- read_csv(here("./data/cleaned/site data.csv"))
+site <- read_csv(here("./data/cleaned/site_data.csv"))
 str(site)
 summary(site)
 
@@ -138,7 +138,7 @@ ht_hdm_extra <- ht_hdm_extra %>% mutate(tree_type = "regen")
 # (3) co/dominant tree height of leading species
 
 #Read in data
-vri <- read_csv(here("data/raw/vri_hdm_sites.csv"))
+vri <- read_csv(here("data/cleaned/vri_c.csv"))
 
 #Variables we may use are:
 #site_id (corresponds to site_id in HDM sites)
@@ -149,7 +149,7 @@ vri <- read_csv(here("data/raw/vri_hdm_sites.csv"))
 variable.names(vri)
 
 #Subset dataset to just these variables
-vri <- vri %>% select(POLYGON_ID, site_id, tree_type, 
+vri <- vri %>% select(FEATURE_ID, site_id, tree_type, 
                       SPECIES_CD_1,SPECIES_CD_2, 
                       PROJ_HEIGHT_1, PROJ_HEIGHT_2)
 
@@ -285,7 +285,7 @@ str(vri)
 #All variables are currently stored as characters, not sure why 
 #Make numerics numeric and factors factors 
 vri <- vri %>% 
-  mutate(across(c(POLYGON_ID, PROJ_HEIGHT_1, PROJ_HEIGHT_2), 
+  mutate(across(c(FEATURE_ID, PROJ_HEIGHT_1, PROJ_HEIGHT_2), 
                 ~as.numeric(.)))
 
 #Pull out the height value for hemlocks into a single column
@@ -1195,7 +1195,7 @@ t_hdm_export <- t_hdm %>%
   left_join(cv_export, by = c("site_id", "tree_type", "spp", "crown_class_2"))
 
 #Export this:
-# write_csv(t_hdm_export, here("./data/workflow/trees_cv.csv"))
+write_csv(t_hdm_export, here("./data/workflow/trees_cv.csv"))
 ```
 
 ##Make summary table for thesis
