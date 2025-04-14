@@ -49,7 +49,7 @@ rm(list=ls(all=TRUE))
 ##Dataset 1: site data. 
 #This contains variables at the site level. The key pieces for analysis are: 
 #year harvested and CWH subzone
-site <- read_csv(here("data/cleaned/site data.csv"))
+site <- read_csv(here("data/cleaned/site_data.csv"))
 str(site)
 summary(site)
 
@@ -91,7 +91,7 @@ str(site)
 #incorrect layout and one transect being extended to traverse a blowdown 
 #patch). The length measured across all variables within a site is recorded 
 #in the tr_leng_s variable. 
-tran <- read_csv(here("./data/cleaned/transect data_c.csv"))
+tran <- read_csv(here("./data/cleaned/transect_data_c.csv"))
 head(tran)
 str(tran)
 
@@ -281,7 +281,7 @@ drier Campbell River cluster.
 ####Read in climate data
 #Data downloaded from ClimateBC (https://climatebc.ca/mapVersion, 24 Jun 2024). ClimateBCv7.50. Period: Normal_1991_2020
 #Exception: cr_3 site, surveyed 17 Jul 2024, downloaded data 25 Aug 2024
-climate <- read_csv('./data/raw/hdm_climdata.csv') #raw data from climateBC
+climate <- read_csv('./data/raw/hdm_sites_clim_data.csv') #raw data from climateBC
 
 ####Check coordinates were inputted correctly, then join site_ids 
 #Sites are identified by coordinates in the climate dataset. Check they are right before joining site_ids
@@ -1443,7 +1443,7 @@ Both subsections break summary stats down into intervals from the edge.
 Start by removing residual trees from the regen datasets. 
 ```{r}
 #Read in residual tree dataset
-resid <- read_csv(here("./data/raw/residual reference tree data.csv"))
+resid <- read_csv(here("./data/raw/resid_ref_tree_data.csv"))
 
 #How many residual trees are there? 
 resid <- resid %>% filter(tree_type == "residual")
