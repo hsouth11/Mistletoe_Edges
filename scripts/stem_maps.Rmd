@@ -31,9 +31,9 @@ library(tmap)
 library(RColorBrewer)
 
 trees <- read_csv("./data/workflow/trees_sl.csv")
-trimb <- read_csv("./data/workflow/trimb_radjusted.csv")
-tran <- read_csv('./data/cleaned/transect data_c.csv')
-site <- read_csv('./data/cleaned/site data.csv')
+trimb <- read_csv("./data/workflow/trimb_r_adjusted.csv")
+tran <- read_csv('./data/cleaned/transect_data_c.csv')
+site <- read_csv('./data/cleaned/site_data.csv')
 ```
 
 Format the trees dataset. 
