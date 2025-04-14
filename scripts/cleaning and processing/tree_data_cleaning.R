@@ -6,10 +6,11 @@ rm(list=ls(all=TRUE))
 
 # Load packages
 library(tidyverse)
+library(here)
 
 # Read in data
-regen <- read_csv("./data/raw/regen comp_master.csv")
-mature <- read_csv('./data/raw/mature comp_master.csv')
+regen <- read_csv(here("./data/raw/regen_comp_data.csv"))
+mature <- read_csv(here('./data/raw/mature_comp_data.csv'))
 
 # Learn a bit about data
 dim(regen); dim(mature)
@@ -302,5 +303,5 @@ trees %>% filter(!is.na(height_m), site_id == "cr_3", tree_type == "mature") %>%
 ############################################
 ########## Export data ##########
 # As a CSV
-write_csv(trees, "./data/cleaned/trees.csv")
+write_csv(trees, here("./data/cleaned/trees.csv"))
 
