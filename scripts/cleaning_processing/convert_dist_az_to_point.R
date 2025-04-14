@@ -390,7 +390,6 @@ mi_2 <- stem_mapped_XY %>% filter(site_id == "mi_2")
 tmap_mode("plot")
 tm_shape(mi_2, is.master = TRUE) + tm_symbols(col = "tree_type")
 
-# Write your spatial features as a geojson file and a regular csv 
-st_write(stem_mapped_XY, here('./data/workflow/trees_mapped.geojson'), append = FALSE)
+# Write your spatial features as csv with X and Y coordinate columns
 st_write(stem_mapped_XY, here("./data/workflow/trees_mapped.csv"), 
-         layer_options = "GEOMETRY=AS_XY", append=FALSE)
+         layer_options = "GEOMETRY=AS_XY", delete_dsn = TRUE)
