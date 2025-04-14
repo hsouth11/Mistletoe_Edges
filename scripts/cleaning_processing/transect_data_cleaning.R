@@ -8,7 +8,7 @@ library(tidyverse)
 library(here)
 
 #Read in transect data: 
-transect <- read_csv('./data/raw/transect data.csv')
+transect <- read_csv(here('./data/raw/transect_data.csv'))
 transect <- transect %>% filter(!is.na(site_id))# Delete empty rows
 summary(transect)
 
@@ -45,4 +45,4 @@ min_trleng <- transect %>% group_by(site_id) %>%
 transect <- left_join(transect, min_trleng, by="site_id")
 
 # Export csv: 
-write_csv(transect, './data/cleaned/transect data_c.csv')
+write_csv(transect, here('./data/cleaned/transect data_c.csv'))
