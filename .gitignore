@@ -16,7 +16,7 @@ psp_tree_cwh.csv
 
 #Scripts that don't contribute to final analyses but are worth keeping in the
 #project folder locally
-scripts/Liam_covert_dist_az_to_point
+scripts/Liam_convert_dist_az_to_point
 scripts/transect_level_analysis.Rmd
 
 #Cheatsheets and tutorials for packages
