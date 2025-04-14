@@ -20,6 +20,7 @@ scripts/Liam_convert_dist_az_to_point
 scripts/transect_level_analysis.Rmd
 scripts/height psp.Rmd
 scripts/psp selection notes.xlsx
+scripts/area harvested BC.R
 
 #Cheatsheets and tutorials for packages
 cheatsheets
