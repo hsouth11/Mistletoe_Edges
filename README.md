@@ -12,15 +12,15 @@ R project with all analyses for project: Edge spread of hemlock dwarf mistletoe 
 
 -  Data in the form hand entered from field datasheets.
 
-regen comp_master.csv
+regen_comp_data.csv
 
 - Individual tree measurements of trees in the regenerating component of edge spread field sites.
 
-mature comp_master.csv
+mature_comp_data.csv
 
 - Individual tree measurements of trees in the mature component of edge spread field sites.
 
-transect data.csv
+transect_data.csv
 
 - Maps transect ids to each edge spread field site. Contains slope measurements for the site.
 
@@ -29,21 +29,21 @@ vri_hdm_sites.csv
 - Attribute information of vri polygons overlapping each edge spread field site. Data are projected to 1 Jan 2021. Each component at each site is represented by at least one (and sometimes two) vri polygons.
 Forest Analysis and Inventory Branch. (2024). VRI - 2023—Forest Vegetation Composite Rank 1 Layer (R1) [Dataset]. British Columbia Data Catalogue. https://catalogue.data.gov.bc.ca/dataset/2ebb35d8-c82f-4a17-9c96-612ac3532d55
 
-hdm_climdata.csv
+hdm_sites_clim_data.csv
 
 - Climate data for the edge spread research sites. From Climate BC v7.50 for the Normal 1991–2020 period.
 Climate BC website: https://climatebc.ca/ 
 Wang, T., Hamann, A., Spittlehouse, D., & Carroll, C. (2016). Locally downscaled and spatially customizable climate data for historical and future periods for North America. PloS One, 11(6). https://doi.org/10.1371/journal.pone.0156720
 
-regen extra heights.csv
+regen_comp_extra_heights.csv
 
 - Individual tree measurements for trees used to measure hemlock top height at edge spread research sites, when not enough trees were present on a transect to meet our minimum requirement (three dominant/codominant hemlock per transect).
 
-residual reference tree data.csv 
+resid_ref_tree_data.csv 
 
 - Individual tree measurements for potential residual trees and reference trees at edge spread research sites. Potential residual trees are large, moderate-severely infected hemlock that could have been present pre-harvest. Residual trees were cored to assess whether they were present pre-harvest (but these cores have not been analyzed). Reference trees are large dominant/codominant hemlock in the mature component that were cored to act as a reference for residual tree cores, if crossdating was necessary. Both residual and reference trees have differential GPS points in /data/cleaned/hdm_trimbpoints.csv
 
-seed dispersal_smith1966.csv
+seed_disp_smith1966.csv
 
 - Data from Table 1A from Smith (1966) used to build seed dispersal function in seed load proxy (/scripts/seed load.Rmd).
 Smith, R. B. (1966). Hemlock and Larch Dwarf Mistletoe Seed Dispersal. The Forestry Chronicle, 42(4), 395–401. https://doi.org/10.5558/tfc42395-4
@@ -90,7 +90,7 @@ regen_extra_ht_c.csv
 
 -   Scripts for cleaning and processing raw data files (/data/raw).
 
-tree data cleaning.R
+tree_data_cleaning.R
 
 - Combines individual tree measurements from regenerating and mature components (/data/raw/regen comp_master.csv and mature comp_master.csv) and cleans them based on rules for each data field. Rules for how dwarf misltetoe rating (DMR) is defined for each tree are in this script.
 
