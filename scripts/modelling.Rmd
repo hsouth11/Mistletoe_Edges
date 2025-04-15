@@ -56,7 +56,7 @@ set.seed(11)
 trees <- read_csv(here("./data/workflow/trees_sl.csv"))
 
 #Dataset 2: transect level
-tran <- read_csv(here("./data/cleaned/transect data_c.csv"))
+tran <- read_csv(here("./data/cleaned/transect_data_c.csv"))
 
 #Dataset 3: site attributes
 site <- read_csv(here("./data/workflow/site_metrics.csv"))
@@ -81,7 +81,7 @@ vri <- read_csv(here("./data/cleaned/vri_c.csv"))
 clim <- read_csv(here("./tables/site_climphys_big.csv"))
 
 #Dataset 9: residual trees
-resid <- read_csv(here("./data/raw/residual reference tree data.csv"))
+resid <- read_csv(here("./data/raw/resid_ref_tree_data.csv"))
 ```
 
 ##Pull varaibles from each dataset
