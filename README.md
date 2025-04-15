@@ -41,12 +41,15 @@ transect_data.csv
 vri_hdm_sites.csv
 
 - Attribute information of vri polygons overlapping each edge spread field site. Data are projected to 1 Jan 2021. Each component at each site is represented by at least one (and sometimes two) vri polygons.
+
 Forest Analysis and Inventory Branch. (2024). VRI - 2023—Forest Vegetation Composite Rank 1 Layer (R1) [Dataset]. British Columbia Data Catalogue. https://catalogue.data.gov.bc.ca/dataset/2ebb35d8-c82f-4a17-9c96-612ac3532d55
 
 hdm_sites_clim_data.csv
 
 - Climate data for the edge spread research sites. From Climate BC v7.50 for the Normal 1991–2020 period.
+
 Climate BC website: https://climatebc.ca/ 
+
 Wang, T., Hamann, A., Spittlehouse, D., & Carroll, C. (2016). Locally downscaled and spatially customizable climate data for historical and future periods for North America. PloS One, 11(6). https://doi.org/10.1371/journal.pone.0156720
 
 regen_comp_extra_heights.csv
@@ -60,11 +63,13 @@ resid_ref_tree_data.csv
 seed_disp_smith1966.csv
 
 - Data from Table 1A from Smith (1966) used to build seed dispersal function in seed load proxy (/scripts/seed load.Rmd).
+
 Smith, R. B. (1966). Hemlock and Larch Dwarf Mistletoe Seed Dispersal. The Forestry Chronicle, 42(4), 395–401. https://doi.org/10.5558/tfc42395-4
 
 /data/raw/psp
 
 - BC Government Permanent Sample Plot (PSP) data used to build equations hemlock tree height to height to live crown, which feeds into crown volume estimates (/scripts/crown volume.Rmd). Accessed 24 Jul 2024. Contains a data dictionary in folder—see that for further details. 
+
 Forest Analysis and Inventory Branch. (2024). Forest Inventory Ground Plot Data and Interactive Map [Dataset]. British Columbia Data Catalogue. https://catalogue.data.gov.bc.ca/dataset/824e684b-4114-4a05-a490-aa56332b57f4
 
 #### /data/cleaned
@@ -178,6 +183,7 @@ simulate trees.Rmd
 crown volume.Rmd
 
  - Gets simple crown volume estimates for each live hemlock crown class at each site. Heights are estimated by factoring measurements of dominant/codominant hemlock height by ratios with other crown classes, which were measured at one site (cr_3). Height to live crown is estimated based on a linear mixed effect model relating height to live crown to tree height, based on data from sites in the BC government permanent sample plot network that were similar to our field sites (/data/raw/psp). Crown volume equation from Marshall et al. (2003) are used to generate final estimates. This script starts with the output (data/workflow/trees_sim.csv) from the script simulating data on regenerting component transects (scripts/simulate trees.Rmd). A new data file is created (data/workflow/trees_cv.csv) that feeds into the script that estimates the seed load proxy (scripts/seed load.Rmd).
+
 Marshall, David D, Gregory P Johnson, and David W Hann. ‘Crown Profile Equations for Stand-Grown Western Hemlock Trees in Northwestern Oregon’. Canadian Journal of Forest Research 33, no. 11 (1 November 2003): 2059–66. https://doi.org/10.1139/x03-126.
 
 seed load.Rmd
@@ -187,7 +193,9 @@ seed load.Rmd
 site level analysis.Rmd
 
 - Exploratory data analysis comparing eleven edge spread research sites to eachother. Section 1 compares the different site climates using data from Climate BC (see https://climatebc.ca/mapVersion and see Wang et al. [2016]). A paper modelling HDM distributions at its northern limit (Barrett et al. 2012) is used as a framework for selecting and interpreting climate variables. There is a focus on precipitation because the Pacific Highway sites were the wettest and had relatively low rates of infection. Section 2 compares the size and composition of trees in the regen and mature components between sites. Section 3 compares HDM infection in the mature component between sites to get a  high-level understanding if the infection sources are similar between sites. Section 4 compares HDM infection in the regen component between sites. Summary tables and figures are created in each section for writing and downstream analyses. The primary starting object for the script (data/workflow/trees_sl.csv) is the output of the script estimating seed load (scripts/seed load.Rmd). 
+
 Wang, T., Hamann, A., Spittlehouse, D., & Carroll, C. (2016). Locally downscaled and spatially customizable climate data for historical and future periods for North America. PloS One, 11(6). https://doi.org/10.1371/journal.pone.0156720
+
 Barrett, T. M., Latta, G., Hennon, P. E., Eskelson, B. N. I., & Temesgen, H. (2012). Host–parasite distributions under changing climate: Tsuga heterophylla and Arceuthobium tsugense in Alaska. Canadian Journal of Forest Research, 42(4), 642–656. https://doi.org/10.1139/x2012-016
 
 stem_maps.Rmd
