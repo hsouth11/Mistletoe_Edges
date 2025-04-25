@@ -1266,6 +1266,19 @@ p <- ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob, p6_grob,
 #        device = "svg", width = 6.5, height = 8, units = "in")
 ```
 
+###Combine panels for single thesis plot
+```{r}
+#Combine them in landscape orientation: 3 columns, 2 rows
+p <- ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob, p6_grob, 
+          align = "hv", ncol = 3, nrow = 2, labels = "AUTO",
+          font.label = list(size = 13, family = "Times New Roman",
+                            face = "bold"))
+
+ggsave(here("./figures/sl_workflow_defence.svg"), plot = p,
+       device = "svg", width = 30, height = 15, units = "cm")
+```
+
+
 ##Interception across all sites
 Now recreate the example above but applied across all trees at all sites. 
 
