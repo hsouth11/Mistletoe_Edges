@@ -1,8 +1,6 @@
 #Converting tree position values to georeferenced spatial features
 #Original: September 14, 2023 - Liam Irwin (liamakirwin@gmail.com)
 #Adapted by: Hanno Southam (hannosoutham@gmail.com) 
-#Last updated: 21 Aug 2024
-#Last ran: 14 April 2025
 
 rm(list=ls(all=TRUE))
 
@@ -78,7 +76,6 @@ st_crs(trimb)$proj4string #check CRS
 # Reproject to NAD1983/BC Albers because this CRS is a projected system 
 # with units in m
 # Liam's function below uses meters
-?st_transform()
 trimb <- st_transform(trimb, crs = 3005)
 st_crs(trimb)$proj4string #check CRS
 
@@ -283,18 +280,19 @@ trees <- read_csv(here("./data/cleaned/trees.csv"))
 #### MATURE COMPONENT
 # Azimuth readings are magnetic and need to be declination corrected. Read in datasheet with declination correction by site. Then join it to stem mapping sheet.
 site_data <- read_csv(here('./data/cleaned/site_data.csv'))
-site_data <- site_data %>% select(site_id, Dec)
+site_data <- site_data %>% select(site_id, declination)
 
 # Join declination corrections dataset by site
+# Move it so that it is near other columns with location info
 trees <- left_join(trees, site_data, by = c("site_id" = "site_id"))
-
-# Delete dec_deg column (empty column and we just added Dec)
-trees <- trees %>% select(!c(dec_deg))
+trees <- trees %>% 
+  relocate(declination, .before = tree_type)
 
 # Add column for declination corrected azimuth.
 trees <- trees %>% 
-  mutate(corr_az_deg = (az_deg + Dec)%%360) %>% 
-  mutate(across(corr_az_deg, round, 1))
+  mutate(az_sm_dc = (az_sm + declination)%%360) %>% 
+  mutate(across(az_sm_dc, round, 1)) %>% 
+  relocate(az_sm_dc, .after = declination)
   #modulo operator (%%) checks if 360 can go into the sum. If it can, it returns the difference.
 
 
@@ -318,66 +316,63 @@ trees <- left_join(trees, select(transect, tr_az, tr_leng, transect_id, tr_dist1
 # Transform the y distance in the regen data (in slope distance) to be horizontal distance. Complicated function but it says: 
 # Case 1: tr_dist1 = tr_leng (i.e. there is only one slope), calculate the y horizontal distance using the first slope; 
 # When tr_dist1 != tr_leng (i.e. there are two slopes) there are two cases, 
-# Case 2: tr_dist1 != tr_leng and dist_y < tr_dist1_sl, calculate distance using the first slope
-# Case 3: tr_dist1 != tr_leng and dist_y >= tr_dist1_sl, calculate the distance by adding the inflection point horizontal distance (tr_dist1) and remainder (dist_y - tr_dist1_sl) corrected with the second slope
+# Case 2: tr_dist1 != tr_leng and dist_y_tr < tr_dist1_sl, calculate distance using the first slope
+# Case 3: tr_dist1 != tr_leng and dist_y_tr >= tr_dist1_sl, calculate the distance by adding the inflection point horizontal distance (tr_dist1) and remainder (dist_y_tr - tr_dist1_sl) corrected with the second slope
 
 #Test on three represenative trees. r1 = case 1, r291 = case 2, r299 = case 3
 test <- trees %>% filter(tree_id %in% c("r1", "r291", "r299"))
 test <- test %>% mutate(dist_y_h = 
-           case_when(tr_dist1 == tr_leng ~ dist_y*cos(tr_sl1_rad), 
-                     tr_dist1 != tr_leng & dist_y < tr_dist1_sl ~ dist_y*cos(tr_sl1_rad),
-                     tr_dist1 != tr_leng & dist_y >= tr_dist1_sl ~ tr_dist1 + 
-                       (dist_y - tr_dist1_sl)*cos(tr_sl2_rad), TRUE ~ NA_real_)) %>% 
-  select(dist_y, dist_x, dist_y_h)
+           case_when(tr_dist1 == tr_leng ~ dist_y_tr*cos(tr_sl1_rad), 
+                     tr_dist1 != tr_leng & dist_y_tr < tr_dist1_sl ~ dist_y_tr*cos(tr_sl1_rad),
+                     tr_dist1 != tr_leng & dist_y_tr >= tr_dist1_sl ~ tr_dist1 + 
+                       (dist_y_tr - tr_dist1_sl)*cos(tr_sl2_rad), TRUE ~ NA_real_)) %>% 
+  select(dist_y_tr, dist_x_tr, dist_y_h)
 
 # That works. Perform the actual calculation
 trees <- trees %>% mutate(
   dist_y_h =
     case_when(
-      tr_dist1 == tr_leng ~ dist_y * cos(tr_sl1_rad),
+      tr_dist1 == tr_leng ~ dist_y_tr * cos(tr_sl1_rad),
       tr_dist1 != tr_leng &
-        dist_y < tr_dist1_sl ~ dist_y * cos(tr_sl1_rad),
+        dist_y_tr < tr_dist1_sl ~ dist_y_tr * cos(tr_sl1_rad),
       tr_dist1 != tr_leng &
-        dist_y >= tr_dist1_sl ~ tr_dist1 +
-        (dist_y - tr_dist1_sl) * cos(tr_sl2_rad),
+        dist_y_tr >= tr_dist1_sl ~ tr_dist1 +
+        (dist_y_tr - tr_dist1_sl) * cos(tr_sl2_rad),
       TRUE ~ NA_real_))
 
-# Now need to calculate distance from transect start point to each tree (x, y). This is a right triangle with sides: dist_x, dist_y_h.
-# Make test dataset to make sure this isn't changing dist_m value for mature trees
+# Now need to calculate distance from transect start point to each tree (x, y). This is a right triangle with sides: dist_x_tr, dist_y_h.
+# Make test dataset to make sure this isn't changing dist_sm value for mature trees
 test <- trees %>% filter(tree_id %in% c("r1", "m1")) %>% 
-  select(tree_id, tree_type, dist_m, dist_x, dist_y_h)
+  select(tree_id, tree_type, dist_sm, dist_x_tr, dist_y_h)
 test
-test %>% mutate(dist_m = case_when(tree_type == "regen" ~ 
-                                     (dist_x^2 + dist_y_h^2)^(0.5), .default = dist_m)) #good, that works 
+test %>% mutate(dist_sm = case_when(tree_type == "regen" ~ 
+                                     (dist_x_tr^2 + dist_y_h^2)^(0.5), .default = dist_sm)) #good, that works 
 
-trees <- trees %>% mutate(dist_m = case_when(tree_type == "regen" ~ 
-                                               (dist_x^2 + dist_y_h^2)^(0.5), .default = dist_m))
+trees <- trees %>% mutate(dist_sm = case_when(tree_type == "regen" ~ 
+                                               (dist_x_tr^2 + dist_y_h^2)^(0.5), .default = dist_sm))
 
-# Now calculate the angle adjustment relative to the transect azimuth for point. theta = tan-1(dist_x/dist_y_h) (in radians).
-trees <- trees %>% mutate(az_adj = atan(dist_x/dist_y_h)*(180/pi))
+# Now calculate the angle adjustment relative to the transect azimuth for point. theta = tan-1(dist_x_tr/dist_y_h) (in radians).
+trees <- trees %>% mutate(az_adj = atan(dist_x_tr/dist_y_h)*(180/pi))
 
-# Calcualte the azimuth of the tree from the transect start point in the corr_az_deg column
+# Calcualte the azimuth of the tree from the transect start point in the az_sm_dc column
 # Again, use test dataset to make sure this is only affecting regen trees
 test <- trees %>% filter(tree_id %in% c("r1", "m1")) %>% 
-  select(tree_id, tree_type, corr_az_deg, tr_az, az_adj)
+  select(tree_id, tree_type, az_sm_dc, tr_az, az_adj)
 test
-test %>% mutate(corr_az_deg = case_when(tree_type == "regen" ~ 
-                                          (tr_az + az_adj)%%360, .default = corr_az_deg)) #works
+test %>% mutate(az_sm_dc = case_when(tree_type == "regen" ~ 
+                                          (tr_az + az_adj)%%360, .default = az_sm_dc)) #works
 
-trees <- trees %>% mutate(corr_az_deg = case_when(tree_type == "regen" ~ (tr_az + az_adj)%%360, .default = corr_az_deg))
-
-#Clean up data set by removing columns used for data processing
-trees <- trees %>% select(!c(tr_dist1:tr_dist1_sl, az_adj))
+trees <- trees %>% mutate(az_sm_dc = case_when(tree_type == "regen" ~ (tr_az + az_adj)%%360, .default = az_sm_dc))
 
 #Join relevant plot center coordinate with each tree. Two key columns for 
-#stem mapping: dist_m (distance from stem mapping point ) 
-#and corr_az_deg (aziumuth from that point)
+#stem mapping: dist_sm (distance from stem mapping point ) 
+#and az_sm_dc (aziumuth from that point)
 trees <- inner_join(trees, trimb_sm, 
                     by = c("plot_id" = "pt_id"))
 
 # Run the function. Need to set azimuth, distance, xcenter, ycenter equal to variable names in stem mapped polar. 
 stem_mapped_XY <- trees %>%
-  mutate(polar_to_XY(azimuth = corr_az_deg, distance = dist_m,
+  mutate(polar_to_XY(azimuth = az_sm_dc, distance = dist_sm,
                      xcenter = plot_x_utm, ycenter = plot_y_utm, crs = crs,
                      shape_file = TRUE))
 
@@ -390,6 +385,18 @@ mi_2 <- stem_mapped_XY %>% filter(site_id == "mi_2")
 tmap_mode("plot")
 tm_shape(mi_2, is.master = TRUE) + tm_symbols(col = "tree_type")
 
-# Write your spatial features as csv with X and Y coordinate columns
-st_write(stem_mapped_XY, here("./data/workflow/trees_mapped.csv"), 
-         layer_options = "GEOMETRY=AS_XY", delete_dsn = TRUE)
+#Extract coordinates into columns
+stem_mapped_XY <- stem_mapped_XY %>% 
+  mutate(x_utm = st_coordinates(.)[,1],
+         y_utm = st_coordinates(.)[,2]) %>% 
+  st_drop_geometry()
+
+#Clean up data set by removing columns that aren't needed later
+names(stem_mapped_XY)
+stem_mapped_XY <- stem_mapped_XY %>% 
+  select(!c(tr_az:tr_dist1_sl, az_adj:plot_y_utm)) %>% 
+  relocate(dist_y_h, .after = dist_y_tr) %>% 
+  relocate(c(x_utm, y_utm), .after = az_sm_dc)
+
+# Export data as a csv
+write_csv(stem_mapped_XY, here("./data/workflow/trees_mapped.csv"))
