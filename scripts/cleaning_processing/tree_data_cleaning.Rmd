@@ -1,0 +1,1259 @@
+---
+title: "tree_data_cleaning"
+author: "Hanno Southam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+Script that combines tree level data from mature and regenerating components
+into a single dataframe and cleans the variables. There is a complementary 
+data dictionary in "./data/data_dictionary/dict_trees.csv"
+
+#Setup
+Load packages
+```{r}
+library(tidyverse)
+library(here)
+```
+
+Load data
+```{r}
+#Individual regenerating tree measurements
+regen <- read_csv(here("./data/raw/regen_comp_data.csv"))
+
+#Individual mature tree measurements
+mature <- read_csv(here('./data/raw/mature_comp_data.csv'))
+```
+
+#Combine two datasets, basic formatting
+Take a look at the datasets, delete empty rows
+```{r}
+#Learn a bit about data
+dim(regen); dim(mature)
+summary(regen)
+summary(mature)
+
+#Delete empty rows
+regen <- regen%>% filter(!is.na(site_id))# Delete empty rows
+mature <- mature %>% filter(!is.na(site_id))# Delete empty rows
+dim(regen); dim(mature) #682 mature trees, 1051 regen trees
+```
+
+Join the two datasets. Regen trees are located on a transect identified by the 
+field (transect_id). Mature trees have their location recorded relative to a 
+stem mapping plot identified by the field (plot_id). Combine these to a single
+field called plot_id because they both will be used to stem map trees.  
+```{r}
+#Rename transect_id as plot_id
+regen <- regen %>% rename(plot_id = transect_id) 
+
+#Join
+trees <- full_join(regen, mature)
+
+#Make a factor variable distinguishing the two tree types
+trees <- trees %>% 
+  mutate(tree_type = case_when(str_detect(tree_id, "r") ~ "regen", 
+                               str_detect(tree_id, "m") ~ "mature")) %>% 
+  mutate(tree_type = factor(tree_type, levels = c("regen", "mature")))
+```
+
+Do some basic organization of the variables. 
+```{r}
+#Organize variables in an order that makes sense
+names(trees)
+trees <- trees %>% 
+  select(tree_id, flag_id, site_id, plot_id, dist_x, dist_y, dist_m, az_deg, 
+         tree_type, spp, status, crown_class, crown_cond, dbh, height_m, 
+         hdm_pa, b_lc, dmr_l, dmr_m, dmr_u, broom_pa, broom_pos, stem_pa,
+         path_ind_1, path_ind_2, dam_agent_1, dam_agent_2, outside_10, 
+         assessed_by, notes)
+
+#Rename a few variables so they are consistent
+#dist_x and dist_y only apply to regen trees on transect. Add "tr" to identify
+#that
+#dist_m and az_deg only apply to mature trees mapped from stem mapping points
+#add "sm" to identify that
+#Units are only in the names of a few variables (dist_m, az_deg and height_m).
+#The changes above take it out of dist_m and az_deg. Also remove units from 
+#height_m for consistency
+trees <- trees %>% 
+  rename(dist_x_tr = dist_x, dist_y_tr = dist_y, dist_sm = dist_m, 
+         az_sm = az_deg, height = height_m)
+
+#Make factor variables factors
+trees <- trees %>% mutate(across(
+  c(spp, status, hdm_pa, b_lc, broom_pa, broom_pos, stem_pa, 
+    crown_class, crown_cond, path_ind_1, path_ind_2, dam_agent_1, dam_agent_2, 
+    outside_10, assessed_by),
+  ~as.factor(.)))
+
+#Make integer variables integers. Note: this turns "-" into NAs
+trees <- trees %>% mutate(across(
+  c(plot_id, dmr_l, dmr_m, dmr_u), 
+  ~as.integer(.)))
+```
+
+Get a summary of the dataset
+```{r}
+str(trees)
+summary(trees)
+```
+
+#Mature trees beyond 10 m from the edge
+We measured these trees at a few sites because I was worried that 10 m wasn't 
+enough to capture the infection pressure on the regenerating component. I 
+didn't end up doing anything with them, so for simplicity, remove them. 
+```{r}
+#Get a summary of the variable
+summary(trees$outside_10)
+
+#Which sites did we record this at? 
+#mk_2 and mk_3
+trees %>% filter(outside_10 == "Y") %>% select(site_id) %>% distinct()
+
+#Filter them out and delete the variable
+trees <- trees %>% filter(is.na(outside_10) | outside_10 == "N") %>% 
+  select(-outside_10)
+```
+
+#Assessed by
+At one site we tracked who rated the tree to measure observer bias. HS = 
+observer 1, NH = observer 2,and B = both. I don't think there is enough data
+to do anything statistical with this; we probably should have tracked it at all
+sites! 
+
+Quick plot to see if there is anything there? 
+```{r}
+#How many trees have observer info?
+trees %>% 
+  filter(!is.na(assessed_by)) %>% 
+  count(assessed_by)
+
+#There a difference between HS and NH? 
+x <- trees %>% 
+  filter(assessed_by %in% c("HS", "NH")) %>% 
+  mutate(dmr = dmr_l + dmr_m + dmr_u) %>%
+  filter(!is.na(dmr)) %>% 
+  mutate(dmr = factor(dmr))
+
+n_HS <- trees %>% filter(assessed_by == "HS") %>% nrow()
+n_BH <- trees %>% filter(assessed_by == "NH") %>% nrow()
+
+x1 <- x %>%
+  group_by(assessed_by, dmr) %>% 
+  summarise(n_dmr = n()) %>% 
+  complete(dmr, fill = list(n_dmr = 0)) %>% 
+  mutate(n_HS = sum(n_dmr[assessed_by =="HS"]),
+         n_NH = sum(n_dmr[assessed_by =="NH"])) %>% 
+  mutate(p_dmr = if_else(assessed_by == "HS",
+                         n_dmr/n_HS,
+                         n_dmr/n_NH))
+
+ggplot(x1, aes(x = dmr, y = p_dmr,fill = assessed_by)) + 
+  geom_bar(stat = "identity", position = "dodge")
+```
+
+Not enough trees. Remove column! 
+```{r}
+trees <- trees %>% 
+  select(-assessed_by)
+```
+
+#Identifier variables
+These include: tree_id, flag_id, site_id and plot_id. 
+
+##tree_id
+Definition: Unique identifier of each tree. Format: x#, where x is "r" (regen) 
+or "m" (mature) and # is a sequential number, ascending from 1 to N (sample 
+size) for each tree type (regen, mature). Assigned when tree entered into 
+data after field season. 
+
+Should be unique and defined for all trees, no NAs.
+```{r}
+head(trees$tree_id)
+
+#Check for NAs. 
+#None
+any(is.na(trees$tree_id))
+
+#Check its unique by seeing if the length of a unique vector of ids is the 
+#same length as the dataset.
+#Match, looks good
+nrow(trees)
+length(unique(trees$tree_id))
+```
+
+##flag_id
+Definition: Identifier of the marking flag used to mark the tree in the field. 
+Only used for keeping track of trees in the field, not used as an identifier 
+after that. Format: x#, where x is y (yellow flag) or w (white flag) and # 
+is number written on the flag. Can be matched to data on paper 
+datasheets if necessary to check on observation. 
+
+Nothing to check in R
+
+##site_id
+Definition: Unique identifier of edge spread research sites. Name format: xx_# 
+where xx identifies the location (mk = Malcom Knapp Research Forest, mi = 
+Mission Municipal Forest, cr = Campbell River area, ph = Pacfific Highway near 
+town of Ucluelet) and the numbers ascend from 1 to N (sample size) at each 
+location (e.g. mk_1, mk_2, mk_3). 
+
+Should be 11 unique values (for the 11 research sites) and defined for all 
+trees, no NAs.
+```{r}
+head(trees$site_id)
+
+#Check for NAs. Actually filtered on this condition above to get rid of empty 
+#rows so this shouldn't turn up anything. 
+#None
+any(is.na(trees$site_id))
+
+#Check unique values
+unique(trees$site_id)
+length(unique(trees$site_id))
+```
+
+##Plot id
+Definition: For "tree_type = mature" this the number identifying the stem 
+mapping plot this tree was mapped from (identified by rebar stakes with grey 
+plot tag at research sites). For "tree_type = regen", this is the number 
+identifying the transect this tree falls on (identified by rebar stakes with 
+the RED plot tag at research sites); for regen trees, this maps to the 
+"transect_id" field in the transect_data. 
+
+Should be defined for all trees, no NAs. For regen trees, there should be 33 
+unique values (3 transects/site x 11 sites = 33). For mature trees, there 
+should be ~ 44 (usually 4 stem mapping plots/site x 11 sites = 44) but not 
+actually sure what this worked out to be. 
+```{r}
+head(trees$plot_id)
+
+#Check for NAs. 
+#None
+any(is.na(trees$plot_id))
+
+#Check unique values for regen trees
+#33, good
+trees %>% filter(tree_type == "regen") %>% select(plot_id) %>% distinct() %>% 
+  nrow()
+
+#Check unique values for regen trees
+#47, reasonable
+trees %>% filter(tree_type == "mature") %>% select(plot_id) %>% distinct() %>% 
+  nrow()
+```
+
+#Location variables
+These variables contain info about the location of trees relative to a 
+transect (regen) or stem mapping plot (mature). They include: dist_x_tr, 
+dist_y_tr, dist_sm, az_sm. 
+
+##dist_x_tr
+Definition: Distance to the centre of the tree stem perpendicular from the 
+transect (identified by plot_id) centre line at "dist_y_tr". In meters to one 
+decimal. Looking from the transect start to the transect end, left is negative, 
+right is positive. Ranges from -2.5 to 2.5. Only defined for 
+"tree_type = regen".
+
+Should be NA for all mature trees. For regen trees, should be defined for all
+trees and be bounded by -2.5 to 2.5. 
+```{r}
+#Check NA for all mature trees
+#Looks good
+trees %>% filter(tree_type == "mature") %>% select(dist_x_tr) %>% summary()
+
+#Check NAs and max and min for regen trees
+#Looks good 
+trees %>% filter(tree_type == "regen") %>% select(dist_x_tr) %>% summary()
+```
+
+##dist_y
+Definition: Slope distance on the transect, read from the transect (identified 
+by "plot_id") line. In meters to one decimal. Ranges from 0.0 to end of 
+transect. Only defined for "tree_type = regen".
+
+Should be NA for all mature trees. For regen trees, should be defined for all
+trees and range from 0 to ~51 m (could be a little more). 51 m was the maximum
+transect length but this is in horizontal distance (whereas dist_y is in slope
+distance and could be longer). 
+```{r}
+#Check NA for all mature trees
+#Looks good
+trees %>% filter(tree_type == "mature") %>% select(dist_y_tr) %>% summary()
+
+#Check NAs and max and min for regen trees
+#No NAs
+#Min is -1.90, which is an error
+#Max is 52.90, makes sense
+trees %>% filter(tree_type == "regen") %>% select(dist_y_tr) %>% summary() 
+
+#See which trees have dist_y<0
+#Only one tree, tree id r525. Checked datasheet, there is a (-) but must be an #error. Make positive.
+x <- trees %>% filter(tree_type == "regen" & dist_y_tr < 0)
+head(x)
+trees <- trees %>% mutate(dist_y_tr = case_when(tree_id == "r525" ~ 1.9, 
+                                             .default = dist_y_tr))
+trees %>% filter(tree_id =="r525") %>% select(dist_y_tr)
+```
+
+##dist_sm
+Definition: Horizontal distance to the face of the tree stem from the stem 
+mapping plot centre (identified by "plot_id"). In meters to one decimal. Only 
+defined for "tree_type = mature". 
+
+Should be NA for all regen trees. For mature trees, should be defined for all
+trees and range from about 0-15 m (could be a little more).
+```{r}
+#Check NA for all regen trees
+#Looks good
+trees %>% filter(tree_type == "regen") %>% select(dist_sm) %>% summary()
+
+#Check NAs and max and min for mature trees
+#Looks good
+#No NAs
+#Min is 0.5
+#Max is 14
+trees %>% filter(tree_type == "mature") %>% select(dist_sm) %>% summary()
+```
+
+##az_sm
+Definition: Magnetic azimuth reading to the tree stem from the stem mapping 
+plot centre (identified by "plot_id"). In degrees to one decimal. Only defined 
+for "tree_type = mature". 
+
+Should be NA for all regen trees. For mature trees, should be defined for all
+trees and range from 0-360. 
+```{r}
+#Check NA for all regen trees
+#Looks good
+trees %>% filter(tree_type == "regen") %>% select(az_sm) %>% summary()
+
+#Check NAs and max and min for mature trees
+#Looks good
+#No NAs
+#Min is 0.1
+#Max is 360
+trees %>% filter(tree_type == "mature") %>% select(az_sm) %>% summary()
+```
+
+#Basic tree descriptors
+These are basic variables describing the species, status and size of tree. 
+They include: spp, status, crown_class, crown_cond, dbh, height_m
+
+##spp
+Definition: Tree species in the format of a two letter code. Species present in 
+data: "Ba" = amabilis fir (Abies amabilis), "Bl" = subalpine fir 
+(Abies lasiocarpa), "Cw" = western red cedar (Thuja plicata), "Dr" = red alder 
+(Alnus rubra), "Ep" = paper birch (Betula papyrifera), "Fd" = Douglas-fir 
+(Pseudotsuga menziesii), "Hw" = western hemlock (Tsuga heterophylla), 
+"Mb" = big leaf maple (Acer macrophyllum), "Mv" = vine maple (Acer circinatum), 
+"U" = unknown,  "V" = cherry (Prunus) . Species considered trees and their 
+codes are from: BC Ministry of Forests and Range & BC Ministry of Environment 
+(Eds.). (2010). Field manual for describing terrestrial ecosystems (2nd ed.).
+
+Should be defined for all species and values should be in the list above. 
+```{r}
+#Check for NAs 
+#None
+any(is.na(trees$spp))
+
+#Check values
+#Matches list above
+levels(trees$spp)
+```
+
+##status
+Definition: One of: "LS" = live standing (live trees that are  self-supporting, 
+meaning the tree would remain standing if all supporting  materials were 
+removed), LL = "live leaning" (live trees that are  self-supporting but have 
+obvious lean), live fallen = "LF" (live trees that are  not self-supporting, 
+meaning the tree would not remain standing if all  supporting materials were 
+removed), "DS" = dead standing (dead trees that are self-supporting), "SN" = 
+snag (a dead standing tree that has snapped  somewhere in its bole), 
+"RD" = recently dead (a dead standing tree that has enough remaining foliage 
+and small branch material that it could be assessed for dwarf mistletoe). 
+Adapted from the "Large Tree Status Codes" (pg. 120)  in Natural Resources 
+Canada, Canadian Forest Service. (2008). Canada’s National  Forest Inventory 
+ground sampling guidelines: Specifications for ongoing  measurement. (5th ed.). 
+Library and Archives Canada. "LL" class added because crown position likely 
+influences dispersal of misltetoe seed from a tree. "SN" added because these 
+trees typically appeared to have died longer ago than "DS" trees and when in 
+the mature component, would have been an infection source for a shorter period.
+"RD" added because additional data could be used to better characterize what 
+infection looked like historically. None of these additional classes were used in 
+analyses. Future remeasurements could use the standard three classes: 
+"LS", "LF", "DS". 
+
+Should be defined for all trees and values should be in the list above.
+```{r}
+#Check for NAs 
+#None
+any(is.na(trees$status))
+
+#Check values
+#Matches list above
+levels(trees$status)
+```
+
+We only started using the "RD" class part-way through the field season. 
+So we are going to get rid of this extra data because we can't make use of it.
+
+Cleaning needed:
+(1) Convert HDM variables to their values for "status = "DS or "SN" 
+(see details) below.
+(2) Set "crown_class" = "-"
+(3) Convert status from "RD" to "DS"
+
+Updated definition: One of: "LS" = live standing (live trees that are 
+self-supporting, meaning the tree would remain standing if all supporting 
+materials were removed), LL = "live leaning" (live trees that are 
+self-supporting but have obvious lean), live fallen = "LF" (live trees that are 
+not self-supporting, meaning the tree would not remain standing if all 
+supporting materials were removed), "DS" = dead standing (dead trees that are self-supporting), "SN" = snag (a dead standing tree that has snapped 
+somewhere in its bole). Adapted from the "Large Tree Status Codes" (pg. 120) 
+in Natural Resources Canada, Canadian Forest Service. (2008). Canada’s National 
+Forest Inventory ground sampling guidelines: Specifications for ongoing 
+measurement. (5th ed.). Library and Archives Canada. "LL" class added because 
+crown position likely influences dispersal of misltetoe seed from a tree. "SN" 
+added because these trees typically appeared to have died longer ago than "DS" 
+trees and when in the mature component, would have been an infection source 
+for a shorter period. Neither of these additional classes were used in 
+analyses. Future remeasurements could use the standard three classes: "LS", 
+"LF", "DS". 
+```{r}
+#Take a look at a couple of observations in this status class
+trees %>% filter(status == "RD") %>% view()
+
+#Create object with just status == "RD"
+x <- trees %>% filter(status == "RD")
+
+#Do cleaning tasks to this object
+x <- x %>%
+  mutate(b_lc = "-",
+         dmr_l = NA,
+         dmr_m = NA,
+         dmr_u = NA,
+         broom_pa = "-",
+         broom_pos = "-",
+         stem_pa = "-",
+         crown_class = "-",
+         status = "DS")
+
+#Take a look
+#Looks good
+x %>% head() %>% view()
+
+#Drop old observations and add these updated them
+trees <- trees %>% filter(status != "RD")
+trees <- rbind(trees, x)
+```
+
+##crown_class
+One of: "D" = dominant (trees with crowns that extend above the general level 
+of the trees immediately around the measured trees), "C" = codominant (trees 
+with crowns forming the general level of the trees immediately around the 
+measured trees), "I" = intermediate (trees with crowns below, but extending 
+into, the general level of the crown canopy (may include trees, shrubs, or 
+other obstructions) immediately around the measured trees), "S" = suppressed 
+(trees with crowns entirely below the general level of the crown canopy (may 
+include trees, shrubs, or other obstructions) around the measured trees), "-" 
+= not applicable. Only defined for live trees ("status = LS or LL or LF"). Dead 
+trees ("status = DS or SN) set to "-". Adapted from Natural Resources Canada, 
+Canadian Forest Service. (2008). Canada’s National Forest Inventory ground 
+sampling guidelines: Specifications for ongoing measurement. (5th ed.). Library 
+and Archives Canada. In source guidelines, crown class is not defined for "LF" 
+trees; we recorded it in this data because crown position is an important 
+determinant of a potential as a source tree or target tree for mistletoe seed. 
+
+Should be "-" for all dead trees and defined for all live trees with values in
+the list above. 
+```{r}
+#Check its "-" for dead trees
+#Some trees have it defined. Set it equal to "-"
+trees %>% filter(status %in% c("DS", "SN")) %>% select(crown_class) %>% 
+  summary()
+trees <- trees %>% 
+  mutate(crown_class = if_else(status %in% c("DS", "SN"), 
+                               "-",
+                               crown_class)) %>% 
+  mutate(crown_class = factor(crown_class))
+
+#Check again
+trees %>% filter(status %in% c("DS", "SN")) %>% select(crown_class) %>% 
+  summary()
+
+#Check it is defined for all live trees and the values are valid
+#"-" for seven live trees
+trees %>% filter(status %in% c("LS", "LL", "LF")) %>% select(crown_class) %>% 
+  summary()
+
+#Inspect these
+trees %>% filter(status %in% c("LS", "LL", "LF") & 
+                   crown_class == "-") %>% 
+  view()
+
+#Okay most of these are in "LF" or LL" status classes
+#The cases that are mature trees are all at the ph_3 site and have 
+#status = "LF". At this site the mature component was on a rocky bluff above
+#the regen component.
+#Look at the dbh distribution of live trees with crown class data at this site 
+#by species
+#From this data, if the trees were standing straight up they would be:
+#"m592", "m618", "m608", "m611": intermediate
+#"m591": codominant 
+x <- trees %>% filter(status == "LS" & 
+                        tree_type == "mature" & 
+                        crown_class != "-" & 
+                        site_id == "ph_3")
+ggplot(x, aes(x = crown_class, y = dbh, colour = spp)) +
+  geom_boxplot()
+
+#Because the site is open and on a bluff, Only going to set the smallest of 
+#these to be suppressed. All others (because they are fallen), set as 
+#intermediate
+trees <- trees %>% 
+  mutate(crown_class = case_match(tree_id,
+                                  c("m592", "m618") ~ "S",
+                                  c("m591", "m608", "m611") ~ "I",
+                                  .default = crown_class))
+
+#Look at whats left
+trees %>% filter(status %in% c("LS", "LL", "LF") & 
+                   crown_class == "-") %>% 
+  view()
+
+#r47 is a tiny, leaning, vine maple. Set as suppressed
+trees <- trees %>% 
+  mutate(crown_class = if_else(tree_id == "r47",
+                               "S",
+                               crown_class))
+
+#r880 is a live standing, regen tree at the cr_3 site
+#Need to look at the dbh distribution by crown class there to see what to
+#assign it
+x <- trees %>% filter(status %in% c("LS", "LL", "LF") & 
+                        tree_type == "regen" & 
+                        crown_class != "-" & 
+                        site_id == "cr_3")
+ggplot(x, aes(x = crown_class, y = dbh)) +
+  geom_boxplot()
+
+#Intermediate seems most likely, assign it that
+trees <- trees %>% 
+  mutate(crown_class = if_else(tree_id == "r880",
+                               "I",
+                               crown_class))
+
+#Set crown class to a factor again
+trees <- trees %>% 
+  mutate(crown_class = factor(crown_class))
+
+#Look at the breakdown of crown class again
+#For dead trees
+#Looks good
+trees %>% filter(status %in% c("DS", "SN")) %>% select(crown_class) %>% 
+  summary()
+
+#For live trees
+#Looks good
+trees %>% filter(status %in% c("LS", "LL", "LF")) %>% select(crown_class) %>% 
+  summary()
+```
+
+##crown_condition
+Definition: Crown condition measured with an ordered ranking: 1 (all foliage, 
+twigs, and branches present), 2 (some or all foliage lost, possibly some twigs 
+lost, all branches usually present), 3 (no foliage, up to 50% of twigs lost, 
+most branches present), 4 (no foliage or twigs, up to 50% of branches lost), 
+5 (no foliage or twigs, some sound and rotting branch stubs may be present), 
+6 (no foliage, twigs, branches, or branch stubs), "misisng" = mistakenly not 
+recorded. Defined for all trees (live and dead). Follows Natural Resources 
+Canada, Canadian Forest Service. (2008). Canada’s National Forest Inventory 
+ground sampling guidelines: Specifications for ongoing measurement. (5th ed.). 
+Library and Archives Canada.
+
+Should be defined for all trees and be one of the integers above (1-6). 
+```{r}
+#Get a summary of the variable
+trees %>% select(crown_cond) %>% summary()
+#See what the unique values are
+levels(trees$crown_cond)
+
+#Looks like there is one NA and some "-"
+#Look at NA observation
+#Note that it was missing crown condition
+trees %>% filter(is.na(crown_cond)) %>% view()
+
+#Look at "-" observations
+#Almost all dead trees
+trees %>% filter(crown_cond == "-") %>% view()
+```
+
+At the beginning of fieldwork we were mistakenly not recording crown condition
+for dead trees. These isn't a variable we used in the analysis so set = 
+"missing" for now. 
+```{r}
+trees <- trees %>% 
+  mutate(crown_cond = if_else(is.na(crown_cond) | crown_cond == "-",
+                              "missing",
+                              crown_cond))
+
+#Reset it as a factor
+trees <- trees %>% 
+  mutate(crown_cond = factor(crown_cond))
+
+#Look at the variable again
+#Looks good
+trees %>% select(crown_cond) %>% summary()
+```
+
+##dbh
+Definition: Outside bark diameter at 1.3 m height on the high side ground level 
+of a tree. In centimeters to the to one decimal. For "tree_type = regen" dbh 
+limit is ≥4.0 cm. For "tree_type = mature" dbh limit is >9.0 cm. Follows 
+Natural Resources Canada, Canadian Forest Service. (2008). Canada’s National 
+Forest Inventory ground sampling guidelines: Specifications for ongoing 
+measurement. (5th ed.). Library and Archives Canada.
+
+Should be real number for all trees. DBH cutoff for regen trees: ≥4.0 cm. 
+For mature trees: ≥9.0 cm. Check it is defined for all trees and ranges are 
+reasonable. 
+```{r}
+#For regen trees
+#Some trees with dbh<4, tree_id = r213 and r538. Both data entry errors, 
+#should have been r213 dbh = 13.8, r538 dbh = 13.1. Fixed in raw data. 
+#dbh range looks reasonable otherwise (4-42.40). 
+#Checked a few large dbhs (r355, r362 and r229), not data entry errors. 
+trees %>% filter(tree_type == "regen") %>% select(dbh) %>% 
+  summary()
+trees %>% filter(tree_type == "regen" & dbh > 35) %>% view()
+
+#For mature trees
+#One tree with dbh<9, tree_id = m385. Data entry error should be dbh = 14.0. 
+#Fixed in raw data. 
+#Checked a few large dbhs (m476, m472, m478, m30). 
+##m476 was a data entry error (should be r=17.9 (not 179)), fixed in raw data. 
+##Others good. m556, m582 and m585 from ph_2 make sense - big cedars at 
+##that site.
+trees %>% filter(tree_type == "mature") %>% select(dbh) %>% 
+  summary()
+trees %>% filter(tree_type == "mature" & dbh > 100) %>% view()
+```
+
+##height
+Definition: Tree height. In meters to one decimal. Measured for a subsample
+dominant/codominant western hemlock (3 regen trees/transect = 9 trees/site; 
+3 mature trees/stem mapping plot = 12 trees/site). For western hemlock trees 
+that have an apical droop, we extended the height to estimate the total height 
+if the droop was pulled straight. One exception is site cr_3, where all crown
+classes were measured. Future remeasurements should consider measuring heights
+for all live hemlocks in all crown classes. 
+
+Check that the range is reasonable and how many there are per site. At a few 
+sites, time constraints of bad weather meant we didn't meet our height sampling
+target, so those will show up. Those data gaps are filled with vri estimates
+in the crown volume script, so don't need to do anything about them here. 
+```{r}
+#Get a summary of the variable
+#Looks good, range seems reasonable
+trees %>% select(height) %>% summary()
+
+#See how many observations there are per site
+#Should be ~ 21 trees/site
+#Looks like mk_1, ph_2 and ph_3 are well below the target
+#mk_2 and mk_3 are slightly below
+trees %>% filter(!is.na(height)) %>% count(site_id)
+```
+
+#Dwarf mistletoe variables
+These variables record the presence, severity and signs of dwarf mistletoe. 
+They include: hdm_pa, b_lc, dmr_l, dmr_m, dmr_u, broom_pa, broom_pos, stem_pa
+
+##hdm_pa
+Definition: Presence or absence of hemlock dwarf mistletoe. Assessed for 
+susceptible species ("spp = Hw or Ba") where it is one of: "Y" = present, 
+"N" = absent, "U" = unassessable (e.g. dead trees with little available tissue 
+to assess). For all other species: "-" = not applicable. 
+
+Suceptibility of host species in our data:
+- Hw: primary host
+- Ba: occasional host
+- Fd: rare host
+We are only going to keep HDM measurements for Hw and Ba. We recorded them for
+Fd for a while but then stopped because it was rare, we were unsure about the
+symptoms and it didn't seem like it could contribute to HDM transmission in a
+meaningful way. Ba is only present at one site (ph_2) but had common infection
+and brooming, so it shouldn't be ignored. 
+
+Check that it is defined for all hemlock and amabilis fir trees with one of
+the valid values above (Y, N, U) and is "-" for all other species. 
+```{r}
+#For hemlock and amabilis fir
+#Get a summary
+#9 trees with "-"
+trees %>% filter(spp %in% c("Hw", "Ba")) %>% select(hdm_pa) %>% summary()
+
+#See what is going on with those 9 trees
+#Lets look at those. 
+#8 are snags and the other is dead standing, which - indicates they were 
+#probably unassessable. Set them = U
+trees %>% filter((spp %in% c("Hw", "Ba")) & hdm_pa=="-") %>% view()
+trees <- trees %>% 
+  mutate(hdm_pa = case_when((spp %in% c("Hw", "Ba") & hdm_pa=="-") ~ "U", 
+                                             .default = hdm_pa)) %>% 
+  mutate(hdm_pa = factor(hdm_pa))
+
+#Check  again
+#Looks good
+trees %>% filter(spp %in% c("Hw", "Ba")) %>% select(hdm_pa) %>% summary()
+
+#For other species
+#Get a summary
+#73 trees where its rated "N" and 3 where it is "Y". These are probably
+#Douglas fir which are rare HDM host. 
+trees %>% filter(!spp %in% c("Hw", "Ba")) %>% select(hdm_pa) %>% summary()
+
+#What species apart from Hw is this recorded for? 
+#Fd make up most of these
+trees %>% filter(!spp %in% c("Hw", "Ba") & hdm_pa != "-") %>% 
+  select(spp) %>% distinct()
+trees %>% filter(!spp %in% c("Hw", "Ba") & hdm_pa != "-") %>% 
+  select(spp) %>% summary()
+
+#Set it equal to "-" for all these spp
+trees <- trees %>% 
+  mutate(hdm_pa = case_when((!spp %in% c("Hw", "Ba")) ~ "-", 
+                                             .default = hdm_pa)) %>% 
+  mutate(hdm_pa = factor(hdm_pa))
+
+#Check again
+#Looks good
+#For Hw and Ba
+trees %>% filter(spp %in% c("Hw", "Ba")) %>% select(hdm_pa) %>% summary()
+#For other spp
+trees %>% filter(!spp %in% c("Hw", "Ba")) %>% select(hdm_pa) %>% summary()
+```
+
+##b_lc, broom_pa, stem_pa
+These are factor dwarf mistletoe variables that have the same rules for when
+they are defined. 
+
+b_lc: Presence or absence of hemlock dwarf mistletoe below live crown. 
+Assessed for susceptible species ("spp = Hw or Ba") that have 
+"status = "LS or LL or LF" where it is one of: "Y" = present, "N" = absent, 
+"U" = unassessable. For all other species and for "spp = Hw or Ba" with 
+"status = DS or SN": "-" = not applicable.
+
+broom_pa: Presence or absence of hemlock dwarf mistletoe witches brooms. 
+Assessed for trees with "hdm_pa = Y" and status = "LS or LL or LF" where it is 
+either "Y" = present" or "N" = absent. For dead susceptible species ("spp = Hw 
+or Ba") and all non-suceptible species ("spp != Hw or Ba") it is "-" = not 
+applicable. 
+
+stem_pa: Presence or absence of hemlock dwarf mistletoe infections on the tree 
+stem. Assessed for trees with "hdm_pa = Y" and status = "LS or LL or LF" where 
+it is either "Y" = present", "N" = absent or "misisng" = mistakenly not 
+recorded. For dead susceptible species ("spp = Hw or Ba") and all 
+non-suceptible species ("spp != Hw or Ba") it is "-" = not applicable. 
+
+Check:
+(1) They are "Y", "N" for live, infected hemlock or amabilis fir 
+(2) They are "-" for live, uninfected hemlock or amabilis fir, dead hemlock and 
+amabilis fir and all other species. 
+
+For live infected hemlock and amabilis fir
+```{r}
+#Get a summary
+#b_lc and broom_pa look good, all Y or N
+#stem_pa has trees with "-"
+trees %>% filter(spp %in% c("Hw", "Ba") & 
+                   status %in% c("LS", "LL", "LF") &
+                   hdm_pa == "Y") %>%
+  select(b_lc, broom_pa, stem_pa) %>% summary()
+
+#Inspect these
+#Most are these are from mi_1, which we surveyed early in our fieldwork. For
+#the first few sites we were mistakenly treating stem infections as witches 
+#brooms. So if broom_pa = N, stem_pa = "-". 
+#All these trees have stem_pa = "-"
+trees %>% filter(spp %in% c("Hw", "Ba") & 
+                   status %in% c("LS", "LL", "LF") &
+                   hdm_pa == "Y" &
+                   stem_pa == "-") %>% view()
+trees %>% filter(spp %in% c("Hw", "Ba") & 
+                   status %in% c("LS", "LL", "LF") &
+                   hdm_pa == "Y" &
+                   stem_pa == "-") %>% 
+  select(broom_pa) %>% 
+  summary()
+
+#Set them to "missing"
+trees <- trees %>% 
+  mutate(stem_pa = if_else(spp %in% c("Hw", "Ba") &
+                             status %in% c("LS", "LL", "LF") &
+                             hdm_pa == "Y" &
+                             stem_pa == "-",
+                           "missing",
+                           stem_pa)) %>% 
+  mutate(stem_pa = factor(stem_pa))
+
+#Check again
+#Looks good
+trees %>% filter(spp %in% c("Hw", "Ba") & 
+                   status %in% c("LS", "LL", "LF") &
+                   hdm_pa == "Y") %>%
+  select(b_lc, broom_pa, stem_pa) %>% summary()
+```
+
+For just live uninfected trees hemlock and amabilis fir
+```{r}
+#Get a summary
+#Problems in all columns
+trees %>% filter(spp %in% c("Hw", "Ba") & 
+                   status %in% c("LS", "LL", "LF") &
+                   hdm_pa %in% c("N", "U")) %>%
+  select(b_lc, broom_pa, stem_pa) %>% summary()
+
+#Look at these
+#Just four trees, have all HDM info when it shouldn't have been recorded
+trees %>% filter(spp %in% c("Hw", "Ba") & 
+                   status %in% c("LS", "LL", "LF") &
+                   hdm_pa %in% c("N", "U") &
+                   (b_lc != "-" | broom_pa != "-" | stem_pa != "-")) %>% 
+  view()
+
+#Set these = "-"
+trees <- trees %>% 
+  mutate(across(c(b_lc, broom_pa, stem_pa),
+                ~case_when(spp %in% c("Hw", "Ba") &
+                             status %in% c("LS", "LL", "LF") &
+                             hdm_pa %in% c("N", "U") ~ "-", TRUE ~ .))) %>% 
+                  mutate(across(c(b_lc, broom_pa, stem_pa), ~as.factor(.)))
+
+#Look at them again
+#Looks good
+trees %>% filter(spp %in% c("Hw", "Ba") & 
+                   status %in% c("LS", "LL", "LF") &
+                   hdm_pa %in% c("N", "U")) %>%
+  select(b_lc, broom_pa, stem_pa) %>% summary()
+```
+
+For dead hemlock and amabilis fir
+```{r}
+#Get a summary
+#A few trees in each variable that aren't "-"
+trees %>% filter(spp %in% c("Hw", "Ba") & 
+                   status %in% c("DS", "SN")) %>%
+  select(b_lc, broom_pa, stem_pa) %>% summary()
+
+#Inspect these
+#Seven trees with problems in one or multiple of the columns
+#Probably trees that were recorded in the "RD" class above and had the HDM
+#info taken. See notes on "RD" in status variable above. 
+trees %>% filter(spp %in% c("Hw", "Ba") & 
+                   status %in% c("DS", "SN") &
+                   (b_lc != "-" | broom_pa != "-" | stem_pa != "-")) %>%
+  view()
+
+#Set these = "-"
+trees <- trees %>% 
+  mutate(across(c(b_lc, broom_pa, stem_pa),
+                ~case_when(spp %in% c("Hw", "Ba") &
+                             status %in% c("DS", "SN") ~ "-", TRUE ~ .))) %>% 
+                  mutate(across(c(b_lc, broom_pa, stem_pa), ~as.factor(.)))
+
+#Check again
+#Looks good
+trees %>% filter(spp %in% c("Hw", "Ba") & 
+                   status %in% c("DS", "SN")) %>%
+  select(b_lc, broom_pa, stem_pa) %>% summary()
+```
+
+For non-susceptible hosts species
+```{r}
+#Get a summary
+#A couple of trees with values in b_lc and broom_pa
+trees %>% filter(!spp %in% c("Hw", "Ba")) %>%
+  select(b_lc, broom_pa, stem_pa) %>% summary()
+
+#Look at those trees
+#Two Fd from the first site we measured (mi_1). At the beginning of field work
+#we hadn't decided whether we were going to measure HDM variables for Fd 
+#because its a rare host. 
+#Other one is Cw, just a plain mistake
+trees %>% filter(!spp %in% c("Hw", "Ba") & 
+                   (b_lc != "-" | broom_pa != "-" | stem_pa != "-")) %>% 
+  view()
+
+#set to "-" for these cases
+trees <- trees %>% 
+  mutate(across(c(b_lc, broom_pa, stem_pa),
+                ~case_when(!spp %in% c("Hw", "Ba") ~ "-", TRUE ~ .))) %>% 
+                  mutate(across(c(b_lc, broom_pa, stem_pa), ~as.factor(.)))
+
+#Check again
+#Looks good
+trees %>% filter(!spp %in% c("Hw", "Ba")) %>%
+  select(b_lc, broom_pa, stem_pa) %>% summary()
+```
+
+##broom_pos
+Definition: Position of witches brooms in live crown, divided into thirds. 
+Defined for trees with witches brooms ("broom_pa = Y") where it is one of: 1 = 
+lower, 2 = middle, 3 = upper, 4 = lower and middle, 5 = lower and upper, 6 = 
+middle and upper, 7 = all, 8 = below live crown. Other other trees have "broom 
+= N or -" and are set as "-" = not applicable. Position system adapted (by 
+adding "8") from Natural Resources Canada, Canadian Forest Service. (2008). 
+Canada’s National Forest Inventory ground sampling guidelines: Specifications 
+for ongoing measurement. (5th ed.). Library and Archives Canada.
+
+Check:
+(1) It is well defined (an integer between 0-8) for all trees with brooms
+(2) It is "-" otherwise
+```{r}
+#For trees with brooms
+#Check no NAs. None
+trees %>% filter(broom_pa == "Y") %>% 
+  select(broom_pos) %>% 
+  summarise(any_na = any(is.na(broom_pos)))
+
+#Get summary
+#Only 5 not represented (brooms in lower and upper crown but not middle),
+#which makes sense, this is rare
+#2 (middle), 3 (upper), 6 (middle and upper) are rare. Also generally conforms
+#to expectations. 
+trees %>% filter(broom_pa == "Y") %>% 
+  select(broom_pos) %>% 
+  count(broom_pos)
+
+#For trees without brooms
+#Get a summary
+#Looks good, all "-"
+trees %>% filter(broom_pa == "N") %>% 
+  select(broom_pos) %>% 
+  summary()
+trees %>% filter(broom_pa == "N") %>% 
+  select(broom_pos) %>% 
+  distinct()
+```
+
+##dmr columns
+These columns record the severity of dwarf mistletoe infection in each third of 
+the live crown (dmr_l = lower, dmr_m = middle, dmr_u = upper). 
+
+General definition: Dwarf mistletoe rating for xx live crown. Records the 
+proportion of primary branches with HDM infection: 0 = none infected, 1 = <50% 
+infected, 2 = >50% infected. Assessed for trees with "hdm_pa = Y" and 
+status = "LS or LL or LF". For dead susceptible species ("spp = Hw or Ba") and 
+all non-susceptible species ("spp != Hw or Ba") it is NA. 
+
+Check that:
+(1) Columns are well defined (0, 1 or 2) for all live, infected hemlock and 
+amabilis fir
+(2) It is NA for live, uninfected hemlock and ambilis fir, dead hemlock and 
+amabilis fir and all other species
+
+For live infected, hemlock and amabilis fir
+```{r}
+#Get a summary of the variables
+#Looks good, no NAs
+trees %>% filter(status %in% c("LS", "LL", "LF") &
+                   hdm_pa == "Y") %>%
+  select(contains("dmr")) %>% summary()
+
+#Check the unique values
+#Looks good. O, 1 and 2
+trees %>% filter(status %in% c("LS", "LL", "LF") &
+                   hdm_pa == "Y") %>%
+  select(dmr_l) %>% distinct()
+trees %>% filter(status %in% c("LS", "LL", "LF") &
+                   hdm_pa == "Y") %>%
+  select(dmr_m) %>% distinct()
+trees %>% filter(status %in% c("LS", "LL", "LF") &
+                   hdm_pa == "Y") %>%
+  select(dmr_u) %>% distinct()
+```
+
+For live uninfected hemlock and amabilis fir
+```{r}
+#Check all cases are NA in each DMR columns
+#Some trees in this category that have non-NA values
+trees %>% filter(spp %in% c("Hw", "Ba") &
+                    status %in% c("LS", "LL", "LF") &
+                    hdm_pa == "N") %>%
+  select(contains("dmr")) %>% 
+  summarise(across(everything(), ~all(is.na(.))))
+
+#Look at those trees
+#Probably same four that were problem in the HDM factor variables
+trees %>% filter(spp %in% c("Hw", "Ba") &
+                    status %in% c("LS", "LL", "LF") &
+                    hdm_pa == "N" &
+                    (!is.na(dmr_l) | !is.na(dmr_m) |!is.na(dmr_u))) %>% 
+  view()
+
+#Set equal to NA
+trees <- trees %>% 
+  mutate(across(dmr_l:dmr_u, 
+                ~ case_when(spp %in% c("Hw", "Ba") &
+                              status %in% c("LS", "LL", "LF") &
+                              hdm_pa == "N" &
+                              (!is.na(dmr_l) | !is.na(dmr_m) |!is.na(dmr_u)) 
+                               ~ NA, 
+                               TRUE ~ .)))
+
+#Check again
+#Looks good, all NA
+trees %>% filter(spp %in% c("Hw", "Ba") &
+                    status %in% c("LS", "LL", "LF") &
+                    hdm_pa == "N") %>%
+  select(contains("dmr")) %>% 
+  summarise(across(everything(), ~all(is.na(.))))
+```
+
+For dead hemlock and amabilis fir
+```{r}
+#Check all are NA
+#Some non NA values
+trees %>% filter(spp %in% c("Hw", "Ba") &
+                    status %in% c("DS", "SN")) %>%
+  select(contains("dmr")) %>% 
+  summarise(across(everything(), ~all(is.na(.))))
+
+#Look at those
+#Probably trees that were recorded in the "RD" class above and had the HDM
+#info taken. See notes on "RD" in status variable above. 
+trees %>% filter(spp %in% c("Hw", "Ba") &
+                    status %in% c("DS", "SN") &
+                    (!is.na(dmr_l) | !is.na(dmr_m) |!is.na(dmr_u))) %>% 
+  view()
+
+#Set to NA
+trees <- trees %>% 
+  mutate(across(dmr_l:dmr_u, 
+                ~ case_when(spp %in% c("Hw", "Ba") &
+                              status %in% c("DS", "SN") &
+                              (!is.na(dmr_l) | !is.na(dmr_m) |!is.na(dmr_u)) 
+                               ~ NA, 
+                               TRUE ~ .)))
+
+#Check again
+#Looks good
+trees %>% filter(spp %in% c("Hw", "Ba") &
+                    status %in% c("DS", "SN")) %>%
+  select(contains("dmr")) %>% 
+  summarise(across(everything(), ~all(is.na(.))))
+```
+
+For all other species
+```{r}
+#Check that all are NA
+#some non-NAs
+trees %>% filter(!spp %in% c("Hw", "Ba")) %>%
+  select(contains("dmr")) %>% 
+  summarise(across(everything(), ~all(is.na(.))))
+
+#Look at these
+#Same two fir that came up in factors above
+trees %>% filter(!spp %in% c("Hw", "Ba") &
+                   (!is.na(dmr_l) | !is.na(dmr_m) |!is.na(dmr_u))) %>% view()
+
+#Set to NA 
+trees <- trees %>% 
+  mutate(across(dmr_l:dmr_u, 
+                ~ case_when(!spp %in% c("Hw", "Ba") &
+                   (!is.na(dmr_l) | !is.na(dmr_m) |!is.na(dmr_u)) 
+                               ~ NA, 
+                               TRUE ~ .)))
+
+#Check again
+#Looks good
+trees %>% filter(!spp %in% c("Hw", "Ba")) %>%
+  select(contains("dmr")) %>% 
+  summarise(across(everything(), ~all(is.na(.))))
+```
+
+#Variables describing other tree damage
+##path_ind_x
+Definition: Defects or indicators of decay in wood. Recorded for live trees 
+("status = LS or LL or LF") where it is one of: "n" = none, 1 = fork or crook 
+resulting to damage to the main leader, 2 = scar, 3 = frost crack (may resemble 
+a scar but always follows the grain), 4 = dead top (dead leader on a living 
+tree), 5 = broken top (if there is a new leader, then the tree doesn't qualify, 
+would be a fork or crook), 6 = conk (fruiting body of decay fungi), 7 = 
+pitching. For dead trees it is set as "-" = not applicable. Two columns 
+included to record multiple indicators if present; path_ind_1 should be 
+more severe than path_ind_2, if they differ in severity. Adapted from BC 
+Ministry of Forests and Range & BC Ministry of Environment (Eds.). (2010). 
+Field manual for describing terrestrial ecosystems (2nd ed.). This data wasn't 
+used in the analysis in any way. Future remeasurements could consider omitting 
+it, or standardizing it and the "dam_agent" columns so these data could be 
+used to assess whether tree qualifies as a crop tree. 
+
+Check: 
+(1) It is well defined for all live trees
+(2) It is "-" for all dead trees
+
+For live trees
+```{r}
+#Find unique values
+#1-7 and NA
+unique(trees$path_ind_1)
+unique(trees$path_ind_2)
+
+#Get a summary
+#1-7 are valid values
+#Some - and NA values present. For these trees, these should be interpreted
+#as meaning the tree had no pathlogical indicators
+trees %>% 
+  filter(status %in% c("LS", "LL", "LF")) %>%
+  select(path_ind_1, path_ind_2) %>% 
+  summary()
+
+#What are unique values?
+trees %>% 
+  filter(status %in% c("LS", "LL", "LF")) %>%
+  select(path_ind_1) %>% 
+  distinct()
+trees %>% 
+  filter(status %in% c("LS", "LL", "LF")) %>%
+  select(path_ind_2) %>% 
+  distinct()
+
+#Reassign NA and "-" as "n" = none
+trees <- trees %>% 
+  mutate(path_ind_1 = if_else(status %in% c("LS", "LL", "LF") &
+                                (path_ind_1 == "-" | is.na(path_ind_1)),
+                              "n",
+                              path_ind_1),
+         path_ind_2 = if_else(status %in% c("LS", "LL", "LF") &
+                                (path_ind_2 == "-" | is.na(path_ind_2)),
+                              "n",
+                              path_ind_2))
+
+#Reset to a factor
+trees <- trees %>% 
+  mutate(across(c(path_ind_1, path_ind_2), ~as.factor(.)))
+
+#Check again
+#Looks good
+#Any NAs? None
+trees %>% 
+  filter(status %in% c("LS", "LL", "LF")) %>%
+  select(contains("path")) %>% 
+  summarise(across(everything(), ~all(is.na(.))))
+
+#See distribution of values
+trees %>% 
+  filter(status %in% c("LS", "LL", "LF")) %>%
+  select(path_ind_1) %>% 
+  count(path_ind_1)
+trees %>% 
+  filter(status %in% c("LS", "LL", "LF")) %>%
+  select(path_ind_2) %>% 
+  count(path_ind_2)
+```
+
+For dead trees
+```{r}
+#Get a summary
+#About 20 cases where these trees are not NA or "-"
+#For these trees NA and "-" should both be interpreted as = not applicable
+trees %>% 
+  filter(status %in% c("DS", "SN")) %>%
+  select(path_ind_1, path_ind_2) %>% 
+  summary()
+
+#Set all cases to be "-"
+#Reassign NA and "-" as "n" = none
+trees <- trees %>% 
+  mutate(path_ind_1 = if_else(status %in% c("DS", "SN"),
+                              "-",
+                              path_ind_1),
+         path_ind_2 = if_else(status %in% c("DS", "SN"),
+                              "-",
+                              path_ind_2))
+
+#Reset to a factor
+trees <- trees %>% 
+  mutate(across(c(path_ind_1, path_ind_2), ~as.factor(.)))
+
+#Check again
+#Looks good
+trees %>% 
+  filter(status %in% c("DS", "SN")) %>%
+  select(path_ind_1, path_ind_2) %>% 
+  summary()
+```
+
+##dam_agent_x
+Definition: Code specifying the agent responsible for damage in a 
+tree. Recorded for all trees. Two columns included to record multiple agents 
+if present; dam_agent_1 should be the agent causing severe damage. Codes are 
+in Table 12.5 of Natural Resources Canada, Canadian Forest Service. (2008). 
+Canada’s National Forest Inventory ground sampling guidelines: Specifications 
+for ongoing measurement. (5th ed.). Library and Archives Canada. Future 
+remeasurements could consider omitting it, or standardizing it and the 
+"dam_agent" columns so these data could be used to assess whether tree 
+qualifies as a crop tree.
+
+Check it is defined for all trees with one of the codes in the reference above.
+```{r}
+#Was this measured for live and dead trees?
+#Yes, looks like it
+trees %>% 
+  mutate(live_dead = if_else(status %in% c("LS", "LL", "LF"),
+                             "live",
+                             "dead")) %>% 
+  group_by(live_dead, dam_agent_1) %>% 
+  summarise(n = n()) %>% view()
+trees %>% 
+  mutate(live_dead = if_else(status %in% c("LS", "LL", "LF"),
+                             "live",
+                             "dead")) %>% 
+  group_by(live_dead, dam_agent_2) %>% 
+  summarise(n = n()) %>% view()
+
+#What are the unique values? Check these are valid codes.
+#Most codes good. Errors:
+##DRA = specifies Armillaria root disease, but should just be DR
+##One case of Ax that should be AX
+trees %>% 
+  select(dam_agent_1) %>% 
+  distinct()
+trees %>% 
+  select(dam_agent_2) %>% 
+  distinct()
+
+#Fix the errors above and set NA to "O" = no detectable damage
+#Add that Armillaria was confirmed to the notes
+trees <- trees %>% 
+  mutate(notes = if_else(dam_agent_1 == "DRA" | dam_agent_2 == "DRA",
+                         paste0(notes, "; Armillaria confirmed"),
+                         notes)) %>% 
+  mutate(dam_agent_1 = case_when(is.na(dam_agent_1) ~ "O",
+                                 dam_agent_1 == "DRA" ~ "DR",
+                                 TRUE ~ dam_agent_1),
+         dam_agent_2 = case_when(is.na(dam_agent_2) ~ "O",
+                                 dam_agent_2 == "DRA" ~ "DR",
+                                 dam_agent_2 == "Ax" ~ "AX",
+                                 TRUE ~ dam_agent_2))
+
+#Reset to factors
+trees <- trees %>% 
+  mutate(across(contains("dam_agent"), ~as.factor(.)))
+
+#Check again
+#Looks good
+trees %>% 
+  select(dam_agent_1) %>% 
+  count(dam_agent_1)
+trees %>% 
+  select(dam_agent_2) %>% 
+  distinct()
+```
+
+#Export cleaned dataset
+```{r}
+write_csv(trees, here("./data/cleaned/trees.csv"))
+```
