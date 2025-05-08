@@ -81,7 +81,7 @@ vri <- read_csv(here("./data/cleaned/vri_c.csv"))
 clim <- read_csv(here("./tables/site_climphys_big.csv"))
 
 #Dataset 9: residual trees
-resid <- read_csv(here("./data/raw/resid_ref_tree_data.csv"))
+resid <- read_csv(here("./data/cleaned/resid_tree_data.csv"))
 ```
 
 ##Pull varaibles from each dataset
