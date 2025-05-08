@@ -1,7 +1,5 @@
 # Hemlock Dwarf Mistletoe Edge Spread
 
-#Test, folder in new location on Hanno's mac
-
 R project with all analyses for project: Edge spread of hemlock dwarf mistletoe and implications for the group retention silvicultural system.
 
 ## PROJECT DESCRIPTION
