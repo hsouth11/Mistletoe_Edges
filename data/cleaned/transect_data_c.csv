@@ -1,34 +1,34 @@
-site_id,tr_az,tr_leng,old_transect_id,transect_id,fl_az_device,fl_az1,fl_sl1,fl_az2,fl_sl2,tr_dist1,tr_sl1,tr_dist2,tr_sl2,tr_dist3,tr_sl3,infect_dist,notes,tr_leng_s
-mi_1,146,21.5,1,136,compass,116,-15.3,NA,NA,21.5,-10.2,NA,NA,NA,NA,13.5,NA,21.5
-mi_1,146,21.5,2,140,compass,109,-12,NA,NA,21.5,-11.4,NA,NA,NA,NA,16.2,NA,21.5
-mi_1,146,21.5,3,141,compass,112,-13.5,NA,NA,21.5,-11.7,NA,NA,NA,NA,10.3,NA,21.5
-mi_2,67,15.8,1,122,compass,231,-18,NA,NA,11,16.4,15.8,0,NA,NA,15.2,These transects were layed out as slope distance (were supposed to be horizontal distance) and slopes were taken uphill. Actual horizontal distance of tr=15.8m. fl_az adjusted 180 deg and slopes made negative.,15.8
-mi_2,67,16.2,2,124,compass,250,-11.4,NA,NA,16.2,11.3,NA,NA,NA,NA,15.6,These transects were layed out as slope distance (were supposed to be horizontal distance) and slopes were taken uphill. Actual horizontal distance of tr=16.2m. fl_az adjusted 180 deg and slopes made negative.,15.8
-mi_2,67,16.2,3,129,compass,229,-9,NA,NA,16.2,10.9,NA,NA,NA,NA,16.5,These transects were layed out as slope distance (were supposed to be horizontal distance) and slopes were taken uphill. Actual horizontal distance of tr=16.2m. fl_az adjusted 180 deg and slopes made negative.,15.8
-mk_1,180,21.3,NA,100,compass,90,-22.5,NA,NA,9.4,5.1,21.3,-8.1,NA,NA,19.7,NA,21.3
-mk_1,180,21.3,NA,101,compass,93,-9.7,NA,NA,16.8,2.4,21.3,-9,NA,NA,20.3,NA,21.3
-mk_1,180,21.3,NA,102,rangefinder,147,-7,NA,NA,21.3,-4.6,NA,NA,NA,NA,0,fl_az for this transect has a decimal on paper datasheet (147.7) - makes me think it was done with rangefinder?,21.3
-mk_2,0,30.5,NA,103,compass,33,-26.3,NA,NA,30.5,-23.4,NA,NA,NA,NA,27.3,NA,30.5
-mk_2,0,30.5,NA,109,compass,20,-26.4,NA,NA,30.5,-26.2,NA,NA,NA,NA,28.4,NA,30.5
-mk_2,0,30.5,NA,110,rangefinder,16,-28.7,NA,NA,30.5,-24.9,NA,NA,NA,NA,33.6,NA,30.5
-mk_3,305,21.9,NA,115,rangefinder,139,-14,NA,NA,21.9,10.6,NA,NA,NA,NA,4.3,Extended transect length because transect ends in big blowdown patch. Wanted to record a few trees on other side to see ho wlong it takes for infection to jump patch;,15
-mk_3,305,15,NA,120,rangefinder,109,-13.5,NA,NA,15,11.3,NA,NA,NA,NA,6.9,Blowdown patch 5-10m;,15
-mk_3,305,15,NA,121,rangefinder,107,-15.3,NA,NA,15,14.5,NA,NA,NA,NA,0,NA,15
-cr_1,310,32.8,NA,164,rangefinder,89,-33.1,90,-10.3,12.2,16.5,32.8,6.3,NA,NA,21.5,Chose transect length from one middle transect (165) because mature edge wraps around transects in horshoe shape and transect 164 might have infection originating from mature trees we did not map. Fall line slope 1 is from transect start; fall line slope 2 from transect end.,32.8
-cr_1,310,32.8,NA,165,rangefinder,125,-36.5,82,-11.5,10,25.1,32.8,10.3,NA,NA,32.3,Chose transect length from one middle transect (165) because mature edge wraps around transects in horshoe shape and transect 164 might have infection originating from mature trees we did not map. Fall line slope 1 is from transect start; fall line slope 2 from transect end.,32.8
-cr_1,310,32.8,NA,166,rangefinder,110,-45.7,91,-16.6,7.2,27.5,32.8,13.8,NA,NA,33.5,Chose transect length from one middle transect (165) because mature edge wraps around transects in horshoe shape and transect 164 might have infection originating from mature trees we did not map. Fall line slope 1 is from transect start; fall line slope 2 from transect end.,32.8
-cr_2,10,24.6,NA,219,rangefinder,185,-35.5,75,-4.6,10.7,27.8,24.6,-1.2,NA,NA,15.5,Mature component and edge of regen slope steeply down into creek. Took two slopes for fall line and transect to capture that. Fall line slope 1 is from transect start; fall line slope 2 from transect end.,24.6
-cr_2,10,24.6,NA,221,rangefinder,197,-34.9,85,-3.6,6.1,20.4,24.6,-1.1,NA,NA,17.5,Mature component and edge of regen slope steeply down into creek. Took two slopes for fall line and transect to capture that. Fall line slope 1 is from transect start; fall line slope 2 from transect end.,24.6
-cr_2,10,24.6,NA,222,rangefinder,185,-37.6,108,-5.1,24.6,-2.6,NA,NA,NA,NA,15.7,Mature component and edge of regen slope steeply down into creek. This transect starts right at slope change. Two fall line slopes to capture change but only one transect slope because it isn't affected by the slope change. Transect goes right through a cedar stump,24.6
-ph_1,260,15,NA,258,rangefinder,222,-37.8,NA,NA,15,-37.3,NA,NA,NA,NA,15,Transect end stake hard to place. Actual transect end 0.5m farther down slope than stake. Tree heavily painted with red marks end.,15
-ph_1,260,15,NA,259,rangefinder,239,-38.5,NA,NA,15,-39.2,NA,NA,NA,NA,0,NA,15
-ph_1,260,15,NA,266,rangefinder,230,-38.1,NA,NA,15,-34.5,NA,NA,NA,NA,0,NA,15
-ph_2,305,15,NA,168,rangefinder,NA,0,NA,NA,15,0,NA,NA,NA,NA,0,"ph_2 generally flat, slope included for one transect where there was a dip",15
-ph_2,305,15,NA,235,rangefinder,NA,0,NA,NA,15,0,NA,NA,NA,NA,0.9,"ph_2 generally flat, slope included for one transect where there was a dip",15
-ph_2,305,15,NA,250,rangefinder,NA,0,NA,NA,6.6,-6.2,15,3.4,NA,NA,15.7,"ph_2 generally flat, slope included for one transect where there was a dip",15
-ph_3,75,15,NA,320,rangefinder,71,-18.8,NA,NA,15,-17.9,NA,NA,NA,NA,13.9,"ph_3 tricky slope profile, these slopes really just capture regen slope; mature comp a plateau on a cliff band above regen; regen starts at the bottom cliff band and slopes downhill",15
-ph_3,75,32.3,NA,321,rangefinder,75,-30,NA,NA,6.4,-30,32.3,-14,NA,NA,34.5,"ph_3 tricky slope profile, these slopes really just capture regen slope; mature comp a plateau on a cliff band above regen; regen starts at the bottom cliff band and slopes downhill; extended transect until three LS Hw were captured",15
-ph_3,75,15,NA,322,rangefinder,82,-6.9,NA,NA,15,-5,NA,NA,NA,NA,3.3,"ph_3 tricky slope profile, these slopes really just capture regen slope; mature comp a plateau on a cliff band above regen; regen starts at the bottom cliff band and slopes downhill",15
-cr_3,170,51,NA,324,rangefinder,24,-8,NA,NA,51,6.9,NA,NA,NA,NA,32.7,Ground wasp nest right at transect end marker,51
-cr_3,170,51,NA,252,rangefinder,11,-9,NA,NA,21.7,8.8,51,9,NA,NA,52.1,NA,51
-cr_3,170,51,NA,249,rangefinder,12,-8.2,NA,NA,25,7.4,40.4,14.3,51,5.4,22.3,Used blue paint for trees. Transect crosses cedar pocket and rocky bluff with shallow soils and small trees,51
+site_id,transect_id,tr_az,tr_leng_s,tr_leng,fl_az_device,fl_az1,fl_sl1,fl_az2,fl_sl2,tr_dist1,tr_sl1,tr_dist2,tr_sl2,tr_dist3,tr_sl3,notes
+mi_1,136,146,21.5,21.5,compass,116,-15.3,NA,NA,21.5,-10.2,NA,NA,NA,NA,NA
+mi_1,140,146,21.5,21.5,compass,109,-12,NA,NA,21.5,-11.4,NA,NA,NA,NA,NA
+mi_1,141,146,21.5,21.5,compass,112,-13.5,NA,NA,21.5,-11.7,NA,NA,NA,NA,NA
+mi_2,122,67,15.8,15.8,compass,231,-18,NA,NA,11,16.4,15.8,0,NA,NA,These transects were layed out as slope distance (were supposed to be horizontal distance) and slopes were taken uphill. Actual horizontal distance of tr=15.8m. fl_az adjusted 180 deg and slopes made negative.
+mi_2,124,67,15.8,16.2,compass,250,-11.4,NA,NA,16.2,11.3,NA,NA,NA,NA,These transects were layed out as slope distance (were supposed to be horizontal distance) and slopes were taken uphill. Actual horizontal distance of tr=16.2m. fl_az adjusted 180 deg and slopes made negative.
+mi_2,129,67,15.8,16.2,compass,229,-9,NA,NA,16.2,10.9,NA,NA,NA,NA,These transects were layed out as slope distance (were supposed to be horizontal distance) and slopes were taken uphill. Actual horizontal distance of tr=16.2m. fl_az adjusted 180 deg and slopes made negative.
+mk_1,100,180,21.3,21.3,compass,90,-22.5,NA,NA,9.4,5.1,21.3,-8.1,NA,NA,NA
+mk_1,101,180,21.3,21.3,compass,93,-9.7,NA,NA,16.8,2.4,21.3,-9,NA,NA,NA
+mk_1,102,180,21.3,21.3,rangefinder,147,-7,NA,NA,21.3,-4.6,NA,NA,NA,NA,fl_az for this transect has a decimal on paper datasheet (147.7) - makes me think it was done with rangefinder?
+mk_2,103,0,30.5,30.5,compass,33,-26.3,NA,NA,30.5,-23.4,NA,NA,NA,NA,NA
+mk_2,109,0,30.5,30.5,compass,20,-26.4,NA,NA,30.5,-26.2,NA,NA,NA,NA,NA
+mk_2,110,0,30.5,30.5,rangefinder,16,-28.7,NA,NA,30.5,-24.9,NA,NA,NA,NA,NA
+mk_3,115,305,15,21.9,rangefinder,139,-14,NA,NA,21.9,10.6,NA,NA,NA,NA,Extended transect length because transect ends in big blowdown patch. Wanted to record a few trees on other side to see ho wlong it takes for infection to jump patch;
+mk_3,120,305,15,15,rangefinder,109,-13.5,NA,NA,15,11.3,NA,NA,NA,NA,Blowdown patch 5-10m;
+mk_3,121,305,15,15,rangefinder,107,-15.3,NA,NA,15,14.5,NA,NA,NA,NA,NA
+cr_1,164,310,32.8,32.8,rangefinder,89,-33.1,90,-10.3,12.2,16.5,32.8,6.3,NA,NA,Chose transect length from one middle transect (165) because mature edge wraps around transects in horshoe shape and transect 164 might have infection originating from mature trees we did not map. Fall line slope 1 is from transect start; fall line slope 2 from transect end.
+cr_1,165,310,32.8,32.8,rangefinder,125,-36.5,82,-11.5,10,25.1,32.8,10.3,NA,NA,Chose transect length from one middle transect (165) because mature edge wraps around transects in horshoe shape and transect 164 might have infection originating from mature trees we did not map. Fall line slope 1 is from transect start; fall line slope 2 from transect end.
+cr_1,166,310,32.8,32.8,rangefinder,110,-45.7,91,-16.6,7.2,27.5,32.8,13.8,NA,NA,Chose transect length from one middle transect (165) because mature edge wraps around transects in horshoe shape and transect 164 might have infection originating from mature trees we did not map. Fall line slope 1 is from transect start; fall line slope 2 from transect end.
+cr_2,219,10,24.6,24.6,rangefinder,185,-35.5,75,-4.6,10.7,27.8,24.6,-1.2,NA,NA,Mature component and edge of regen slope steeply down into creek. Took two slopes for fall line and transect to capture that. Fall line slope 1 is from transect start; fall line slope 2 from transect end.
+cr_2,221,10,24.6,24.6,rangefinder,197,-34.9,85,-3.6,6.1,20.4,24.6,-1.1,NA,NA,Mature component and edge of regen slope steeply down into creek. Took two slopes for fall line and transect to capture that. Fall line slope 1 is from transect start; fall line slope 2 from transect end.
+cr_2,222,10,24.6,24.6,rangefinder,185,-37.6,108,-5.1,24.6,-2.6,NA,NA,NA,NA,Mature component and edge of regen slope steeply down into creek. This transect starts right at slope change. Two fall line slopes to capture change but only one transect slope because it isn't affected by the slope change. Transect goes right through a cedar stump
+ph_1,258,260,15,15,rangefinder,222,-37.8,NA,NA,15,-37.3,NA,NA,NA,NA,Transect end stake hard to place. Actual transect end 0.5m farther down slope than stake. Tree heavily painted with red marks end.
+ph_1,259,260,15,15,rangefinder,239,-38.5,NA,NA,15,-39.2,NA,NA,NA,NA,NA
+ph_1,266,260,15,15,rangefinder,230,-38.1,NA,NA,15,-34.5,NA,NA,NA,NA,NA
+ph_2,168,305,15,15,rangefinder,NA,0,NA,NA,15,0,NA,NA,NA,NA,"ph_2 generally flat, slope included for one transect where there was a dip"
+ph_2,235,305,15,15,rangefinder,NA,0,NA,NA,15,0,NA,NA,NA,NA,"ph_2 generally flat, slope included for one transect where there was a dip"
+ph_2,250,305,15,15,rangefinder,NA,0,NA,NA,6.6,-6.2,15,3.4,NA,NA,"ph_2 generally flat, slope included for one transect where there was a dip"
+ph_3,320,75,15,15,rangefinder,71,-18.8,NA,NA,15,-17.9,NA,NA,NA,NA,"ph_3 tricky slope profile, these slopes really just capture regen slope; mature comp a plateau on a cliff band above regen; regen starts at the bottom cliff band and slopes downhill"
+ph_3,321,75,15,32.3,rangefinder,75,-30,NA,NA,6.4,-30,32.3,-14,NA,NA,"ph_3 tricky slope profile, these slopes really just capture regen slope; mature comp a plateau on a cliff band above regen; regen starts at the bottom cliff band and slopes downhill; extended transect until three LS Hw were captured"
+ph_3,322,75,15,15,rangefinder,82,-6.9,NA,NA,15,-5,NA,NA,NA,NA,"ph_3 tricky slope profile, these slopes really just capture regen slope; mature comp a plateau on a cliff band above regen; regen starts at the bottom cliff band and slopes downhill"
+cr_3,324,170,51,51,rangefinder,24,-8,NA,NA,51,6.9,NA,NA,NA,NA,Ground wasp nest right at transect end marker
+cr_3,252,170,51,51,rangefinder,11,-9,NA,NA,21.7,8.8,51,9,NA,NA,NA
+cr_3,249,170,51,51,rangefinder,12,-8.2,NA,NA,25,7.4,40.4,14.3,51,5.4,Used blue paint for trees. Transect crosses cedar pocket and rocky bluff with shallow soils and small trees

@@ -1,7 +1,7 @@
 #Code for cleaning extra regen height data
 #Hanno Southam
-#Date last updated: 21 Aug 2024
-#Date last ran: 21 Aug 2024
+#Date last updated: 25 Apr 2025
+#Date last ran: 25 Apr 2025
 
 rm(list=ls(all=TRUE))
 
@@ -38,6 +38,14 @@ ht_hdm_extra <- ht_hdm_extra %>%
 ht_hdm_extra <- ht_hdm_extra %>% 
   mutate(ht_corr = height_m - 0.5)
 
+#Some formatting
+#Drop units from height column name to be consistent with other columns
+ht_hdm_extra <- ht_hdm_extra %>% 
+  rename(height = height_m)
+
+#Place this new height column next to the original height column
+ht_hdm_extra <- ht_hdm_extra %>% 
+  relocate(ht_corr, .after = height)
 
 #Export this csv as a clean dataset
 write_csv(ht_hdm_extra, "./data/cleaned/regen_extra_ht_c.csv")

@@ -1,5 +1,6 @@
 # Cleaning mistletoe transect data
-# Hanno Southam, 4 Mar 2024
+# Hanno Southam, 
+# Updated 25 Apr 2025
 
 rm(list=ls(all=TRUE))
 
@@ -35,7 +36,7 @@ transect <- transect %>%
                               .default = tr_dist1))
 
 #Each site was intended to have the same length transects. The exceptions were
-#mi_1 and transect 115 at mk_3. Create a new variable of the minimum transect 
+#mi_2 and transect 115 at mk_3. Create a new variable of the minimum transect 
 #length at each site. Allows for regen data to be standardized to an identical
 #transect length within each site, where applicable. 
 min_trleng <- transect %>% group_by(site_id) %>% 
@@ -43,6 +44,16 @@ min_trleng <- transect %>% group_by(site_id) %>%
 
 #Join this back to the transect df:
 transect <- left_join(transect, min_trleng, by="site_id")
+
+#Remove columns that aren't useful for clean version
+transect <- transect %>% 
+  select(-c(old_transect_id, infect_dist))
+
+#Reorder columns
+transect <- transect %>% 
+  select(site_id, transect_id, tr_az, tr_leng_s, tr_leng, fl_az_device,
+         fl_az1, fl_sl1, fl_az2, fl_sl2, tr_dist1, tr_sl1, tr_dist2, tr_sl2,
+         tr_dist3, tr_sl3, notes)
 
 # Export csv: 
 write_csv(transect, here('./data/cleaned/transect_data_c.csv'))

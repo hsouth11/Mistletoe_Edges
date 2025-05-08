@@ -1,17 +1,7 @@
 site_id,tree_type,tree_id,regen_tree_id,status,dbh,hdm_pa,b_lc,dmr_l,dmr_m,dmr_u,broom_pa,broom_pos,stem_pa,crown_class,dam_agent_1,dam_agent_2,path_ind_1,path_ind_2,crown_cond,cored,notes
-mi_1,residual,res1,r20,LS,27.7,Y,Y,2,2,1,Y,1,Y,C,,,,,1,Y,
-mi_1,residual,res2,r50,LS,36.0,Y,Y,2,1,0,Y,4,Y,D,,,,,1,Y,
-mi_1,residual,res3,r39,LS,33.0,Y,Y,2,1,0,Y,4,Y,D,,,,,1,Y,
-mi_1,residual,res4,,LS,26.0,Y,Y,2,1,0,Y,1,Y,D,,,,,1,Y,Retook point 4 Aug 2023; 
-mk_1,residual,res5,,,,-,-,-,-,-,-,-,-,-,,,,,-,Y,Missing data
-mk_2,residual,res6,,LS,40.4,Y,N,1,0,0,Y,1,N,D,,,,,1,Y,
-mk_2,residual,res7,r355,LS,42.4,Y,Y,1,1,0,N,-,N,D,,,,,1,Y,
-mk_2,residual,res8,r362,LS,37.6,Y,Y,0,0,0,N,-,N,D,,,,,1,Y,
 mk_2,reference,ref1,,LS,63.2,-,-,-,-,-,-,-,-,-,,,,,1,Y,"Heartrot, only got partial core"
 mk_2,reference,ref2,,LS,56.1,-,-,-,-,-,-,-,-,-,,,,,1,Y,
 mi_1,reference,ref3,,LS,64.5,Y,N,1,0,0,N,-,N,C,,,,,1,Y,"Heartrot, partial core"
 mi_1,reference,ref4,,LS,47.4,-,-,-,-,-,-,-,-,C,,,,,1,Y,
-cr_1,residual,res9,,LS,37.9,Y,Y,1,1,0,Y,1,Y,D,,,,,1,Y,
-cr_1,residual,res10,,LS,28.0,Y,Y,0,0,0,N,-,N,C,,,,,1,Y,
 cr_1,reference,ref5,,LS,44.9,Y,Y,1,1,0,N,-,Y,C,,,,,1,Y,"No healthy mature trees at site, so these are located near where we parked truck. "
 cr_1,reference,ref6,,LS,44.6,N,-,-,-,-,-,-,-,C,,,,,1,Y,"No healthy mature trees at site, so these are located near where we parked truck. "
