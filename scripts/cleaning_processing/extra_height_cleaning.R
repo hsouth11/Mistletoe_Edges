@@ -25,27 +25,10 @@ ht_hdm_extra <- ht_hdm_extra %>%
 #Problem 3: dbh measurements are missing for the trees at ph_3 but there is
 #no easy way to remedy that. 
 
-#Problem 4: The protocol we used to measure height differed from the 
-#provincial ground sampling procedures. We added height to accommodate the 
-#apical droop of Hw. Prov procedures measure to apex of apical droop. 
-#Correct by subtracting standard amount for each component/crown class.
-#Because all of these trees are regen and codominant/dominants, some of these 
-#rules don't have cases in this data. But included all rules because this 
-#correction also happens in script for cleaning larger tree dataset. 
-#Keeping it consistent. 
-#Mature: if codominant/dominant = 1m; intermediate = 0.75, suppressed = 0.5m
-#Regen: codominant = 0.5m; intermediate = 0.4m, suppressed = 0.3m
-ht_hdm_extra <- ht_hdm_extra %>% 
-  mutate(ht_corr = height_m - 0.5)
-
 #Some formatting
 #Drop units from height column name to be consistent with other columns
 ht_hdm_extra <- ht_hdm_extra %>% 
   rename(height = height_m)
-
-#Place this new height column next to the original height column
-ht_hdm_extra <- ht_hdm_extra %>% 
-  relocate(ht_corr, .after = height)
 
 #Export this csv as a clean dataset
 write_csv(ht_hdm_extra, "./data/cleaned/regen_extra_ht_c.csv")
