@@ -1,7 +1,0 @@
-site_id,tree_type,tree_id,regen_tree_id,status,dbh,hdm_pa,b_lc,dmr_l,dmr_m,dmr_u,broom_pa,broom_pos,stem_pa,crown_class,dam_agent_1,dam_agent_2,path_ind_1,path_ind_2,crown_cond,cored,notes
-mk_2,reference,ref1,,LS,63.2,-,-,-,-,-,-,-,-,-,,,,,1,Y,"Heartrot, only got partial core"
-mk_2,reference,ref2,,LS,56.1,-,-,-,-,-,-,-,-,-,,,,,1,Y,
-mi_1,reference,ref3,,LS,64.5,Y,N,1,0,0,N,-,N,C,,,,,1,Y,"Heartrot, partial core"
-mi_1,reference,ref4,,LS,47.4,-,-,-,-,-,-,-,-,C,,,,,1,Y,
-cr_1,reference,ref5,,LS,44.9,Y,Y,1,1,0,N,-,Y,C,,,,,1,Y,"No healthy mature trees at site, so these are located near where we parked truck. "
-cr_1,reference,ref6,,LS,44.6,N,-,-,-,-,-,-,-,C,,,,,1,Y,"No healthy mature trees at site, so these are located near where we parked truck. "

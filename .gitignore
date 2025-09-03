@@ -10,9 +10,11 @@ figures/**
 !tables/.keep
 !figures/.keep
 
-#Big datasets
-psp_tree.csv
-psp_tree_cwh.csv
+#Data
+data/**
+
+#But keep placeholder files to retain file structure
+!data/.keep
 
 #Scripts that don't contribute to final analyses but are worth keeping in the
 #project folder locally
