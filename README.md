@@ -22,6 +22,20 @@ The survey design and a set of stem maps (plots where trees are represented by a
 
 -   All project data.
 
+#### /data/data_dictionary
+
+data_dictionary.xlsx
+
+- Excel workbook for each of the datasets used in analysis, except for external BC Government VRI and PSP datasets, which have their own dictionaries. See descriptions of those below. Only original variables are defined; variables derived in scripts are defined as they are generated.
+
+psp_full_dictionary.xlsx
+
+- Data dictionary for the BC Government Permanent Sample Plot (PSP) dataset (/data/cleaned/psp). See detailed description under the dataset entry.
+
+vri_full_data_dictionary.pdf
+
+- Data dictionary for the BC Government Vegetation Resource Inventory (VRI) dataset (/data/cleaned/vri_c.csv). See detailed description under the dataset entry. A tab is included in data_dictionary.xlsx for this dataset because some id variables are included linking VRI polygons to specific research sites and some variables have been corrected to account for differences between the time a site was measured and the year VRI data is projected to. This is the original source dictionary and included for reference in case of ambiguities. 
+
 #### /data/raw
 
 -  Data in the form hand entered from field datasheets.
@@ -68,7 +82,7 @@ Smith, R. B. (1966). Hemlock and Larch Dwarf Mistletoe Seed Dispersal. The Fores
 
 /data/raw/psp
 
-- BC Government Permanent Sample Plot (PSP) data used to build equations hemlock tree height to height to live crown, which feeds into crown volume estimates (/scripts/crown volume.Rmd). Accessed 24 Jul 2024. Contains a data dictionary in folder—see that for further details. 
+- BC Government Permanent Sample Plot (PSP) data used to build equations hemlock tree height to height to live crown, which feeds into crown volume estimates (/scripts/crown volume.Rmd). Accessed 24 Jul 2024. 
 
 Forest Analysis and Inventory Branch. (2024). Forest Inventory Ground Plot Data and Interactive Map [Dataset]. British Columbia Data Catalogue. https://catalogue.data.gov.bc.ca/dataset/824e684b-4114-4a05-a490-aa56332b57f4
 
