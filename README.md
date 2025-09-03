@@ -26,7 +26,7 @@ The survey design and a set of stem maps (plots where trees are represented by a
 
 data_dictionary.xlsx
 
-- Excel workbook for each of the datasets used in analysis, except for external BC Government VRI and PSP datasets, which have their own dictionaries. See descriptions of those below. Only original variables are defined; variables derived in scripts are defined as they are generated.
+- Excel workbook with dictionaries for each of the datasets used in analysis, except for external BC Government VRI and PSP datasets, which have their own dictionaries. See descriptions of those below. Only original variables are defined; variables derived in scripts are defined as they are generated.
 
 psp_full_dictionary.xlsx
 
