@@ -14,7 +14,7 @@ intermediate and suppressed crown classes. Then it assumes those proportions
 are equal across all the other sites (e.g. suppressed tree ht is always 
 xxx% of codom tree height).
 
-Data from the BC Government's Permanent Sample Plot database are used to fit
+Data from the BC Government's Permanent Sample Plot (PSP) database are used to fit
 models that estimate height to live crown from tree height. Two models are fit
 one for the regen component and one for the mature component in the HDM data. 
 These models are applied to the hdm data so that data now has a height
@@ -37,7 +37,6 @@ REFERENCES
 Marshall, David D, Gregory P Johnson, and David W Hann. ‘Crown Profile Equations for Stand-Grown Western Hemlock Trees in Northwestern Oregon’. Canadian Journal of Forest Research 33, no. 11 (1 November 2003): 2059–66. https://doi.org/10.1139/x03-126.
 
 PSP Dataset. Downloaded 24 Jul 2024 https://catalogue.data.gov.bc.ca/dataset/forest-inventory-ground-plot-data-and-interactive-map 
-Data dictionary: ./data/raw/psp/PSP_data_dictionary_20240125.xlsx
 
 LIST OF POTENTIAL IMPROVEMENTS/FUTURE WORK
 - See if you could improve height to crown base estimates by associating hdm
@@ -423,18 +422,14 @@ use that sample to create a height to crown base estimate.
 ```{r}
 ####Read in the four datasets comprising the psp data
 #t_psp: tree level data
-#Note, this is big dataset, a filtered dataset is loaded in the code because
-#we don't need every tree in every psp plot in bc. Instead a subset is loaded
-#of sites in the CWH and located near hdm sites. 
 #v_psp:attributes of visit to a site
 #p_psp: attributes of each plot
 #s_psp: attributes of each site
 
-# t_psp <- read_csv(here("./data/raw/psp/psp_tree.csv")) 
-t_psp <- read_csv(here("./data/workflow/psp_tree_cwh.csv"))
-v_psp <- read_csv(here("./data/raw/psp/faib_sample_byvisit.csv"))
-p_psp <- read_csv(here("./data/raw/psp/faib_plot_header.csv")) 
-s_psp <- read_csv(here("./data/raw/psp/faib_header.csv"))
+t_psp <- read_csv(here("./data/cleaned/psp/faib_tree_detail.csv")) 
+v_psp <- read_csv(here("./data/cleaned/psp/faib_sample_byvisit.csv"))
+p_psp <- read_csv(here("./data/cleaned/psp/faib_plot_header.csv")) 
+s_psp <- read_csv(here("./data/cleaned/psp/faib_header.csv"))
 
 #Inspect the site, visit and plot level data 
 #(will look at the tree level data when its a bit smaller)
@@ -449,13 +444,6 @@ summary(p_psp)
 
 ########################################
 ####Filter to sites by proximity, bec zone and measurement completeness
-
-#PSP sites only have one plot per site, check this is true: 
-nplotcheck <- t_psp %>% group_by(SITE_IDENTIFIER) %>% 
-  summarise(nplots = n_distinct(PLOT)) %>% filter(nplots>1)
-nplotcheck
-#Only one site with more than one plot. Can just remove this site. 
-t_psp <- t_psp %>% anti_join(nplotcheck, by="SITE_IDENTIFIER")
 
 #Filter psp sites to ones in zones that are represented in the hdm sites
 #Create a single variable for BEC zone
@@ -487,6 +475,13 @@ dim(s_psp)
 t_psp <- t_psp %>% semi_join(s_psp, by="SITE_IDENTIFIER")
 v_psp <- v_psp %>% semi_join(t_psp, by = "CLSTR_ID")
 p_psp <- p_psp %>% semi_join(t_psp, by = "CLSTR_ID")
+
+#PSP sites only have one plot per site, check this is true: 
+nplotcheck <- t_psp %>% group_by(SITE_IDENTIFIER) %>% 
+  summarise(nplots = n_distinct(PLOT)) %>% filter(nplots>1)
+nplotcheck
+#Only three sites with more than one plot. Can just remove these site. 
+t_psp <- t_psp %>% anti_join(nplotcheck, by="SITE_IDENTIFIER")
 
 #Check if there are any NA in PHF_TREE variable
 any(is.na(t_psp$PHF_TREE)) 
