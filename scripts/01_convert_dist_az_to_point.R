@@ -2,16 +2,20 @@
 #Original: September 14, 2023 - Liam Irwin (liamakirwin@gmail.com)
 #Adapted by: Hanno Southam (hannosoutham@gmail.com) 
 
+#Setup
+#Clear environment
 rm(list=ls(all=TRUE))
 
+#Load packages
 library(sf)
 library(dplyr)
 library(tidyverse)
 library(tmap)
 library(here)
 
-#### PART 1: Define function to create XY coordinates from distance and azimuth 
-#### reading from trimble point
+####PART 1: Define function to create XY coordinates####
+#Function creates XY coordinates from distance and azimuth readings relative to
+# a trimble point
 #azimuth = azimuth from centre point in degrees
 #distance = distance from center point in m
 #xcenter/ycenter = X and Y coordinates of trimble reference point
@@ -51,10 +55,12 @@ polar_to_XY <- function(azimuth,
 #Replace coordinate system with whatever EPSG code you're using (NAD1983/BC Albers=3005; WGS84 = 4326). Check https://epsg.io/ for more info on what your code is
 crs <- 3005
 
-##############################################################
-##############################################################
-#### PART 2: Prepare Trimble Points
-#Read in trimble gps points (Trimble Locations)
+
+
+
+
+####PART 2: Prepare Trimble Points####
+#Read in trimble gps points
 trimb <- read_csv(here('./data/cleaned/hdm_trimb_points.csv'))
 summary(trimb)
 
@@ -73,9 +79,9 @@ trimb <- trimb %>% mutate(origin = "diff gps")
 trimb <- st_as_sf(trimb, coords = c("Longitude", "Latitude"), crs=4326)
 st_crs(trimb)$proj4string #check CRS
 
-# Reproject to NAD1983/BC Albers because this CRS is a projected system 
-# with units in m
-# Liam's function below uses meters
+#Reproject to NAD1983/BC Albers because this CRS is a projected system 
+#with units in m
+#Function defined above uses meters
 trimb <- st_transform(trimb, crs = 3005)
 st_crs(trimb)$proj4string #check CRS
 
@@ -90,14 +96,18 @@ tm_shape(trimb_grf, is.master = TRUE) + tm_symbols(col="pt_type") +
   tm_text("pt_id") + tm_facets(by="site_id")
 
 #PLAN: 
-#Use transect end points to define transect start points because they are more 
-#because they are more consistent. Use stem mapping points for mature trees. 
+#For regen component: Use transect end points to define transect start points 
+#because with visual inspection, end points seemed to be be in the right place
+#more consistently. Then use transect start points to determine tree locations.
+#For mature trees: Use stem mapping points to determine tree locations
 #Exceptions
-# (1) transect 101 at mk_1
-# (2) transect 250 at ph_2
-# Both of these transect ends seem weird
-# (3) stem map plot 20 at mi_2. Could not relocate this plot so stem mapped
-# from edge end point (ed.2.mi2)
+#(1) transect 101 at mk_1 and (2) transect 250 at ph_2; Both of these transect 
+#ends seem weird, like they are in the wrong place
+#(3) stem map plot 20 at mi_2. At start of data collection, markers were 
+#not placed at stem mapping plots. At sites where this happened, they had to be
+#restablished based on their proximity to nearby trees. This specific plot 
+#could not be reliably reestablished, so trees were stem re-mapped relative to 
+#a nearby marker for the edge end point. 
 
 #Convert working object back to a basic dataframe. 
 #Extract the new UTM coordinates to their own columns. 
@@ -128,7 +138,7 @@ ts <- left_join(ts, select(transect, tr_leng, tr_az, transect_id),
                 by = c("pt_id"="transect_id"))
 ts <- ts %>% mutate(tr_az_inv = (tr_az + 180)%%360)
 
-#Use polar_to_XY to define new coordinates
+#Use polar_to_XY function (defined in PART 1) to define new coordinates
 ts <- ts %>%
   mutate(polar_to_XY(azimuth = tr_az_inv, distance = tr_leng,
                      xcenter = end_X, ycenter = end_Y, crs = crs,
@@ -159,12 +169,12 @@ ts <- ts %>% mutate(stem_map = "Y", graph = "Y")
 #This is the final set of transect start points we will use to generate 
 #locations of regen trees. 
 
-###########
 #Because of the pesky little transect starts (101, 250) that weren't created 
 #based off a transect end points,  we need to do the reverse of what we did 
 #above and generate transect end points. If we don't, graphing later will
 #look weird. Every transect will be perfectly perpendicular 
 #except for these two. 
+
 #Add transect azimuth and length to the transect start points for 101 and 250
 ts_101_250 <- left_join(ts_101_250, select(transect, transect_id, tr_az, tr_leng), 
                     by=c("pt_id" = "transect_id"))
@@ -174,6 +184,7 @@ te_101_250 <- ts_101_250 %>%
   mutate(polar_to_XY(azimuth = tr_az, distance = tr_leng,
                      xcenter = plot_x_utm, ycenter = plot_y_utm, crs = crs,
                      shape_file = TRUE))
+
 #Define pt_type, stem_map, graph  and origin variables. 
 #These were generated based off another point, won't be used to stem map 
 #but will be used to graph. 
@@ -186,7 +197,6 @@ adj_te_XY <- data.frame(st_coordinates(te_101_250$geometry))
 #Convert back to dataframe with coordinates as columns
 te_101_250 <- te_101_250 %>% select(!geometry) %>%
   mutate(plot_x_utm = adj_te_XY$X, plot_y_utm = adj_te_XY$Y)
-############
 
 #Now deal with stem map plot 20 at mi_2 that couldn't be relocated. 
 #Filter it out of the trimb dataframe. 
@@ -245,8 +255,8 @@ trimb_sf <- st_as_sf(trimb, coords = c("plot_x_utm", "plot_y_utm"), crs=3005)
 #Plot 1: using graph points
 #Check:
 #should be only three transect starts and 3 transect ends
-#trasects should be perpendicular
-trimb_grf <- trimb_sf %>% filter(graph == "Y")
+#transects should be perpendicular
+trimb_grf <- trimb_sf %>% filter(graph == "Y", pt_type != "ref tree")
 tmap_mode("plot")
 tm_shape(trimb_grf, is.master = TRUE) + tm_symbols(col="pt_type") + 
   tm_text("pt_id") + tm_facets(by="site_id")
@@ -271,53 +281,79 @@ tm_shape(trimb_grf, is.master = TRUE) + tm_symbols(col="origin") +
 
 #Looks good. 
 
-##############################################################
-##############################################################
-###### PART 3: GENERATE TREE LOCATIONS
-trees <- read_csv(here("./data/cleaned/trees.csv"))
-# note: plot_id is a single variable here. It refer to transect_id for regen trees and stem mapping plot id for mature trees
 
-#### MATURE COMPONENT
-# Azimuth readings are magnetic and need to be declination corrected. Read in datasheet with declination correction by site. Then join it to stem mapping sheet.
+
+
+
+#### PART 3: Generate Tree Locations ####
+trees <- read_csv(here("./data/cleaned/trees.csv"))
+#Note: plot_id is a single variable here. It refers to transect_id for regen 
+#trees and stem mapping plot id for mature trees
+
+#3A: Calculate necessary fields in mature component
+#Azimuth readings are magnetic and need to be declination corrected. Read in 
+#datasheet with declination correction by site. Then join it to stem 
+#mapping sheet.
 site_data <- read_csv(here('./data/cleaned/site_data.csv'))
 site_data <- site_data %>% select(site_id, declination)
 
-# Join declination corrections dataset by site
-# Move it so that it is near other columns with location info
+#Join declination corrections dataset by site
+#Move it so that it is near other columns with location info
 trees <- left_join(trees, site_data, by = c("site_id" = "site_id"))
 trees <- trees %>% 
   relocate(declination, .before = tree_type)
 
-# Add column for declination corrected azimuth.
+#Add column for declination corrected azimuth.
 trees <- trees %>% 
   mutate(az_sm_dc = (az_sm + declination)%%360) %>% 
   mutate(across(az_sm_dc, round, 1)) %>% 
   relocate(az_sm_dc, .after = declination)
-  #modulo operator (%%) checks if 360 can go into the sum. If it can, it returns the difference.
+#Note: modulo operator (%%) checks if 360 can go into the sum. If it can, it 
+#returns the difference.
 
 
-#### REGEN COMPONENT
-# Each tree in regen component has an x,y distance on a transect. Need to transform these to dist, az data. 
-# First step, adjust for transects slopes. Read in transect data: 
-transect <- read_csv(here('./data/cleaned/transect_data_c.csv')) #should also have been loaded above
+#3B: Calculate necessary fields in regen component
+#Each tree in regen component has an x,y distance on a transect. Need to 
+#transform these to dist, az data. 
+#First step, adjust for transects slopes. 
+#Read in transect data (should also have been loaded above)
+transect <- read_csv(here('./data/cleaned/transect_data_c.csv')) 
 summary(transect)
 
-# Important variables in transect data are: tr_dist (specifies the transect section the slope applies to) and tr_sl (the slope for that transect section). Some transects had a uniform slope and so just one distance and slope. Others had a slope change and are measured in two segments (from 0 to tr_dist1, than from tr_dist1 to tr_dist2). Distances in the transect data are horizontal distances (measured with rangefinder). Slope is in degrees. 
+#Important variables in transect data are: 
+#tr_dist (specifies the transect section the slope applies to) 
+#tr_sl (the slope for that transect section)
+#Some transects had a uniform slope and so just one distance and slope. 
+#Others had a slope change and are measured in two segments (from 0 to 
+#tr_dist1, than from tr_dist1 to tr_dist2). 
+#Distances in the transect data are horizontal distances (measured with 
+#rangefinder). Slope is in degrees. 
 
-# Create new variables with slopes in radians
-transect <- transect %>% mutate(tr_sl1_rad = tr_sl1*(pi/180), tr_sl2_rad = tr_sl2*(pi/180))
+#Create new variables with slopes in radians
+transect <- transect %>% 
+  mutate(tr_sl1_rad = tr_sl1*(pi/180), tr_sl2_rad = tr_sl2*(pi/180))
 
-# tr_dist1 is the inflection point for sites with multiple slopes. Define new variable that converts it to slope distance so it can be compared to distances in regen data.
+#tr_dist1 is the inflection point for sites with multiple slopes. 
+#Define new variable that converts it to slope distance so it can be compared 
+#to distances in regen data.
 transect <- transect %>% mutate(tr_dist1_sl = tr_dist1/cos(tr_sl1_rad))
 
-# Join useful parts of transect data to regen data
-trees <- left_join(trees, select(transect, tr_az, tr_leng, transect_id, tr_dist1, tr_sl1, tr_sl1_rad, tr_dist2, tr_sl1, tr_sl2_rad, tr_dist1_sl), by = c("plot_id" = "transect_id"))
+#Join useful parts of transect data to regen data
+trees <- left_join(trees, select(transect, tr_az, tr_leng, transect_id, 
+                                 tr_dist1, tr_sl1, tr_sl1_rad, tr_dist2, 
+                                 tr_sl1, tr_sl2_rad, tr_dist1_sl), 
+                   by = c("plot_id" = "transect_id"))
 
-# Transform the y distance in the regen data (in slope distance) to be horizontal distance. Complicated function but it says: 
-# Case 1: tr_dist1 = tr_leng (i.e. there is only one slope), calculate the y horizontal distance using the first slope; 
-# When tr_dist1 != tr_leng (i.e. there are two slopes) there are two cases, 
-# Case 2: tr_dist1 != tr_leng and dist_y_tr < tr_dist1_sl, calculate distance using the first slope
-# Case 3: tr_dist1 != tr_leng and dist_y_tr >= tr_dist1_sl, calculate the distance by adding the inflection point horizontal distance (tr_dist1) and remainder (dist_y_tr - tr_dist1_sl) corrected with the second slope
+#Transform the y distance in the regen data (in slope distance) to be 
+#horizontal distance. Complicated function but it says: 
+#Case 1: tr_dist1 = tr_leng (i.e. there is only one slope), calculate the y 
+#horizontal distance using the first slope 
+#When tr_dist1 != tr_leng (i.e. there are two slopes) there are two cases: 
+#Case 2: tr_dist1 != tr_leng and dist_y_tr < tr_dist1_sl, calculate distance 
+#using the first slope
+#Case 3: tr_dist1 != tr_leng and dist_y_tr >= tr_dist1_sl, calculate the 
+#distance by adding the inflection point horizontal distance (tr_dist1) and 
+#the remainder (dist_y_tr - tr_dist1_sl) corrected with the second slope
 
 #Test on three represenative trees. r1 = case 1, r291 = case 2, r299 = case 3
 test <- trees %>% filter(tree_id %in% c("r1", "r291", "r299"))
@@ -328,7 +364,7 @@ test <- test %>% mutate(dist_y_h =
                        (dist_y_tr - tr_dist1_sl)*cos(tr_sl2_rad), TRUE ~ NA_real_)) %>% 
   select(dist_y_tr, dist_x_tr, dist_y_h)
 
-# That works. Perform the actual calculation
+#That works. Perform the actual calculation
 trees <- trees %>% mutate(
   dist_y_h =
     case_when(
@@ -340,44 +376,60 @@ trees <- trees %>% mutate(
         (dist_y_tr - tr_dist1_sl) * cos(tr_sl2_rad),
       TRUE ~ NA_real_))
 
-# Now need to calculate distance from transect start point to each tree (x, y). This is a right triangle with sides: dist_x_tr, dist_y_h.
-# Make test dataset to make sure this isn't changing dist_sm value for mature trees
+#Now need to calculate distance from transect start point to each tree (x, y). 
+#This is a right triangle with sides: dist_x_tr, dist_y_h.
+#Make test dataset to make sure this isn't changing dist_sm value for mature 
+#trees
 test <- trees %>% filter(tree_id %in% c("r1", "m1")) %>% 
   select(tree_id, tree_type, dist_sm, dist_x_tr, dist_y_h)
 test
-test %>% mutate(dist_sm = case_when(tree_type == "regen" ~ 
-                                     (dist_x_tr^2 + dist_y_h^2)^(0.5), .default = dist_sm)) #good, that works 
+test %>% 
+  mutate(dist_sm = case_when(tree_type == "regen" ~ 
+                                     (dist_x_tr^2 + dist_y_h^2)^(0.5), 
+                             .default = dist_sm)) #good, that works 
 
+#Apply to whole dataset
 trees <- trees %>% mutate(dist_sm = case_when(tree_type == "regen" ~ 
-                                               (dist_x_tr^2 + dist_y_h^2)^(0.5), .default = dist_sm))
+                                               (dist_x_tr^2 + dist_y_h^2)^(0.5),
+                                              .default = dist_sm))
 
-# Now calculate the angle adjustment relative to the transect azimuth for point. theta = tan-1(dist_x_tr/dist_y_h) (in radians).
+#Now calculate the angle adjustment relative to the transect azimuth for point. 
+#az_adj = tan-1(dist_x_tr/dist_y_h) (in radians).
 trees <- trees %>% mutate(az_adj = atan(dist_x_tr/dist_y_h)*(180/pi))
 
-# Calcualte the azimuth of the tree from the transect start point in the az_sm_dc column
-# Again, use test dataset to make sure this is only affecting regen trees
+#Calculate the azimuth of the tree from the transect start point in the 
+#az_sm_dc column
+#Again, use test dataset to make sure this is only affecting regen trees
 test <- trees %>% filter(tree_id %in% c("r1", "m1")) %>% 
   select(tree_id, tree_type, az_sm_dc, tr_az, az_adj)
 test
 test %>% mutate(az_sm_dc = case_when(tree_type == "regen" ~ 
-                                          (tr_az + az_adj)%%360, .default = az_sm_dc)) #works
+                                          (tr_az + az_adj)%%360, 
+                                     .default = az_sm_dc)) #works
 
-trees <- trees %>% mutate(az_sm_dc = case_when(tree_type == "regen" ~ (tr_az + az_adj)%%360, .default = az_sm_dc))
+#Apply to whole dataset
+trees <- trees %>% 
+  mutate(az_sm_dc = case_when(tree_type == "regen" ~ 
+                                (tr_az + az_adj)%%360,
+                              .default = az_sm_dc))
 
+
+#3C: Generate tree locations
 #Join relevant plot center coordinate with each tree. Two key columns for 
-#stem mapping: dist_sm (distance from stem mapping point ) 
-#and az_sm_dc (aziumuth from that point)
+#stem mapping: dist_sm (distance from stem mapping point) and az_sm_dc 
+#(aziumuth from that point)
 trees <- inner_join(trees, trimb_sm, 
                     by = c("plot_id" = "pt_id"))
 
-# Run the function. Need to set azimuth, distance, xcenter, ycenter equal to variable names in stem mapped polar. 
+#Run the function. Need to set azimuth, distance, xcenter, ycenter equal to 
+#respective variable names
 stem_mapped_XY <- trees %>%
   mutate(polar_to_XY(azimuth = az_sm_dc, distance = dist_sm,
                      xcenter = plot_x_utm, ycenter = plot_y_utm, crs = crs,
                      shape_file = TRUE))
 
-class(stem_mapped_XY)
 #Convert it to a spatial object:
+class(stem_mapped_XY)
 stem_mapped_XY <- st_as_sf(stem_mapped_XY)
 
 #Graph one site to make sure it looks good
@@ -398,5 +450,5 @@ stem_mapped_XY <- stem_mapped_XY %>%
   relocate(dist_y_h, .after = dist_y_tr) %>% 
   relocate(c(x_utm, y_utm), .after = az_sm_dc)
 
-# Export data as a csv
+#Export data as a csv
 write_csv(stem_mapped_XY, here("./data/workflow/trees_mapped.csv"))
