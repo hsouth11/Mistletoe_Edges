@@ -192,12 +192,16 @@ vri data cleaning.Rmd
 
 01_convert_dist_az_to_point.R
 
-- Converts tree positions in raw data to georeferenced spatial features. In raw data, trees in mature component are recorded as distance and azimuth from a stem mapping point. Trees in regenerating component are recorded as x and y distance on a transect with a defined azimuth. Stem mapping points and transect start and end points had differential GPS points taken at them. The script maps tree locations from these GPS points. 
+- Converts tree positions in raw data to georeferenced spatial features. In raw data, trees in the mature component are recorded as distance and azimuth from a stem mapping point. Trees in the regenerating component are recorded as x and y distance on a transect with a defined azimuth. Stem mapping points and transect start and end points had differential GPS points taken at them. The script maps tree locations from these GPS points using the distance and azimuth data. Input: ./data/cleaned/trees.csv. Output: ./data/workflow/trees_mapped.csv, which feeds into ./scripts/02_define_dmr.Rmd.
+
+02_define_dmr.Rmd
+
+- Defines tree-level dwarf mistletoe rating (DMR). Two versions of this variable are created: (1) traditional DMR: the sum of crown-third DMR ratings and (2) adapted DMR: a more general descriptor used to describe dwarf mistletoe infection in live and dead, susceptible trees. Input: ./data/workflow/trees_mapped.csv, from ./scripts/01_convert_dist_az_to_point.R. Output: ./data/workflow/trees_dmr.csv, which feeds into ./scripts/03_simulate_trees.Rmd.
 
 simulate trees.Rmd
 
 - Simulates data to extend the regenerating component transects to a standard length of 50 m across sites. Regen transects were variable length to create felxibility in the measurement protocol and reduce field mneasurement time. Transect length was determined by the infected tree farthest from the edge or a minimum of 15 m. New trees are simulated based on measured data from a site and all simulated hemlock are healthy (because the transect length determined the outer infection limit). This script starts with the output (data/workflow/trees_mapped.csv) from the stem mapping script (scripts/cleaning and processing/stem map.R). A new data file is created (data/workflow/trees_sim.csv) that feeds into the script to estimate crown volume (scripts/crown volume.Rmd).
-
+ 
 crown volume.Rmd
 
  - Gets simple crown volume estimates for each live hemlock crown class at each site. Heights are estimated by factoring measurements of dominant/codominant hemlock height by ratios with other crown classes, which were measured at one site (cr_3). Height to live crown is estimated based on a linear mixed effect model relating height to live crown to tree height, based on data from sites in the BC government permanent sample plot network that were similar to our field sites (/data/raw/psp). Crown volume equation from Marshall et al. (2003) are used to generate final estimates. This script starts with the output (data/workflow/trees_sim.csv) from the script simulating data on regenerting component transects (scripts/simulate trees.Rmd). A new data file is created (data/workflow/trees_cv.csv) that feeds into the script that estimates the seed load proxy (scripts/seed load.Rmd).
