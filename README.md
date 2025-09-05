@@ -26,15 +26,15 @@ The survey design and a set of stem maps (plots where trees are represented by a
 
 data_dictionary.xlsx
 
-- Excel workbook with dictionaries for each of the datasets used in analysis, except for external BC Government VRI and PSP datasets, which have their own dictionaries. See descriptions of those below. Only original variables are defined; variables derived in scripts are defined as they are generated.
+- Excel workbook with dictionaries for each of the datasets used in analysis, except for the BC Government PSP dataset, which has its own dictionary. Only original variables are defined; variables derived in scripts are defined as they are generated.
 
 psp_full_dictionary.xlsx
 
-- Data dictionary for the BC Government Permanent Sample Plot (PSP) dataset (/data/cleaned/psp). See detailed description under the dataset entry.
+- Data dictionary for the BC Government Permanent Sample Plot (PSP) dataset (/data/cleaned/psp). See detailed description of the dataset itself under the dataset entry.
 
 vri_full_data_dictionary.pdf
 
-- Data dictionary for the BC Government Vegetation Resource Inventory (VRI) dataset (/data/cleaned/vri_c.csv). See detailed description under the dataset entry. A tab is included in data_dictionary.xlsx for this dataset because some id variables are included linking VRI polygons to specific research sites and some variables have been corrected to account for differences between the time a site was measured and the year VRI data is projected to. This is the original source dictionary and included for reference in case of ambiguities. 
+- This is an additional reference for the BC Government Vegetation Resource Inventory (VRI) dataset (/data/cleaned/vri_c.csv). A dictionary for this dataset is included in the project dictionary (/data/dat_dictionary/data_dictionary.xlsx) because the original VRI dataset has been subset to a set of variables that are relevant for this project, ID variables have been added linking VRI polygons to specific research sites and some variables have been corrected to account for differences between the time a research site was measured and the year VRI data is projected to. This file is the original dictionary for the VRI dataset and provides additional details to what is in the project dictionary. 
 
 #### /data/raw
 
