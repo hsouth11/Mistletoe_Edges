@@ -1,0 +1,91 @@
+---
+title: "02_define_dmr"
+author: "Hanno Southam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+This script defines two, tree-level versions of dwarf misltetoe rating (DMR) 
+from the crown-third level DMR ratings and other dwarf misltetoe tree data.
+
+The output (./data/workflow/trees_mapped.csv) of the script that adds 
+georeferenced locations to each tree (./scripts/01_convert_dist_az_to_point.R) 
+is the input for this script. The output from this script feeds into the script 
+that simulates trees to create a dataset with complete data for a single 
+standard transect length (./scripts/03_simulate_trees.Rmd). 
+
+Load packages
+```{r}
+library(tidyverse)
+library(here)
+```
+
+Read in data.
+```{r}
+rm(list=ls(all=TRUE))
+
+trees <- read_csv(here("./data/workflow/trees_mapped.csv"))
+```
+
+#Traditional DMR
+Traditionally, tree-level DMR is calculated as the sum of each crown-third DMR
+rating. Crown third ratings record the proportion of primary branches infected
+within each third of the live crown: 0 (none), 1 (>0% and ≤50%), 2 (>50%).
+
+Calculate that. 
+```{r}
+trees <- trees %>% 
+  mutate(dmr=dmr_l+dmr_m+dmr_u)
+trees %>% select(dmr) %>% summary()
+```
+
+
+#Adapted DMR
+An adapted version of DMR was created to meet two needs:
+
+(1) Traditional DMR ignores infections below the live crown of live trees. 
+These infections are typically inactive, but I decided it was informative to 
+distinguish trees with an infection below the live crown (but not in the live
+crown) from trees that have no infections. 
+(2) A variable that describes HDM infection in live and dead hemlock trees is
+useful for creating plots. Traditional DMR only includes live trees (and the 
+modelling anlyses for this project are also restricted to live trees), but dead
+trees are given distinct classes in this variable so it can double as a 
+plotting variable. 
+
+Variable logic: 
+- Tree not a hemlock or amabilis fir: "-"
+- Tree a hemlock or amabilis fir AND dead AND infected: "DI"
+- Tree a hemlock or amabilis fir AND dead AND uninfected: "DU"
+- Tree a hemlock or amabilis fir AND alive AND infected below live crown but
+no infections in live crown: "IBLC"
+- Tree a hemlock or amabilis fir AND alive AND with infection in live crown: 
+traditional DMR (calculated above)
+
+Calculate it.
+```{r}
+#Calculate new factor version of tree level dmr
+trees <- trees %>% 
+  mutate(dmr_f = case_when(!spp %in% c("Hw", "Ba") ~ "-",
+                           (spp %in% c("Hw", "Ba") & 
+                              status %in% c("DS", "SN") & hdm_pa=="Y") ~ "DI", 
+                           (spp %in% c("Hw", "Ba") & 
+                              status %in% c("DS", "SN") & 
+                              hdm_pa %in% c("N", "U")) ~ "DU",
+                           (spp %in% c("Hw", "Ba") & 
+                              hdm_pa=="Y" & b_lc=="Y" & dmr==0) ~ "IBLC",
+                           TRUE ~ as.character(dmr))) %>% 
+  mutate(dmr_f = factor(dmr_f, levels = c("-", "DU", "0", "DI", "IBLC", 
+                                          "1", "2", "3", "4", "5", "6")))
+
+trees %>% select(dmr_f) %>% table(useNA = "ifany") #Looks good!
+```
+
+#Export
+```{r}
+#Format so tree-level DMR variables are next to crown third DMR variables
+trees <- trees %>% 
+  relocate(c(dmr, dmr_f), .before = broom_pa)
+
+#Write it to a csv
+write_csv(trees, here("./data/workflow/trees_dmr.csv"))
+```
