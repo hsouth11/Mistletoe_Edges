@@ -190,6 +190,10 @@ vri data cleaning.Rmd
 
 ### /scripts
 
+01_convert_dist_az_to_point.R
+
+- Converts tree positions in raw data to georeferenced spatial features. In raw data, trees in mature component are recorded as distance and azimuth from a stem mapping point. Trees in regenerating component are recorded as x and y distance on a transect with a defined azimuth. Stem mapping points and transect start and end points had differential GPS points taken at them. The script maps tree locations from these GPS points. 
+
 simulate trees.Rmd
 
 - Simulates data to extend the regenerating component transects to a standard length of 50 m across sites. Regen transects were variable length to create felxibility in the measurement protocol and reduce field mneasurement time. Transect length was determined by the infected tree farthest from the edge or a minimum of 15 m. New trees are simulated based on measured data from a site and all simulated hemlock are healthy (because the transect length determined the outer infection limit). This script starts with the output (data/workflow/trees_mapped.csv) from the stem mapping script (scripts/cleaning and processing/stem map.R). A new data file is created (data/workflow/trees_sim.csv) that feeds into the script to estimate crown volume (scripts/crown volume.Rmd).
