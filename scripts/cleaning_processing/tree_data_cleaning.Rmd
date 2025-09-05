@@ -5,8 +5,7 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 Script that combines tree level data from mature and regenerating components
-into a single dataframe and cleans the variables. There is a complementary 
-data dictionary in "./data/data_dictionary/dict_trees.csv"
+into a single dataframe and cleans the variables.
 
 #Setup
 Load packages
@@ -17,6 +16,8 @@ library(here)
 
 Load data
 ```{r}
+rm(list=ls(all=TRUE))
+
 #Individual regenerating tree measurements
 regen <- read_csv(here("./data/raw/regen_comp_data.csv"))
 
@@ -943,15 +944,13 @@ the live crown (dmr_l = lower, dmr_m = middle, dmr_u = upper).
 
 General definition: Dwarf mistletoe rating for xx live crown. Records the 
 proportion of primary branches with HDM infection: 0 = none infected, 1 = <50% 
-infected, 2 = >50% infected. Assessed for trees with "hdm_pa = Y" and 
+infected, 2 = >50% infected. Assessed for trees of susceptible species with 
 status = "LS or LL or LF". For dead susceptible species ("spp = Hw or Ba") and 
 all non-susceptible species ("spp != Hw or Ba") it is NA. 
 
 Check that:
-(1) Columns are well defined (0, 1 or 2) for all live, infected hemlock and 
-amabilis fir
-(2) It is NA for live, uninfected hemlock and ambilis fir, dead hemlock and 
-amabilis fir and all other species
+(1) Columns are well defined (0, 1 or 2) for all live hemlock and amabilis fir
+(2) It is NA for  dead hemlock and amabilis fir and all other species
 
 For live infected, hemlock and amabilis fir
 ```{r}
@@ -976,30 +975,22 @@ trees %>% filter(status %in% c("LS", "LL", "LF") &
 
 For live uninfected hemlock and amabilis fir
 ```{r}
-#Check all cases are NA in each DMR columns
-#Some trees in this category that have non-NA values
+#Get a summary of the variables
+#Mostly NAs, a few 0s. This is an artifact of data entry. When hdm_pa = N, live
+#hemlock and amabilis fir can just be set to dmr_xx = 0
 trees %>% filter(spp %in% c("Hw", "Ba") &
                     status %in% c("LS", "LL", "LF") &
                     hdm_pa == "N") %>%
   select(contains("dmr")) %>% 
-  summarise(across(everything(), ~all(is.na(.))))
+  summary()
 
-#Look at those trees
-#Probably same four that were problem in the HDM factor variables
-trees %>% filter(spp %in% c("Hw", "Ba") &
-                    status %in% c("LS", "LL", "LF") &
-                    hdm_pa == "N" &
-                    (!is.na(dmr_l) | !is.na(dmr_m) |!is.na(dmr_u))) %>% 
-  view()
-
-#Set equal to NA
+#Set equal to 0
 trees <- trees %>% 
   mutate(across(dmr_l:dmr_u, 
                 ~ case_when(spp %in% c("Hw", "Ba") &
                               status %in% c("LS", "LL", "LF") &
-                              hdm_pa == "N" &
-                              (!is.na(dmr_l) | !is.na(dmr_m) |!is.na(dmr_u)) 
-                               ~ NA, 
+                              hdm_pa == "N" 
+                               ~ 0, 
                                TRUE ~ .)))
 
 #Check again
@@ -1008,7 +999,7 @@ trees %>% filter(spp %in% c("Hw", "Ba") &
                     status %in% c("LS", "LL", "LF") &
                     hdm_pa == "N") %>%
   select(contains("dmr")) %>% 
-  summarise(across(everything(), ~all(is.na(.))))
+  summary()
 ```
 
 For dead hemlock and amabilis fir
