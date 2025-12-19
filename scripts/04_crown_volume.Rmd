@@ -9,50 +9,46 @@ This script is a way to get simple estimates of crown volume for each live Hw
 crown class at each site. 
 
 It uses the one site where we collected data from all crown classes (cr_3) 
-to estimate to height proportions between codonminant/dominant and the 
-intermediate and suppressed crown classes. Then it assumes those proportions 
-are equal across all the other sites (e.g. suppressed tree ht is always 
-xxx% of codom tree height).
+to estimate to height proportions between trees in codonminant/dominant 
+crown classes and trees in the intermediate and suppressed crown classes. Then 
+it assumes those proportions are equal across all the other sites (e.g. 
+suppressed tree ht is always xxx% of codom/dom tree height).
 
-Data from the BC Government's Permanent Sample Plot (PSP) database are used to fit
-models that estimate height to live crown from tree height. Two models are fit
-one for the regen component and one for the mature component in the HDM data. 
-These models are applied to the hdm data so that data now has a height
-and height to live crown estimate. 
+Data from the BC Government's Permanent Sample Plot (PSP) database are used to 
+fit models that estimate height to live crown from tree height. Two models are 
+fit one for the regen component and one for the mature component in the HDM 
+data. These models are applied to the hdm data so that each tree in that data 
+now has a height and height to live crown value. 
 
-These estimates are for each crown class, within a site component at each hdm 
+These estimates are for each crown class, within a site component at each 
 site. Within this grouping (e.g. suppressed trees in the regen component at 
-site mi_1) trees are treated the same. 
+site mi_1) trees are treated the same and have the same values for height and
+height to live crown. 
 
 Equations from Marshall et al. (2003) are used to estimate crown profiles
 (= the width of the crown at a given height (h)). The minimum inputs for their
 equations are tree height and height to base of live crown. These crown width 
 functions are integrated to estimate crown volume.
 
-This script begins with the output from the 'simulate trees.Rmd' script
+This script begins with the output from the '03_simulate_trees.Rmd' script
 (trees_sim.csv) and creates the 'trees_cv.csv' object, which feeds into the
-'seed load.Rmd' script. 
+'05_seed_load.Rmd' script. 
 
 REFERENCES
 Marshall, David D, Gregory P Johnson, and David W Hann. ‘Crown Profile Equations for Stand-Grown Western Hemlock Trees in Northwestern Oregon’. Canadian Journal of Forest Research 33, no. 11 (1 November 2003): 2059–66. https://doi.org/10.1139/x03-126.
 
 PSP Dataset. Downloaded 24 Jul 2024 https://catalogue.data.gov.bc.ca/dataset/forest-inventory-ground-plot-data-and-interactive-map 
-
-LIST OF POTENTIAL IMPROVEMENTS/FUTURE WORK
-- See if you could improve height to crown base estimates by associating hdm
-sites with psp sites (e.g. use random site effect for psp with most similar
-top height and stem density to predict HT_BR)
-- Account for differences arising from vri. VRI is projected to 2021, hdm data 
-and measurements are for 2023/2024. So height estimates are two years behind. 
-Also, don't know what vri does with apical droop of Hw. 
-- Create model for cr_3 to get tree specific height and crown volume 
-measurements we can run something like a sensitivity test later on. 
-- Include a model for Ba. 
 ################
 
 #Prep
 Load packages.
 ```{r}
+#Unload any loaded packages
+library(pacman)
+p_loaded()
+p_unload(p_loaded(), character.only = T)
+
+#Reload packages for this script. Avoids potential package conflicts
 library(tidyverse)
 library(here)
 library(nlme)
@@ -88,15 +84,16 @@ site <- site %>% mutate(yr_sur = year(date_sur))
 #Recalculate age column
 site <- site %>% mutate(age = yr_sur - yr_har)
 
+####
 ####Dataset 2: main tree dataset
 #Read in the tree data
 t_hdm <- read_csv(here("data/workflow/trees_sim.csv"))
+str(t_hdm)
 
 #Convert factor vars to factors: 
 t_hdm <- t_hdm %>% mutate(across(
-  c(site_id, spp, status, hdm_pa, b_lc, 
-    broom_pa, broom_pos, stem_pa, crown_class, crown_cond, 
-    outside_10, assessed_by, tree_type, tree_type_2, dmr_f),
+  c(site_id, tree_type, tree_type_2, sim_tree, spp, status, crown_class, 
+    crown_cond, hdm_pa, dmr_f, b_lc, broom_pa, broom_pos, stem_pa),
   ~as.factor(.)))
 
 #Convert plot_id and dmrs to integers
@@ -114,9 +111,9 @@ str(t_hdm)
 
 #Subset data to measured trees to use in estimates in the script. 
 t_hdm_meas <- t_hdm %>% 
-  filter(tree_type_2 != "sim regen")
+  filter(sim_tree == "N")
 
-########################################
+####
 ####Dataset 3: extra measured regen tree heights
 #Read in the dataset
 ht_hdm_extra <- read_csv(here("./data/cleaned/regen_extra_ht_c.csv"))
@@ -126,7 +123,7 @@ summary(ht_hdm_extra)
 #Create variable that identifies them as that
 ht_hdm_extra <- ht_hdm_extra %>% mutate(tree_type = "regen")
 
-########################################
+####
 ####Dataset 4: vri data
 #Attributes from vri polygons that are representative of the mature and regen
 #components of each site.
@@ -139,15 +136,15 @@ ht_hdm_extra <- ht_hdm_extra %>% mutate(tree_type = "regen")
 #Read in data
 vri <- read_csv(here("data/cleaned/vri_c.csv"))
 
-#Variables we may use are:
+#Variables used in this script are:
 #site_id (corresponds to site_id in HDM sites)
-#tree_type: mature or regen
+#tree_type: identifies component (values = mature or regen)
 #SPECIES_CD_1 and SPECIES_CD_2: codes of leading and second species
 #PROJ_HEIGHT_1 and PROJ_HEIGHT_2: projected heights of of the first and second
 #species
 variable.names(vri)
 
-#Subset dataset to just these variables
+#Subset dataset to relevant variables
 vri <- vri %>% select(FEATURE_ID, site_id, tree_type, 
                       SPECIES_CD_1,SPECIES_CD_2, 
                       PROJ_HEIGHT_1, PROJ_HEIGHT_2)
@@ -161,17 +158,20 @@ vri <- vri %>% arrange(site_id)
 #mk_1 regen - missing all values
 #mk_3 regen - missing evrything but site index. 
 
-#mk_1 data is in MKRF data layer, add that here
+#The MKRF vri data layer has species composition estimates for mk_1. Add those
+#values manually here. Its still missing height estimates
 mk_1 <- c(62, "mk_1", "regen", "HW", "FDC", NA, NA)
 vri <- vri %>% filter(!(site_id == "mk_1" & tree_type =="regen")) %>%
   rbind(mk_1)
 vri %>% filter(site_id == "mk_1", tree_type == "regen")
 
-#We have a sample of co-dominant/dominant Hw heights for both of these sites. 
-#So data gaps aren't actually a big deal here. 
+#These data gaps aren't a big deal because we sampled codominant and dominant
+#Hw heights at almost all sites. VRI data are only used as a back up, when
+#field measured heights weren't used. So long as mk_1 and mk_3 aren't ones with
+#no field measured heights, its all good. 
 ```
 
-#Top height estimates
+#Height estimates
 ##Height factors, cr_3
 Calculate height factors from the cr_3 site
 ```{r}
@@ -180,31 +180,31 @@ t_r_cr3 <- t_hdm_meas %>% filter(tree_type == "regen" & site_id == "cr_3")
 t_m_cr3 <- t_hdm_meas %>% filter(tree_type == "mature" & site_id == "cr_3")
 
 #Subset these to Hw trees with ht measurements
-t_r_cr3 <- t_r_cr3 %>% filter(spp == "Hw" & !is.na(height_m))
-t_m_cr3 <- t_m_cr3 %>% filter(spp == "Hw" & !is.na(height_m))
+t_r_cr3 <- t_r_cr3 %>% filter(spp == "Hw" & !is.na(height))
+t_m_cr3 <- t_m_cr3 %>% filter(spp == "Hw" & !is.na(height))
 
 #See how many measurements there are per crown class
 t_r_cr3 %>% group_by(crown_class_2) %>% summarise(n_tree = n())
 t_m_cr3 %>% group_by(crown_class_2) %>% summarise(n_tree = n())
 
 #Graph their height measurements by crown class
-ggplot(t_r_cr3, aes(x=crown_class_2, y = height_m)) + 
-  geom_jitter(width=0.1) + lims(y=c(0, (max(t_r_cr3$height_m) + 2)))
-ggplot(t_m_cr3, aes(x=crown_class_2, y = height_m)) + 
-  geom_jitter(width = 0.1) + lims(y=c(0, (max(t_m_cr3$height_m) + 2)))
+ggplot(t_r_cr3, aes(x=crown_class_2, y = height)) + 
+  geom_jitter(width=0.1) + lims(y=c(0, (max(t_r_cr3$height) + 2)))
+ggplot(t_m_cr3, aes(x=crown_class_2, y = height)) + 
+  geom_jitter(width = 0.1) + lims(y=c(0, (max(t_m_cr3$height) + 2)))
 
 #Calculate the mean ht by crown class and the ratio of intermediate and 
 #suppressed tree ht to codom/dominant hts
 ht_cr3_r_sum <- t_r_cr3 %>%
-  summarise(mean_ht_c = mean(height_m[crown_class_2 == "C"]),
-            mean_ht_i = mean(height_m[crown_class_2 == "I"]),
-            mean_ht_s = mean(height_m[crown_class_2 == "S"]),
+  summarise(mean_ht_c = mean(height[crown_class_2 == "C"]),
+            mean_ht_i = mean(height[crown_class_2 == "I"]),
+            mean_ht_s = mean(height[crown_class_2 == "S"]),
             htr_ci_r = mean_ht_i/mean_ht_c,
             htr_cs_r = mean_ht_s/mean_ht_c)
 ht_cr3_m_sum <- t_m_cr3 %>%
-  summarise(mean_ht_c = mean(height_m[crown_class_2 == "C"]),
-            mean_ht_i = mean(height_m[crown_class_2 == "I"]),
-            mean_ht_s = mean(height_m[crown_class_2 == "S"]),
+  summarise(mean_ht_c = mean(height[crown_class_2 == "C"]),
+            mean_ht_i = mean(height[crown_class_2 == "I"]),
+            mean_ht_s = mean(height[crown_class_2 == "S"]),
             htr_ci_m = mean_ht_i/mean_ht_c,
             htr_cs_m = mean_ht_s/mean_ht_c)
 
@@ -216,23 +216,23 @@ htr_ci_m <- ht_cr3_m_sum$htr_ci_m[1]
 htr_cs_m <- ht_cr3_m_sum$htr_cs_m[1]
 ```
 
-##Estimates of top heights, all sites
-Calculate top heights for each site component
-Top height = average height of the co-dominant/dominant tree layers
-```{r}
-#Top heights come from three sources: 
-#(1) measured heights in the main trees dataset
-#(2) at some sites, there wasn't enough codominant/dominant hemlocks on the 
-#regen transects to get height measurements. When that happened, 
-#adjacent codominant/dominant hemlock trees were measured. Those are recorded
-#in a separate dataset (ht_hdm_extra) that we will integrate here.
-#(3) at a few sites we didn't have time to take a sample of heights. For those, 
-#we will substitute vri rank 1 tree layer data. 
+##Average codominant/dominant heights, all sites
+Calculate the average height of combined dominant and condominant Hw trees for 
+each site component. 
 
-########################################
-#Height sources 1 and 2: main tree dataset and adjacent codom/dom hts
+These estimates come from three sources: 
+(1) measured heights in the main trees dataset
+(2) at some sites, there wasn't enough codominant/dominant hemlocks on the 
+regen transects to get height measurements. When that happened, 
+adjacent codominant/dominant hemlock trees were measured. Those are recorded
+in a separate dataset (ht_hdm_extra) that we will integrate here.
+(3) at a few sites we didn't have time to take a sample of heights. For those, 
+the vri rank 1 tree layer data is substituted 
+
+Height sources 1 and 2: main tree dataset and adjacent codom/dom hts
+```{r}
 #Filter trees dataset to those with height recorded
-ht_hdm <- t_hdm_meas %>% filter(!is.na(height_m))
+ht_hdm <- t_hdm_meas %>% filter(!is.na(height))
 
 #Merge the main trees and extra height tree datasets
 #Only keep variables present in both
@@ -248,7 +248,7 @@ str(ht_hdm)
 ht_hdm %>% group_by(site_id, tree_type) %>% 
   summarise(n_ht_meas = n()) 
 #Missing height data from: mi_2 and the mature component of ph_2
-#Will add this from vri dataset
+#Will add these from vri dataset
 
 #Filter to just codominant and dominant heights
 #Other crown classes were only measured at cr_3 site
@@ -263,17 +263,18 @@ levels(ht_hdm$crown_class) #good, filtered correctly
 #Also add a sample size = how many C/D Hw have height meas at each site
 ht_hdm_sum <- ht_hdm %>% 
   group_by(site_id) %>% 
-  summarise(tht_r_hdm = mean(height_m[tree_type == "regen"]),
+  summarise(tht_r_hdm = mean(height[tree_type == "regen"]),
             n_ht_r_hdm = sum(tree_type == "regen"),
-            tht_m_hdm = mean(height_m[tree_type == "mature"]),
+            tht_m_hdm = mean(height[tree_type == "mature"]),
             n_ht_m_hdm = sum(tree_type == "mature")
             )
 summary(ht_hdm_sum)
+```
 
-########################################
-#Height sources 3: vri
-#We will get vri top ht estimates for all sites that have data, but we will
-#only use it for the site components that have missing data
+Height source 3: vri
+```{r}
+#We will get vri codom/dom ht estimates for all sites that have data, but we 
+#will only use it for the site components that have missing data
 #Going to take the average when there are two vri polygons that represent
 #a component. 
 #One disadvantage of using this data is that it is projected to 2021. We did 
@@ -296,14 +297,15 @@ vri <- vri %>% mutate(ht_hw = case_when(SPECIES_CD_1 == "HW" ~ PROJ_HEIGHT_1,
 ht_vri_sum <- vri %>% group_by(site_id) %>% 
   summarise(tht_r_vri = mean(ht_hw[tree_type == "regen"], na.rm=T),
             tht_m_vri = mean(ht_hw[tree_type == "mature"], na.rm=T))
+```
 
-########################################
-#Compile calculated top heights from the various into a single dataset
-top_ht <- site %>% select(site_id)
+Compile calculated top heights from the various into a single dataset
+```{r}
+cd_ht <- site %>% select(site_id)
 
 #Join top height estimates from field data (sources 1 and 2) and vri (source 3)
-top_ht <- left_join(top_ht, ht_hdm_sum, by = "site_id")
-top_ht <- left_join(top_ht, ht_vri_sum, by = "site_id")
+cd_ht <- left_join(cd_ht, ht_hdm_sum, by = "site_id")
+cd_ht <- left_join(cd_ht, ht_vri_sum, by = "site_id")
 
 #Graph to compare vri estimates with ours
 #Summary: vri isn't the best predictor
@@ -311,12 +313,12 @@ top_ht <- left_join(top_ht, ht_vri_sum, by = "site_id")
 #field data was collected. Would expect field data to consistently be larger 
 #than vri estimates but that isn't what we see. vri consistently overpredicts
 #ht in mature component. 
-top_ht_g <- top_ht %>% 
+cd_ht_g <- cd_ht %>% 
   pivot_longer(cols = contains("tht"), 
                names_to = c("tree_type", "source"),
                names_pattern = "tht_(.)_(.*)",
                values_to = "tht")
-ggplot(top_ht_g, aes(x = site_id, y = tht, color = source)) +
+ggplot(cd_ht_g, aes(x = site_id, y = tht, color = source)) +
   geom_point() + 
   facet_wrap(~tree_type)
 
@@ -324,7 +326,7 @@ ggplot(top_ht_g, aes(x = site_id, y = tht, color = source)) +
 #Use measured heights when they are available
 #When they aren't use vri estimate
 #Add a column that identifies the data source for the final column
-top_ht <- top_ht %>% 
+cd_ht <- cd_ht %>% 
   mutate(ht_r_C = if_else(!is.na(tht_r_hdm), tht_r_hdm, tht_r_vri),
          ht_m_C = if_else(!is.na(tht_m_hdm), tht_m_hdm, tht_m_vri),
          source_r_ht = if_else(!is.na(tht_r_hdm), "hdm", "vri"),
@@ -336,31 +338,31 @@ Export the tables of heights for future use
 #Export a long table and a wide table, both are useful
 #In long table add a column identifying which data source to use
 #Bit of a roundabout way of adding this column
-x <- top_ht %>% 
+x <- cd_ht %>% 
   select(site_id, contains("source")) %>% 
   pivot_longer(cols = contains("source"),
                names_to = "tree_type",
                names_pattern = "source_(.)_ht",
                values_to = "source_pref_meas")
-top_ht_g <- left_join(top_ht_g, x, by = c("site_id", "tree_type"))
-top_ht_g <- top_ht_g %>% 
+cd_ht_g <- left_join(cd_ht_g, x, by = c("site_id", "tree_type"))
+cd_ht_g <- cd_ht_g %>% 
   rename(pref_meas = source_pref_meas) %>% 
   mutate(pref_meas = if_else(pref_meas == source, "Y", "N"))
 
 #Check this worked. Should be 19 hdm measurements and 3 vri measurements
-top_ht_g %>% filter(pref_meas == "Y") %>% 
+cd_ht_g %>% filter(pref_meas == "Y") %>% 
   select(source) %>% table()
 
 #Fix some formatting
-top_ht_g <- top_ht_g %>% 
+cd_ht_g <- cd_ht_g %>% 
   rename(ht_cd = tht) %>% 
   mutate(tree_type = case_match(tree_type,
                                 "r" ~ "regen",
                                 "m" ~ "mature"))
 
 #Export
-# write_csv(top_ht, here("./data/workflow/top_ht_wide.csv"))
-# write_csv(top_ht_g, here("./data/workflow/top_ht_long.csv"))
+write_csv(cd_ht, here("./data/workflow/cd_ht_wide.csv"))
+write_csv(cd_ht_g, here("./data/workflow/cd_ht_long.csv"))
 ```
 
 ##Estimates of hts in all crown classes, all sites
@@ -369,7 +371,7 @@ component at each site.
 ```{r}
 #Create new dataframe. Called cv because it will be used to estimate crown 
 #volume eventually. Start by adding the top height estimates
-cv <- top_ht %>% select(site_id, ht_r_C, ht_m_C)
+cv <- cd_ht %>% select(site_id, ht_r_C, ht_m_C)
 
 #These values will be the ht estimates for all of the codom/dom live Hw in a 
 #site component 
@@ -391,7 +393,7 @@ cv_l <- cv %>%
 cv_l <- cv_l %>% 
   mutate(tree_type = if_else(tree_type == "r", "regen", "mature"))
 
-#Create id column to identify each canopy class in each component at each site
+#Create id column to identify each crown class in each component at each site
 cv_l <- cv_l %>% 
   unite(col="id", c("site_id", "tree_type", "crown_class_2"), 
         sep = "_", remove = FALSE)
@@ -413,14 +415,22 @@ cv_l <- left_join(cv_l, dbh_hdm, by = "id")
 
 #Height to crown base
 Next task is to generate a believable equation for height to crown base. 
-Use psp data for this. 
-13 Sep 2024: Starting with something simple. Assume that height to crown base is
-controlled more by intrinsic tree factors than by site factors. Create two 
-equations, one for regen one for mature trees. Use top height to get psp
-sites within 1 standard deviation of mean top height across a tree type. Then 
-use that sample to create a height to crown base estimate. 
+Use the BC Gov permanent sample plot (psp) data for this. 
+
+Two models are created, one for regen and one for mature trees. The models are 
+simple. They assume that height to crown base is controlled more by intrinsic 
+tree factors than by site-level factors. 
+
+A subset psp sites to fit the models to is identified by filtering psp sites
+to those within 1 standard deviation of the average codominant/dominant Hw 
+height for each tree type in the measured data. 
+
+The models are fit to these data and the resulting equations are used to 
+predict the height to crown base for each site-tree type-crown class
+combination in the hdm data. 
+
+Start by reading in the four datasets comprising the psp data
 ```{r}
-####Read in the four datasets comprising the psp data
 #t_psp: tree level data
 #v_psp:attributes of visit to a site
 #p_psp: attributes of each plot
@@ -441,8 +451,16 @@ summary(p_psp)
 #Sites are identified by a variable called SITE_IDENTIFIER
 #but sites are revisited. A second ID variable, only in the v_psp, s_psp and 
 #t_psp, datasets called CLSTR_ID, identifies each site visit.
+```
 
-########################################
+##Select psp sites to develop equations
+Filter to a subset of psp sites that are similar enough to the HDM research
+sites that they can be used to fit height to crown base equations. 
+
+Start with some coarse filtering by proximity, bec zone and measurement 
+completeness. 
+```{r}
+####
 ####Filter to sites by proximity, bec zone and measurement completeness
 
 #Filter psp sites to ones in zones that are represented in the hdm sites
@@ -480,7 +498,7 @@ p_psp <- p_psp %>% semi_join(t_psp, by = "CLSTR_ID")
 nplotcheck <- t_psp %>% group_by(SITE_IDENTIFIER) %>% 
   summarise(nplots = n_distinct(PLOT)) %>% filter(nplots>1)
 nplotcheck
-#Only three sites with more than one plot. Can just remove these site. 
+#Only one site with more than one plot. Can just remove it. 
 t_psp <- t_psp %>% anti_join(nplotcheck, by="SITE_IDENTIFIER")
 
 #Check if there are any NA in PHF_TREE variable
@@ -493,13 +511,16 @@ dim(phf_na) #340 trees
 #tagged tree)
 head(phf_na$MEAS_INTENSE)
 
-#Déa advised just removing them, it is a some data consistency thing. 
+#Contact at BC MoF (Déa Cameron, Stad Development Modelling Team) advised just 
+#removing them. In their internal version of the psp dataset, these trees 
+#were NA for the MEAS_INTENSE field, but in the public version, they were 
+#recorded as OUT_OF_PLOT.
 #Only 340 trees (out of 486000). 
 t_psp <- t_psp %>% filter(!is.na(PHF_TREE))
 any(is.na(t_psp$PHF_TREE))
 
-###
-#Okay, now filter to trees that have the data we want to model: Hw trees, with
+####
+#####Filter to trees that have the data we want to model: Hw trees, with
 #field measured heights and height to live crown data
 dim(t_psp)
 t_psp <- t_psp %>% filter(SPECIES == "HW" & 
@@ -524,12 +545,11 @@ t_psp %>% group_by(SITE_IDENTIFIER) %>%
   summarise(n_trees = n()) %>% summary()
 ```
 
-##Select psp sites to develop equations
-Next, select a subset of sites to develop equations for mature and regen 
-components respectively. 
+Now filter psp sites by similarity to HDM sites in average height of codominant 
+and dominant Hw
 ```{r}
-#Calculate mean and standard deviation of top height of mature and regen 
-#components in the hdm data
+#Calculate mean and standard deviation of average codomnant/dominant Hw height 
+#in mature and regen components in the hdm data
 mean_tht_m <- mean(cv$ht_m_C)
 sd_tht_m <- sd(cv$ht_m_C)
 mean_tht_r <- mean(cv$ht_r_C)
@@ -541,8 +561,7 @@ tht_m_ub <- mean_tht_m + sd_tht_m
 tht_r_lb <- mean_tht_r - sd_tht_r
 tht_r_ub <- mean_tht_r + sd_tht_r
 
-#Then calculate the top heights of the psp sample
-#Get mean height of codominant/dominant hw trees
+#Then calculate the average codominant/dominant Hw height at each psp site
 #You lose some sites in this step because presumably they don't have many 
 #codominant hemlock
 v_ht_psp <- t_psp %>% group_by(CLSTR_ID) %>% 
@@ -563,19 +582,9 @@ v_psp_m <- v_ht_psp %>% filter(tht >= tht_m_lb & tht <= tht_m_ub)
 #Subset tree level dataset also
 t_psp_r <- t_psp %>% semi_join(v_psp_r, by = "CLSTR_ID")
 t_psp_m <- t_psp %>% semi_join(v_psp_m, by = "CLSTR_ID")
-
-#Graph ht to live crown vs tree height for these
-ggplot(t_psp_r, aes(x = HEIGHT, y = HT_BRCH)) + 
-  geom_point(aes(color = CLSTR_ID)) + 
-  geom_smooth(method="lm", aes(group = CLSTR_ID, color = CLSTR_ID), se = FALSE) +
-  geom_smooth(method = "lm", color = "darkblue", linetype = "dashed")
-ggplot(t_psp_m, aes(x = HEIGHT, y = HT_BRCH)) + 
-  geom_point(aes(color = CLSTR_ID)) + 
-  geom_smooth(method="lm", aes(group = CLSTR_ID, color = CLSTR_ID), se = FALSE) +
-  geom_smooth(method = "lm", color = "darkblue", linetype = "dashed")
 ```
 
-###Graph height to live crown vs. height
+##Graph height to live crown vs. height
 ```{r}
 #Combine datasets
 x <- t_psp_r %>% 
@@ -586,29 +595,26 @@ x2 <- rbind(x, x1)
 x2 <- x2 %>% 
   mutate(tree_type = factor(tree_type, levels = c("regen", "mature")))
 
-#Plot faceted which tree type (regen and mature) the dataset applies to
-##Note: initially thought this was going to go into thesis but ended up 
-##only including results for mature component since we regen component 
-##crown volume estimates don't get used. 
-# p1 <- ggplot(x2, aes(x = HEIGHT, y = HT_BRCH)) + 
-#   geom_point(aes(color = CLSTR_ID)) + 
-#   geom_smooth(method="lm", 
-#               aes(group = CLSTR_ID, color = CLSTR_ID), se = FALSE) +
-#   geom_smooth(method = "lm", color = "darkblue", linetype = "dashed",
-#               se = FALSE) +
-#   facet_wrap(~tree_type,
-#              scales = "free_x") + 
-#   theme_classic() +
-#   scale_color_viridis(discrete = T,
-#                       alpha = 0.5) +
-#   guides(color = F) +
-#   labs(x = "Tree height (m)",
-#        y = "Height to live crown (m)") +
-#   theme(strip.text = element_text(size = 16),
-#         axis.text = element_text(size = 16),
-#         axis.title = element_text(size = 20),
-#         plot.margin = margin(t = 10, r = 10, b = 10, l = 10))
-# p1
+#Plot faceted by which tree type (regen and mature) the dataset applies to
+p1 <- ggplot(x2, aes(x = HEIGHT, y = HT_BRCH)) +
+  geom_point(aes(color = CLSTR_ID)) +
+  geom_smooth(method="lm",
+              aes(group = CLSTR_ID, color = CLSTR_ID), se = FALSE) +
+  geom_smooth(method = "lm", color = "darkblue", linetype = "dashed",
+              se = FALSE) +
+  facet_wrap(~tree_type,
+             scales = "free_x") +
+  theme_classic() +
+  scale_color_viridis(discrete = T,
+                      alpha = 0.5) +
+  guides(color = F) +
+  labs(x = "Tree height (m)",
+       y = "Height to live crown (m)") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 20),
+        plot.margin = margin(t = 10, r = 10, b = 10, l = 10))
+p1
 
 #Plot just of the dataset used to fit models for mature component
 p2 <- ggplot(t_psp_m, aes(x = HEIGHT, y = HT_BRCH)) + 
@@ -626,8 +632,12 @@ p2 <- ggplot(t_psp_m, aes(x = HEIGHT, y = HT_BRCH)) +
   theme(text = element_text(family = "Times New Roman"),
         axis.text = element_text(size = 12),
         axis.title = element_text(size = 12, face = "bold"))
+p2
 
 #Export
+##Note: Only crown volume estimates for mature component ended up getting used
+##thesis. They feed into the seed load proxy. That is why the mature component
+##is plotted individually and exported as a figure. 
 # ggsave(here("./figures/htlc_ht.svg"), plot = p2, width = 5, height = 3.5,
 #          units = "in", device = "svg")
 ```
@@ -820,8 +830,8 @@ cv_l <- cv_l %>%
   mutate(CL = HEIGHT - HT_BR)
 
 #Look at summary of crown length by crown class, does this make sense?
-cv_l %>% group_by(crown_class_2) %>% 
-  summarise(mean_cl = mean(CL), min_cl = min(CL), 
+cv_l %>% group_by(tree_type, crown_class_2) %>% 
+  summarise(mean_ht = mean(HEIGHT), mean_cl = mean(CL), min_cl = min(CL), 
             max_cl = max(CL), sd_cl = sd(CL))
 ```
 
@@ -836,14 +846,14 @@ n_site <- c(nrow(v_psp_r), nrow(v_psp_m))
 #Sample size
 n_obs <- c(nrow(t_psp_r), nrow(t_psp_m))
 
-#Mean and range of top height, psp dataset
+#Mean and range of average codom/dom Hw height, psp dataset
 mean_tht_psp <- c(mean(v_psp_r$tht), mean(v_psp_m$tht))
 range_tht_psp <- c(paste0("[", round(min(v_psp_r$tht), 1), "-", 
                      round(max(v_psp_r$tht), 1), "]"),
                paste0("[", round(min(v_psp_m$tht), 1), "-", 
                      round(max(v_psp_m$tht), 1), "]"))
 
-#Mean and range of top height, hdm dataset
+#Mean and range of average codom/dom Hw height, hdm dataset
 mean_tht_hdm <- c(mean(cv$ht_r_C), mean(cv$ht_m_C))
 range_tht_hdm <- c(paste0("[", round(min(cv$ht_r_C), 1), "-", 
                      round(max(cv$ht_r_C), 1), "]"),
@@ -931,8 +941,7 @@ tbl_mat_m <- tbl_mat_m %>%
 
 #Crown volume
 ##Do the calcualtions
-Estimate crown volume with equations from: 
-Marshall, David D, Gregory P Johnson, and David W Hann. ‘Crown Profile Equations for Stand-Grown Western Hemlock Trees in Northwestern Oregon’. Canadian Journal of Forest Research 33, no. 11 (1 November 2003): 2059–66. https://doi.org/10.1139/x03-126.
+Estimate crown volume with equations from Marshall et al. (2003)
 
 Variable naming corresponds to the variables used in their paper (Table 1)
 ```{r}
@@ -1151,7 +1160,7 @@ ggplot(x, aes(x=CW_2, y = h_seq, colour = crown_class_2)) +
   lims(x=c(-4, 4))
 ```
 
-##Export
+#Export
 Export a dataset of crown volume variables
 ```{r}
 #Select variables
@@ -1175,22 +1184,41 @@ cv_export <- cv_l %>% select(site_id,
                              CV_m,
                              CV_u)
 
-#Rename HEIGHT, mean_dbh because there are similar variables in the tree 
-#dataset already. Don't want to confuse with them. 
-cv_export <- cv_export %>% rename(height_cv_est = HEIGHT,
-                                  dbh_cv_est = mean_dbh)
+#Rename the variables to match the style of the tree dataset. The CAPS 
+#above was to make it easy to cross reference with crown volume eqns. in 
+#Marshall et al. (2003) but this will make the tree dataset cleaner. 
+cv_export <- cv_export %>% rename(cv_height = HEIGHT,
+                                  cv_dbh = mean_dbh,
+                                  cv_ht_br = HT_BR,
+                                  cv_cl = CL,
+                                  cv_cr = CR,
+                                  cv_mcw = MCW,
+                                  cv_lcw = LCW,
+                                  cv_dacb = DACB,
+                                  cv_hlcw = HLCW,
+                                  cv = CV,
+                                  cv_l = CV_l,
+                                  cv_m = CV_m,
+                                  cv_u = CV_u)
 
 #Write csv
 # write_csv(cv_export, here("./data/workflow/crown_vol.csv"))
 
+####
 #Next, join the crown volume data back to the tree level dataset
+
 #Add a variable to cv_export that identifies them as Hw
 cv_export <- cv_export %>% mutate(spp = "Hw")
 t_hdm_export <- t_hdm %>%
   left_join(cv_export, by = c("site_id", "tree_type", "spp", "crown_class_2"))
 
+#Move the columns so its a bit neater. 
+t_hdm_export <- t_hdm_export %>% 
+  relocate(crown_class_2, .after = crown_class) %>% 
+  relocate(starts_with("cv"), .before = notes)
+
 #Export this:
-write_csv(t_hdm_export, here("./data/workflow/trees_cv.csv"))
+# write_csv(t_hdm_export, here("./data/workflow/trees_cv.csv"))
 ```
 
 ##Make summary table for thesis
@@ -1211,8 +1239,8 @@ variables
 #will give us the structure we want in the final table. 
 tbl_cv <- cv_export %>% 
   group_by(tree_type, crown_class_2) %>% 
-  select(tree_type, crown_class_2, dbh_cv_est, height_cv_est, HT_BR, 
-         LCW, starts_with("CV")) %>% 
+  select(tree_type, crown_class_2, cv_dbh, cv_height, cv_ht_br, 
+         cv, cv_l, cv_m, cv_u) %>% 
   summarise(across(everything(), list(
     median = ~median(.),
     min = ~min(.),
@@ -1223,7 +1251,7 @@ tbl_cv <- cv_export %>%
 ht_fac <- c(1, htr_ci_m, htr_cs_m, 1, htr_ci_r, htr_cs_r)
 tbl_cv$ht_fac <- ht_fac 
 tbl_cv <- tbl_cv %>%
-  relocate(ht_fac, .before = height_cv_est_median)
+  relocate(ht_fac, .before = cv_height_median)
 
 #Rearrange so regen component is displayed first, in keeping with how I've been
 #doing this so far
@@ -1233,4 +1261,3 @@ tbl_cv <- tbl_cv %>%
 #Export this
 # write_csv(tbl_cv, here("./tables/tbl_cv.csv"))
 ```
-

@@ -29,8 +29,9 @@ counts are averaged across the three transects at a site, then used to generate
 a corresponding number of points to fill the area on each transect between its 
 end and 50m.
 
-This script starts with the output object from the stem map script (stem map.R).
-The output feeds into the script to estimate crown volume (crown volume.Rmd)
+This script starts with the output object from the script that defines
+DMR (02_define_dmr.R). The output feeds into the script to estimate crown 
+volume (03_crown_volume.Rmd).
 ##############
 
 ```{r}
@@ -40,7 +41,6 @@ library(here)
 library(sf)
 library(tmap)
 ```
-
 
 #Read in data
 ```{r}
@@ -73,17 +73,12 @@ str(transect)
 
 ####Dataset 3: main tree dataset
 #Read in the tree data
-trees <- read_csv(here("data/workflow/trees_mapped.csv"),
-                  col_types = cols(
-                    outside_10 = col_character(),
-                    assessed_by = col_character()
-                  ))
+trees <- read_csv(here("data/workflow/trees_dmr.csv"))
 
 #Convert factor vars to factors: 
 trees <- trees %>% mutate(across(
   c(site_id, spp, status, hdm_pa, b_lc, 
-    broom_pa, broom_pos, stem_pa, crown_class, crown_cond, outside_10, 
-    assessed_by, tree_type, dmr_f),
+    broom_pa, broom_pos, stem_pa, crown_class, crown_cond, tree_type, dmr_f),
   ~as.factor(.)))
 
 #Convert plot_id and dmrs to integers
@@ -184,7 +179,7 @@ length(levels(regen$crown_class)) # 5 crown class levels
 live <- regen %>% 
   filter(status %in% c("LS", "LL", "LF"))
 dead <- regen %>% 
-  filter(status %in% c("RD", "DS", "SN"))
+  filter(status %in% c("DS", "SN"))
 
 #Redefine status and crown class in both datasets. 
 #This should remove "-" crown class level for livetrees and set "-" as the 
@@ -285,7 +280,7 @@ The output of the last section is a dataframe that has all combinations of spp,
 status and crown class for all transects; for each of these rows, it has a 
 column that indicates how many trees need to be simulated in each case. The next step is to expand that count to an actual dataframe of simulated trees. 
 
-Write a function that takes each row in the dataframe, and creates a the 
+Write a function that takes each row in the dataframe, and creates the 
 corresponding number of trees. 
 ```{r}
 #Input data: dataframe described above
@@ -318,7 +313,7 @@ f_sim_trees <- function(df) {
         }  else {
         rep(dbh_mean, n_stem_sim)
       },
-        dist_x = sample(seq(-2.5, 2.5, by=0.1), n_stem_sim, replace = TRUE),
+        dist_x_tr = sample(seq(-2.5, 2.5, by=0.1), n_stem_sim, replace = TRUE),
         dist_y_h = sample(seq(tr_leng, 50, by = 0.1), n_stem_sim, replace = TRUE)))) %>%
     unnest(sim_trees)  # Unnest the simulated data into rows
 }
@@ -358,7 +353,7 @@ ggplot(x, aes(x = transect_id, y = dist_y_h)) +
              size = 10)
 
 ##X distance, limits = -2.5 an 2.5
-ggplot(sim_trees, aes(x = transect_id, y = dist_x)) + 
+ggplot(x, aes(x = transect_id, y = dist_x_tr)) + 
   geom_point() + 
   scale_y_continuous(limits = c(-3, 3)) +
   geom_hline(yintercept = c(-2.5, 2.5), colour = "red", linetype = 2)
@@ -370,31 +365,28 @@ Need to do two things:
 (2) map the points from the transect starts
 
 ```{r}
-#First see which columns are in the measured data that aren't in the simulated
-#data
+#First see which columns are different between measured and simulated data
 setdiff(names(trees), names(sim_trees))
 
-#Variables that need  values: 
-##X, Y, plot_x_utm, plot_y_utm, will get value in funtion that maps these to coordinates
+#Variables in simulated data that need values: 
 ##tree_id, assign as ascending from s1 to sx (x=total num of simulated trees)
-##plot_id, rename transect_id plot_id
-##all hdm variables, given values corresponding to no infection
+##dist_sm, distance for stem mapping, calculated below
+##az_sm_dc, azimuth for stem mapping, calculated below
+##x_utm, y_utm (i.e. the coordinates of the trees), calculated below
+##plot_id, rename transect_id to plot_id
+##all hdm variables, give values corresponding to no infection below
 ##tree_type, all regen
 
 #Variables that can be left NA:
 ##flag_id
-##dist_y, slope distance, we don't need it
-##height_m
-##dam_agent
-##path_ind
+##dist_y_tr, slope distance, we don't need it
+##az_sm
+##declination
 ##crown_cond
-##assessed_by
-##ht_corr
-##Dec
-##corr_az_deg
-##tr_az
-##tr_area_ha
-##phf_tr
+##height
+##path_ind_1 and path_ind_2
+##dam_agent_1 and dam_agent_2
+##notes
 
 #Create tree id
 sim_trees <- sim_trees %>% 
@@ -418,7 +410,7 @@ sim_trees <- sim_trees %>%
 ##If spp != Hw or Ba, hdm_pa = "-", all other factors are "-" and dmrs are NA
 x1 <- sim_trees %>% 
   filter(spp %in% c("Hw", "Ba") &
-           status %in% c("LS", "LL", "LF", "RD")) %>% 
+           status %in% c("LS", "LL", "LF")) %>% 
   mutate(hdm_pa = "N",
          b_lc = "-",
          dmr_l = 0,
@@ -523,16 +515,16 @@ sim_trees <- left_join(sim_trees, x, by = join_by(plot_id == transect_id))
 
 ##Calculate distance
 sim_trees <- sim_trees %>% 
-  mutate(dist_m = (dist_x^2 + dist_y_h^2)^(0.5))
-summary(sim_trees$dist_m)
+  mutate(dist_sm = (dist_x_tr^2 + dist_y_h^2)^(0.5))
+summary(sim_trees$dist_sm)
 
 ##Calculate angle adjustment relative to transect azimuth:
 sim_trees <- sim_trees %>% 
-  mutate(az_adj = atan(dist_x/dist_y_h)*(180/pi))
+  mutate(az_adj = atan(dist_x_tr/dist_y_h)*(180/pi))
 
 ##Calculate actual azimuth (0-360 deg)
 sim_trees <- sim_trees %>% 
-  mutate(corr_az_deg = (tr_az + az_adj)%%360)
+  mutate(az_sm_dc = (tr_az + az_adj)%%360)
 
 #Add the transect start coordinates from the trimb object
 x <- trimb %>% 
@@ -545,7 +537,7 @@ crs <- 3005
 # Run the function. Need to set azimuth, distance, xcenter, ycenter equal to 
 #variable names
 sim_trees <- sim_trees %>%
-  mutate(polar_to_XY(azimuth = corr_az_deg, distance = dist_m,
+  mutate(polar_to_XY(azimuth = az_sm_dc, distance = dist_sm,
                      xcenter = plot_x_utm, ycenter = plot_y_utm, crs = crs,
                      shape_file = TRUE))
 
@@ -562,8 +554,8 @@ tmap_mode("plot") +
 
 #Extract the coordinates as columns called X and Y
 sim_trees <- sim_trees %>%
-  mutate(X = st_coordinates(.)[,1],
-         Y = st_coordinates(.)[,2])  
+  mutate(x_utm = st_coordinates(.)[,1],
+         y_utm = st_coordinates(.)[,2])  
 
 # Convert to a dataframe (drop the geometry)
 sim_trees <- st_drop_geometry(sim_trees)
@@ -578,10 +570,10 @@ setdiff(names(trees), names(sim_trees))
 
 #Look at which columns are in the simulated data that aren't in the measured
 #data. 
-#Just one column created in data processing. Drop it. 
+#Just data processing columns. Drop them. 
 setdiff(names(sim_trees), names(trees))
 sim_trees <- sim_trees %>% 
-  select(-az_adj)
+  select(-c("tr_leng", "tr_az", "az_adj", "plot_x_utm", "plot_y_utm"))
 
 #Add columns to sim_trees and set NA so it aligns with trees
 missing_cols <- setdiff(names(trees), names(sim_trees))
@@ -613,8 +605,13 @@ trees <- trees %>%
     tree_type == "regen" & sim_tree == "N" ~ "meas regen",
     tree_type == "mature" ~ "mature"))
 
+#Move the tree_type_2 variable and the variable that identifies simulated trees
+#next to the tree_type column for data neatness
+trees <- trees %>% 
+  relocate(c(tree_type_2, sim_tree), .after = tree_type)
+
 #Convert trees object to sf object
-trees_sf <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+trees_sf <- st_as_sf(trees, coords = c("x_utm", "y_utm"), crs = 3005)
 
 #Plot points, coloured by tree_type_2
 tmap_mode("plot") +
