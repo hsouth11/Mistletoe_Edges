@@ -8,41 +8,44 @@ output: html_document
 READ ME
 This script estimates seed load = a proxy for the amount of HDM seed that is 
 hitting a given target tree. There are three pieces in the script: (1) seed 
-production is estimated by combining DMR and crown volume
-estimates, (2) the proportion of a trees seed production that hits a given 
-distance from the tree stem is estimated with a seed dispersal function and (3) 
-pairs of source and target trees at each site are defined and interception
-between them is estimated. These three pieces are combined to estimate 
-seed load. 
+production is estimated by combining DMR and crown volume estimates, (2) the 
+proportion of a trees seed production that hits a given distance from the tree 
+stem is estimated with a seed dispersal function and (3) pairs of source and 
+target trees at each site are defined and interception between them is 
+estimated. These three pieces are combined to estimate seed load. 
 
-Right now, only live Hw are considered source and target trees. Future versions
+Only live Hw are considered source and target trees. Future versions/research
 could find a way to consider dead trees and Amabalis fir, the other HDM host,
 which was only present in significant amounts at one site (ph_2). 
 
-This script start with the output of the 'crown volume.Rmd' script 
+This script starts with the output of the '04_crown_volume.Rmd' script 
 (trees_cv.csv) and produces the 'trees_sl.csv' object, which feeds into the 
-analysis scripts ('modelling.Rmd' and 'site level analysis.Rmd'). 
-
-LIST OF POTENTIAL IMPROVEMENTS/FUTURE WORK
-- Is multiplying DMR x crown volume the best approach? Look at how they combine
-dmr and crown volume in Robinson model
-- Adapt dispersal function to operate at the crown third level. E.g. start 
-exponential decay function at edge of crown at the base or middle of each crown 
-third
-- Need to trial multiple versions of interception workflow that differ in the 
-width of the path used to find intercepting trees and the factors that 
-reduce the seed load value
-- Trial some analysis pathways that include dead trees
-- Include Amabalis fir as source trees (ph_2 site)
+analysis scripts ('08_ordinal_regression.Rmd' and 
+'06_exploratory_analysis.Rmd'). 
 
 REFERENCES
 Smith, Richard B. ‘Hemlock and Larch Dwarf Mistletoe Seed Dispersal’. The Forestry Chronicle 42, no. 4 (1 December 1966): 395–401. https://doi.org/10.5558/tfc42395-4.
+- Data from this paper used to generate seed dispersal function
 
 Bloomberg, W. J., R. B. Smith, and A. Van Der Wereld. ‘A Model of Spread and Intensification of Dwarf Mistletoe Infection in Young Western Hemlock Stands’. Canadian Journal of Forest Research 10, no. 1 (1 March 1980): 42–52. https://doi.org/10.1139/X80-008.
+- Results from this paper informed interception factors
+
+Robinson, D. C. E., & Geils, B. W. (2006). Modelling dwarf mistletoe at three scales: Life history, ballistics and contagion. Ecological Modelling, 199(1), 23–38. https://doi.org/10.1016/J.ECOLMODEL.2006.06.007
+- This is the process based, dwarf mistletoe model that is integreated into 
+FVS. It informed much of this script, acting as a sort of conceptual modelling
+framework. 
 ##############
 
+#Prep
+Load required packages
 ```{r, echo=FALSE}
-#Load packages
+#Unload loaded packages in R session
+library(pacman)
+p_loaded()
+p_unload(p_loaded(), character.only = T)
+
+#Load packages used in this script. Unloading then loading avoids potential
+#package conflicts
 library(tidyverse)
 library(here)
 library(sf)
@@ -58,7 +61,7 @@ Read in and format the data
 rm(list = ls(all = TRUE))
 
 #Dataset 1: hdm tree data
-#This version of the trees dataset comes from the crown_volume.Rmd script and
+#This version of the trees dataset comes from the 04_crown_volume.Rmd script and
 #has crown volume estimates for live standing Hw trees in it
 trees <- read_csv(here("./data/workflow/trees_cv.csv"))
 class(trees)
@@ -67,19 +70,22 @@ summary(trees)
 #Sort by site_id
 trees <- trees %>% arrange(site_id)
 
-# Convert to factor: spp, status, hdm_pa, b_lc, broom_pa, broom_stem, crown class, crown_cond, outside_10
-trees <- trees %>% mutate(across(c(site_id, spp, status, hdm_pa, b_lc, broom_pa, 
-                                   broom_pos, stem_pa, crown_class, crown_cond,
-                                   outside_10, assessed_by, tree_type, 
-                                   dmr_f), ~ as.factor(.)))
+#Convert factor variables to factors
+trees <- trees %>% mutate(across(
+  c(site_id, tree_type, tree_type_2, sim_tree, spp, status, crown_class,
+    crown_class_2, crown_cond, hdm_pa, dmr_f, b_lc, broom_pa, broom_pos, 
+    stem_pa),
+  ~as.factor(.)))
 
-#Convert to integer: plot_id, dmrs
+#Convert to integer variables to integers
 trees <- trees %>% mutate(across(
   c(plot_id, dmr_l, dmr_m, dmr_u, dmr), ~as.integer(.)))
-str(trees) #check
+
+#Check data formatting
+str(trees)
 
 #Dataset 2: seed dispersal data from Smith (1966)
-smith <- read_csv(here("./data/raw/seed_disp_smith1966.csv"))
+smith <- read_csv(here("./data/cleaned/seed_disp_smith1966.csv"))
 str(smith)
 ```
 
@@ -97,9 +103,9 @@ hw <- trees %>% filter(spp == "Hw" &
 t_dmr <- hw %>% select(tree_id, dmr_l, dmr_m, dmr_u) %>% 
   pivot_longer(cols = starts_with("dmr"), names_to = "ct", 
                names_prefix = "dmr_", values_to = "dmr_ct")
-t_cv <- hw %>% select(tree_id, CV_l, CV_m, CV_u) %>% 
-  pivot_longer(cols = starts_with("CV"), names_to = "ct", 
-               names_prefix = "CV_", values_to = "cv_ct")
+t_cv <- hw %>% select(tree_id, cv_l, cv_m, cv_u) %>% 
+  pivot_longer(cols = starts_with("cv"), names_to = "ct", 
+               names_prefix = "cv_", values_to = "cv_ct")
 t <- t_dmr %>% left_join(t_cv, by = c("tree_id", "ct"))
 
 #Create a proxy for seed production by crown third by multiplying dmr and 
@@ -126,19 +132,19 @@ trees %>% select(spp, sp) %>%
 ```
 
 #Seed dispersal
-Define function for seed dispersal
-```{r}
-#Goal is to create a function that models the portion of seed originating from
-#a tree crown that is deposited a given distance away
-#The proportion of seed curve is modeled in two intervals - (1) from the crown
-#base to the edge of the crown (=dripline) and (2) beyond the crown. It if fit 
-#to match from Smith (1966), who measured seed deposition as a function of 
-#distance from a tree stem. Within the dripline, the proportion of seed is 
-#assumed constant - approx. 38% of the total seed production value, 
-#irrespective of where you are in the interval. Beyond the dripline, the 
-#proportion of seed follows an exponential decay function. 
-#################################
+Define function for seed dispersal.
 
+Goal is to create a function that models the portion of seed originating from
+a tree crown that is deposited a given distance away from that crown. This
+proportion is modeled with separate functions for two intervals:
+(1) from the stem to the edge of the crown (=dripline) 
+(2) beyond the dripline
+It if fit to match from Smith (1966), who measured seed deposition as a 
+function of distance from a tree stem. Within the dripline, the proportion of 
+seed is assumed constant - approx. 38% of the total seed production value, 
+irrespective of where you are in the interval. Beyond the dripline, the 
+proportion of seed follows an exponential decay function. 
+```{r}
 #Starting with the Smith (1966) data
 head(smith)
 str(smith)
@@ -190,7 +196,7 @@ ggplot(smith, aes(x=dist_m, y = p_seed, colour = yr)) + geom_point()
 ##N0 is the initial amount of something
 ##x is the variable over which change occurs, usually time but in our case 
 ##distance
-##lamda is the constant that controld the rate of decay. Bigger lambda, decays
+##lamda is the constant that controls the rate of decay. Bigger lambda, decays
 ##faster. 
 
 #Summarize the mean of the two years
@@ -252,14 +258,18 @@ ggplot(smith3, aes(x=dist_m_ed, y = p_seed, colour = source)) +
   geom_point() + geom_smooth()
 
 #Use l2 as a compromise
+```
 
-#Define a function to be applied to hdm data
-##sl: seed load (the output variable of the function)
+Define a function to be applied to hdm data
+```{r}
+##p_seed: proportion of seed originating from a tree crown that reaches a given
+##distance(the output variable of the function)
 ##sp: seed production of the source tree in a given tree pair. This is 
 ##calculated above for each tree. 
 ##dist_m_ed: distance between a tree pair zeroed on the crown width of the 
-##source tree (e.g. if the largest crown width (LCW) of the sources tree is 
-## 5m and the distance between the tree pair is 10m, dist_m_ed = 10-5)
+##source tree (e.g. if the largest crown width (lcw) of the sources tree is 
+## 5m and the distance between the tree pair is 10m, dist_m_ed = 10-5 = 5)
+
 f_p_seed <- function(dist_m_ed){
   #[1] Define seed load in first interval: between tree stem and crown edge
   if(dist_m_ed <= 0) {
@@ -318,12 +328,12 @@ p1
 
 #Interception function
 Workflow generally looks like: 
-(1) find all pairs of Hw trees within 25m of each other, 
-(2) separate into regen-mature and regen-regen pairs, (3) draw lines, then 
-polygons between them to approximate the path of a seed, (4) intersect those 
-paths with the rest of the trees at a site and (5) count the number of 
-intersecting trees according to some rules to approximate interception. 
-Interception estimates come from Bloomberg et al. (1980). 
+(1) find all pairs of Hw trees within 25m of each other 
+(2) separate into regen-mature and regen-regen pairs 
+(3) draw lines between each pair to approximate the path of a seed
+(4) draw polygons from these lines identify trees that might intercept seed 
+(5) calculate the cumulative intersection from these trees using rules based
+on results in Bloomberg et al. (1980)
 
 ##Build function step by step
 Start by defining a small test area within one of the sites and developing the
@@ -333,8 +343,8 @@ seed load.
 
 ###Define the test area
 ```{r}
-#We are primarily interested in the seed load from mature trees on regen trees.
-#Seed load between regen trees is also included
+#We are primarily interested in the seed load from mature trees on regen trees
+#but seed load between regen trees is also included
 #Seed load from regen trees on mature trees isn't considered (and is 
 #probably negligible)
 
@@ -348,17 +358,18 @@ seed load.
 ## [tree1 = regen, tree2 = regen tree]
 
 #How is interception calculated
-## Only trees in the same component can intercept;
-## Crown_class_2 is used to define interception rules;
+## Only trees in the same component (regen or mature) can intercept;
+## crown_class_2 (which treats codominant and dominant trees as a single class) 
+## is used to define interception rules;
 ## Factors are the proportion of seed production blocked by an intercepting 
 ## tree. Bloomberg et al. (1980) estimates 90% of seed is blocked by an 
 ## intervening tree in the same canopy class. So we are going to use 0.9 for 
 ## trees in the same canopy class and 0.45 for trees in a lower canopy class
 ## as a starting place. The functions are defined with named variables 
-## (icpt_f1 and icpt_f2) so that we can test different factors to see what 
-## gives the best predictions.
+## (icpt_f1 and icpt_f2) so that different interception factors could 
+## theoretically be tested.
 
-#FACTOR RULES
+#Factor rules
 ## For tree1=regen, tree2=mature:
 ### if tree2 is C, C and I (but to a lesser extent) can intercept
 ##### C factor = 0.9, I factor = 0.45
@@ -375,20 +386,15 @@ seed load.
 ### if tree2 is S, C, I and S can intercept
 ##### C factor = 0.9, I factor = 0.9, S factor = 0.9
 
-#How dead trees are considered:
-##In first iteration, they aren't. Dead trees removed from seed load 
-##calculations. 
+#How dead trees are treated:
+## They aren't. Dead trees removed from seed load calculations. 
 
 #Convert trees object to a spatial (sf) object
-#Coordinates are called X and Y
+#Coordinates variables are called: x_utm, y_utm
 #CRS BC Albers NAD83 = 3005
-trees_sf <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+trees_sf <- st_as_sf(trees, coords = c("x_utm", "y_utm"), crs = 3005)
 #check CRS
 st_crs(trees_sf)
-
-#Filter the mature trees from the dataset that were beyond the 10m boundary 
-#used across all sites. 
-trees_sf <- trees_sf %>% filter(outside_10 == "N" | is.na(outside_10))
 
 #Pull out a small area from one site to use as a test piece
 #Start by subsetting to a site and plotting it
@@ -403,24 +409,26 @@ test <- mi_1 %>%
   filter((x_utm < 1264055 & x_utm > 1264030) & 
            (y_utm < 476900 & y_utm > 476875))
 
-#Plot so we can see what we are working with
+#Make some initial plots so we can see what we are working with
 tmap_mode("plot") + tm_shape(test) + 
   tm_symbols(col = "spp", shape = "tree_type") + tm_text("tree_id") + 
   tm_grid()
 tmap_mode("plot") + tm_shape(test) + 
   tm_symbols(col = "crown_class_2", shape = "tree_type") + 
   tm_text("tree_id") + tm_grid()
+```
 
-#SOME CODE FOR CREATING A LEGEND BACKGROUND IF I GET TO IT FROM CHATGPT
+Create some rectangles that act as the backgrounds to legends throughout the
+plots that follow. 
+```{r}
 #Create some rectangles for legends
-
 #For plot that shows whole site, with test area used in rest of figure (p2)
 xmin <- 1264030  # Left boundary (Easting)
 xmax <- 1264060  # Right boundary (Easting)
 ymin <- 476910 # Bottom boundary (Northing)
 ymax <- 476925 # Top boundary (Northing)
 
-# Create the polygon
+#Create the polygon
 p2_leg_bg <- st_sfc(st_polygon(list(matrix(
   c(xmin, ymin,
     xmax, ymin,
@@ -430,10 +438,10 @@ p2_leg_bg <- st_sfc(st_polygon(list(matrix(
   ncol = 2, byrow = TRUE))),
   crs = 3005)  # Set your UTM zone CRS (example: UTM zone 33N)
 
-# Convert to sf object
+#Convert to sf object
 p2_leg_bg <- st_sf(geometry = p2_leg_bg)
 
-# Plot in tmap
+#Plot in tmap
 tmap_mode("plot") + 
   tm_shape(mi_1) + 
     tm_symbols() + 
@@ -448,7 +456,7 @@ xmax <- 1264040  # Right boundary (Easting)
 ymin <- 476893 # Bottom boundary (Northing)
 ymax <- 476901 # Top boundary (Northing)
 
-# Create the polygon
+#Create the polygon
 ptest_leg_bg <- st_sfc(st_polygon(list(matrix(
   c(xmin, ymin,
     xmax, ymin,
@@ -458,10 +466,10 @@ ptest_leg_bg <- st_sfc(st_polygon(list(matrix(
   ncol = 2, byrow = TRUE))),
   crs = 3005)  # Set your UTM zone CRS (example: UTM zone 33N)
 
-# Convert to sf object
+#Convert to sf object
 ptest_leg_bg <- st_sf(geometry = ptest_leg_bg)
 
-# Plot in tmap
+#Plot in tmap
 tmap_mode("plot") + 
   tm_shape(test) + 
     tm_symbols(col = "crown_class_2", shape = "tree_type") + 
@@ -501,7 +509,6 @@ p2
 #Subset the dataset to live Hw trees
 hw <- test %>% filter(spp == "Hw" &
                            status %in% c("LS", "LF", "LL"))
-dim(hw) #Number of pairs is number of rows^2
 
 #Save row number as a variable
 hw$row <- as.integer(row.names(hw))
@@ -555,7 +562,7 @@ pairs <- pairs %>%
 #Filter based on the rules of pairs (above)
 ##Filter out rows where tree1 and tree2 are the same
 pairs <- pairs %>% filter(tree1 != tree2)
-dim(pairs)
+dim(pairs) #650 pairs
 
 ##Filter to pairs we are going to consider
 ##regen-mature pairs and regen-regen pairs on same transect
@@ -563,12 +570,12 @@ pairs <- pairs %>%
     filter((pair_type == "r-m") | 
            (pair_type == "r-r" &
               t1_pid == t2_pid))
-dim(pairs)
+dim(pairs) #175 pairs
   
 ##Filter out cases where sp = 0
 pairs <- pairs %>% 
   filter(sp>0)
-dim(pairs)
+dim(pairs) #123 pairs
 
 ##Filter out trees in the same place (dist = 0)
 ##Use this object to calculate interception. Trees in same place have no 
@@ -577,10 +584,8 @@ dim(pairs)
 ##a lot to seed load (a tree forked with another is a major infection source). 
 ##So save the larger object with the dist_m=0 trees to join later. 
 pairs_icpt <- pairs %>% filter(dist_m > 0)
-dim(pairs_icpt)
-
-#Check how many pairs are left at this point
-dim(pairs_icpt) #123
+dim(pairs_icpt) #123 (just so happens there are no trees dist dist = 0 in the
+#test dataset)
 
 #Graph the test set again so we know what we are looking at
 tmap_mode("plot") + tm_shape(test) + 
@@ -597,7 +602,8 @@ tmap_mode("plot") + tm_shape(test) +
 #Each row in the dataset contains a unique pair
 #In these, (2,1) and (1,2) are considered unique, even though these are the 
 #same two trees. This is because directionality matters. In (2, 1) we are 
-#modelling seed moving from tree 1 to tree 2; in (1, 2) we are modelling seed #moving from tree 2 to tree 1. 
+#modelling seed moving from tree 1 to tree 2; in (1, 2) we are modelling seed 
+#moving from tree 2 to tree 1. 
 #Because of the filtering above, for regen-mature tree pairs, only one case
 #will be represented in the data (the case where tree 1 (target) is regen and 
 #tree 2 (source) is a mature tree). But for regen-regen pairs, there will be
@@ -605,6 +611,7 @@ tmap_mode("plot") + tm_shape(test) +
 #We are going to define potential interception trees based on the crown class 
 #of the source tree, so directionality matters for the interception component 
 #too.
+
 #Interception is calculated within a component (see rules above). So separate
 #out two sets of pairs [regen-mature] and [regen-regen] at outset
 pair_lines_rm <- pairs_icpt %>% 
@@ -889,17 +896,6 @@ Plot these objects to make sure they are working correctly.
 ##3 livestanding trees on path, 1 C Hw, 1 S Hw and 1 I non-Hw
 icpt_rm[39,] %>% select(starts_with("icpt"))
 
-##First, plot a path with just the intervening trees:
-tmap_mode("plot") + 
-  tm_shape(pair_fp_rm[39,]) + 
-    tm_polygons(alpha = 0.2, col = "darkblue") +
-  tm_shape(pair_lines_rm[39, ]) + 
-    tm_lines() +
-  tm_shape(test %>% slice(icpt_rm$intersect_indices[[39]])) + 
-    tm_symbols(col = "spp", shape = "crown_class_2") + 
-  tm_grid() 
-
-##Same plot but adding the pair that created the path
 tmap_mode("plot") + 
   #Path between pair (5m wide polygon)
   tm_shape(pair_fp_rm[39,]) + 
@@ -929,6 +925,7 @@ icpt_rr <- left_join(icpt_rr, x, by = c("t1_row", "t2_row"))
 #for reference
 icpt_f1 <- 0.9
 icpt_f2 <- 0.45
+
 #For [regen-mature pairs]
 icpt_rm <- icpt_rm %>% 
   mutate(
@@ -1042,13 +1039,13 @@ Still working with the test area, combine dispersal function, seed production an
 #decay function is used to estimate the proportion of seed. 
 
 #Add crown width of the source tree
-x <- trees %>% select(tree_id, LCW)
+x <- trees %>% select(tree_id, cv_lcw)
 pairs <- left_join(pairs, x, by = join_by(tree2 == tree_id))
-summary(pairs$LCW)
+summary(pairs$cv_lcw)
 
 #Define new distance variable: distance zeroed on the edge of the crown
 pairs <- pairs %>% 
-  mutate(dist_m_ed = dist_m - (LCW/2))
+  mutate(dist_m_ed = dist_m - (cv_lcw/2))
 
 #Check there are no NAs in sp
 any(is.na(pairs$sp))
@@ -1247,7 +1244,8 @@ p6 <- tmap_mode("plot") +
 p6
 ```
 
-###Combine panels for single thesis plot
+###Combine panels in a single plot
+For thesis
 ```{r}
 #Convert tmap objects to grobs that can be arranged with ggarrange
 p2_grob <- tmap_grob(p2)
@@ -1266,7 +1264,7 @@ p <- ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob, p6_grob,
 #        device = "svg", width = 6.5, height = 8, units = "in")
 ```
 
-###Combine panels for single thesis plot
+For defence
 ```{r}
 #Combine them in landscape orientation: 3 columns, 2 rows
 p <- ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob, p6_grob, 
@@ -1274,10 +1272,9 @@ p <- ggarrange(p1, p2_grob, p3_grob, p4_grob, p5_grob, p6_grob,
           font.label = list(size = 13, family = "Times New Roman",
                             face = "bold"))
 
-ggsave(here("./figures/sl_workflow_defence.svg"), plot = p,
-       device = "svg", width = 30, height = 15, units = "cm")
+# ggsave(here("./figures/sl_workflow_defence.svg"), plot = p,
+#        device = "svg", width = 30, height = 15, units = "cm")
 ```
-
 
 ##Interception across all sites
 Now recreate the example above but applied across all trees at all sites. 
@@ -1293,6 +1290,7 @@ Now recreate the example above but applied across all trees at all sites.
 ##source tree
 ##icpt_f2: interception factor 2, for trees in a lower canopy class than the 
 ##source tree, that only restrict some of the vertical space on a path
+
 f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
   #tree1 = target tree
   #tree2 = source tree
@@ -1300,7 +1298,7 @@ f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
   #Save site_id of the df
   site_id <- as.character(sf$site_id[1])
   
-  #Filter dataframe to live Hw and Ba trees
+  #Filter dataframe to live Hw trees
   hw <- sf %>% filter(spp == "Hw" &
                            status %in% c("LS", "LF", "LL"))
   dim(hw) #Number of pairs is number of rows^2
@@ -1693,15 +1691,12 @@ f_icpt <- function(sf, buffer, icpt_f1, icpt_f2) {
 ###Trial across three sites
 Try applying the function over another test set of three sites
 ```{r}
-#Redefine trees_sf object in case the cut block above wasn't run
+#Redefine trees_sf object in case the code block above wasn't run
 #Coordinates are called X and Y
 #CRS BC Albers NAD83 = 3005
-trees_sf <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+trees_sf <- st_as_sf(trees, coords = c("x_utm", "y_utm"), crs = 3005)
 #check CRS
 st_crs(trees_sf)
-
-#Filter the mature trees from the dataset that were beyond the 10m boundary used across all sites. 
-trees_sf <- trees_sf %>% filter(outside_10 == "N" | is.na(outside_10))
 
 #Subset to three sites, one from each cluster, then separate out each site
 #Resulting object is a list of dataframes
@@ -1781,12 +1776,9 @@ Scale up and apply function to entire HDM dataset
 #Redefine trees_sf object in case the cut block above wasn't run
 #Coordinates are called X and Y
 #CRS BC Albers NAD83 = 3005
-trees_sf <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+trees_sf <- st_as_sf(trees, coords = c("x_utm", "y_utm"), crs = 3005)
 #check CRS
 st_crs(trees_sf)
-
-#Filter the mature trees from the dataset that were beyond the 10m boundary used across all sites. 
-trees_sf <- trees_sf %>% filter(outside_10 == "N" | is.na(outside_10))
 
 #Separate out each site. Resulting object is a list of dataframes
 site_sf <- trees_sf %>% 
@@ -1853,14 +1845,14 @@ Calculate seed load from regen source trees and seed load from mature source
 trees separately and then together so both can be used in analysis. 
 ```{r}
 #Add crown width of the source tree to the pairs dataset
-x <- trees %>% select(tree_id, LCW)
+x <- trees %>% select(tree_id, cv_lcw)
 pairs <- left_join(pairs, x, by = join_by(tree2 == tree_id))
-summary(pairs$LCW)
+summary(pairs$cv_lcw)
 
 #Define new distance variable: distance zeroed on the edge of the crown
-#Crown width havled to get crown radius
+#Crown width halved to get crown radius
 pairs <- pairs %>% 
-  mutate(dist_m_ed = dist_m - (LCW/2))
+  mutate(dist_m_ed = dist_m - (cv_lcw/2))
 
 #Check there are no NAs in sp
 any(is.na(pairs$sp))
@@ -1998,9 +1990,6 @@ trees <- trees %>%
          sl_i_tot_all = sl_i_tot_rm + sl_i_tot_rr,
          sl_i_hw_all = sl_i_hw_rm + sl_i_hw_rr,
          sl_i_nh_all = sl_i_nh_rm + sl_i_nh_rr)
-
-#Done. Export this version of the trees object
-write_csv(trees, here("./data/workflow/trees_sl.csv"))
 ```
 
 ##Exploratory plots relating seed load to regen tree infection
@@ -2014,7 +2003,7 @@ x <- pivot_longer(trees,
 ggplot(x, aes(x = dist_y_h, y = sl, colour = sl_source)) + 
   geom_point()
 
-#Plot seed load of mature trees vs dmr
+#Plot seed load originating from mature source trees vs dmr
 #Looks sort of promising, there is a slight right trend
 x <- trees %>% 
   filter(tree_type == "regen" &
@@ -2033,12 +2022,12 @@ Variables:
   - Seed load with interception (regen-mat pairs)
   - Proportion intercepted (regen-mat pairs)
 Structure: rows = variables, columns = crown classes
+
+Only include seed load from mature source trees because we didn't incoporate 
+seed load from regen-regen pairs in modelling efforts
 ```{r}
 #Summarise seed production
-##Only do this for mature trees because we didn't incoporate seed load from
-##regen-regen pairs in our modelling efforts
-tbl_sp_sl <- trees %>% filter(is.na(outside_10) &
-                        spp == "Hw" & status %in% c("LS", "LL", "LF"))
+tbl_sp_sl <- trees %>% filter(spp == "Hw" & status %in% c("LS", "LL", "LF"))
 tbl_sp_sl <- tbl_sp_sl %>% group_by(tree_type, crown_class_2) %>% 
   summarise(sp_median = median(sp),
             sp_min = min(sp),
@@ -2103,141 +2092,12 @@ tbl_sp_sl <- tbl_sp_sl %>%
 # write_csv(tbl_sp_sl, here("./tables/sl_summary.csv"))
 ```
 
-
-#Extra code
-Version of seed dispersal function fitted with the gamma function
+##Export this final data frame
 ```{r}
-#Goal is to create a function that models the portion of seed originating from
-#a tree crown that is deposited a given distance away
-#The seed dispersal curve is modeled with the gamma function. It relates the 
-#proportion of seed dispersed to the distance from the tree
-#It's parameters have been adjusted to match data from Smith (1966), who 
-#measured seed deposition as a function of distance from a tree stem
+#Relocate columns for neatness
+trees <- trees %>% 
+  relocate(c(sp, starts_with("sl_")), .before = notes)
 
-#Chat GPTs description of how paramaeters affect the shape: 
-#Alpha = shape parameter
-##When alpha > 1, the distribution has a positive skew, starting from zero, 
-##increasing to a peak, and then decreasing.
-##When alpha = 1, the gamma distribution reduces to the exponential 
-#distribution.
-##When alpha < 1, the gamma distribution has a heavier tail, meaning higher 
-##probabilities for small values of d.
-##Generally, increasing alpha shifts the mode (peak) of the distribution to 
-#the right and makes the distribution more symmetric.
-
-#Beta = scale parameter
-##The beta parameter stretches or compresses the distribution along the 
-##horizontal axis. Larger values of beta spread the distribution over a 
-##wider range, while smaller values compress it.
-##Increasing beta shifts the peak to the right (values of d increase).
-
-#Define the function
-f_gamma <- function(d, alpha, beta) {
-  (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))}
-
-#The gamma values are probability density functions (= proportional to the 
-#density of values around that point). For us the actual value is meaningless, 
-#we will use proportions of the total probability over a given interval (=
-#the integral) because the biological value we are trying to model is
-#proportion of seed reaching a distance x
-#Define a function that integrates the gamma function over the defined interval
-#and normalize by this value
-f_int_gamma <- function(alpha, beta) {
-  integrate(f_gamma, lower = 0.1, upper = 20, 
-            alpha = alpha, beta = beta)$value
-}
-
-#First step is to fit the gamma function to the seed dispersal data from 
-#Smith (1966)
-#Create an dataframe with distance values from 0-20 at 0.1m intervals
-df <- tibble(dist_m = seq(0, 20, by=0.1))
-
-#Get estimates of gamma distributions with different values for alpha and beta
-#These are equivalent to the number of seeds per_m2 at each distance in the 
-#Smith data
-#Normalize the gamma estimates by the integral. This makes the estimates 
-#equivalent to the proportion of seed from a given tree at a distance x
-#I played with the alpha values to get them to match the shape of the Smith
-#data and then added a scale factor (2.5) to get the proportion to be about
-#equal
-df <- df %>% 
-  mutate(p_seed = f_gamma(d = dist_m, alpha = 2.5, beta = 1.25)*2.5/
-           f_int_gamma(alpha = 2.5, beta = 1.25),
-         source = "gamma")
-
-#Plot this
-ggplot(df, aes(x = dist_m, y = p_seed, color = source)) + 
-  geom_point()
-
-#Compare this to the values from Smith
-#Calculate proportion seed at a distance (x) for Smith data
-seed_total <- sum(smith$seed_m2)
-smith <- smith %>% mutate(p_seed = seed_m2/seed_total)
-
-#Subset to dist and p_seed and then bind to gamma dataframe
-x <- smith %>% select(dist_m, p_seed) %>% mutate(source = "smith")
-df <- rbind(df, x)
-
-##Plot
-ggplot(df, aes(x = dist_m, y = p_seed, colour = source)) + geom_point()
-
-#Define function for seed dispersal based on this fitting
-f_disp <- function(d) {
-  gamma <- f_gamma(d, alpha = 2.5, beta = 1.25)
-  scaled_gamma <- gamma*2.5
-  p_seed <- scaled_gamma/f_int_gamma(alpha = 2.5, beta = 1.25)
-  return(p_seed)
-  }
-#Example, proportion of seed produced deposited 5m away
-f_disp(5) #compare with last plot, makes sense
-
-#Kept this code because its interesting, tells you what x value the max value 
-#of a function occurs
-#maximum = distance where max occurs, objective = corresponding gamma value
-# optimize(gamma_function(d, alpha = 1, beta = 1), interval = c(0, 10), maximum = TRUE)
+#Done. Export this version of the trees object
+write_csv(trees, here("./data/workflow/trees_sl.csv"))
 ```
-
-Playing with the gamma function
-```{r}
-# Define the gamma function
-gamma_function <- function(d, alpha = 4, beta = 1.7) {
-  (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))}
-
-#Define a vector of distances to sample from
-x1 <- seq(0.1, 20, by=0.1)
-#Randomly sample 200 distance values from that vector
-d <- sample(x1, size = 200, replace = TRUE, prob = NULL)
-
-#Relate distance to a variable with the gamma distribution
-alpha <- 2
-beta <- 1
-gamma <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
-plot(d, gamma) 
-
-alpha <- 3
-beta <- 1
-gamma2 <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
-points(d, gamma2, col="firebrick")
-
-alpha <- 1
-beta <- 1
-gamma3 <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
-points(d, gamma3, col="orange")
-
-alpha <- 2
-beta <- 1.5
-gamma4 <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
-points(d, gamma4, col="blue")
-
-alpha <- 2
-beta <- 0.5
-gamma5 <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
-points(d, gamma5, col="lightblue")
-
-alpha <- 4
-beta <- 1.7
-gamma6 <- (d^(alpha - 1) * exp(-d / beta)) / (beta^alpha * gamma(alpha))
-points(d, gamma6, col="green") #winner! a
-
-```
-
