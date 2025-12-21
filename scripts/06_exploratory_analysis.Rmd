@@ -4,7 +4,6 @@ author: "Hanno Southam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-UPDATED: 13 Feb 2025
 ##############
 READ ME
 This script compares the 11 HDM study sites to eachother. 
@@ -23,9 +22,9 @@ high-level understanding if the infection sources are similar between sites.
 
 Section 4 compares HDM infection in the regen component between sites. 
 
-Summary tables and figures are created in each section for writing and 
-downstream analyses. The primary starting object for the script is the output
-of the 'seed load.Rmd' script (trees_sl.csv). 
+Summary tables and figures are created in each section. The primary starting 
+object for the script is the output of the '05_seed_load.Rmd' script 
+(trees_sl.csv). 
 
 References
 Barrett, T. M., Latta, G., Hennon, P. E., Eskelson, B. N. I., & Temesgen, H. (2012). Host–parasite distributions under changing climate: Tsuga heterophylla and Arceuthobium tsugense in Alaska. Canadian Journal of Forest Research, 42(4), 642–656. https://doi.org/10.1139/x2012-016
@@ -33,6 +32,13 @@ Barrett, T. M., Latta, G., Hennon, P. E., Eskelson, B. N. I., & Temesgen, H. (20
 
 #Load packages
 ```{r}
+#Unload loaded packages in R session
+library(pacman)
+p_loaded()
+p_unload(p_loaded(), character.only = T)
+
+#Load packages used in this script. Unloading then loading avoids potential
+#package conflicts
 library(tidyverse)
 library(here)
 library(RColorBrewer)
@@ -98,24 +104,20 @@ str(tran)
 
 ##Dataset 3: tree data
 #This contains data for each measured tree (mature and regen trees)
-#Using trees_sl object, which is the last trees object in the workflow
-#Treats assessed_by var as a logical for some reason and throws up an error. 
-#Not a problem and not going to use this var
 trees <- read_csv("data/workflow/trees_sl.csv")
 str(trees)
 summary(trees)
 
 #Convert factor vars to factors: 
 trees <- trees %>% mutate(across(
-  c(site_id, spp, status, hdm_pa, b_lc, 
-    broom_pa, broom_pos, stem_pa, crown_class, crown_cond, outside_10, assessed_by, tree_type, dmr_f),
+  c(site_id, tree_type, tree_type_2, sim_tree, spp, status, crown_class,
+    crown_class_2, crown_cond, hdm_pa, dmr_f, b_lc, broom_pa, broom_pos, 
+    stem_pa),
   ~as.factor(.)))
 
 #Convert plot_id and dmrs to integers
 trees <- trees %>% mutate(across(
   c(plot_id, dmr_l, dmr_m, dmr_u, dmr), ~as.integer(.)))
-
-str(trees)
 
 #Create new factor dmr variable that has fewer levels and ascends logically from healthy to most infected
 levels(trees$dmr_f)
@@ -142,29 +144,22 @@ trees <- left_join(trees, select(site, cluster, bec,
 #Join identical transect length measured at each site to tree data
 trees <- left_join(trees, select(tran, transect_id, tr_leng_s),
                    by = join_by("plot_id" == "transect_id"))
+
+#Check variables in tree data again
+str(trees)
 ```
 
 ##Subset data to objects for different comparisons
-There are a couple things we need to consider to ensure we are making fair 
-comparisons throughout this script: 
-(1) At a few sites we mapped mature trees up to 15m from the edge, when the 
-standard was 10m.
-(2) Regen transects are variable lengths (but constant within a site, with two
-exceptions).  
-(3) At two sites (mi_1) and (mk_3) the transect length within a site varied.
+There are a couple things that need to be considered to ensure that fair 
+comparisons are made in this script. We want to make sure that whenever we are 
+comparing two sites, we are comparing trees from equivalent areas. 
+(1) Regen transects varied in length between sites.  
+(2) At two sites (mi_1) and (mk_3) regen transect length varied within a site.
 
-We want to make sure that whenever we are comparing two sites, we are comparing
-trees from equivalent areas. 
+Before generating mmultiple data objects, also want to calculate common 
+variables to avoid repetitive work. 
 
-Deal with the first of these right off the bat by removing mature trees >10m 
-from the edge. 
-```{r}
-trees <- trees %>% filter(outside_10 =="N" | is.na(outside_10))
-```
-
-Calculate basal area (m^2) from dbhg. We will use this throughout the rest of 
-the script
-https://en.wikipedia.org/wiki/Basal_area
+Calculate basal area (m^2) from dbh. https://en.wikipedia.org/wiki/Basal_area
 ```{r}
 trees <- trees %>% mutate(ba_m2 = pi*((dbh/100)/2)^2)
 ```
@@ -281,11 +276,12 @@ Barrett et al. (2012). There is a particlar focus on precipitation because
 there seems to be relationship between cliamte and HDM spread in our data - 
 the wetter (Pacific Highway sites) had relatively lower inf levels than the 
 drier Campbell River cluster. 
+
+Read in climate data
 ```{r}
-####Read in climate data
 #Data downloaded from ClimateBC (https://climatebc.ca/mapVersion, 24 Jun 2024). ClimateBCv7.50. Period: Normal_1991_2020
 #Exception: cr_3 site, surveyed 17 Jul 2024, downloaded data 25 Aug 2024
-climate <- read_csv('./data/raw/hdm_sites_clim_data.csv') #raw data from climateBC
+climate <- read_csv('./data/cleaned/hdm_sites_clim_data.csv') #raw data from climateBC
 
 ####Check coordinates were inputted correctly, then join site_ids 
 #Sites are identified by coordinates in the climate dataset. Check they are right before joining site_ids
@@ -306,28 +302,32 @@ climate <- climate %>% select(site_id, cluster, bec, everything())
 levels(climate$bec)
 climate <- climate %>% 
   mutate(bec = factor(bec, levels = c("CWHvm2", "CWHvm1", "CWHdm-", "CWHxm2")))
+```
 
-#Define climate variables that were in Barrett et al. (2012)
-#Descriptions of these variables and whether they are exact matches or 
-#approximations of variables used in paper are in: 
-#/Users/hannosoutham/Library/CloudStorage/OneDrive-UBC(1)/Msc/Thesis/Ch1/
-#climate variable notes.docx
-
+Define climate variables that were in Barrett et al. (2012). All of these 
+variables have a link to HDM biology. Because Barret et al. (2012) used 
+different climate data from a different source (i.e., not ClimateBC or 
+ClimateNA), there are some cases where the variables defined here are not 
+exactly equivalent. However these are only meant to be qualitative comparisons
+so these inconsistencies are unlikely to be an issue. 
+```{r}
 #1 Growing degree days
+#Defined over the whole year and for the growing season (spring to autum)
 climate <- climate %>% rowwise() %>% mutate(DD5_gs = sum(c_across(DD5_sp:DD5_at)))
 select(climate, DD5, DD5_gs)
 
 #2 Growing season radians
+#Mean annual radiation also included
 climate <- climate %>% rowwise() %>% mutate(Rad_gs = mean(c_across(Rad_sp:Rad_at)))
 select(climate, MAR, Rad_gs)
 
 #3 Lowest average minimum monthly temperature (Tmin_wt)
-# find lowest Tmin value across all months
+# Find lowest Tmin value across all months
 climate <- climate %>% rowwise() %>% mutate(Tmin_all = min(c_across(Tmin_01:Tmin_12)))
 select(climate, Tmin_wt, Tmin_all)
 
 #4 Standard deviation of lowest average minimum monthly temperature  
-# calculate the standard deviation in Tmin across all of the months
+# Calculate the standard deviation in Tmin across all of the months
 climate <- climate %>% rowwise() %>% mutate(Tmin_sd = sd(c_across(Tmin_01:Tmin_12)))
 select(climate, Tmin_sd)
 
@@ -349,11 +349,11 @@ climate <- climate %>% rowwise() %>% mutate(Tmin_as = min(c_across(Tmin_08:Tmin_
 select(climate, Tmin_as)
 
 #Super. Filter the table to:
-##Variables 1-8 defined above
 ##General descriptors (MAT, TD, MAP)
+##Variables 1-8 defined above
 ##Monthly precipitation estimates, total and as snow 
-###David R. suggested presenting precipitation over season. The link to 
-###precip is that rain or snow can pull HDM seeds off of foliage. 
+###David R. (BC MoF collaborator) suggested presenting precipitation over season. 
+###The link to precip is that rain or snow can pull HDM seeds off of foliage. 
 climate <- climate %>% 
   select(site_id, cluster, bec, MAT, TD, MAP, PAR, PAS, DD5_gs, Rad_gs, 
          Tmin_all, Tmin_sd, Tmin_mj, Tmin_as, Prec_01:Prec_12, PAS_01:PAS_12) 
@@ -418,11 +418,11 @@ p <- ggplot(clim_g, aes(x=bec, y=climval, label=site_id, color = site_id)) +
        y = "Climate variable value",
        colour = "Site") +
   scale_color_manual(values = colors_site)
-
+p
 
 #Export this plot
-p <- ggsave(here("./figures/climate_vars.svg"), plot = p, device = "svg",
-        width = 6.5, height = 5, units = "in")
+# p <- ggsave(here("./figures/climate_vars.svg"), plot = p, device = "svg",
+#         width = 6.5, height = 5, units = "in")
 ```
 
 ##Explore monthly precipitation
@@ -478,17 +478,19 @@ p <- ggplot(mo_p2, aes(x = Month, y = pre_mm, fill = pre_type)) +
                                   face = "bold")) + 
   labs(x = "Month", y = "Precipitation (mm)", 
                                   fill = "Type")
+p
 
 #Export this plot
 # ggsave(here("./figures/monthly_precip.svg"), plot = p, device = "svg",
 #        width = 6.5, height = 5, units = "in")
+```
 
-#So there are some intuitive trends. The Pacific Highway sites are the wettest
-#and it seems like the winter months contribute most to this difference
-#Explore this a bit further. Calculate the difference between precip at a site
-#and average precip across all sites for each month. Do the winter months have
-#a larger difference?
-
+So there are some intuitive trends. The Pacific Highway sites are the wettest
+and it seems like the winter months contribute most to this difference
+Explore this a bit further. Calculate the difference between precip at a site
+and average precip across all sites for each month. Do the winter months have
+a larger difference? And do Pacific Highway sites have a larfer difference?
+```{r}
 #Calculate mean precip across sites for each month
 x <- mo_p %>% 
   group_by(Month) %>% 
@@ -516,11 +518,19 @@ p <- ggplot(mo_p, aes(x = Month, y = Prec_diff, color = site_id)) +
        color = "Site") +
   guides(color = guide_legend(ncol = 2)) +
   scale_color_manual(values = colors_site)
+p
 
 #Export this plot
 # ggsave(here("./figures/precip_diff.svg"), plot = p, device = "svg",
 #        width = 6, height = 3, units = "in")
 ```
+Answer is yes to both questions. This aligns with what would be expected based
+just on BEC classification. Pacific Highway sites are in the CWHvm1 (very wet, 
+maritime) but verging on the CWHvh (very wet, hypermaritime). Its hard to know
+whether this difference is significant, but the trend is there: Pacific 
+Highway sites have lower infection levels in regen (analyszed below) and 
+more winter precipitation; the lower infection levels could plausibly be
+explained by precip pulling seeds off of foliage. 
 
 ##Assemble output tables
 Build clean tables combining physical and climate variables. We will 
@@ -532,7 +542,7 @@ a few descriptive climate variables.
 
 Start with table of climate variables and then add physical variables. Slope is 
 a bit tricky here. There are two sets of slopes, slopes for the transect and 
-slopes for the fall line. For both of thosesets we measured slope at multiple 
+slopes for the fall line. For both of those sets we measured slope at multiple 
 places to capture changes in slope profile. For the purpose of creating a 
 descriptive table of site characteristics for writing, we will select the 
 measurement that capture the general fall line slope of the regen component. 
@@ -545,7 +555,7 @@ climate$elevation <- site$elevation
 slope <- tran %>% select(site_id, transect_id, starts_with("fl"))
 
 #Add declination
-x <- site %>% select(site_id, Dec)
+x <- site %>% select(site_id, declination)
 slope <- left_join(slope, x, by = "site_id")
 
 #Two slopes were taken for fall line only at two sites (cr_1 and cr_2). Both
@@ -566,7 +576,7 @@ slope <- slope %>%
 slope <- slope %>% 
   mutate(reg_az_corr = case_match(fl_az_device,
                                   "compass" ~ reg_az,
-                                  "rangefinder" ~ ((reg_az) + Dec)%%360))
+                                  "rangefinder" ~ ((reg_az) + declination)%%360))
 
 #Summarize these by site (take mean)
 slope <- slope %>% 
@@ -845,8 +855,8 @@ ggplot(mat.struc, aes(x=dbh_bin2, y=ba_m2_ha, fill=spp2)) +
 ```
 
 ##Summary table for thesis
-We need to assemble a summary tables for 'the thesis' that generally describes
-the forest at the sites. 
+Need to assemble a summary tables for thesis/publication that generally 
+describes the forest at the sites. 
 
 Regenerating component table:
 - site_id, 
@@ -871,7 +881,7 @@ mat_cs_the <- site %>% select(site_id)
 ```
 
 Get age estimates. Mature forest age estimates ar in the vri dataframe. 
-Load that. At some sitesmultiple vri polygons overlap the mature component. In 
+Load that. At some sites multiple vri polygons overlap the mature component. In 
 those instances, use the average age estimate. 
 Note: age estimates in cleaned vri dataset are corrected to account for 
 difference between the year vri is projected to and when the site was measured
@@ -895,20 +905,20 @@ reg_cs_the$yr_since_har <- site$age
 ```
 
 Height estimates of the codominant/dominant Hw at each site are calcualted in 
-the crown volume script and are stored in a table called top_ht.csv. Load that 
-and calcualte the height difference. 
+the crown volume script and are stored in a table called cd_ht_wide.csv. Load 
+that and calculate the height difference. 
 ```{r}
-th <- read_csv(here("./data/workflow/top_ht_wide.csv"))
-head(th)
-str(th)
+cd_ht <- read_csv(here("./data/workflow/cd_ht_wide.csv"))
+head(cd_ht)
+str(cd_ht)
 
 #Sort by site id, order that is used throughout scripts
-th <- th %>% arrange(site_id)
+cd_ht <- cd_ht %>% arrange(site_id)
 
 #Subset to just the relevant columns
-x1 <- th %>% 
+x1 <- cd_ht %>% 
   select(site_id, n_ht_r_hdm, ht_r_C, source_r_ht)
-x2 <- th %>% 
+x2 <- cd_ht %>% 
   select(site_id, n_ht_m_hdm, ht_m_C, source_m_ht)
 
 #Join the relevant columns to the tables
@@ -969,9 +979,9 @@ results section.
 ##3.1 Infection in live and dead Hw
 We will use the number of stems and basal area on a per hectare basis 
 as metrics. Using both is useful because basal area captures biases in 
-infection towards bigger or smaller trees. Generall speaking with these 
+infection towards bigger or smaller trees. Generally speaking with these 
 exploratory analyses, we are trying to assess whether the mature components are 
-similar infection sources. 
+similar or different infection sources. 
 
 Start by creating a dataframe to add results to and getting some basic metrics
 ```{r}
@@ -1055,7 +1065,7 @@ mat.hdmpa_dbh <- mat.hw %>%
   complete(dbh_bin2, fill=list(ba_m2_ha = 0, nstem_ha = 0))
 
 #Because there are no non-host trees, the hdm_pa will now only have 
-#trees in three of the four levels (Uknown, No, Yes)
+#trees in three of the four levels (Unknown, No, Yes)
 levels(mat.hdmpa_dbh$hdm_pa)
 mat.hdmpa_dbh %>% group_by(hdm_pa) %>% summarise(n_tree = n())
 
@@ -1149,6 +1159,7 @@ p <- ggplot(mat.dmr_dbh, aes(x=dbh_bin2, y=nstem_ha, fill=dmr_f2)) +
         legend.title = element_text(size = 11, family = "Times New Roman",
                                   face = "bold")) + 
   labs(x = "DBH bin (cm)", y = "Trees per ha", fill = "HDM infection")
+p
 
 #Export this plot
 # ggsave(here("./figures/mat_inf_nstem_ha.svg"), plot = p, device = "svg",
@@ -1282,6 +1293,7 @@ p1 <- ggplot(x2, aes(x = metric, y = value)) +
         axis.title = element_text(size = 11, family = "Times New Roman",
                                   face = "bold"),
         plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+p1
 
 #Plot metrics on DMR scale
 p2 <- ggplot(x3, aes(x = metric, y = value)) + 
@@ -1300,6 +1312,7 @@ p2 <- ggplot(x3, aes(x = metric, y = value)) +
         axis.title = element_text(size = 11, family = "Times New Roman",
                                   face = "bold"),
         plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+p2
 
 #Combine
 p3 <- ggarrange(p1, p2, ncol = 2, align = "h",
@@ -1411,8 +1424,16 @@ ph2.mat <- mature %>%
 ph2.mat %>% select(nstem_ha, ba_m2_ha)
 
 ##How much of the site nstem_ha and ba_ha are made of of Hw and Ba?
-###The two spp are pretty similar
+###The two spp are pretty similar but don't make up that much of the basal
+###area generally. 
 ph2.mat %>% select(p_nstem_af, p_nstem_hw, p_ba_af, p_ba_hw)
+
+###There were some large cedar at this site. Take a look at a few of them to see
+###what the range of dbh is. Likely that they are what makes up most of the
+###basal area. 
+mature %>% 
+  filter(site_id == "ph_2" & spp == "Cw" & 
+           crown_class_2 == "C") %>% head()
 
 ##What % of live Hw and Ba at each site are infected?
 ###Infection rates higher in Hw
@@ -1421,12 +1442,6 @@ ph2.mat %>% select(p_l_af_nstem_inf, p_l_hw_nstem_inf)
 #What is the mean DMR and DMI of Hw and Ba?
 ###Infection more severe in Hw than Ba
 ph2.mat %>% select(s.af_dmr, s.hw_dmr, s.af_dmi, s.hw_dmi)
-
-#There were some large cedar at this site. Take a look at a few of them to see
-#what the range of dbh is
-mature %>% 
-  filter(site_id == "ph_2" & spp == "Cw" & 
-           crown_class_2 == "C") %>% head()
 ```
 
 #SECTION 4 - Compare infection levels in regen trees
@@ -1447,17 +1462,16 @@ Both subsections break summary stats down into intervals from the edge.
 Start by removing residual trees from the regen datasets. 
 ```{r}
 #Read in residual tree dataset
-resid <- read_csv(here("./data/raw/resid_ref_tree_data.csv"))
+resid <- read_csv(here("./data/cleaned/resid_tree_data.csv"))
 
 #How many residual trees are there? 
-resid <- resid %>% filter(tree_type == "residual")
 nrow(resid) #10
 
 #How many are on a regen transect?
-resid %>% filter(!is.na(regen_tree_id)) %>% nrow() #5
+resid %>% filter(str_starts(regen_tree_id, "r")) %>% nrow() #5
 
 #Lets remove these from the trees datasets
-resid_rm <- resid %>% filter(!is.na(regen_tree_id)) %>% 
+resid_rm <- resid %>% filter(str_starts(regen_tree_id, "r")) %>% 
   pull(regen_tree_id)
 
 #Add column to trees datasets that identifies which trees are residuals
@@ -1469,7 +1483,7 @@ regen_50 <- regen_50 %>%
 #How many are <15m from edge?
 regen_15 %>% select(resid) %>% table()
 
-#How many are >50m from the edge?
+#How many are <50m from the edge?
 regen_50 %>% select(resid) %>% table()
 
 #Filter out the residual trees
@@ -1532,8 +1546,8 @@ reg_i_all <- left_join(reg_i_all, x, by = "site_id")
 ###BA and nstems infected
 Calculate the basal area and # of stems infected (per ha) at each site and with
 those the percent infection by each metric. General trends:
-  - percent infected (0-15m): mean = 0.49, range =0.01 - 0.80
-  - percent infected (0-50): mean = 0.24, range = 0 - 0.56
+  - percent infected (0-15m): mean = 49, range = 1 - 80
+  - percent infected (0-50m): mean = 24, range = 0 - 56
   - Four outliers are obvious in this data: mk_3 (youngest site by far), 
   ph_1 (no clear explanation), ph_2 and ph_3 (both sites where Hw is not a 
   dominant species)
@@ -1688,6 +1702,7 @@ p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=ba_m2_ha, fill=dmr_f2)) +
        y = expression("Basal area (m"^2*") per ha"), 
        fill = "Adapted DMR") + 
   guides(fill = guide_legend(ncol = 1))
+p
 
 #Export this plot
 # pdf(here("./figures/reg_dmr_disty_ba.pdf"), width = 11, height = 8.5)
@@ -1721,6 +1736,7 @@ p <- ggplot(reg.dmr_disty, aes(x=dist_y_h_bin, y=nstem_ha, fill=dmr_f2)) +
        y = "Trees per ha", 
        fill = "HDM infection") + 
   guides(fill = guide_legend(ncol = 2))
+p
 
 #Export this plot
 # ggsave(here("./figures/reg_dmr_disty_nstem.svg"), plot = p, device = "svg",
@@ -1839,7 +1855,8 @@ ri_l_hw %>% filter(sec == "0_50" & crown_class_2 == "C") %>% summary()
 ```
 
 Generate some summary stats with a bit more detail about the trees where growth
-impacts are occruing in dominant/codominant trees. 
+impacts are occurring in dominant/codominant trees. Past literature identifies
+DMR >= 3 as the cutoff where growth impacts occur. 
 ```{r}
 #How many are there? 
 #All within 15m
@@ -1950,6 +1967,7 @@ p1 <- ggplot(x3, aes(x = metric, y = value, shape = tree_group,
                                     face = "bold"),
         legend.position = "bottom",
         plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+p1
 
 p2 <- ggplot(x4, aes(x = metric, y = value, shape = tree_group,
                colour = tree_group)) + 
@@ -1976,6 +1994,7 @@ p2 <- ggplot(x4, aes(x = metric, y = value, shape = tree_group,
                                     face = "bold"),
         legend.position = "bottom",
         plot.margin = unit(c(0.1, 0.1, 0.1, 0.5), units = "cm"))
+p2
 
 p3 <- ggarrange(p1, p2, ncol = 2, common.legend = T, align = "h",
                 widths = c(1.7, 1), labels = "AUTO", vjust = 1.2, 
@@ -1983,6 +2002,7 @@ p3 <- ggarrange(p1, p2, ncol = 2, common.legend = T, align = "h",
                                                 family = "Times New Roman",
                                                 face = "bold"),
                 legend = "top")
+p3
 
 #Save
 # ggsave(here("./figures/inf_metrics.svg"), plot = p3, device = "svg",
@@ -2057,6 +2077,7 @@ p1 <- ggplot(x1, aes(x = metric, y = value)) +
                                    colour = "black"), 
         axis.title = element_text(size = 11, family = "Times New Roman",
                                   face = "bold"))
+p1
 
 p2 <- ggplot(x2, aes(x = metric, y = value)) + 
   geom_point(position = position_dodge(width = 0.75),
@@ -2075,6 +2096,7 @@ p2 <- ggplot(x2, aes(x = metric, y = value)) +
                                    colour = "black"), 
         axis.title = element_text(size = 11, family = "Times New Roman",
                                   face = "bold"))
+p2
 
 p3 <- ggarrange(p1, p2, ncol = 2, common.legend = T, align = "h",
                 widths = c(1, 1), labels = "AUTO", vjust = 1.2, 
@@ -2326,6 +2348,7 @@ p <- ggplot(reg.vpos, aes(x = dmr, y = cont, fill = ct)) +
        y = "Mean crown third contribution", 
        fill = "Crown third")
 p
+
 #Export this plot
 # ggsave(here("./figures/reg_vdist_inf.svg"), plot = p, device = "svg",
 #        width = 6.5, height = 4, units = "in")
