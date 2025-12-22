@@ -15,16 +15,3 @@ data/**
 
 #But keep placeholder files to retain file structure
 !data/.keep
-
-#Scripts that don't contribute to final analyses but are worth keeping in the
-#project folder locally
-scripts/Liam_convert_dist_az_to_point
-scripts/transect_level_analysis.Rmd
-scripts/height psp.Rmd
-scripts/psp selection notes.xlsx
-scripts/area harvested BC.R
-
-#Cheatsheets and tutorials for packages
-cheatsheets
-scripts/sf and stars intro.R
-scripts/ordinal reg tutorial.Rmd
