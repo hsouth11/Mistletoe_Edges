@@ -1,0 +1,358 @@
+---
+title: "ordinal reg tutorial"
+author: "Hanno Southam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+##############
+READ ME
+Script that follows an online tutorial that itself is based off a tutorial on 
+the {ordinal} package website. 
+
+Tutorial is here: 
+https://tdunn.ca/posts/2020-03-15-ordinal-regression-in-r-part-1/
+
+{ordinal} website is here: 
+https://rdrr.io/cran/ordinal/ 
+##############
+
+Load packages
+```{r}
+library(tidyverse)
+library(dunnr)
+library(gt)
+library(broom)
+library(patchwork)
+library(ordinal)
+```
+
+Look at the dataset. 
+```{r}
+#Load data
+data(wine)
+
+#Inspect the variables
+str(wine)
+levels(wine$rating) #1 = least bitter, 5 = most bitter
+
+#Plot bitterness rating vs. bitterness response on 100 point scale: 
+wine %>%
+  ggplot(aes(y = rating, x = response)) +
+  geom_boxplot(width = 0.5) +
+  geom_jitter(alpha = 0.5)
+
+#Create a table showing distributions of the rating variable by all 
+#combinations of temp, contact and judge
+#Seems like warm wine and wine in contact with skin is more bitter
+wine %>%
+  transmute(temp, contact, bottle, judge, rating = as.numeric(rating)) %>%
+  pivot_wider(names_from = judge, values_from = rating) 
+
+#Plotted in another way
+wine %>%
+  count(contact, rating, temp) %>%
+  mutate(temp = fct_rev(temp)) %>%
+  ggplot(aes(x = temp, y = rating, color = temp)) +
+  geom_point(aes(group = temp, size = n)) +
+  facet_wrap(~contact, scales = "free_x",
+             labeller = labeller(contact = label_both)) +
+  scale_size(breaks = c(1, 2, 4, 6, 8)) 
+
+#Assuming the cumulative probabilities are just equal to the relative 
+#frequency that level occurs in the data, plot it: 
+wine_prop <- wine %>%
+  count(rating) %>%
+  mutate(p = n / sum(n), cumsum_p = cumsum(p))
+
+#Relative frequency of each rating category
+ggplot(wine_prop, aes(x = rating, y = p)) +
+    geom_col() +
+    scale_y_continuous(labels = scales::percent, expand = c(0, 0)) +
+    labs(x = "j", y = "proportion")
+
+#Cumulative proportion, adding the second to the first, the third to the first
+#second and third, etc
+ggplot(wine_prop, aes(x = as.integer(rating), y = cumsum_p)) +
+    geom_point(size = 2) +
+    geom_line() +
+    labs(x = "j", y = "cumulative proportion")
+
+#Logit of the cumulative proporiton. Assuming cumulative proportion is 
+#equivalent to a probability here. 
+ggplot(wine_prop,
+        aes(x = as.integer(rating), y = log(cumsum_p) - 
+              log(1 - cumsum_p))) +
+    geom_point(size = 2) +
+    geom_line() +
+      labs(x = "j", y = "logit(cumulative proportion)")
+```
+
+Next, fit an ordinal regression model with one parameter: contact. Then 
+compare this to four logistic models, corresponding to the 5 levels in the 
+bitterness response variable.
+
+Key things to notice in the comparison are:
+(1) the intercept estimates of  logistic regression correspond to the alpha
+estimates of the ordinal regression;
+(2) the contact parameter of the ordinal regression is roughly the average
+of the four separate estimates of the contact parameter in the logistic
+regression
+(3) the sign of the ordinal regression contact coefficient is opposite that
+of the logistic regression
+(4) the standard error of the ordinal regression parameter is smaller than
+that of individual logistic regression estimates --> this is because the 
+ordinal regression combines the data in these four separate logistic 
+regressions
+```{r}
+#Ordinal regression, one parameter: contact of grapes with their skin
+clm_rating_contact <-
+  clm(
+    rating ~ contact,
+    data = wine, link = "logit"
+  )
+summary(clm_rating_contact)
+
+#Fit four separate logistic regressions:
+wine %>%
+  crossing(j = 1:4) %>%
+  # Create a binary (0 or 1) to indicate where rating <= j
+  mutate(rating_leq_j = as.numeric(rating) <= j) %>%
+  group_by(j) %>%
+  nest() %>%
+  ungroup() %>%
+  mutate(
+    mod = map(
+      data,
+      ~glm(rating_leq_j ~ 1 + contact,
+           data = ., family = binomial(link = "logit")) %>% broom::tidy()
+    )
+  ) %>%
+  unnest(mod) %>%
+  transmute(
+    j, term,
+    estimate_se = str_c(round(estimate, 2), " (", round(std.error, 2), ")")
+  ) %>%
+  pivot_wider(names_from = term, values_from = estimate_se) %>%
+  left_join(
+    tidy(clm_rating_contact) %>%
+      transmute(
+        j = as.integer(substr(term, 1, 1)),
+        term = if_else(!is.na(j), "theta_j", term),
+        estimate_se = str_c(round(estimate, 2), " (", round(std.error, 2), ")")
+      ) %>%
+      mutate(j = replace_na(j, 1)) %>%
+      spread(term, estimate_se),
+    by = "j"
+  ) %>%
+  ungroup() %>%
+  gt() %>%
+  tab_spanner(label = "Logistic regression",
+              columns = c(`(Intercept)`, contactyes.x)) %>%
+  tab_spanner(label = "CLM",
+              columns = c(theta_j, contactyes.y)) %>%
+  fmt_missing(columns = everything(), missing_text = "")
+```
+
+Now add a second term. The summary output provides tests of significance for 
+each parameter with a wald test. But a likelihood ratio is how this would be 
+traditionally done -- > do that too with the drop1 function. 
+
+The output table of drop1 shows the full model (<none>) and then a model - one 
+the variable identified on in the left column. The likelihood ratio test 
+compares that model the full model (<none>). 
+```{r}
+clm_rating_contact_temp <-
+  clm(
+    rating ~ contact + temp,
+    data = wine, link = "logit"
+  )
+summary(clm_rating_contact_temp)
+
+#Likelihood ratio tests. Likelihood ratio test statistic follows Chi-squared 
+#distribution which is why that is called here.  
+drop1(clm_rating_contact_temp, test = "Chisq")
+```
+
+Can extract the 95% Wald's confidence intervals for each of the model terms:
+```{r}
+tidy(clm_rating_contact_temp, conf.int = TRUE, conf.type = "Wald") %>%
+  ggplot(aes(y = term, x = estimate)) +
+  geom_point(size = 2) +
+  geom_linerange(size = 1, aes(xmin = conf.low, xmax = conf.high))
+```
+
+And we can calculate the odds ratio for each of the predictors (temperature)
+and skin contact. The odds ratio is defined for (Y>= j). Interpreted as:
+- e.g. Odds of wine being rated at category j or above when it is in contact with skin are 4.61 times as high as when it is not.
+
+Less helpfully, 
+- e.g. Odds of wine being rated at at category j or above when it has been given a 
+rating of 5 are 149 times the odds of that assignment when its given a rating 
+of 4. 
+```{r}
+tidy(clm_rating_contact_temp, conf.int = T, conf.type = "Wald") %>%
+  transmute(
+    term, across(c(estimate, conf.low, conf.high), exp)
+  ) %>%
+  gt() %>%
+  fmt_number(c(estimate, conf.low, conf.high), decimals = 2)
+```
+
+Check for an interaction between contact and temp.
+- Wald's test and likelihood ratio test agree, interaction is not significant. 
+```{r}
+clm_rating_contact_temp_inter <-
+  clm(
+    rating ~ contact * temp, data = wine, link = "logit"
+  )
+
+#Wald test result is shown here for the interaction
+summary(clm_rating_contact_temp_inter)
+
+#Use drop1 function to get log likelihood tests
+drop1(clm_rating_contact_temp_inter, test = "Chisq") 
+
+#anova() does the same thing as drop 1, but you have to be explicit about the 
+#models you want to compare
+anova(clm_rating_contact_temp, clm_rating_contact_temp_inter)
+```
+
+Next, we can fit a mixed effect version of the model, accounting for the random
+effect of judge. 
+- Plot shows some obvious judge effects. e.g. judge five, who rated many of the
+wines at a rating of 3. 
+```{r}
+#First create a plot showing the count of each rating for each judge
+wine %>%
+  count(judge, rating) %>%
+  ggplot(aes(x = judge, y = rating)) +
+  geom_tile(aes(fill = n)) +
+  geom_text(aes(label = n), color = "white") +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  theme(legend.position = "none") +
+  labs(title = "Number of ratings by judge")
+
+#Then fit the model
+clmm_rating_contact_temp <-
+  clmm(
+    rating ~ temp + contact + (1|judge),
+    data = wine, link = "logit"
+  )
+# This is an older function, which we need to run stats::profile later
+clmm2_rating_contact_temp <-
+  clmm2(
+    rating ~ temp + contact, random = judge,
+    data = wine, link = "logistic"
+  )
+summary(clmm_rating_contact_temp)
+```
+
+Compare the coefficients in this mixed effect model to the model without the 
+random effect. 
+- They differ. In particular, the coefficients for both of the predictor 
+variables have increased. 
+```{r}
+bind_rows(
+  CLM = tidy(clm_rating_contact_temp),
+  CLMM = tidy(clmm_rating_contact_temp),
+  .id = "model"
+) %>%
+  select(-coef.type) %>%
+  group_by(model) %>%
+  gt() %>%
+  fmt_number(c(estimate, std.error, statistic), decimals = 2) %>%
+  fmt(p.value, fns = scales::pvalue)
+```
+
+Do a likelihood ratio test to test whether random effect significantly improved
+fit
+- Random effect is significant.
+- The likelihood ratio test for the random effect tests the null hypothesis 
+that: sd(random effect) = 0. But because the sd(random effect) >= 0, you should
+be conservative and half your p-value (clmm tutorial).
+```{r}
+anova(clm_rating_contact_temp, clmm_rating_contact_temp)
+```
+
+Can compute a "profile likelihood" confidence interval of sd(random 
+effect)
+-This is based on likelihoods (not on a Wald's test) and has the property of
+being asymmetric. This is appropriate because the likelhood statistic that
+underlies it is not symmetric (see plot here)
+```{r}
+pr2 <- profile(clmm2_rating_contact_temp,
+        range = c(0.1, 4), nSteps = 30, trace = 0) 
+confint(pr2)
+plot(pr2)
+```
+
+Random effects are not parameters and so they can't be estimated directly. But 
+the package provides a way to estimate a best guess oftheir effects. It uses
+something called "conditional modes"
+-If effect is positive, judge tended to give higher ratings. If negative, 
+opposite. 
+```{r}
+tibble(
+  judge_effect = clmm_rating_contact_temp$ranef,
+  cond_var = clmm_rating_contact_temp$condVar
+) %>%
+  mutate(
+    judge = fct_reorder(factor(1:n()), judge_effect),
+    conf.low = judge_effect - qnorm(0.975) * sqrt(cond_var),
+    conf.high = judge_effect + qnorm(0.975) * sqrt(cond_var)
+  ) %>%
+  ggplot(aes(y = judge, x = judge_effect)) +
+  geom_point(size = 2) +
+  geom_linerange(size = 1, aes(xmin = conf.low, xmax = conf.high)) +
+  theme(panel.grid.major.x = element_line(color = "grey"))
+```
+
+And we can make predictions. 
+Method 1: predict() function, original data
+- These provide predicted probabilites for the original dataset. Not every 
+combination is represented in the original data so this is limited. 
+```{r}
+wine %>%
+  bind_cols(
+    pred =  predict(
+      # Have to use clmm2 for predict
+      clmm2_rating_contact_temp, newdata = wine
+    )
+  ) %>%
+  # These are predicted probabilities for the average judge, so we can
+  #  exclude the judge variable
+  distinct(rating, temp, contact, pred) %>%
+  arrange(temp, contact, rating)
+```
+
+Method 2: predict() function, new data
+-Here, a new df is created with all combinations of the rating scale and the 
+two predictors
+```{r}
+nd <-
+  crossing(
+    temp = factor(c("cold", "warm")),
+    contact = factor(c("no", "yes")),
+    rating = factor(1:5, ordered = T)
+  )
+nd %>%
+  bind_cols(pred = predict(clmm2_rating_contact_temp, nd)) %>%
+  ggplot(aes(x = glue::glue("{temp}-{contact}"), y = pred, fill = rating)) +
+  geom_col() +
+  scale_fill_td(palette = "div5") +
+  scale_y_continuous(expand = c(0, 0), labels = scales::percent) +
+  labs(x = "temp-contact", y = "predicted probability")
+```
+
+You can also estimate cumulative probabilities. 
+- See tutorial for formula
+- This example is for cold wine in contact with skin. The code subtracts the 
+cumulative probaility of getting a rating for 2 or less from the cumulative 
+probability of getting a rating of 3 or less. You  are left with the 
+probability of getting a rating of 3. Compare this to the estimates above
+```{r}
+plogis(clmm_rating_contact_temp$Theta[3] - clmm_rating_contact_temp$beta[2]) -
+  plogis(clmm_rating_contact_temp$Theta[2] - clmm_rating_contact_temp$beta[2])
+```
+
