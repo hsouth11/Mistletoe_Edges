@@ -12,19 +12,33 @@ This script fits ordinal models that predict DMR from tree level variables.
 Originally, the intent was to build a model that tested the significance and 
 predictive ability of of tree (dbh, canopy class, seed load, distance from the 
 edge) and site (e.g. stem density, climate vars) variables and combinations. 
-This is still reflected in the set up, where all the variables are assembled 
-in a single dataframe. Quickly, we ran into model instabilities and had to go
-with a simpler approach. In the simpler version, DMR is collapsed to a subset 
-of the 6 levels (to treat problems of data scarcity), only tree level 
-predictors are considered and site level predictors are all wrapped up into a 
-random site effect. 
+Quickly, we ran into model instabilities and had to go with a simpler approach. 
+In the simpler version:
+(1) The modelling objective is only inferential (not predictive)
+(2) DMR is collapsed to a subset of the 6 levels (to treat problems of data 
+scarcity);
+(3) only tree level predictors are considered;
+(4) and site level predictors are all wrapped up into a random site effect. 
 
-The starting object for this is the trees_sl.csv object that came out of the 
-seed load script. Various other variables are pulled from different places. 
+The starting object for this is the 'trees_sl.csv' object that came out of the 
+seed load script (05_seed_load.Rmd).
+
+References
+Fagerland, M. W., & Hosmer, D. W. (2013). A goodness-of-fit test for the proportional odds regression model. Statistics in Medicine, 32(13), 2235–2249. https://doi.org/10.1002/sim.5645
+
+Fagerland, M. W., & Hosmer, D. W. (2016). Tests for goodness of fit in ordinal logistic regression models. Journal of Statistical Computation and Simulation, 86(17), 3398–3418. https://doi.org/10.1080/00949655.2016.1156682
 ##############
 
+#Prep
 Load packages
 ```{r}
+#Unload loaded packages in R session
+library(pacman)
+p_loaded()
+p_unload(p_loaded(), character.only = T)
+
+#Load packages used in this script. Unloading then loading avoids potential
+#package conflicts
 library(here)
 library(ggbiplot)
 library(GGally)
@@ -41,308 +55,52 @@ library(cowplot)
 library(RColorBrewer)
 ```
 
-#Generate modelling dataset
-##Read in datasets
-First task is to pull together various datasets into a single dataframe for 
-modelling. This dataset is at the tree level - i.e. each row is a tree with 
-associated attributes. These attributes can be at the site, transect or tree 
-level. 
+Set the session seed so results are reproducible
+```{r}
+set.seed(11)
+```
+
+Read in the data. 
 ```{r}
 rm(list = ls(all = TRUE))
-set.seed(11)
 
-#Dataset 1: tree level
-##Starting object is the output of the seed load script
+#Tree data
 trees <- read_csv(here("./data/workflow/trees_sl.csv"))
 
-#Dataset 2: transect level
-tran <- read_csv(here("./data/cleaned/transect_data_c.csv"))
-
-#Dataset 3: site attributes
-site <- read_csv(here("./data/workflow/site_metrics.csv"))
-
-#Datasets 4: regen size and composition summary
-reg_cs <- read_csv(here("./tables/reg_comp_size.csv"))
-
-#Dataset 5: mature component infection summary
-##NOTE: this table not longer exists. When you clean up this script dead with
-##this
-# mat_inf <- read_csv(here("./tables/mat_infection.csv"))
-
-#Dataset 6: crown volume estimates
-#These contain height estimates for the codominant mature and regen trees in
-#each site
-cv <- read_csv(here("./data/workflow/crown_vol.csv"))
-
-#Dataset 7: vri polygons covering hdm sites
-vri <- read_csv(here("./data/cleaned/vri_c.csv"))
-
-#Dataset 8: climate
-clim <- read_csv(here("./tables/site_climphys_big.csv"))
-
-#Dataset 9: residual trees
+#Residual tree data
 resid <- read_csv(here("./data/cleaned/resid_tree_data.csv"))
 ```
 
-##Pull varaibles from each dataset
-Start assembling a modelling dataset by selecting variables from the tree level
-dataframe. 
+Filter the data. The trees that are the target of modelling
+are live Hw regen trees within 50m of the edge. This group includes a few 
+putative residual trees (infected regen trees that had qualitative signs of
+being a legacy of the pre-harvest stand). Remove these because the analysis is
+asking what infection patterns result in regen trees that establish after 
+harvest occurs. 
 ```{r}
-#Look at what is in the the tree level dataset
-str(trees)
-
-#Pull out a subset for modelling
-modelling <- trees %>% 
-  select(tree_id, 
-         site_id, 
-         plot_id,
-         dist_y_h,
-         sim_tree,
-         tree_type,
-         tree_type_2,
-         spp,
-         status,
-         dbh,
-         crown_class,
-         crown_class_2,
-         CV,
-         hdm_pa,
-         b_lc,
-         dmr_l,
-         dmr_m,
-         dmr_u,
-         dmr, 
-         dmr_f,
-         broom_pa,
-         broom_pos,
-         stem_pa,
-         sp, 
-         sl_ni_rm,
-         sl_i_tot_rm)
-```
-
-Move up one level and pull out slope from transect level dataframe. 
-```{r}
-#Pull out slope from transect dataset
-#Inspect slope variables
-str(tran)
-
-#Transect slope is held in three columns. When the slope in a transect changes 
-#along its length, it is recorded in multiple segments. Each new segment is 
-#recorded in a separate column. 
-#Calculate weighted average. Each slope value weighted by the proportion of
-#the transect it represents. 
-tran <- tran %>% 
-  mutate(slope_wa  = case_when(
-    !is.na(tr_sl3) ~ 
-      (tr_sl1*(tr_dist1) + tr_sl2*(tr_dist2-tr_dist1) + 
-         tr_sl3*(tr_dist3-tr_dist2))/(tr_leng),
-    !is.na(tr_sl2) & is.na(tr_sl3) ~ 
-      (tr_sl1*(tr_dist1) + tr_sl2*(tr_dist2-tr_dist1))/(tr_leng),
-    !is.na(tr_sl1) & is.na(tr_sl2) & is.na(tr_sl3) ~
-      (tr_sl1*(tr_dist1))/(tr_leng)))
-
-#Join it to the modelling dataset
-modelling <- left_join(modelling, select(tran, transect_id, slope_wa),
-                       by = join_by(plot_id == transect_id))
-```
-
-Move up to the site level and pull out variables
-```{r}
-#Rename column that contains years since haravest
-site <- site %>% 
-  rename(yr_since_har = age)
-
-#Pull out needed variables from the site level dataset
-str(site)
-x <- site %>% 
-  select(site_id, 
-         cluster, 
-         elevation,
-         bec,
-         yr_since_har)
-
-#Join this to the modelling dataframe
-modelling <- left_join(modelling, x, by = "site_id")
-
-#Pull out regen composition and size variables
-x <- reg_cs %>% 
-  select(site_id, reg.nstem_ha, reg.ba_m2_ha, reg.p_stem_hw)
-str(reg_cs)
-#Join this to the site level dataframe
-modelling <- left_join(modelling, x, by = "site_id")
-```
-
-Get mature forest age estimates from vri dataset
-```{r}
-#Check what is in the vri dataset
-str(vri)
-
-#Filter to polygons representing mature trees
-vri_m <- vri %>% filter(tree_type == "mature")
-
-#Some sites are represented by multiple polygons. Average these: 
-vri_m <- vri_m %>% 
-  group_by(site_id) %>% 
-  summarise(AGE_HW = mean(AGE_HW, na.rm = T))
-
-#Join this to the modelling dataset
-modelling <- left_join(modelling, vri_m, by = "site_id")
-```
-
-Join climate variables and also, run a PCA to see if that is a good way of
-explaining the variation.
-```{r}
-#Subset climate dataframe to just the climate variables:
-clim_pca <- clim %>% 
-  select(MAT:Tmin_as)
-
-#Check for infinite values
-sum(is.infinite(as.matrix(clim_pca)))
-#Check for missing values
-sum(is.na(as.matrix(clim_pca)))
-
-#Run the pca
-#prcomp() function uses singular value decomposition
-#because scale. = TRUE, this is will produce a correlation biplot
-pca_clim <- prcomp(clim_pca, center = TRUE, scale. = TRUE)
-?prcomp
-
-#Inspect the pca object
-pca_clim$sdev #the Eigenvalues (=proportional to the percent of variation explained)
-head(pca_clim$x) #the actual scores for each site on the each axis
-summary(pca_clim) #summary of the percent of variation explained by each axis
-
-#Create a scree plot = shows how much variation is explained by each axis
-scree.data <- tibble(axis = as.integer(1:length(pca_clim$sdev)), 
-                     ev = pca_clim$sdev) %>% 
-  mutate(var = ev^2) %>% mutate(tot_var = sum(var)) %>% 
-  mutate(prop_ex = var/tot_var)
-ggplot(scree.data, aes(x= axis, y=prop_ex)) + geom_col() + 
-  geom_point(col="lightblue") +
-  geom_line(col="lightblue") + 
-  scale_x_continuous(breaks = seq(0, 11, by =1)) +
-  theme_classic()
-#axis one and two explain 78% of the variation cumulatively
-
-#Add the scores back to the initial dataframe
-clim <- clim %>% bind_cols(pca_clim$x)
-
-#Plot the first two PCA axes
-#Color by BEC; label by site_id
-#Looks like bec is a pretty good proxy for PC1 but not for PC2
-ggplot(clim, aes(x=PC1, y=PC2, color = bec, label = site_id)) + 
-  geom_point() + geom_text()
-
-#Plot a covariance biplot to see which variables are driving each axes
-#See Section 12.5 of Zuur et al (2007) for comparison of correlation
-#vs distance biplot
-ggbiplot(pca_clim, scale = 1, varname.color = "brown", varname.size = 2)
-#Axis 1: differentiate sites along a growing season axis (summer temps, 
-#precipitation)
-#Axis 2: differentiates sites along a winter axis (winter temps, precipitation
-#as snow)
-
-#Pull out variables from climate dataframe.
-str(clim)
-x <- clim %>% select(site_id, MAT:Tmin_as, PC1:PC2)
-
-#Join this to the modelling dataframe
-modelling <- left_join(modelling, x, by = "site_id")
-```
-
-The tree level seed load variable has been challenging to use in these models 
-because it is colinear with distance from the edge. So as alternative to try 
-out, include some proxies for the inoculum load in the mature component at the
-site level. Include two proxies here: seed production and basal area of 
-infected trees. We would expect seed production to perform better because it
-incorporates infection severity but it doesn't hurt to test both. 
-```{r}
-#Filter tree dataset to mature trees within 10m of the edge
-mat <- trees %>% filter(tree_type == "mature" & (outside_10 == "N" |
-                                                   is.na(outside_10)))
-
-#Filter those to trees with seed production estimates
-sp <- mat %>% 
-  filter(!is.na(sp))
-
-#Summarize at the site level
-sp_s <- sp %>% 
-  group_by(site_id) %>% 
-  summarise(sp = sum(sp))
-
-#Take a look at this. Looks about right. 
-head(sp_s)
-
-#Join this to the modelling dataframe
-modelling <- left_join(modelling, sp_s, by = "site_id")
-
-##BROKEN
-#Pull basal area of infected mature trees from the dataframe summarizing 
-#mature tree infection
-# summary(mat_inf)
-# 
-# #Join this to the modelling dataframe
-# x <- mat_inf %>% 
-#   select(site_id, mat.hw_inf_ba_m2_ha)
-# modelling <- left_join(modelling, x, by = "site_id")
-```
-
-Calculate height difference between mature and regen components. These 
-estimates are in the crown volume dataset. 
-```{r}
-str(cv)
-
-#Filter to co dominant/dominant layer
-unique(cv$crown_class_2)
-ht_diff <- cv %>% 
-  filter(crown_class_2 == "C")
-
-#Select just the relevant columns
-ht_diff <- ht_diff %>% 
-  select(site_id, tree_type, height_cv_est)
-
-ht_diff <- pivot_wider(ht_diff, names_from = tree_type, 
-                       values_from = height_cv_est)
-
-ht_diff <- ht_diff %>% 
-  mutate(ht_diff = mature - regen)
-```
-
-##Format and filter to final dataset
-Finished assembling all of the variables. Next we need to filter the dataset 
-to the population we want to model - live Hw regen trees within 50m of the 
-edge. We are going to remove any putative residual trees from this set.
-```{r}
-#Filter to trees within 50m of the edge. This removes only a few trees at the
-#cr_3 site
-nrow(modelling)
-modelling <- modelling %>% 
-  filter(dist_y_h <= 50)
-nrow(modelling)
-
+#Define a subset of trees that make up the modelling dataset
 #Filter to the live, regen, Hw trees
-modelling <- modelling %>% 
+modelling <- trees %>% 
   filter(tree_type == "regen" &
            status %in% c("LS", "LL", "LF") &
            spp == "Hw")
-nrow(modelling) #1098 observations
-```
+nrow(modelling) #1102 observations
 
-When we measured sites, we identified potential residual trees. Some of those 
-are included on the transects. Need to decide what to do with these. 
-```{r}
-#Dataset contains data for residual trees and reference trees (trees where we 
-#took a reference tree core)
+#Filter to trees within 50m of the edge. This removes only a few trees at the
+#cr_3 site
+modelling <- modelling %>% 
+  filter(dist_y_h <= 50)
+nrow(modelling) #1098 observations
+
+#Remove residual trees
 #How many residual trees are there? 
-resid <- resid %>% filter(tree_type == "residual")
 nrow(resid) #10
 
 #How many are on a regen transect?
-resid %>% filter(!is.na(regen_tree_id)) %>% nrow() #5
+resid %>% filter(str_starts(regen_tree_id, "r")) %>% nrow() #5
 
 #Lets remove these from the modelling dataset
-resid_rm <- resid %>% filter(!is.na(regen_tree_id)) %>% 
+resid_rm <- resid %>% filter(str_starts(regen_tree_id, "r")) %>% 
   pull(regen_tree_id)
 
 #Add column to modelling dataset that identifies which trees are residuals
@@ -355,43 +113,66 @@ modelling <- modelling %>% filter(resid == "N")
 nrow(modelling) #1093 observations
 ```
 
-Reformat variables where needed. 
+#Variable definition
+The response variable is DMR (dmr_f). Infection in higher severity classes was 
+rare in the data. This created a data scarcity problem that led to model 
+convergence issues. Multiple collapsed versions of DMR are created in this 
+chunk to deal with this issue. 
+
+Four tree level predictors were considered:
+(1) Distance from the edge (dist_y_h)
+- Logic: Mature trees were the infection source. Infection severity should 
+decline with increasing distance from the infection source.
+- Some exponentiated versions of this variable were also trialed. 
+
+(2) Seed load (sl_i_tot_rm)
+- Logic: Regen trees exposed to more HDM seed from infected mature source trees
+should have higher levels of infection.
+- This variable is colinear with distance from the edge, but we predicted it
+would explain additional variation in the model. 
+- The version of seed load that only considers mature source trees and includes
+interception was selected. Other versions weren't tested because of time
+constraints (but are in the dataframe and could be). 
+
+(3) DBH (dbh)
+- Logic: Larger trees are bigger targets for HDM seed, occupy canopy positions
+that make them more exposed to HDM seed and may be older than smaller trees 
+(and thus have been exposed to HDM for longer). 
+
+(4) Crown class (crown_class and crown_class_2)
+- Logic: same as DBH
+- DBH and crown class are colinear. They are not equivalent in a silvics
+context, but for the purpose of this analysis, they contain very similar
+information.
+
+Inspect and define these response and predictor variables. 
 ```{r}
-#Insepct variables
+#Inspect variables
 str(modelling)
 
 #Make factor variables factors
 modelling <- modelling %>% 
   mutate(across(c(site_id, 
-                  sim_tree,
-                  tree_type,
-                  tree_type_2,
-                  spp,
-                  hdm_pa,
-                  b_lc,
-                  dmr_f,
-                  broom_pa,
-                  broom_pos,
-                  stem_pa,
-                  cluster, 
-                  bec), ~as.factor(.)))
+                  crown_class,
+                  crown_class_2,
+                  dmr_f), ~as.factor(.)))
 
-#Response variable is dmr, an ordinal variable. Inspect it
+#Response variable is dmr, an ordinal variable
+#Check its levels
+levels(modelling$dmr_f)
 #Only 0, 1, 2, 3, 4, 5 and IBLC are represented
-#Recode factor to just these levels
-modelling %>% select(dmr_f) %>% 
-  table()
+
+#Reorder the levels 
 modelling <- modelling %>% 
   mutate(dmr_f = as.character(dmr_f)) %>% 
   mutate(dmr_f = factor(dmr_f, levels = c("0", "IBLC", "1", "2", "3",
                                           "4", "5")))
 
-#See how many trees there are in each dmr class: 
-#Inspect again
+#See how many trees there are in each dmr class
 modelling %>% select(dmr_f) %>% 
   table()
 
-#Initial models aren't converging. Collapsing dmr has helped resolve
+#Initial models aren't converging. Collapsing dmr helped resolve
 #the issue. Define three new response variables to try, one with 6 levels, one
 #with 4 and one with 3 that will be used in modelling. 
 modelling <- modelling %>% 
@@ -435,14 +216,14 @@ levels(modelling$crown_class_2)
 #See how many trees there are in each crown class
 modelling %>% select(crown_class) %>% 
   table()
+modelling %>% select(crown_class_2) %>% 
+  table()
 
 #Distance from the edge likely has an exponential decay shape. Try adding 
 #distance^2 and distance^4 as predictors
 modelling <- modelling %>% 
   mutate(dist_y_h.2 = dist_y_h^2,
          dist_y_h.4 = dist_y_h^4)
-
-#All looks good.
 ```
 
 ##Define some colours to plot with
@@ -456,163 +237,13 @@ levels(modelling$dmr_f_4)
 col_dmr3 <- c("#A6CEE3", "#FDBE85", "#A63603")
 ```
 
-#Functions for each step of the modelling process
-##Model building. 
--Need likelihood ratio tests to compare models (=test the 
-significance of variables by comparing models that differ by one variable)
-```{r}
-#anova() {stats package}, performs the appropriate test (LR or F-test) 
-#comparing two models
-?anova()
-
-#drop1() {stats package}, given a model (e.g. y ~ x1 + x2 + x3), drops each
-#predictor (x1, x2, x3) from a model and compares that to the full model where
-#no variables are dropped. If only wanting to test specific terms, can 
-#specify those with the scope argument. 
-?drop1()
-```
-
-##Assessing goodness of fit
-There are three statistics that test for goodness of fit. Reference: Fagerland 
-and Hosmer (2013). 
-- Lipsitz test
-- Hosmer-Lemeshow test
-- Pulkstenis-Robinson test
-```{r}
-#All three test statistics are in the generalhoslem package
-?generalhoslem
-
-#Lipsitz test
-?lipsitz.test()
-
-#Hosmer-Lemeshow test
-#Seems like the most general one. Less power than Lipsitz and 
-#Pulkstenis-Robinson but can detect more types of lack of fit.
-?logitgof()
-
-#Pulkstenis-Robinson tests
-#Two tests, on that is an extension of the Chi-squared test statistic and
-#another that is a decivance test statistic. Both follow a chi-squared 
-#distribution
-?pulkrob.chisq()
-?pulkrob.deviance()
-```
-
-##Assessing discriminatory power of the models
-There are four tools available for testing the discriminatory power of the 
-models: 
-- Classification tables. These have the obvious weakness of relying on some
-arbitrary way of assigning an observation with probabilities for each
-level of the response (DMR) to one level. We will probably use the level with
-the highest probability. 
-- Weighted kappa. 
-- ROC curve. Can plot one of these for each of the logit models (J-1 of them). 
-But should be the same for all of them if the proportional odds assumption is
-met. 
-- Visual plots. These plot observed DMR against estimated probability. Will 
-have one plot for each level of DMR. 
-```{r}
-#Weighted kappa. From {vcd} package (Visualizng Categorical Data)
-?Kappa()
-```
-
-#Demonstration model
-Start with a simple one to explore what these models look like
-
-##Model specification
-Standard model specification.
-```{r}
-# #Centre seed load and refit model
-# modelling <- modelling %>% 
-#   mutate(sl_c = sl_i_tot_rm - (mean(sl_i_tot_rm)))
-# summary(modelling$sl_c)
-# 
-# #Model: dmr ~ seed load (including interception)
-# d1 <- clm(dmr_f_2 ~ sl_c, data=modelling, link = "logit")
-# 
-# #Model: dmr ~ seed load (including interception) with site random effect
-# d2 <- clmm(dmr_f_2 ~ sl_i_tot_rm + (1|site_id), 
-#            data = modelling,
-#            link = "logit")
-```
-
-##What is in the summary output?
-- Coefficient associated with the predictor (seed load == sl_i_tot_rm). This is
-the log odds value change in dmr_f corresponding to a one unit increase in 
-seed load. Or rather, for every one unit increase in seed load, the likelihood
-of a dmr_f = 4, versus dmr_f = 1-3, increases by 0.0130 on a log odds scale. 
-Because of the central assumption of ordinal regression modelling that the 
-jump between any two J has the same probability, this also means that the 
-likelihood of dmr_f = "anything" versus a dmr_f = anything-1, increases by 
-0.0130 on a log odds scale. 
-- "Threshold coefficients" are the intercepts for each of the logit functions
-fitted by the model. 
--These two things (a slope and the intercept) can be used to estimate the 
-response. This estimation can be done in terms of log odds or odds (e.g. 
-how much do the odds of level j vs levels j-1 change for a 1 unit increase
-in the predictors), in terms of odds ratios (e.g. how much do the odds of a 
-a given level change between x1 and x2) and in terms of probabilities. 
-```{r}
-# #Model: dmr ~ seed load (including interception)
-# summary(d1)
-# 
-# #Model: dmr ~ seed load (including interception) with site random effect
-# summary(d2)
-# 
-# #Check convergence:
-# convergence(d1)
-# 
-# #Example: look at odds of dmr_f = 0 vs IBLC, 1, 2, 3, 4, 5 for seed load
-# #values of 100, 200 and 300
-# #Decreases, which makes sense. dmr_f = 0 most likely at low seed load value
-# o_100 <- exp(d1$alpha[1] - d1$beta[1]*100)
-# o_200 <- exp(d1$alpha[1] - d1$beta[1]*200)
-# o_300 <- exp(d1$alpha[1] - d1$beta[1]*300)
-# o_100; o_200; o_300
-# 
-# #Express these as probabilities. plogis function does the conversion of the
-# #log odds to probabilities.
-# lo_100 <- d1$alpha[1] - d1$beta[1]*100
-# lo_200 <- d1$alpha[1] - d1$beta[1]*200
-# lo_300 <- d1$alpha[1] - d1$beta[1]*300
-# plogis(lo_100) 
-# plogis(lo_200)
-# plogis(lo_300)
-# 
-# #Use the ggeffects package to get predictions for many more variables
-# ##This generates a dataframe with levels of a predictor (in this case 
-# ##seed load, broken into intervals of 50) and the probability of each dmr_f
-# ##level. 
-# ##Each predictor-response level is its own row 
-# ##The "terms" term specifies which variables you are intersted in predicted
-# ##values for 
-# ##The margin term specifies how to treat variables that aren't of interest 
-# ##(i.e. not identified in the "terms" term). In this case, it  "mean_mode" 
-# ##uses the mean (for numeric values) and the mode (= most frequnt value 
-# ##for factor and character values). 
-# 
-# #Generate the predictions
-# pre_d1 <- predict_response(d1, terms = "sl_i_tot_rm", margin = "mean_mode")
-# 
-# #response.level identifies dmr_f but its values correspond to the levels of
-# #the factor, not the values that correspond to those levels. Reset those
-# levels_dmr_f <- c("0", "IBLC", "1", "2", "3", "4", "5")
-# pre_d1$response.level <- factor(pre_d1$response.level)
-# levels(pre_d1$response.level) <- levels_dmr_f
-# 
-# #Rename the variables
-# pre_d1 <- pre_d1 %>% 
-#   rename(seed_load = x,
-#          dmr_f = response.level)
-# 
-# #Plot
-# ggplot(pre_d1, aes(x = seed_load, y = predicted, fill = dmr_f)) + 
-#   geom_bar(stat = "identity", position = position_stack()) +
-#   scale_fill_viridis_d()
-```
-
 #Exploratory data analysis
 ##Get a sense of the dataset
+Things of note:
+- Higher DMR (>=3) was rarely observed
+- Seed load has an extremely right skewed distribution. I thought this may have
+contributed to some of the model convergence issues that came up initially. 
+Other remedies stabilized the models, something to keep in mind. 
 ```{r}
 #How many trees? 
 nrow(modelling)
@@ -690,9 +321,9 @@ sum_tb1 <- tb1 %>%
 sum_tb1
 ```
 
-###Construct a table for thesis
+###Construct a table for writing
 Going to recreate the table above but with a bit more detail. Goal is to 
-summarize the modelling dataset that went into my thesis. 
+summarize the modelling dataset that went into thesis/publication.
 
 Rows:
 - all trees
@@ -748,6 +379,12 @@ tb3 <- modelling %>%
 
 #Combine these tables
 tb3 <- rbind(tb2, tb3)
+
+#Relocate the group variable so it is the first column
+tb3 <- tb3 %>% relocate(group, .before = everything())
+
+#Take a look at it
+view(tb3)
 ```
 
 Export final table
@@ -976,48 +613,158 @@ pairs_the
 #        width = 6.5, height = 8, units = "in")
 ```
 
+#Demonstration model
+Sort of mini tutorial I used to get oriented to ordinal models and the 
+packages I was going to use. 
 
-##Seed load distribution
-Look at seed load. Is its distrbution part of the problem?
+##Model specification
+The {ordinal} package was used for all the modelling. 
 ```{r}
-#Seed load is causing major problems, perhaps because it is so skewed. 
-ggplot(modelling, aes(x = sl_i_tot_rm)) + 
-  geom_histogram()
+?ordinal
+```
 
-#Try try log and root transforming it. Need to add small value before 
-#logging it. 
-modelling <- modelling %>% 
-  mutate(sl_i_tot_rm.ln = log(sl_i_tot_rm + 1),
-         sl_i_tot_rm.r2 = (sl_i_tot_rm)^0.5)
+Two demonstration models are specified: one without a random effect (a 
+cumulative link model) and one without (a cumulative link mixed model). 
+```{r}
+#Model: dmr ~ distance from edge
+d1 <- clm(dmr_f_2 ~ dist_y_h, data=modelling, link = "logit")
 
-#Plot these
-ggplot(modelling, aes(x = sl_i_tot_rm.ln)) + 
-  geom_histogram()
-ggplot(modelling, aes(x = sl_i_tot_rm.r2)) + 
-  geom_histogram()
+#Model: dmr ~ distance from edge with site random effect
+d2 <- clmm(dmr_f_2 ~ dist_y_h + (1|site_id),
+           data = modelling,
+           link = "logit")
+```
 
-#Also create an ordered categorical variable based on seed load.
-##0 = none
-##1-100 = low
-##100-200 = moderate
-##>200 high
-summary(modelling$sl_i_tot_rm)
-modelling <- modelling %>% 
-  mutate(sl_i_tot_rm.cat = 
-           case_when(sl_i_tot_rm <= 1 ~ "none",
-                     sl_i_tot_rm > 1 & sl_i_tot_rm <= 100 ~ "low",
-                     sl_i_tot_rm > 100 & sl_i_tot_rm <= 200 ~ "moderate",
-                     sl_i_tot_rm > 200 ~ "high")) %>% 
-  mutate(sl_i_tot_rm.cat = factor(sl_i_tot_rm.cat, 
-                                  levels = c("none", "low", 
-                                             "moderate", "high")))
+##What is in the summary output?
+- Coefficient associated with the predictor (distance from edge). This is
+the log odds value change in dmr_f corresponding to a one unit increase in 
+distance. Or rather, for every one unit increase in distance, the likelihood
+of a dmr_f = 4, versus dmr_f = 1-3, decreases by 0.118 on a log odds scale. 
+Because of the central assumption of ordinal regression modelling is that the 
+jump between any two levels (j) has the same probability, the coefficient can
+be interpreted more generally as likelihood of dmr_f = "anything" versus a 
+dmr_f = anything-1, decreases by 0.118 on a log odds scale. 
+- "Threshold coefficients" are the intercepts for each of the logit functions
+fitted by the model. 
+-These two things (a slope and the intercept) can be used to estimate the 
+response (DMR). This estimation can be done in terms of: (1) log odds or odds,
+(2) odds ratios  or (3) probabilities. 
+- The Hessian condition number (cond.H) is a measure of model identifiability. 
+The package guidance indicates that numbers > 10^4 are problematic. For these
+examples, this would flag the model with the random effect as potentially
+problematic. 
+```{r}
+#Model: dmr ~ distance from the edge
+summary(d1)
 
-modelling %>% select(sl_i_tot_rm.cat) %>% table()
+#Model: dmr ~ distance from the edge with site random effect
+summary(d2)
+
+#Check convergence. Note that for some reason the convergence function 
+#doesn't work with clmm models
+convergence(d1)
+
+#Example: look at odds of dmr_f = 0 vs IBLC, 1, 2, 3, 4, 5 for distance
+#values of 0, 10 and 25
+#Increases, which makes sense. dmr_f = 0 more likely farther away from edge
+o_0 <- exp(d1$alpha[1] - d1$beta[1]*0)
+o_10 <- exp(d1$alpha[1] - d1$beta[1]*10)
+o_25 <- exp(d1$alpha[1] - d1$beta[1]*25)
+o_0; o_10; o_25
+
+#Express these as probabilities
+#plogis function does the conversion of the log odds to probabilities
+lo_0 <- d1$alpha[1] - d1$beta[1]*0
+lo_10 <- d1$alpha[1] - d1$beta[1]*10
+lo_25 <- d1$alpha[1] - d1$beta[1]*25
+plogis(lo_0)
+plogis(lo_10)
+plogis(lo_25)
+```
+
+##ggeffects
+The ggeffects package can get predictions for many values of a predictor. 
+- A dataframe is generated with values of a predictor (in this case distance) 
+and corresponding probability of each dmr_f level. Each predictor 
+value-response level combination is its own row. 
+- The "terms" term specifies which variables you are interested in 
+predicted values for.
+- The margin term specifies how to treat variables that aren't of interest
+(i.e. not identified in the "terms" term). In this case, "mean_mode" is 
+specified, which uses the mean (for numeric values) and the mode (= most 
+frequent value for factor and character values. 
+```{r}
+?ggeffect
+
+#Generate the predictions
+pre_d1 <- predict_response(d1, terms = "dist_y_h", margin = "mean_mode")
+
+#response.level identifies dmr_f but its values correspond to the levels of
+#the factor, not the values that correspond to those levels. Reset those
+levels_dmr_f <- c("0", "IBLC", "1", "2", "3", "4", "5")
+pre_d1$response.level <- factor(pre_d1$response.level)
+levels(pre_d1$response.level) <- levels_dmr_f
+
+#Rename the variables
+pre_d1 <- pre_d1 %>%
+  rename(seed_load = x,
+         dmr_f = response.level)
+
+#Plot
+ggplot(pre_d1, aes(x = seed_load, y = predicted, fill = dmr_f)) +
+  geom_bar(stat = "identity", position = position_stack()) +
+  scale_fill_viridis_d()
+```
+
+##Tests of variable significance
+-Need likelihood ratio tests to compare models (=test the 
+significance of variables by comparing models that differ by one variable)
+```{r}
+#anova() {stats package}, performs the appropriate test (LR or F-test) 
+#comparing two models
+?anova()
+
+#drop1() {stats package}, given a model (e.g. y ~ x1 + x2 + x3), drops each
+#predictor (x1, x2, x3) from a model and compares that to the full model where
+#no variables are dropped. If only wanting to test specific terms, can 
+#specify those with the scope argument. 
+?drop1()
+```
+
+##Assessing goodness of fit
+There are three statistics that test for goodness of fit (Fagerland & Hosmer, 
+2013; 2016)
+- Lipsitz test
+- Hosmer-Lemeshow test
+- Pulkstenis-Robinson test
+
+None of these ended up being particularly informative in this analysis, but I 
+have kept them here in case they are useful in the future. 
+```{r}
+#All three test statistics are in the generalhoslem package
+?generalhoslem
+
+#Lipsitz test
+?lipsitz.test()
+
+#Hosmer-Lemeshow test
+#Seems like the most general one. Less power than Lipsitz and 
+#Pulkstenis-Robinson but can detect more types of lack of fit.
+?logitgof()
+
+#Pulkstenis-Robinson tests
+#Two tests, on that is an extension of the Chi-squared test statistic and
+#another that is a decivance test statistic. Both follow a chi-squared 
+#distribution
+?pulkrob.chisq()
+?pulkrob.deviance()
 ```
 
 #Modelling
+The actual model building process begins here. 
+
 ##Track likelihood, AIC and LR tests
-Create dataframes to track model fitting. One dataframe that likelihood and 
+Create dataframes to track model fitting. One dataframe that has likelihood and 
 AIC and one that has likelihood ratio tests comparing two models. 
 ```{r}
 tb_mfit <- data.frame("Model" = NA, "logLikelihood" = NA, "AIC" = NA)
@@ -1025,10 +772,9 @@ tb_lr <- data.frame("Comparison" = NA, "dAIC" = NA, "LR stat" = NA,
                     "df" = NA, "p" = NA)
 ```
 
-
 ##Null Model
 Fit the null model. Use DMR collapsed to three levels. Has good 
-interpratability and increases sample size in rarely represented categories. 
+interpretability and increases sample size in rarely represented categories. 
 ```{r}
 #Model 1
 ##Null model. DMR with levels IBLC-2 and 3-5 collapsed is the response.
@@ -1153,11 +899,12 @@ tb_lr <- rbind(tb_lr, df)
 
 ##Two variable models
 All tree level predictors are significant but need to assess colinearity. 
-Build model with three terms: distance, seed load and dbh. Look at standard 
-error estimates of the coefficients. Do they become inflated when distance and
-seed load are included?
+Drop crown class because DBH contains similar information but working with a
+continuous variable is simpler. In models with distance and seed load, look at 
+standard error estimates of the coefficients. Do they become inflated when both 
+variables are included?
 
-Start with a two variable model: distance and dbh
+Model: distance and dbh
 ```{r}
 #Model 8
 ##Predictor: distance from the edge and dbh
@@ -1177,6 +924,7 @@ lr8_6 <- anova(m6, m8)
 lr8_6
 
 #Use AIC to compare model fit of model with both variables to univariate models
+#Model with both variables has the lowest AIC
 AIC(m2); AIC(m6); AIC(m8)
 ```
 
@@ -1200,7 +948,8 @@ lr9_2
 lr9_5 <- anova(m5, m9)
 lr9_5
 
-#Use AIC to compare model fit of model with both variables to univaraite models
+#Use AIC to compare model fit of model with both variables to univariate models
+#Model with both variables has the lowest AIC
 AIC(m2); AIC(m5); AIC(m9)
 ```
 
@@ -1284,9 +1033,11 @@ df <- data.frame("Comparison" = comp, "dAIC" = dAIC,
 tb_lr <- rbind(tb_lr, df)
 ```
 
-##Second order interactions
-Now test for second order interactions. Three to test: distance x seed load, 
-distance x dbh and seed load x dbh. Start with distance x seed load. 
+##First order interactions
+Now test for first order interactions. Three to test: distance x seed load, 
+distance x dbh and seed load x dbh. 
+
+Start with distance x seed load. 
 ```{r}
 #Model 12
 ##Predictor: distance from the edge, seed load, dbh and distance x seedload
@@ -1754,9 +1505,9 @@ tb_lr <- rbind(tb_lr, df)
 
 ###Graphical tests of assumption
 In the tests, only distance from the edge failed to meet the proportional 
-odds assumption. Biljana Stojkova from the Stats group suggested also assessing
-this assumption graphically. There is a good tutorial on the general approach
-to this from UCLA here: https://stats.oarc.ucla.edu/r/dae/ordinal-logistic-regression/
+odds assumption. Dr. Biljana Stojkova from the Stats group at UBC 
+suggested also assessing this assumption graphically. There is a good tutorial 
+on the general approach to this from UCLA here: https://stats.oarc.ucla.edu/r/dae/ordinal-logistic-regression/
 
 That tutorial fits single variable separate logit models outside of a larger
 proportional odds model for each variable. i.e. a model is fit for P<= 0
@@ -2008,6 +1759,7 @@ po_m26 <- ggplot(x2, aes(x = int_dbh_sl, y = lo_val, colour = lo_level)) +
 #Put them all together
 prop_odds_1 <- ggarrange(po_m22, po_m23, po_m24, po_m25, po_m26, leg,
           ncol = 3, nrow = 2)
+prop_odds_1
 
 #Export
 # ggsave(here("./figures/prop_odds_1.svg"), plot = prop_odds_1, device = "svg",
@@ -2058,7 +1810,7 @@ prop_odds_2a <-
         legend.position.inside = c(0.8, 0.5)) +
   scale_colour_manual(values = col_dmr3, guide = "none") +
   guides(shape = guide_legend(override.aes = list(alpha = 1)))
-
+prop_odds_2a
 
 #Panel B: difference in probability estimates between proportional odds model 
 #and partial proportional odds model across the range of distance from the 
@@ -2106,6 +1858,7 @@ prop_odds_2b <-
                                   face = "bold")) +
   scale_colour_manual(values = col_dmr3) +
   guides(color = guide_legend(override.aes = list(alpha = 1)))
+prop_odds_2b
 
 #Put it all together
 #Combine the two plots
@@ -2186,7 +1939,7 @@ rejected as not that useful for a reader in the feedback from my committee.
 I've kept it here because it is a true representation of the model behaviour  
 across all the variable combinations represented in the data. 
 
-(2) The second uses  a single DBH value (the mean of dominant/codominant 
+(2) The second uses a single DBH value (the mean of dominant/codominant 
 trees). These are the future crop trees and the goal of the figure is to show 
 how the probability of infection changes with distance from the edge in a 
 seed-load dependent way. 
@@ -2198,7 +1951,8 @@ different DBH values; the goals of the second panel is to compare the effects
 of DBH and distance. 
 
 (4) Shows the magnitude of the random site effect. It generates probabilities 
-for an average tree in an average, high infection and low infection site. 
+for an average tree in average, high infection and low infection sites as a
+function of distance from the edge. 
 
 ##Plot 1
 ###Select meaningful values of predictors
@@ -2208,16 +1962,18 @@ the range, or some low, medium, high like scale. Also, only combinations of
 predictor variables that exist in the data (or are realistic) should appear in 
 the final product. 
 
-Two kinds of value sets are created for each predictor, one for when it is the 
-focal predictor that has relatively more values and one or two for when it is 
-secondary predictor, where it is used as grouping or faceting variable. 
+Two kinds of value sets are created for each predictor, one set for when it is 
+the focal predictor that has relatively more values and one set for when it 
+is secondary predictor that has relatively fewer values and serves the function 
+of being a grouping or faceting variable. 
 
-The model is fit on scaled versions of the variables. So value sets are created
-with logic about the variable on the original scale and then are transformed to
+The model is fit on scaled versions of the variables. The value sets are created
+using logic about the variable on the original scale and then are transformed to
 the scaled scale. 
 
 Different options choosing and specifying values in {ggeffects} are described 
 in this vignette: https://strengejacke.github.io/ggeffects/articles/introduction_effectsatvalues.html 
+
 ####Distance from the edge values
 Distance from the edge is easy. For its set as a focal predictor, do 5m 
 intervals. For its sets a secondary predictor do: 5, 25 and 45m for the dbh
@@ -2655,7 +2411,7 @@ val_d4 <- (val_d4 - dist_mean)/dist_sd
 
 #For seed load, use the three values selected above, representing 0, low and
 #high seed load
-val_sl2 <- (val_sl2 - sl_mean)/sl_sd
+val_sl2
 
 #For dbh, use mean of dominant/codominant trees
 val_dbh3 <- val_dbh2[3]
@@ -2719,6 +2475,7 @@ p1 <- ggplot(x, aes(x = dist_m, y = predicted, color = DMR,
         legend.text = element_text(size = 11, family = "Times New Roman"),
         legend.title = element_text(size = 11, family = "Times New Roman",
                                   face = "bold"))
+p1
 
 #Generate a second plot of seed load x distance from the edge to show
 #why we only display data up to 20m from edge
@@ -2735,11 +2492,13 @@ p2 <- ggplot(x1, aes(x = dist_y_h, y = sl_i_tot_rm)) +
         legend.text = element_text(size = 11, family = "Times New Roman"),
         legend.title = element_text(size = 11, family = "Times New Roman",
                                   face = "bold"))
+p2
 
 p3 <- ggarrange(p1, p2, nrow = 2, align = "v", 
                 labels = "AUTO", font.label = list(size = 13, 
                                           family = "Times New Roman",
                                           face = "bold"))
+p3
 
 #Export this
 # ggsave(here("./figures/var_eff_dist.svg"), plot = p3, device = "svg",
@@ -2863,6 +2622,7 @@ p1 <- ggplot(x, aes(x = dbh, y = predicted, color = DMR,
         legend.title = element_text(size = 8, family = "Times New Roman",
                                   face = "bold")) +
   guides(color = "none")
+p1
 
 #Panel 2
 p2 <- ggplot(x1, aes(x = dist_m, y = predicted, color = DMR, 
@@ -2889,6 +2649,7 @@ p2 <- ggplot(x1, aes(x = dist_m, y = predicted, color = DMR,
         legend.title = element_text(size = 8, family = "Times New Roman",
                                   face = "bold")) +
   guides(colour = "none")
+p2
 
 #Generate a plot with a colour legend for DMR and save that
 p3 <- ggplot(x, aes(x = dbh, y = predicted, color = DMR)) + 
@@ -2908,6 +2669,7 @@ p3 <- ggplot(x, aes(x = dbh, y = predicted, color = DMR)) +
         legend.text = element_text(size = 11, family = "Times New Roman"),
         legend.title = element_text(size = 11, family = "Times New Roman",
                                   face = "bold"))
+p3
 
 leg_dmr <- ggpubr::get_legend(p3, position = "right")
 
@@ -2916,10 +2678,12 @@ p4 <- ggarrange(p1, p2, nrow = 2, align = "v",
                 labels = "AUTO", font.label = list(size = 13, 
                                           family = "Times New Roman",
                                           face = "bold"))
+p4
 
 #Add the DMR legend
 p5 <- plot_grid(p4, leg_dmr, 
           nrow = 1, ncol = 2, rel_widths = c(15, 3))
+p5
 
 #Export
 # ggsave(here("./figures/var_eff_dbh.svg"), plot = p5, device = "svg",
@@ -3097,589 +2861,4 @@ g_re2
 #         width = 6.5, height = 4, units = "in")
 ```
 
-#Checking classification accuracy
-Started sketching out this code even though the model selection process above
-has an inferential (not predictive) objective. Show what statistics are 
-available to test classification accuracy. 
-
-Start by getting predicted probabilities of each DMR level for each 
-observation
-```{r}
-summary(m20)
-
-#Replicate the original data
-pred <- modelling %>% 
-  select(tree_id, site_id, dmr_f_4, dist_y_h.s, dbh.s, sl_i_tot_rm.s)
-
-#Calculate raw intercation terms
-pred <- pred %>%   
-  mutate(int_dist_sl = dist_y_h.s*sl_i_tot_rm.s,
-         int_dbh_sl = dbh.s*sl_i_tot_rm.s)
-
-#Extract the random effects, add them to the dataframe by site_id
-ranef_m20 <- data.frame(ranef = m20$ranef, site_id = unique(modelling$site_id))
-pred <- left_join(pred, ranef_m20, by = "site_id")
-
-#Save the model coefficients
-coef_m20 <- coefficients(m20)
-coef_m20
-
-#Calcualte the logit odds for each level
-pred <- pred %>% 
-  mutate(lo_0 = coef_m20[1] - coef_m20[3]*dist_y_h.s - 
-           coef_m20[4]*dbh.s - coef_m20[5]*sl_i_tot_rm.s -
-           coef_m20[6]*int_dist_sl - coef_m20[7]*int_dbh_sl - ranef,
-         lo_IBLC2 = coef_m20[2] - coef_m20[3]*dist_y_h.s - 
-           coef_m20[4]*dbh.s - coef_m20[5]*sl_i_tot_rm.s -
-           coef_m20[6]*int_dist_sl - coef_m20[7]*int_dbh_sl - ranef)
-
-#Take the inverse logit to get cumulative probabilities
-pred <- pred %>% 
-  mutate(cp_0 = plogis(lo_0),
-         cp_IBLC2 = plogis(lo_IBLC2))
-
-#Calculate exact probabilities of each DMR levels from cumulative probabilities
-pred <- pred %>% 
-  mutate(p_0 = cp_0,
-         p_IBLC_2 = cp_IBLC2 - cp_0,
-         p_3_5 = 1 - cp_IBLC2)
-
-#Lengthen to show the different probabilities
-pred_long <- pred %>% 
-  pivot_longer(cols = starts_with("p_"),
-               values_to = "prob",
-               names_to = "pred_dmr_f_4",
-               names_prefix = "p_") %>% 
-  mutate(pred_dmr_f_4 = case_match(pred_dmr_f_4,
-                          "0" ~ "0",
-                          "3_5" ~ "3-5",
-                          "IBLC_2" ~ "IBLC-2")) %>% 
-  mutate(pred_dmr_f_4 = factor(pred_dmr_f_4, levels = c("0", "IBLC-2", "3-5")))
-```
-
-Create with plots with the set up: 
-- j-1 panels (j = levels of the response)
-- y = predicted probabilities
-- x = j levels
-Gives you a visual idea of whether each DMR level is well separated by 
-predicted probabilities. 
-```{r}
-ggplot(pred_long, aes(x = pred_dmr_f_4, y = prob)) +
-  facet_wrap(~dmr_f_4) +
-  geom_point() +
-  geom_boxplot(outliers = F,
-               fill = NA) +
-  theme_classic()
-```
-
-Then create classification tables (aka confusion matrices)
-```{r}
-#Create a function to evaluate which response level has the highest 
-#probability, then save that level. 
-f_pred_dmr_high <- function(pred_prob_df, dmr_lev) {
-  #Apply function to each row to find the column index of the max probability
-  max_index <- apply(pred_prob_df, 1, which.max)
-  
-  # Use the index to select the corresponding level
-  pred_dmr <- dmr_lev[max_index]
-  
-  # Return as a factor with specified levels
-  return(factor(pred_dmr, levels = dmr_lev))
-}
-
-#Save levels of dmr
-dmr_lev <- levels(modelling$dmr_f_4)
-
-#Subset dataframe to just columns that have probabilities of each level
-x <- pred %>% 
-  select(starts_with("p_"))
-
-#Apply function to get predicted dmr
-pred <- pred %>% 
-  mutate(pred_dmr_maxp = f_pred_dmr_high(x, dmr_lev))
-
-#Generate a confusion matrix. Used the conf_mat() function in the {yardstick}
-#package. 
-cm <- conf_mat(pred, truth = dmr_f_4, estimate = pred_dmr_maxp)
-cm
-
-#Calculate accuracy (i.e. the proportion of observations that were correctly 
-#classified)
-accuracy(pred, truth = dmr_f_4, estimate = pred_dmr_maxp)
-
-#Calculate kappa (i.e. the proportion of correct classifications normalized 
-#by what you would expect based on chance alone). Weighted kappa is a version 
-#of kappa that gives more value to close disagreements (than far ones). You can
-#weight it in two ways: (1) quadratic, which weights values as a exponentially
-#declining function as you move away from an observation and (2) linear, which
-#weights values as a linear declining function as you move away from an 
-#observation
-kap(pred, truth = dmr_f_4, estimate = pred_dmr_maxp)
-kap(pred, truth = dmr_f_4, estimate = pred_dmr_maxp, weighting = "quadratic")
-kap(pred, truth = dmr_f_4, estimate = pred_dmr_maxp, weighting = "linear")
-```
-
-#Extra code chunks
-##Goodness of fit tests
-```{r}
-#Start by getting predicted values of each response category for the dataset
-x <- data.frame(dist_y_h = modelling$dist_y_h, 
-                       dbh = modelling$dbh)
-x1 <- predict(m11, newdata = x, type = "prob")$fit
-predprob <- data.frame("dmr_0" = x1[,1], 
-                       "dmr_IBLC_2" = x1[,2], 
-                       "dmr_3_5" = x1[,3])
-
-#Plot these
-#Notice that the probability of DMR 3-5 is left skewed. Lots of prob = 0. 
-#The Lipsitz and Hosmer-Lemeshow test work by grouping data according to their
-#predicted probability. The low probability of dmr_3-5 seems to be causing
-#problems in Hosmer-Lemeshow test because the expected probability of that 
-#class is almost always low. This inflates the test statistic. 
-predprob <- predprob %>% 
-  pivot_longer(starts_with("dmr"), values_to = "prob", names_to = "dmr") %>% 
-  mutate(dmr = factor(dmr, levels = c("dmr_0", "dmr_IBLC_2", "dmr_3_5")))
-ggplot(predprob, aes(x = prob)) + geom_histogram() + 
-  facet_wrap(~dmr)
-
-#Lipsitz test. 
-#Recommend number of groups for this test are 6 <= g <= n/5c, where c = number 
-#of levels in the response (3). 
-#Increases the number of groups increases the number of parameters in the 
-#model that is fit with the score groups. With more than 8 groups, I get
-#a warning message. I think this is a problem of data sparseness. 
-#Not significant with 6, 7 or 8 groups. 
-nrow(modelling)/(5*3) #Max groups are 73
-lipsitz.test(m11, g = 7)
-
-#Hosmer-Lemeshow test
-#Getting error message. Sparseness issue. 
-x <- data.frame(dist_y_h = modelling$dist_y_h, 
-                       dbh = modelling$dbh)
-fv <- predict(m11, newdata = x, type = "prob")$fit
-logitgof(modelling$dmr_f_4, fv, g = 3, ord = TRUE)
-```
-
-##Testing different link functions
-Conceptually, the one that seems most 
-appropriate is the complementary log-log, but others symmetric links (logit, 
-probit, etc) could work just fine too.
-```{r}
-#Model 13
-##Predictor: distance from the edge and dbh
-##Random effect: site
-##Link: complementary log likelihood
-##Get a warning message here. 
-m13 <- clmm(dmr_f_4 ~ dist_y_h + dbh + (1|site_id), 
-           data = modelling,
-           link = "cloglog",
-           threshold = "flexible")
-summary(m13)
-
-#Model 14
-##Predictor: distance from the edge and dbh
-##Random effect: site
-##Link: probit
-##Get a warning message here. 
-m14 <- clmm(dmr_f_4 ~ dist_y_h + dbh + (1|site_id), 
-           data = modelling,
-           link = "probit",
-           threshold = "flexible")
-summary(m14)
-
-#Compare log likelihoods and AIC of the different links
-m12$logLik; m13$logLik; m14$logLik #logit and probit provide best fits
-AIC(m12); AIC(m13); AIC(m14) #logit and probit provide best fits 
-```
-
-##Nominal and scale effects
-Test the proportional odds assumption. To do this, we fit models that allow for
-nominal effects and then compare it to one without using with a likelihood 
-ratio test. Nominal effects haven't been integrates into clmm yet, but they are
-in the legacy function clmm2. 
-```{r}
-#Refit Model 12 (dmr ~ distance + dbh) with clmm2
-m15 <- clmm2(dmr_f_4 ~ dist_y_h + dbh, random = site_id, data = modelling,
-            link = "logistic", threshold = "flexible", Hess = TRUE)
-summary(m15)
-
-#Fit models that allow for nominal effects in distance and dbh
-
-#Model 16
-##Predictor: distance from the edge and dbh
-##Nominal: distance from the edge
-##Random effect: site
-##Link: logistic
-m16 <- clmm2(dmr_f_4 ~ dbh, nominal = ~dist_y_h, random = site_id, 
-             data = modelling, link = "logistic", threshold = "flexible", 
-             Hess = TRUE)
-summary(m16)
-
-#Model 17
-##Predictor: distance from the edge and dbh
-##Nominal: distance from the edge
-##Random effect: site
-##Link: logistic
-##Getting error message here
-m17 <- clmm2(dmr_f_4 ~ dist_y_h, nominal = ~dbh, random = site_id, 
-             data = modelling, link = "logistic", threshold = "flexible", 
-             Hess = TRUE)
-warnings(m17)
-
-#Run LR ratio tests
-#Non-proportional odds significant for distance from the edge but not dbh
-anova(m15, m16)
-anova(m15, m17)
-```
-
-Another option that often produces similar results to nominal effects is 
-allowing for scale effects. This allows for the scale parameter of the 
-underlying probability density function to change with the predictor. The 
-advantage is you only have to fit one additional parameter (as oopose to J-1
-with nominal effects) and interpreting the model is easier because the effect
-of the predictor is the same across all levels of the response (J). 
-```{r}
-#Fit scale effect for distance from the edge
-
-#Model 18
-##Predictor: distance from the edge and dbh
-##Scale: distance from the edge
-##Random effect: site
-##Link: logistic
-##Getting warning that random effects are not converging
-m18 <- clmm2(dmr_f_4 ~ dbh, scale = ~dist_y_h, random = site_id, 
-             data = modelling, link = "logistic", threshold = "flexible", 
-             Hess = TRUE)
-warnings(m18)
-
-#Compare this model to the one with nominal effect. Not that the model allowing
-#for scale effects is nested in the model with nominal effects. 
-#Nominal effects model significantly better
-AIC(m16); AIC(m18)
-anova(m16, m18)
-```
-
-Okay at this point, we have a good working model that is approaching a Hessian
-condition that indicates the model is ill-formed. Try adding site level 
-variables and see if the model converges. 
-```{r}
-#Model 19
-##Predictor: distance from the edge, dbh, years since harvest
-##Nominal: distance from the edge
-##Random effect: site
-##Link: logistic
-##Warning message about random effects
-m19 <- clmm2(dmr_f_4 ~ dbh + yr_since_har, nominal = ~dist_y_h, 
-             random = site_id, data = modelling, link = "logistic", 
-             threshold = "flexible", Hess = TRUE)
-summary(m19)
-warnings(m19)
-
-#Model 20
-##Predictor: distance from the edge, dbh, seed production in mature component
-##Nominal: distance from the edge
-##Random effect: site
-##Link: logistic
-##Warning message about random effects
-m20 <- clmm2(dmr_f_4 ~ dbh + sp.y, nominal = ~dist_y_h, 
-             random = site_id, data = modelling, link = "logistic", 
-             threshold = "flexible", Hess = TRUE)
-summary(m20)
-warnings(m20)
-
-#Model 21
-##Predictor: distance from the edge, dbh, BEC zone
-##Nominal: distance from the edge
-##Random effect: site
-##Link: logistic
-##Warning message about random effects
-m21 <- clmm2(dmr_f_4 ~ dbh + bec, nominal = ~dist_y_h, 
-             random = site_id, data = modelling, link = "logistic", 
-             threshold = "flexible", Hess = TRUE)
-summary(m21)
-warnings(m21)
-```
-
-##Getting model predictions
-Next step is to understand how to get predictions from these models. 
-```{r}
-#Model 22: dmr ~ dbh.s + distance from edge.s (nominal) + site (random)
-summary(m22)
-
-#Model 23: dmr ~ dbh.s + distance from edge.s + site (random)
-summary(m23)
-
-#Start by expecting some of the model elements
-#Betas coefficients of predictors specified as location (normal, not nominal) 
-#effects
-m22$beta
-
-#Threshold parameters, which I think are also the nominal coefficients for each
-#level logit (j boundary)=
-m22$xi
-
-#All the coefficients (location, nominal, thresholds and also one that is used 
-#in the link function) 
-m22$coefficients
-
-#Random effect estimates. More specifically, the documentations says these are
-#the "conditonal modes" of the random effects. There are also estimates of the
-#conditional variance for each random effect estimate. 
-m22$ranef
-m22$condVar
-
-#Fitted values. These are probabilities for each observation in the dataset
-#conditional on the random effect. 
-#For example, observation 1 is from cr_1, has a dmr of (IBLC-2) and, has a 
-#scaled dbh of 1.07 and a scaled distance from the edge of -0.910. The fitted
-#value tells you the probability of IBLC-2 at those x values and cr_1 site
-modelling %>% select(dmr_f_4, dbh.s, dist_y_h.s, site_id) %>% slice(1)
-m22$fitted.values %>% head()
-
-#To get predicted values for the average site (no random effect) you use the 
-#predict function.
-#Note: if you just run predict(model), you get the conditional predicted
-#probabilities
-predict(m22, newdata = modelling) %>% head()
-
-#A few other things in the model object
-#True or false indicating if the model converged
-m22$convergence
-
-#Vector of the response variable in the original dataframe
-m22$y
-
-#Levels of the response variable
-m22$lev
-```
-
-Check understanding by calculating the fitted value of the first 
-observation by hand. The model is: 
-$\text{dmr_f_4} \sim \text{dbh.s} + \text{(1 | site_id)} \quad \text{with nominal effect:} \quad \sim \text{dist_y_h.s}$
-
-```{r}
-#Extract first observation
-obs1 <- modelling %>% select(dmr_f_4, dbh.s, dist_y_h.s, site_id) %>% 
-  slice(1)
-obs1
-
-#Save dbh and distance values as simple numerics
-obs1.num <- obs1 %>% select(dbh.s, dist_y_h.s) %>% unlist()
-
-#Compare the what the fitted value for the first observation was
-m22$fitted.values %>% head(1)
-
-#Model summary
-summary(m22)
-
-#Calculate the logit(odds) (= underlying latent variable) for P(Y<=0) and 
-#P(Y<=IBLC-2). 
-m22$coefficients
-lgit1 <- (m22$coefficients[1] + m22$coefficients[3]*obs1.num[2]) - 
-  m22$coefficients[5]*obs1.num[1] - m22$ranef[1]
-lgit2 <- (m22$coefficients[2] + m22$coefficients[4]*obs1.num[2]) - 
-  m22$coefficients[5]*obs1.num[1] - m22$ranef[1]
-
-#These are on the log odds scale. Convert these to the estimated cumulative 
-#probability by taking the inverse of the logit, which the plogis() function
-#does
-plogis(lgit1) #P(Y<=0)
-plogis(lgit2) #P(Y<=IBLC-2)
-
-#Subtract the cumulative probabilities to get P(Y = IBLC-2) and compare with
-#the fitted value (should be identical)
-p_iblc2 <- plogis(lgit2) - plogis(lgit1)
-p_iblc2
-m22$fitted.values %>% head(1)
-```
-
-The fitted values in the model object only provide the estimated probability 
-for the observed DMR value of each observation. To assess the classification
-accuracy, we need estimates of each DMR level for each observation and then we
-can compare it to what the observed DMR was. 
-```{r}
-#Replicate the original data
-pred_re_m22 <- data.frame(tree_id = modelling$tree_id,
-                dmr_f_4 = factor(modelling$dmr_f_4),
-                dist_y_h.s = modelling$dist_y_h.s,
-                dbh.s = modelling$dbh.s,
-                site_id = modelling$site_id)
-
-#Add fitted proabilities to the dataframe so we can cross check calculations
-pred_re_m22 <- pred_re_m22 %>% 
-  mutate(fit_m22 = fitted(m22))
-
-#Save the model coefficients
-coef_m22 <- coefficients(m22)
-coef_m22
-
-#Epred_re_m22tract random effects, add them to the dataframe by site_id
-ranef_m22 <- data.frame(ranef = m22$ranef, site_id = unique(modelling$site_id))
-pred_re_m22 <- left_join(pred_re_m22, ranef_m22, by = "site_id")
-
-#Calcualte cumulative probabilities: P(DMR<=0) and P(DMR<= IBLC-2)
-summary(m22)
-pred_re_m22 <- pred_re_m22 %>% 
-  mutate(cp_0 = plogis((coef_m22[1] + coef_m22[3]*dist_y_h.s) - 
-           coef_m22[5]*dbh.s - ranef),
-         cp_IBLC2 = plogis((coef_m22[2] + coef_m22[4]*dist_y_h.s) - 
-           coef_m22[5]*dbh.s - ranef)
-         )
-
-#Calculate epred_re_m22act probabilities of each level
-pred_re_m22 <- pred_re_m22 %>% 
-  mutate(prob_0 = cp_0,
-         prob_IBLC_2 = cp_IBLC2 - cp_0,
-         prob_3_5 = 1- cp_IBLC2)
-```
-
-##Testing classification accuracy
-Plot the predicted probabilities of each level to see if there is good 
-separation. i.e. for a tree that has an observed dmr of IBLC-2, is the 
-probability of that level higher (and separated) from the probabilities of the
-other levels?
-```{r}
-#Gather columns of predicted probabilities
-x <- pred_re_m22 %>% 
-  pivot_longer(cols = starts_with("prob"),
-               values_to = "prob",
-               names_to = "pred_dmr",
-               names_prefix = "prob_") %>% 
-  mutate(pred_dmr = factor(pred_dmr, levels = c("0", "IBLC_2", "3_5")))
-
-#Plot
-ggplot(x, aes(x = prob, y = pred_dmr)) + 
-  geom_jitter() + 
-  geom_boxplot(outliers = FALSE, fill = NA) +
-  facet_wrap(~dmr_f_4)
-```
-
-Calculate kappa 
-```{r}
-#First step is to generate a confusion matrix. 
-
-#Create a function to evaluate which response level has the highest 
-#probability, then save that level. 
-f_pred_dmr_high <- function(pred_prob_df, dmr_lev) {
-  #Apply function to each row to find the column index of the max probability
-  max_index <- apply(pred_prob_df, 1, which.max)
-  
-  # Use the index to select the corresponding level
-  pred_dmr <- dmr_lev[max_index]
-  
-  # Return as a factor with specified levels
-  return(factor(pred_dmr, levels = dmr_lev))
-}
-
-#Save levels of dmr
-dmr_lev <- levels(modelling$dmr_f_4)
-
-#Subset dataframe to just columns that have probabilities of each level
-x <- pred_re_m22 %>% 
-  select(starts_with("prob"))
-
-#Apply function to get predicted dmr
-pred_re_m22 <- pred_re_m22 %>% 
-  mutate(pred_dmr = f_pred_dmr_high(x, dmr_lev))
-
-#Generate a confusion matrix. Used the conf_mat() function in the {yardstick}
-#package. 
-cm_m22 <- conf_mat(pred_re_m22, truth = dmr_f_4, estimate = pred_dmr)
-cm_m22
-
-#Calculate accuracy (i.e. the proportion of observations that were correctly 
-#classified)
-accuracy(pred_re_m22, truth = dmr_f_4, estimate = pred_dmr)
-
-#Calculate kappa (i.e. the proportion of correct classifications normalized 
-#by what you would expect based on chance alone). Weighted kappa is a version 
-#of kappa that gives more value to close disagreements (than far ones). You can
-#weight it in two ways: (1) quadratic, which weights values as a exponentially
-#declining function as you move away from an observation and (2) linear, which
-#weights values as a linear declining function as you move away from an 
-#observation
-kap(pred_re_m22, truth = dmr_f_4, estimate = pred_dmr)
-kap(pred_re_m22, truth = dmr_f_4, estimate = pred_dmr, weighting = "quadratic")
-kap(pred_re_m22, truth = dmr_f_4, estimate = pred_dmr, weighting = "linear")
-```
-
-Assigning a DMR based on the response level with the probability is arbitrary. 
-Instead, assign using a weighted dice roll. The "dice" has the same number of 
-sides as there are levels in the response. The probability of each side, is the 
-probability of that level in the response. Here, we do one dice roll for each 
-observation and get a DMR value. This is what I am imagining we will do when we
-extend this to the stand scale predictive model, so really what we are
-interested in is if this produces similar levels of infection at a site level;
-predicting individual trees isn't as important as predicting % infection at the 
-site. 
-```{r}
-#With help from ChatGPT
-#Function to assign a response level using weighted probabilities
-f_pred_dmr_wt <- function(pred_prob_df, dmr_lev) {
-  # Apply function to each row to sample a level with weighted probabilities
-  pred_dmr <- apply(pred_prob_df, 1, function(probabilities) {
-    # Use sample() to randomly select a level with probabilities as weights
-    sample(dmr_lev, size = 1, prob = probabilities)
-  })
-  
-  # Return as a factor with specified levels
-  return(factor(pred_dmr, levels = dmr_lev))
-}
-
-# Subset dataframe to just columns that have probabilities of each level
-x <- pred_re_m22 %>%
-  select(starts_with("prob"))
-
-# Apply the new function to get predicted dmr using weighted sampling
-pred_re_m22 <- pred_re_m22 %>%
-  mutate(pred_dmr_wt = f_pred_dmr_wt(x, dmr_lev))
-```
-
-Compare the proportions of infected trees in each DMR response level based on
-assigning a DMR with the highest probability and with a weighted dice roll.
-```{r}
-#Check the levels in the observed and predicted dmrs are the same
-levels(pred_re_m22$dmr_f_4)
-levels(pred_re_m22$pred_dmr)
-levels(pred_re_m22$pred_dmr_wt)
-
-#Subset the dataframe
-x <- pred_re_m22 %>% 
-  select(site_id, dmr_f_4, pred_dmr, pred_dmr_wt)
-
-#Gather the columns
-x <- x %>% 
-  pivot_longer(cols = c("dmr_f_4", "pred_dmr", "pred_dmr_wt"),
-               values_to = "dmr_val",
-               names_to = "dmr_ver")
-
-#Get the total number of trees for each site
-x1 <- modelling %>% 
-  group_by(site_id) %>% 
-  summarise(tot_trees = n()) 
-
-#Summarise the number of trees in each dmr class by each dmr version (observed
-#and predicted by highest prob or dice roll) within each site 
-x <- x %>% 
-  group_by(site_id, dmr_ver, dmr_val) %>% 
-  summarise(n_trees = n(), .groups = "drop") %>% 
-  complete(site_id, dmr_ver, dmr_val, fill = list(n_trees = 0))
-
-#Add the total number of trees at each site and convert to proportion
-x <- left_join(x, x1, by = "site_id")
-x <- x %>% 
-  mutate(p_trees = n_trees/tot_trees)
-
-#Graph the proportion of each trees in each dmr class for each site
-ggplot(x, aes(x = site_id, y = p_trees, colour = dmr_ver)) + 
-  geom_jitter(width = 0.2) + 
-  facet_wrap(~dmr_val)
-
-#Compare the accuracy of the two dmr assignment methods
-x2 <- x %>% select(-c(n_trees, tot_trees)) %>% 
-  group_by(site_id, dmr_val) %>% 
-  mutate(id = row_number()) %>% 
-  pivot_wider(names_from = dmr_ver,
-              values_from = p_trees)
-```
-
+END
