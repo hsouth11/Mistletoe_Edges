@@ -4,9 +4,20 @@ author: "Hanno Southam"
 date: "`r Sys.Date()`"
 output: html_document
 ---
+READ ME
+This script generates shapefiles that are used to define the boundaries of the
+research sites in the BC Ministry of Forests Experimental Projects program. 
+
 #Setup
 Load packages
 ```{r}
+#Unload loaded packages in R session
+library(pacman)
+p_loaded()
+p_unload(p_loaded(), character.only = T)
+
+#Load packages used in this script. Unloading then loading avoids potential
+#package conflicts
 library(tidyverse)
 library(here)
 library(sp)
@@ -33,7 +44,7 @@ Plot both the trees object and site centrepoints to ensure they look good
 ```{r}
 #Convert to a sf, point feature object
 site_sf <- st_as_sf(site, coords = c("utm_E", "utm_N"), crs = 3005)
-trees_sf <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+trees_sf <- st_as_sf(trees, coords = c("x_utm", "y_utm"), crs = 3005)
 
 #Plot
 tmap_mode("plot") +
@@ -45,6 +56,12 @@ tmap_mode("plot") +
 ```
 
 #Define function to generate footprints
+With help from ChatGPT. This function generates a rectangle around each site. 
+It requires:
+- the transect azimuth
+- coordinates of the site centrepoint (the startpoint of the middle transect) 
+- a buffer size (should the rectangle be extended beyond capturing the measured
+area of a site)
 ```{r}
 f_fp <- function(tran_azimuth,
                  xcenter,
@@ -146,4 +163,3 @@ fp <- fp %>% select(site_id, EP_name, date_surveyed,
 # st_write(fp, here('./data/mof_footprints/hdm_fp_all.shp'),
 #          append = FALSE)
 ```
-
