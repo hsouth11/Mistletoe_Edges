@@ -1,16 +1,37 @@
+#Hypothetical group retention geometry
+#Author: Hanno Southam
+#Updated: 22 Dec 2025
+
+####READ ME####
+#This script generates hypothetical, "representative", group retention and 
+#clearcut cutblocks for coastal BC to compare their zones of edge influence
+#where HDM edge infection would be important. This generates a figures and some
+#rough numbers for the discussion of my thesis/publication. 
+
+####Prep####
+#Unload loaded packages in R session
+library(pacman)
+p_loaded()
+p_unload(p_loaded(), character.only = T)
+
+#Load packages used in this script. Unloading then loading avoids potential
+#package conflicts
 library(sf)
 library(tmap)
 library(dplyr)
 
+#Clear environment
 rm(list=ls(all=TRUE))
 
-#Step 1: Create a 16 ha cutblock (400m x 400m)
+####Step 1####
+#Create a 16 ha cutblock (400m x 400m)
 cb <- st_as_sf(st_sfc(st_polygon(list(rbind(
   c(0, 0), c(400, 0), c(400, 400), c(0, 400), c(0, 0)))), crs = 3005))
 #Create a line object to buffer off
 cb_line <- st_boundary(cb)
 
-#Step 2: define centre points for retention patch squares
+####Step 2#### 
+#Define centre points for retention patch squares
 rp_centers <- st_sfc(
   st_point(c(75, 75)),
   st_point(c(325, 75)),  
@@ -19,7 +40,8 @@ rp_centers <- st_sfc(
   st_point(c(325, 325))   
   , crs = 3005)
 
-#Step 3: Create 100m x 100m retention patches at defined points
+####Step 3#### 
+#Create 100m x 100m retention patches at defined points
 make_square <- function(pt, size = 100) {
   x <- st_coordinates(pt)[1]
   y <- st_coordinates(pt)[2]
@@ -44,7 +66,9 @@ tmap_mode("plot") +
   tm_shape(rp) +
     tm_borders(col = "green")
 
-#Step 4: Create 15 and 35m buffers around retention patches
+####Step 4####
+#Create 15 and 35m buffers around retention patches
+
 #Restrict to area within the cutblock and remove the retention patches 
 #themselves
 rp_35 <- st_buffer(rp, 35) %>% 
@@ -52,7 +76,9 @@ rp_35 <- st_buffer(rp, 35) %>%
 rp_15 <- st_buffer(rp, 15) %>% 
   st_intersection(cb)
 
-#Step 5: Create the same buffers around the block edge
+####Step 5####
+#Create the same buffers around the block edge
+
 #Remove the portion created that buffers outward from the block edge and any
 #overlap with the retention patches
 ed_35 <- st_buffer(cb_line, 35) %>% 
@@ -87,7 +113,9 @@ tmap_mode("plot") +
     tm_borders(col = "green", lty = "dashed") +
   tm_layout(frame = F)
 
-#Step 6:Remove overlapping areas
+####Step 6####
+#Remove overlapping areas
+
 #Remove internal overlaps from retention patch buffers and the 
 #retention patches themselves
 rp_15 <- st_union(rp_15) %>% 
@@ -96,7 +124,7 @@ rp_35 <- st_union(rp_35) %>%
   st_difference(st_combine(rp))
   
 #Identify areas that overlap with edge buffers. These are areas within the 
-#buffer distance of both a retention patch and an edge patch. We'll create two
+#buffer distance of both a retention patch and an edge. We'll create two
 #objects, one that identifies these areas of dual overlap and one that removes
 #these areas
 #Identify areas of overlap
@@ -140,8 +168,9 @@ tmap_mode("plot") +
     tm_fill(col = "grey", alpha = 0.3) + 
   tm_layout(frame = F)
 
-################
-#Step 7: Calculate areas in hectares
+####Step 7#### 
+#Calculate areas in hectares
+
 #Harvested area, should be 11 but just to check
 a_cb <- cb %>% st_difference(st_combine(rp)) %>% 
   st_area()/10000
@@ -198,7 +227,7 @@ a_inf - a_inf_clearcut
 a_inf/a_cb*100
 a_inf_clearcut/16*100
 
-##############
+####Step 8####
 #Create one final plot for thesis
 #Generate a polygon of just area >35 m
 ha_35 <- cb %>% 
@@ -282,7 +311,7 @@ p <- tmap_mode("plot") +
             legend.title.size = 1.2,
             legend.title.fontface = "bold",
             legend.text.size = 1)
-
+p
 
 #Save the plot
 # tmap_save(p, filename = "./figures/retention_geometry.svg",
