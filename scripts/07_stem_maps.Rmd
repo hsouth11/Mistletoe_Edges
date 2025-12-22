@@ -7,11 +7,12 @@ output: html_document
 ##############
 READ ME
 This script generates stem maps of each HDM site. The core starting objects are
-the output of the 'seed load.Rmd' script (trees_sl.csv) and processed version 
-of the trimble points (trimb_radjusted.csv). 
+the output of the '05_seed_load.Rmd' script (trees_sl.csv) and the cleaned 
+version of the trimble gps points (hdm_trimb_points.csv). 
 
 The {sf} and {sp} packages are used to process the spatial data and the {tmap}
-package is used to make the actual plots. {tmap} has a similar syntax to ggplot and a similar logic to ArcGIS. You can add layers and slowly build up a map. 
+package is used to make the actual plots. {tmap} has a similar syntax to ggplot 
+and a similar logic to ArcGIS. You can add layers and slowly build up a map. 
 
 The script has two major sections.The first section defines a function to 
 rotate the points at each site a fixed number of degrees so they all end up 
@@ -20,15 +21,26 @@ actual plotting.
 ##############x
 
 #Setup
+Load packages
 ```{r}
-rm(list=ls(all=TRUE))
+#Unload loaded packages in R session
+library(pacman)
+p_loaded()
+p_unload(p_loaded(), character.only = T)
 
+#Load packages used in this script. Unloading then loading avoids potential
+#package conflicts
 library(tidyverse)
 library(here)
 library(sp)
 library(sf)
 library(tmap)
 library(RColorBrewer)
+```
+
+Load data objects
+```{r}
+rm(list=ls(all=TRUE))
 
 trees <- read_csv("./data/workflow/trees_sl.csv")
 trimb <- read_csv("./data/workflow/trimb_r_adjusted.csv")
@@ -39,7 +51,7 @@ site <- read_csv('./data/cleaned/site_data.csv')
 Format the trees dataset. 
 ```{r}
 #Convert to a sf, point feature object
-trees <- st_as_sf(trees, coords = c("X", "Y"), crs = 3005)
+trees <- st_as_sf(trees, coords = c("x_utm", "y_utm"), crs = 3005)
 
 class(trees)
 summary(trees)
@@ -50,13 +62,12 @@ st_crs(trees) #check CRS, should be BC Albers NAD83 = 3005
 #Sort by site_id
 trees <- trees %>% arrange(site_id)
 
-#Convert to factor: spp, status, hdm_pa, b_lc, broom_pa, stem_pa, crown class, 
-#crown_cond, outside_10
-trees <- trees %>% 
-  mutate(across(c(site_id, spp, status, hdm_pa, b_lc, broom_pa, broom_pos, 
-                  stem_pa, crown_class, crown_cond, outside_10, 
-                  assessed_by, tree_type, tree_type_2, dmr_f,
-                  sim_tree), ~ as.factor(.)))
+#Convert factor vars to factors: 
+trees <- trees %>% mutate(across(
+  c(site_id, tree_type, tree_type_2, sim_tree, spp, status, crown_class,
+    crown_class_2, crown_cond, hdm_pa, dmr_f, b_lc, broom_pa, broom_pos, 
+    stem_pa),
+  ~as.factor(.)))
 
 #Convert to integer: plot_id, dmrs
 trees <- trees %>% mutate(across(
@@ -68,6 +79,7 @@ Format the trimb dataset
 ```{r}
 class(trimb)
 summary(trimb)
+str(trimb)
 
 #Convert to sf object
 trimb <- st_as_sf(trimb, coords = c("plot_x_utm", "plot_y_utm"), crs=3005)
@@ -88,6 +100,13 @@ str(trimb$site_id)
 trimb <- trimb %>% mutate(pt_id = as.numeric(pt_id))
 ```
 
+Format transect dataset
+```{r}
+#Sort by site_id
+tran <- tran %>% arrange(site_id)
+```
+
+
 Format the site dataset
 ```{r}
 #Sort by site_id
@@ -96,14 +115,11 @@ site <- site %>% arrange(site_id)
 #Make factor variables factors: 
 site <- site %>% mutate(across(c(site_id, cluster, bec_sz), ~ as.factor(.)))
 
-#Calculate age (= years since harvest)
-site <- site %>% mutate(age = (2023-yr_har))
-
 #Create combined factor variable for plotting: site id + bec zone + age
 site <- site %>% 
   unite(col = bec_z_sz, sep = "", c("bec_z", "bec_sz"), remove = FALSE) %>% 
   unite(col = id_bec_ag_f, sep = ", ", 
-        c("site_id", "bec_z_sz", "age"), remove = FALSE) %>% 
+        c("site_id", "bec_z_sz", "yr_since_harv"), remove = FALSE) %>% 
   mutate(id_bec_ag_f = factor((id_bec_ag_f)))
 ```
 
@@ -114,19 +130,17 @@ horizontally. Code adapted with help from Chat GPT and from: https://stackoverfl
 ```{r}
 #Calculate vector with how many degrees each site needs to be rotated. Want 
 #each transect to be az = 90deg. 
-degrees <- trees %>% 
+degrees <- tran %>% 
   #define degree adjustment
   mutate(rot_deg = case_when(tr_az<90 ~ (-1)*(tr_az-90), 
                              tr_az>90 ~ (-1)*(tr_az-90))) %>% 
-  #filter to just regen trees
-  filter(str_detect(tree_id, "r")) %>%
   #get unique values for each site
   group_by(site_id) %>% 
   distinct(rot_deg) %>% 
   #pull out that vector of adjusment values for each site
   pull(rot_deg)
 
-#Define a list of centre coordinate corresponding to each site. Use the 
+#Define a list of centre coordinates corresponding to each site. Use the 
 #centroid of all the stem mapped trees.
 center_coords <- trees %>% group_by(site_id) %>% 
   summarise(geometry = st_centroid(st_combine(geometry))) %>% st_geometry()
@@ -165,27 +179,27 @@ trimb_rot <- Map(rotate_sf, pts_trimb, center_coords, degrees)
 #together into a dataframe of x, y coordinates. 
 #do.call applies function to each item in a list
 trees_rot <- do.call(rbind, trees_rot) 
-trees_rot <- as.data.frame(trees_rot) %>% rename(X=V1, Y=V2)
+trees_rot <- as.data.frame(trees_rot) %>% rename(x_utm_rot=V1, y_utm_rot=V2)
 
 trimb_rot <- do.call(rbind, trimb_rot) 
-trimb_rot <- as.data.frame(trimb_rot) %>% rename(X=V1, Y=V2)
+trimb_rot <- as.data.frame(trimb_rot) %>% rename(x_utm_rot=V1, y_utm_rot=V2)
 
 #Then associate back to the attribute data associated with each point
 trees_att <- trees %>% st_drop_geometry()
-trees_rot <- trees_att %>% mutate(X=trees_rot$X, Y=trees_rot$Y) 
-trees_rot <- st_as_sf(trees_rot, coords = c("X", "Y"), crs=3005)
+trees_rot <- trees_att %>% mutate(x_utm_rot=trees_rot$x_utm_rot, 
+                                  y_utm_rot=trees_rot$y_utm_rot) 
+trees_rot <- st_as_sf(trees_rot, coords = c("x_utm_rot", "y_utm_rot"), crs=3005)
 
 trimb_att <- trimb %>% st_drop_geometry()
-trimb_rot <- trimb_att %>% mutate(X=trimb_rot$X, Y=trimb_rot$Y) 
-trimb_rot <- st_as_sf(trimb_rot, coords = c("X", "Y"), crs=3005)
+trimb_rot <- trimb_att %>% mutate(x_utm_rot=trimb_rot$x_utm_rot, 
+                                  y_utm_rot=trimb_rot$y_utm_rot) 
+trimb_rot <- st_as_sf(trimb_rot, coords = c("x_utm_rot", "y_utm_rot"), crs=3005)
 ```
 
 #Make the stem maps
 ##Layer 1: tree points
 ```{r}
-#Filter out mature trees that were mapped outside of 10m. Only happened 
-#at a few sites. 
-trees_rot <- trees_rot %>% filter(outside_10 == "N" | is.na(outside_10))
+trees_rot
 ```
 
 ##Layer 2: trimble points
@@ -540,8 +554,9 @@ p <- tmap_mode("plot") +
             legend.title.size = 2,
             legend.text.size = 1.5,
             legend.bg.color = "white")
+p
 
-# pdf("./figures/trees_13Nov2024.pdf", width=8.5, height=11)
+# pdf("./figures/stem_map_dmr.pdf", width=8.5, height=11)
 # p 
 # dev.off()
 ```
@@ -609,7 +624,7 @@ trees_rot2 <- trees_rot %>%
   filter(site_id %in% sites2)
 ```
 
-##Thesis set 1
+##Set 1
 Plot first set
 ```{r}
 p <- tmap_mode("plot") +
@@ -677,13 +692,14 @@ p <- tmap_mode("plot") +
             legend.bg.alpha = 1,
             legend.frame = T,
             fontfamily = "Times New Roman")
+p
 
 #Save the plot
-# tmap_save(p, filename = "./figures/trees_sl_set1.svg", 
+# tmap_save(p, filename = "./figures/stem_map_set1_dmr_sl.svg",
 #           width = 6.5, height = 7.5, units = "in")
 ```
 
-##Thesis set 2
+##Set 2
 Plot the second set
 ```{r}
 p <- tmap_mode("plot") +
@@ -751,9 +767,10 @@ p <- tmap_mode("plot") +
             legend.bg.alpha = 1,
             legend.frame = T,
             fontfamily = "Times New Roman")
+p
 
 #Save the plot
-# tmap_save(p, filename = "./figures/trees_sl_set2.svg", 
+# tmap_save(p, filename = "./figures/stem_map_set2_dmr_sl.svg",
 #           width = 6.5, height = 7.5, units = "in")
 ```
 
@@ -872,9 +889,10 @@ p <- tmap_mode("plot") +
             legend.frame = T,
             legend.outside.size = 0.3,
             fontfamily = "Times New Roman")
+p
 
 #Save the plot
-# tmap_save(p, filename = "./figures/trees_sl_defence.svg",
+# tmap_save(p, filename = "./figures/stem_map_defence_dmr_sl.svg",
 #           width = 30, height = 15, units = "cm")
 ```
 
@@ -890,10 +908,9 @@ tran_pts <- tran_pts %>% filter(site_id %in% rep_sites)
 dist_mark <- dist_mark %>% filter(site_id %in% rep_sites)
 trees_rot <- trees_rot %>% filter(site_id %in% rep_sites)
 
-pdf(here("./figures/trees_wifdwc.pdf"), width = 11, height = 4)
 tmap_mode("plot")
-#define map extent using site footprints
-tm_shape(adjusted_fp_rot, is.master = TRUE) + #define map extent using site footprints
+
+p <- tm_shape(adjusted_fp_rot, is.master = TRUE) + #define map extent using site footprints
   tm_facets(by = "id_bec_ag_f", free.scales = FALSE, free.coords = TRUE, ncol = 3) +
   tm_polygons(col="white", border.col = NULL) +
 #add edge lines
@@ -908,7 +925,7 @@ tm_shape(tran_pts) +
 tm_shape(dist_mark) + tm_lines(lty = 3, alpha = 0.7) +
 #add tree points
   tm_shape(trees_rot) + 
-  tm_symbols(size = "dbh", scale = 1.5, col="dmr_f_graph", palette = dmr_colour, 
+  tm_symbols(size = "dbh", scale = 1.5, col="dmr_f_graph", palette = color_dmr, 
              border.lwd = NA, title.size = "DBH (cm)", title.col = "Modified DMR", 
              legend.size.is.portrait = TRUE, legend.col.is.portrait = TRUE) + 
   tm_layout(legend.outside=TRUE, 
@@ -920,6 +937,8 @@ tm_shape(dist_mark) + tm_lines(lty = 3, alpha = 0.7) +
             legend.title.size = 1.5,
             legend.text.size = 1,
             panel.label.size = 1.5)
-dev.off()
-```
+p
 
+# tmap_save(p, filename = "./figures/stem_map_wifdwc.pdf",
+#           width = 11, height = 4, units = "in")
+```
